@@ -12,8 +12,8 @@ export function LandingPage() {
             <Link to="/dashboard" className="btn btn-outline-light btn-sm">
               Ver demo
             </Link>
-            <Link to="/dashboard" className="btn btn-light btn-sm">
-              Empezar
+            <Link to="/login" className="btn btn-light btn-sm">
+              Log In
             </Link>
           </div>
         </nav>

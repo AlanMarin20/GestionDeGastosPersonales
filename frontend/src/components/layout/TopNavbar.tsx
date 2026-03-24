@@ -1,4 +1,4 @@
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
 
 type TopNavbarProps = {
   userName?: string;
@@ -14,6 +14,7 @@ const PAGE_TITLE_BY_PATH: Record<string, string> = {
 
 export function TopNavbar({ userName = 'Invitado' }: TopNavbarProps) {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   
   let currentPage = PAGE_TITLE_BY_PATH[pathname] ?? 'Dashboard';
   
@@ -22,12 +23,26 @@ export function TopNavbar({ userName = 'Invitado' }: TopNavbarProps) {
     currentPage = 'Detalle Cliente';
   }
 
+  const handleLogoClick = () => {
+    // Si estamos en detalle de cliente, volver a dashboard del asesor
+    if (pathname.startsWith('/cliente/')) {
+      navigate('/dashboard/asesor');
+    } else {
+      // Si estamos en cualquier otro lado, volver a dashboard del usuario
+      navigate('/dashboard');
+    }
+  };
+
   return (
     <nav className="navbar navbar-expand-lg bg-primary border-bottom shadow-sm">
       <div className="container-fluid px-3 px-md-4">
-        <span className="navbar-brand fw-semibold mb-0 text-white">
+        <button 
+          onClick={handleLogoClick}
+          className="navbar-brand fw-semibold mb-0 text-white bg-transparent border-0 p-0"
+          style={{ cursor: 'pointer' }}
+        >
           Gestión de Gastos Personales
-        </span>
+        </button>
 
         <div className="ms-auto d-flex align-items-center gap-2">
           <span className="badge text-bg-light border text-secondary">

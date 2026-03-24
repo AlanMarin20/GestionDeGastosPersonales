@@ -4,6 +4,7 @@ import { DashboardPage } from './pages/DashboardPage'
 import { DashboardAsesorPage } from './pages/DashboardAsesorPage'
 import { DetalleClientePage } from './pages/DetalleClientePage'
 import { LandingPage } from './pages/LandingPage'
+import { LoginPage } from './pages/LoginPage'
 import { EditarPerfilPage } from './pages/EditarPerfilPage'
 import { ConfiguracionCuentaPage } from './pages/ConfiguracionCuentaPage'
 import { PreferenciaNotificacionesPage } from './pages/PreferenciaNotificacionesPage'
@@ -13,6 +14,7 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
+      <Route path="/login" element={<LoginPage />} />
 
       <Route
         path="/dashboard"

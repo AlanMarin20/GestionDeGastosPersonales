@@ -27,6 +27,8 @@ export function DashboardPage() {
     { id: '3', descripcion: 'Alquiler', monto: 1200, categoria: 'Vivienda', fecha: '20 mar' },
   ]);
 
+  const [mostrarTodosGastos, setMostrarTodosGastos] = useState(false);
+
   const [ahorros, setAhorros] = useState<Ahorro[]>([
     { id: '1', nombre: 'Vacaciones', monto: 1500, meta: 3000 },
     { id: '2', nombre: 'Auto Nuevo', monto: 850, meta: 2500 },
@@ -60,6 +62,8 @@ export function DashboardPage() {
   };
 
   const totalAhorros = ahorros.reduce((sum, ahorro) => sum + ahorro.monto, 0);
+
+  const gastosVisibles = mostrarTodosGastos ? gastos : gastos.slice(0, 10);
 
   const pieData = {
     labels: ['Comida', 'Vivienda', 'Transporte', 'Ocio', 'Otros'],
@@ -194,7 +198,7 @@ export function DashboardPage() {
                 {gastos.length === 0 ? (
                   <p className="text-muted small">No hay gastos registrados</p>
                 ) : (
-                  gastos.map(gasto => (
+                  gastosVisibles.map(gasto => (
                     <div key={gasto.id} className="border-bottom pb-2 mb-2">
                       <div className="d-flex justify-content-between align-items-start">
                         <div>
@@ -210,6 +214,24 @@ export function DashboardPage() {
                       </div>
                     </div>
                   ))
+                )}
+              </div>
+              <div className="mt-3">
+                {!mostrarTodosGastos && gastos.length > 0 && (
+                  <button
+                    className="btn btn-sm btn-outline-primary w-100"
+                    onClick={() => setMostrarTodosGastos(true)}
+                  >
+                    Ver todos los gastos
+                  </button>
+                )}
+                {mostrarTodosGastos && (
+                  <button
+                    className="btn btn-sm btn-outline-secondary w-100"
+                    onClick={() => setMostrarTodosGastos(false)}
+                  >
+                    Mostrar menos
+                  </button>
                 )}
               </div>
             </div>

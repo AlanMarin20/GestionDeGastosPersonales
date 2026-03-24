@@ -200,7 +200,7 @@ export function DetalleClientePage() {
                 ))}
               </div>
               <div className="mt-3">
-                {!mostrarTodosGastos && gastos.length > 10 && (
+                {!mostrarTodosGastos && gastos.length > 0 && (
                   <button
                     className="btn btn-sm btn-outline-primary w-100"
                     onClick={() => setMostrarTodosGastos(true)}
