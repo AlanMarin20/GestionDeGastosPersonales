@@ -1,4 +1,5 @@
 import { AppLayout } from './components/layout/AppLayout'
+import { DashboardLayout } from './components/layout/DashboardLayout'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { CategoriesPage } from './pages/CategoriesPage'
 import { DashboardPage } from './pages/DashboardPage'
@@ -17,9 +18,9 @@ function App() {
       <Route
         path="/dashboard"
         element={
-          <AppLayout>
+          <DashboardLayout>
             <DashboardPage />
-          </AppLayout>
+          </DashboardLayout>
         }
       />
       <Route

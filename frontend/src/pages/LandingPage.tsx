@@ -3,16 +3,16 @@ import { Link } from 'react-router-dom';
 export function LandingPage() {
   return (
     <div className="bg-body-tertiary min-vh-100 d-flex flex-column">
-      <header className="border-bottom bg-white">
+      <header className="border-bottom bg-primary">
         <nav className="container navbar navbar-expand-lg py-3">
-          <span className="navbar-brand fw-semibold mb-0">
+          <span className="navbar-brand fw-semibold mb-0 text-white">
             Gestión de Gastos Personales
           </span>
           <div className="ms-auto d-flex gap-2">
-            <Link to="/dashboard" className="btn btn-outline-secondary btn-sm">
+            <Link to="/dashboard" className="btn btn-outline-light btn-sm">
               Ver demo
             </Link>
-            <Link to="/dashboard" className="btn btn-primary btn-sm">
+            <Link to="/dashboard" className="btn btn-light btn-sm">
               Empezar
             </Link>
           </div>

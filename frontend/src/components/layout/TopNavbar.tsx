@@ -18,9 +18,9 @@ export function TopNavbar({ userName = 'Invitado' }: TopNavbarProps) {
   const currentPage = PAGE_TITLE_BY_PATH[pathname] ?? 'Dashboard';
 
   return (
-    <nav className="navbar navbar-expand-lg bg-white border-bottom shadow-sm">
+    <nav className="navbar navbar-expand-lg bg-primary border-bottom shadow-sm">
       <div className="container-fluid px-3 px-md-4">
-        <span className="navbar-brand fw-semibold mb-0">
+        <span className="navbar-brand fw-semibold mb-0 text-white">
           Gestión de Gastos Personales
         </span>
 
@@ -28,9 +28,24 @@ export function TopNavbar({ userName = 'Invitado' }: TopNavbarProps) {
           <span className="badge text-bg-light border text-secondary">
             {currentPage}
           </span>
-          <button type="button" className="btn btn-outline-secondary btn-sm">
-            {userName}
-          </button>
+          <div className="dropdown">
+            <button 
+              className="btn btn-light btn-sm dropdown-toggle" 
+              type="button" 
+              id="profileDropdown" 
+              data-bs-toggle="dropdown" 
+              aria-expanded="false"
+            >
+              Perfil
+            </button>
+            <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+              <li><a className="dropdown-item" href="#ver-perfil">Ver Mi Perfil</a></li>
+              <li><a className="dropdown-item" href="#configuracion">Configuración de Cuenta</a></li>
+              <li><a className="dropdown-item" href="#preferencias">Preferencias de Notificación</a></li>
+              <li><hr className="dropdown-divider" /></li>
+              <li><a className="dropdown-item" href="#cerrar">Cerrar Sesión</a></li>
+            </ul>
+          </div>
         </div>
       </div>
     </nav>
