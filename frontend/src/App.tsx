@@ -1,13 +1,12 @@
-import { AppLayout } from './components/layout/AppLayout'
 import { DashboardLayout } from './components/layout/DashboardLayout'
 import { Navigate, Route, Routes } from 'react-router-dom'
-import { CategoriesPage } from './pages/CategoriesPage'
 import { DashboardPage } from './pages/DashboardPage'
-import { ExpensesPage } from './pages/ExpensesPage'
-import { IncomesPage } from './pages/IncomesPage'
+import { DashboardAsesorPage } from './pages/DashboardAsesorPage'
+import { DetalleClientePage } from './pages/DetalleClientePage'
 import { LandingPage } from './pages/LandingPage'
-import { ReportsPage } from './pages/ReportsPage'
-import { SettingsPage } from './pages/SettingsPage'
+import { EditarPerfilPage } from './pages/EditarPerfilPage'
+import { ConfiguracionCuentaPage } from './pages/ConfiguracionCuentaPage'
+import { PreferenciaNotificacionesPage } from './pages/PreferenciaNotificacionesPage'
 import './App.css'
 
 function App() {
@@ -23,44 +22,49 @@ function App() {
           </DashboardLayout>
         }
       />
+
       <Route
-        path="/categorias"
+        path="/dashboard/asesor"
         element={
-          <AppLayout>
-            <CategoriesPage />
-          </AppLayout>
+          <DashboardLayout>
+            <DashboardAsesorPage />
+          </DashboardLayout>
         }
       />
+
       <Route
-        path="/ingresos"
+        path="/cliente/:clienteId"
         element={
-          <AppLayout>
-            <IncomesPage />
-          </AppLayout>
+          <DashboardLayout>
+            <DetalleClientePage />
+          </DashboardLayout>
         }
       />
+
       <Route
-        path="/gastos"
+        path="/perfil/editar"
         element={
-          <AppLayout>
-            <ExpensesPage />
-          </AppLayout>
+          <DashboardLayout>
+            <EditarPerfilPage />
+          </DashboardLayout>
         }
       />
+
       <Route
-        path="/reportes"
+        path="/perfil/configuracion"
         element={
-          <AppLayout>
-            <ReportsPage />
-          </AppLayout>
+          <DashboardLayout>
+            <ConfiguracionCuentaPage />
+          </DashboardLayout>
         }
       />
+
       <Route
-        path="/configuracion"
+        path="/perfil/notificaciones"
         element={
-          <AppLayout>
-            <SettingsPage />
-          </AppLayout>
+          <DashboardLayout>
+            <PreferenciaNotificacionesPage />
+          </DashboardLayout>
         }
       />
 

@@ -1,4 +1,4 @@
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 
 type TopNavbarProps = {
   userName?: string;
@@ -6,16 +6,21 @@ type TopNavbarProps = {
 
 const PAGE_TITLE_BY_PATH: Record<string, string> = {
   '/dashboard': 'Dashboard',
-  '/categorias': 'Categorías',
-  '/ingresos': 'Ingresos',
-  '/gastos': 'Gastos',
-  '/reportes': 'Reportes',
-  '/configuracion': 'Configuración',
+  '/dashboard/asesor': 'Dashboard Asesor',
+  '/perfil/editar': 'Editar Perfil',
+  '/perfil/configuracion': 'Configuración de Cuenta',
+  '/perfil/notificaciones': 'Preferencias de Notificación',
 };
 
 export function TopNavbar({ userName = 'Invitado' }: TopNavbarProps) {
   const { pathname } = useLocation();
-  const currentPage = PAGE_TITLE_BY_PATH[pathname] ?? 'Dashboard';
+  
+  let currentPage = PAGE_TITLE_BY_PATH[pathname] ?? 'Dashboard';
+  
+  // Manejo de rutas dinámicas
+  if (pathname.startsWith('/cliente/')) {
+    currentPage = 'Detalle Cliente';
+  }
 
   return (
     <nav className="navbar navbar-expand-lg bg-primary border-bottom shadow-sm">
@@ -39,11 +44,13 @@ export function TopNavbar({ userName = 'Invitado' }: TopNavbarProps) {
               Perfil
             </button>
             <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
-              <li><a className="dropdown-item" href="#ver-perfil">Ver Mi Perfil</a></li>
-              <li><a className="dropdown-item" href="#configuracion">Configuración de Cuenta</a></li>
-              <li><a className="dropdown-item" href="#preferencias">Preferencias de Notificación</a></li>
+              <li><Link className="dropdown-item" to="/perfil/editar">Editar Perfil</Link></li>
+              <li><Link className="dropdown-item" to="/perfil/configuracion">Configuración de Cuenta</Link></li>
+              <li><Link className="dropdown-item" to="/perfil/notificaciones">Preferencias de Notificación</Link></li>
               <li><hr className="dropdown-divider" /></li>
-              <li><a className="dropdown-item" href="#cerrar">Cerrar Sesión</a></li>
+              <li><Link className="dropdown-item" to="/dashboard/asesor">Cambiar Rol (Asesor)</Link></li>
+              <li><hr className="dropdown-divider" /></li>
+              <li><a className="dropdown-item" href="/">Cerrar Sesión</a></li>
             </ul>
           </div>
         </div>
