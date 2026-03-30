@@ -1,5 +1,14 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ExpensePieChart } from '../components/dashboard/ExpensePieChart';
+import {
+  LastSixMonthsExpenses,
+  type MonthlyExpense,
+} from '../components/dashboard/LastSixMonthsExpenses';
+import {
+  RecentExpensesList,
+  type RecentExpense,
+} from '../components/dashboard/RecentExpensesList';
 
 type ClienteAsesor = {
   id: string;
@@ -44,6 +53,24 @@ export function DashboardAsesorPage() {
     nombre: '',
     presupuesto: '',
   });
+  const [nuevaRecomendacion, setNuevaRecomendacion] = useState('');
+
+  const expenses: RecentExpense[] = [
+    { id: 'a1', descripcion: 'Supermercado', monto: 230.25, categoria: 'Comida', fecha: '25 mar' },
+    { id: 'a2', descripcion: 'Internet', monto: 45.0, categoria: 'Servicios', fecha: '24 mar' },
+    { id: 'a3', descripcion: 'Taxi', monto: 18.5, categoria: 'Transporte', fecha: '23 mar' },
+    { id: 'a4', descripcion: 'Farmacia', monto: 39.9, categoria: 'Salud', fecha: '22 mar' },
+    { id: 'a5', descripcion: 'Café', monto: 8.75, categoria: 'Comida', fecha: '22 mar' },
+  ];
+
+  const monthlyExpenses: MonthlyExpense[] = [
+    { mes: 'Oct', monto: 47200 },
+    { mes: 'Nov', monto: 48900 },
+    { mes: 'Dic', monto: 53100 },
+    { mes: 'Ene', monto: 55600 },
+    { mes: 'Feb', monto: 54400 },
+    { mes: 'Mar', monto: 59800 },
+  ];
 
   const clientesFiltrados = clientes.filter(c =>
     c.nombre.toLowerCase().includes(busqueda.toLowerCase())
@@ -91,6 +118,17 @@ export function DashboardAsesorPage() {
     }
   };
 
+  const handleAgregarRecomendacion = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!nuevaRecomendacion.trim()) {
+      alert('Escribe una recomendación');
+      return;
+    }
+
+    alert('Recomendación enviada correctamente');
+    setNuevaRecomendacion('');
+  };
+
   return (
     <>
       {/* Estadísticas generales */}
@@ -131,6 +169,51 @@ export function DashboardAsesorPage() {
               onChange={(e) => setBusqueda(e.target.value)}
             />
           </div>
+        </div>
+      </section>
+
+      <section className="row g-3 g-md-4 mb-4">
+        <div className="col-12 col-lg-4">
+          <ExpensePieChart
+            title="Categorías de Gastos (Promedio Clientes)"
+            labels={['Comida', 'Vivienda', 'Transporte', 'Ocio', 'Otros']}
+            values={[30, 28, 17, 11, 14]}
+          />
+        </div>
+        <div className="col-12 col-lg-4">
+          <RecentExpensesList title="Últimos Gastos" expenses={expenses} />
+        </div>
+        <div className="col-12 col-lg-4">
+          <LastSixMonthsExpenses title="Gasto de los Últimos 6 Meses" months={monthlyExpenses} />
+        </div>
+      </section>
+
+      <section className="row g-3 g-md-4 mb-4">
+        <div className="col-12">
+          <article className="card border-0 shadow-sm">
+            <div className="card-body">
+              <h5 className="card-title mb-3">Agregar Recomendación</h5>
+              <form onSubmit={handleAgregarRecomendacion}>
+                <div className="row g-3">
+                  <div className="col-12">
+                    <textarea
+                      id="textoRecomendacion"
+                      className="form-control"
+                      rows={3}
+                      placeholder="Escribe una recomendación personalizada para el cliente..."
+                      value={nuevaRecomendacion}
+                      onChange={(e) => setNuevaRecomendacion(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <div className="mt-3 d-flex justify-content-end">
+                  <button type="submit" className="btn btn-primary">
+                    Enviar Recomendación
+                  </button>
+                </div>
+              </form>
+            </div>
+          </article>
         </div>
       </section>
 

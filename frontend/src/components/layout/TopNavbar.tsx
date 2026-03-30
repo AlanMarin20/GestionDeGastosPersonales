@@ -1,4 +1,5 @@
 import { useLocation, Link, useNavigate } from 'react-router-dom';
+import { AppHeader } from './AppHeader';
 
 type TopNavbarProps = {
   userName?: string;
@@ -15,6 +16,9 @@ const PAGE_TITLE_BY_PATH: Record<string, string> = {
 export function TopNavbar({ userName = 'Invitado' }: TopNavbarProps) {
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  const isAsesorContext = pathname.startsWith('/dashboard/asesor') || pathname.startsWith('/cliente/');
+  const roleSwitchPath = isAsesorContext ? '/dashboard' : '/dashboard/asesor';
+  const roleSwitchLabel = isAsesorContext ? 'Cambiar Rol (Usuario)' : 'Cambiar Rol (Asesor)';
   
   let currentPage = PAGE_TITLE_BY_PATH[pathname] ?? 'Dashboard';
   
@@ -34,26 +38,19 @@ export function TopNavbar({ userName = 'Invitado' }: TopNavbarProps) {
   };
 
   return (
-    <nav className="navbar navbar-expand-lg bg-primary border-bottom shadow-sm">
-      <div className="container-fluid px-3 px-md-4">
-        <button 
-          onClick={handleLogoClick}
-          className="navbar-brand fw-semibold mb-0 text-white bg-transparent border-0 p-0"
-          style={{ cursor: 'pointer' }}
-        >
-          Gestión de Gastos Personales
-        </button>
-
-        <div className="ms-auto d-flex align-items-center gap-2">
+    <AppHeader
+      onBrandClick={handleLogoClick}
+      rightContent={(
+        <>
           <span className="badge text-bg-light border text-secondary">
             {currentPage}
           </span>
           <div className="dropdown">
-            <button 
-              className="btn btn-light btn-sm dropdown-toggle" 
-              type="button" 
-              id="profileDropdown" 
-              data-bs-toggle="dropdown" 
+            <button
+              className="btn btn-light btn-sm dropdown-toggle"
+              type="button"
+              id="profileDropdown"
+              data-bs-toggle="dropdown"
               aria-expanded="false"
             >
               Perfil
@@ -63,13 +60,13 @@ export function TopNavbar({ userName = 'Invitado' }: TopNavbarProps) {
               <li><Link className="dropdown-item" to="/perfil/configuracion">Configuración de Cuenta</Link></li>
               <li><Link className="dropdown-item" to="/perfil/notificaciones">Preferencias de Notificación</Link></li>
               <li><hr className="dropdown-divider" /></li>
-              <li><Link className="dropdown-item" to="/dashboard/asesor">Cambiar Rol (Asesor)</Link></li>
+              <li><Link className="dropdown-item" to={roleSwitchPath}>{roleSwitchLabel}</Link></li>
               <li><hr className="dropdown-divider" /></li>
               <li><a className="dropdown-item" href="/">Cerrar Sesión</a></li>
             </ul>
           </div>
-        </div>
-      </div>
-    </nav>
+        </>
+      )}
+    />
   );
 }

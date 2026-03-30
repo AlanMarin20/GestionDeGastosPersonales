@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AppCard } from '../components/common/AppCard';
+import { PageSectionHeader } from '../components/common/PageSectionHeader';
 
 export function EditarPerfilPage() {
   const navigate = useNavigate();
@@ -57,20 +59,16 @@ export function EditarPerfilPage() {
 
   return (
     <div className="container py-4">
-      {/* Header */}
-      <div className="mb-4">
-        <button onClick={() => navigate(-1)} className="btn btn-outline-secondary btn-sm mb-3">
-          ← Volver
-        </button>
-        <h1 className="h3">Editar Perfil</h1>
-        <p className="text-muted">Actualiza tu información personal</p>
-      </div>
+      <PageSectionHeader
+        title="Editar Perfil"
+        subtitle="Actualiza tu información personal"
+        onBack={() => navigate(-1)}
+      />
 
       <div className="row">
         {/* Columna izquierda: Imagen de perfil */}
         <div className="col-12 col-md-4 mb-4">
-          <div className="card border-0 shadow-sm">
-            <div className="card-body text-center">
+          <AppCard bodyClassName="text-center">
               <div className="mb-3">
                 <img
                   src={imagePreview}
@@ -91,15 +89,13 @@ export function EditarPerfilPage() {
                 accept="image/*"
                 onChange={handleImageChange}
               />
-            </div>
-          </div>
+          </AppCard>
         </div>
 
         {/* Columna derecha: Formularios */}
         <div className="col-12 col-md-8">
           {/* Formulario de información personal */}
-          <div className="card border-0 shadow-sm mb-3">
-            <div className="card-body">
+          <AppCard className="mb-3">
               <h5 className="card-title mb-3">Información Personal</h5>
               <form onSubmit={handleSaveProfile}>
                 <div className="mb-3">
@@ -132,12 +128,10 @@ export function EditarPerfilPage() {
                   Guardar Cambios
                 </button>
               </form>
-            </div>
-          </div>
+          </AppCard>
 
           {/* Formulario de cambio de contraseña */}
-          <div className="card border-0 shadow-sm">
-            <div className="card-body">
+          <AppCard>
               <h5 className="card-title mb-3">Cambiar Contraseña</h5>
               <form onSubmit={handleChangePassword}>
                 <div className="mb-3">
@@ -183,8 +177,7 @@ export function EditarPerfilPage() {
                   Actualizar Contraseña
                 </button>
               </form>
-            </div>
-          </div>
+          </AppCard>
         </div>
       </div>
     </div>

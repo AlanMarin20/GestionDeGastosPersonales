@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AppCard } from '../components/common/AppCard';
+import { NotificationToggleItem } from '../components/common/NotificationToggleItem';
+import { PageSectionHeader } from '../components/common/PageSectionHeader';
 
 export function PreferenciaNotificacionesPage() {
   const navigate = useNavigate();
@@ -29,193 +32,113 @@ export function PreferenciaNotificacionesPage() {
 
   return (
     <div className="container py-4">
-      {/* Header */}
-      <div className="mb-4">
-        <button onClick={() => navigate(-1)} className="btn btn-outline-secondary btn-sm mb-3">
-          ← Volver
-        </button>
-        <h1 className="h3">Preferencias de Notificación</h1>
-        <p className="text-muted">Controla cómo y cuándo recibirás notificaciones</p>
-      </div>
+      <PageSectionHeader
+        title="Preferencias de Notificación"
+        subtitle="Controla cómo y cuándo recibirás notificaciones"
+        onBack={() => navigate(-1)}
+      />
 
       {/* Tipos de Notificaciones */}
-      <div className="card border-0 shadow-sm mb-4">
-        <div className="card-body">
+      <AppCard className="mb-4">
           <h5 className="card-title mb-3">Notificaciones de Gastos</h5>
 
           <div className="alert alert-info small mb-4" role="alert">
             Recibe alertas sobre tus gastos y presupuesto
           </div>
 
-          <div className="form-check form-switch mb-3">
-            <input
-              className="form-check-input"
-              type="checkbox"
-              id="gastosAltos"
-              checked={preferences.gastosAltos}
-              onChange={() => handleToggle('gastosAltos')}
-            />
-            <label className="form-check-label" htmlFor="gastosAltos">
-              <strong>Gastos Inusualmente Altos</strong>
-              <br />
-              <small className="text-muted">
-                Notificación cuando registres un gasto mayor a tu promedio
-              </small>
-            </label>
-          </div>
+          <NotificationToggleItem
+            id="gastosAltos"
+            checked={preferences.gastosAltos}
+            onChange={() => handleToggle('gastosAltos')}
+            title="Gastos Inusualmente Altos"
+            description="Notificación cuando registres un gasto mayor a tu promedio"
+          />
 
           <hr />
 
-          <div className="form-check form-switch mb-3">
-            <input
-              className="form-check-input"
-              type="checkbox"
-              id="presupuestoExcedido"
-              checked={preferences.presupuestoExcedido}
-              onChange={() => handleToggle('presupuestoExcedido')}
-            />
-            <label className="form-check-label" htmlFor="presupuestoExcedido">
-              <strong>Presupuesto Excedido</strong>
-              <br />
-              <small className="text-muted">
-                Alerta cuando te acerques o excedas tu presupuesto mensual
-              </small>
-            </label>
-          </div>
+          <NotificationToggleItem
+            id="presupuestoExcedido"
+            checked={preferences.presupuestoExcedido}
+            onChange={() => handleToggle('presupuestoExcedido')}
+            title="Presupuesto Excedido"
+            description="Alerta cuando te acerques o excedas tu presupuesto mensual"
+          />
 
           <hr />
 
-          <div className="form-check form-switch mb-3">
-            <input
-              className="form-check-input"
-              type="checkbox"
-              id="recordatorioAhorros"
-              checked={preferences.recordatorioAhorros}
-              onChange={() => handleToggle('recordatorioAhorros')}
-            />
-            <label className="form-check-label" htmlFor="recordatorioAhorros">
-              <strong>Recordatorio de Ahorros</strong>
-              <br />
-              <small className="text-muted">
-                Recordatorios semanales para cumplir metas de ahorro
-              </small>
-            </label>
-          </div>
-        </div>
-      </div>
+          <NotificationToggleItem
+            id="recordatorioAhorros"
+            checked={preferences.recordatorioAhorros}
+            onChange={() => handleToggle('recordatorioAhorros')}
+            title="Recordatorio de Ahorros"
+            description="Recordatorios semanales para cumplir metas de ahorro"
+          />
+      </AppCard>
 
       {/* Notificaciones Promocionales y de Sistema */}
-      <div className="card border-0 shadow-sm mb-4">
-        <div className="card-body">
+      <AppCard className="mb-4">
           <h5 className="card-title mb-3">Otras Notificaciones</h5>
 
-          <div className="form-check form-switch mb-3">
-            <input
-              className="form-check-input"
-              type="checkbox"
-              id="ofertasEspeciales"
-              checked={preferences.ofertasEspeciales}
-              onChange={() => handleToggle('ofertasEspeciales')}
-            />
-            <label className="form-check-label" htmlFor="ofertasEspeciales">
-              <strong>Ofertas y Promociones</strong>
-              <br />
-              <small className="text-muted">
-                Recibe información sobre nuevas funciones y ofertas especiales
-              </small>
-            </label>
-          </div>
+          <NotificationToggleItem
+            id="ofertasEspeciales"
+            checked={preferences.ofertasEspeciales}
+            onChange={() => handleToggle('ofertasEspeciales')}
+            title="Ofertas y Promociones"
+            description="Recibe información sobre nuevas funciones y ofertas especiales"
+          />
 
           <hr />
 
-          <div className="form-check form-switch mb-3">
-            <input
-              className="form-check-input"
-              type="checkbox"
-              id="reporteMensual"
-              checked={preferences.reporteMensual}
-              onChange={() => handleToggle('reporteMensual')}
-            />
-            <label className="form-check-label" htmlFor="reporteMensual">
-              <strong>Reporte Mensual</strong>
-              <br />
-              <small className="text-muted">
-                Resumen de tus gastos e ingresos al final de mes
-              </small>
-            </label>
-          </div>
+          <NotificationToggleItem
+            id="reporteMensual"
+            checked={preferences.reporteMensual}
+            onChange={() => handleToggle('reporteMensual')}
+            title="Reporte Mensual"
+            description="Resumen de tus gastos e ingresos al final de mes"
+          />
 
           <hr />
 
-          <div className="form-check form-switch">
-            <input
-              className="form-check-input"
-              type="checkbox"
-              id="alertasSeguridad"
-              checked={preferences.alertasSeguridad}
-              onChange={() => handleToggle('alertasSeguridad')}
-              disabled
-            />
-            <label className="form-check-label" htmlFor="alertasSeguridad">
-              <strong>Alertas de Seguridad</strong>
-              <br />
-              <small className="text-muted">
-                Notificaciones sobre cambios en tu cuenta (siempre activas)
-              </small>
-            </label>
-          </div>
-        </div>
-      </div>
+          <NotificationToggleItem
+            id="alertasSeguridad"
+            checked={preferences.alertasSeguridad}
+            onChange={() => handleToggle('alertasSeguridad')}
+            title="Alertas de Seguridad"
+            description="Notificaciones sobre cambios en tu cuenta (siempre activas)"
+            disabled
+            className=""
+          />
+      </AppCard>
 
       {/* Canales de Notificación */}
-      <div className="card border-0 shadow-sm mb-4">
-        <div className="card-body">
+      <AppCard className="mb-4">
           <h5 className="card-title mb-3">Canales de Notificación</h5>
 
           <p className="text-muted small mb-3">Elige cómo prefieres recibir notificaciones</p>
 
-          <div className="form-check form-switch mb-3">
-            <input
-              className="form-check-input"
-              type="checkbox"
-              id="email"
-              checked={preferences.email}
-              onChange={() => handleToggle('email')}
-            />
-            <label className="form-check-label" htmlFor="email">
-              <strong>Correo Electrónico</strong>
-            </label>
-          </div>
+          <NotificationToggleItem
+            id="email"
+            checked={preferences.email}
+            onChange={() => handleToggle('email')}
+            title="Correo Electrónico"
+          />
 
-          <div className="form-check form-switch mb-3">
-            <input
-              className="form-check-input"
-              type="checkbox"
-              id="push"
-              checked={preferences.push}
-              onChange={() => handleToggle('push')}
-            />
-            <label className="form-check-label" htmlFor="push">
-              <strong>Notificaciones Push</strong>
-            </label>
-          </div>
+          <NotificationToggleItem
+            id="push"
+            checked={preferences.push}
+            onChange={() => handleToggle('push')}
+            title="Notificaciones Push"
+          />
 
-          <div className="form-check form-switch">
-            <input
-              className="form-check-input"
-              type="checkbox"
-              id="sms"
-              checked={preferences.sms}
-              onChange={() => handleToggle('sms')}
-            />
-            <label className="form-check-label" htmlFor="sms">
-              <strong>SMS</strong>
-              <br />
-              <small className="text-muted">Puede aplicarse costo adicional según tu plan</small>
-            </label>
-          </div>
-        </div>
-      </div>
+          <NotificationToggleItem
+            id="sms"
+            checked={preferences.sms}
+            onChange={() => handleToggle('sms')}
+            title="SMS"
+            description="Puede aplicarse costo adicional según tu plan"
+            className=""
+          />
+      </AppCard>
 
       {/* Botón de guardado */}
       <div className="d-flex gap-2">

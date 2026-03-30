@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AppHeader } from '../components/layout/AppHeader';
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -14,26 +15,15 @@ export function LoginPage() {
   };
 
   return (
-    <div className="bg-body-tertiary min-vh-100 d-flex flex-column">
-      {/* Header */}
-      <header className="border-bottom bg-primary">
-        <nav className="container navbar navbar-expand-lg py-3">
-          <span 
-            onClick={() => navigate('/')} 
-            className="navbar-brand fw-semibold mb-0 text-white"
-            style={{ cursor: 'pointer' }}
-          >
-            Gestión de Gastos Personales
-          </span>
-        </nav>
-      </header>
+    <div className="login-page min-vh-100 d-flex flex-column">
+      <AppHeader onBrandClick={() => navigate('/')} />
 
       {/* Main content */}
       <main className="flex-grow-1 d-flex align-items-center justify-content-center py-5">
         <div className="container">
           <div className="row justify-content-center">
             <div className="col-12 col-sm-10 col-md-8 col-lg-5">
-              <div className="card border-0 shadow-sm">
+              <div className="card border-0 shadow-sm login-content-card">
                 <div className="card-body p-4 p-md-5">
                   <h1 className="h3 mb-4 text-center">Iniciar Sesión</h1>
 

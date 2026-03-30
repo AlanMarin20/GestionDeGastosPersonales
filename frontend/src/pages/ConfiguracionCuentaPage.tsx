@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AppCard } from '../components/common/AppCard';
+import { PageSectionHeader } from '../components/common/PageSectionHeader';
 
 export function ConfiguracionCuentaPage() {
   const navigate = useNavigate();
@@ -41,20 +43,16 @@ export function ConfiguracionCuentaPage() {
 
   return (
     <div className="container py-4">
-      {/* Header */}
-      <div className="mb-4">
-        <button onClick={() => navigate(-1)} className="btn btn-outline-secondary btn-sm mb-3">
-          ← Volver
-        </button>
-        <h1 className="h3">Configuración de Cuenta</h1>
-        <p className="text-muted">Administra tu cuenta y preferencias</p>
-      </div>
+      <PageSectionHeader
+        title="Configuración de Cuenta"
+        subtitle="Administra tu cuenta y preferencias"
+        onBack={() => navigate(-1)}
+      />
 
       <div className="row">
         {/* Configuración General */}
         <div className="col-12 col-lg-6 mb-4">
-          <div className="card border-0 shadow-sm">
-            <div className="card-body">
+          <AppCard>
               <h5 className="card-title mb-3">Configuración General</h5>
 
               {/* Moneda */}
@@ -110,14 +108,12 @@ export function ConfiguracionCuentaPage() {
               <button className="btn btn-primary" onClick={() => alert('Cambios guardados')}>
                 Guardar Configuración
               </button>
-            </div>
-          </div>
+          </AppCard>
         </div>
 
         {/* Seguridad */}
         <div className="col-12 col-lg-6 mb-4">
-          <div className="card border-0 shadow-sm">
-            <div className="card-body">
+          <AppCard>
               <h5 className="card-title mb-3">Seguridad</h5>
 
               <div className="form-check form-switch mb-3">
@@ -142,14 +138,12 @@ export function ConfiguracionCuentaPage() {
               <button className="btn btn-outline-secondary btn-sm">
                 Ver Actividad Reciente
               </button>
-            </div>
-          </div>
+          </AppCard>
         </div>
       </div>
 
       {/* Sesiones activas */}
-      <div className="card border-0 shadow-sm">
-        <div className="card-body">
+      <AppCard>
           <h5 className="card-title mb-3">Sesiones Activas</h5>
           <p className="text-muted small mb-3">
             Gestiona todos los dispositivos donde has iniciado sesión
@@ -196,8 +190,7 @@ export function ConfiguracionCuentaPage() {
               Cerrar todas las otras sesiones
             </button>
           </div>
-        </div>
-      </div>
+      </AppCard>
     </div>
   );
 }

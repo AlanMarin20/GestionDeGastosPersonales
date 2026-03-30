@@ -1,0 +1,16 @@
+.dashboard-widget-card {
+  height: 100%;
+}
+
+.dashboard-widget-chart {
+  height: 280px;
+}
+
+.dashboard-recent-expenses {
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.dashboard-month-progress {
+  height: 8px;
+}

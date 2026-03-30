@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
-import { Pie } from 'react-chartjs-2';
 import { MetricCard } from '../components/dashboard/MetricCard';
-
-ChartJS.register(ArcElement, Tooltip, Legend);
+import { ExpensePieChart } from '../components/dashboard/ExpensePieChart';
+import {
+  LastSixMonthsExpenses,
+  type MonthlyExpense,
+} from '../components/dashboard/LastSixMonthsExpenses';
+import { RecentExpensesList } from '../components/dashboard/RecentExpensesList';
 
 type Gasto = {
   id: string;
@@ -21,13 +23,12 @@ type Ahorro = {
 };
 
 export function DashboardPage() {
+  const [saldoActual, setSaldoActual] = useState(6149.25);
   const [gastos, setGastos] = useState<Gasto[]>([
     { id: '1', descripcion: 'Almuerzo', monto: 25.50, categoria: 'Comida', fecha: '24 mar' },
     { id: '2', descripcion: 'Gasolina', monto: 45, categoria: 'Transporte', fecha: '23 mar' },
     { id: '3', descripcion: 'Alquiler', monto: 1200, categoria: 'Vivienda', fecha: '20 mar' },
   ]);
-
-  const [mostrarTodosGastos, setMostrarTodosGastos] = useState(false);
 
   const [ahorros, setAhorros] = useState<Ahorro[]>([
     { id: '1', nombre: 'Vacaciones', monto: 1500, meta: 3000 },
@@ -39,6 +40,27 @@ export function DashboardPage() {
     descripcion: '',
     monto: '',
     categoria: 'Comida',
+  });
+
+  const [showIngresoModal, setShowIngresoModal] = useState(false);
+  const [showAhorroModal, setShowAhorroModal] = useState(false);
+  const [showDestinoModal, setShowDestinoModal] = useState(false);
+  const [ahorroDestino, setAhorroDestino] = useState<Ahorro | null>(null);
+
+  const [ingresoForm, setIngresoForm] = useState({
+    monto: '',
+    concepto: '',
+    origen: 'Sueldo',
+  });
+
+  const [nuevoAhorroForm, setNuevoAhorroForm] = useState({
+    nombre: '',
+    montoInicial: '',
+    meta: '',
+  });
+
+  const [destinoForm, setDestinoForm] = useState({
+    monto: '',
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -61,34 +83,119 @@ export function DashboardPage() {
     }
   };
 
+  const handleIngresoChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setIngresoForm(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleAgregarIngreso = (e: React.FormEvent) => {
+    e.preventDefault();
+    const monto = parseFloat(ingresoForm.monto);
+
+    if (!ingresoForm.concepto.trim() || Number.isNaN(monto) || monto <= 0) {
+      return;
+    }
+
+    setSaldoActual(prev => prev + monto);
+    setIngresoForm({ monto: '', concepto: '', origen: 'Sueldo' });
+    setShowIngresoModal(false);
+  };
+
+  const handleNuevoAhorroChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setNuevoAhorroForm(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleAgregarAhorro = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!nuevoAhorroForm.nombre.trim()) {
+      return;
+    }
+
+    const montoInicial = parseFloat(nuevoAhorroForm.montoInicial) || 0;
+    const meta = parseFloat(nuevoAhorroForm.meta);
+
+    const nuevoAhorro: Ahorro = {
+      id: Date.now().toString(),
+      nombre: nuevoAhorroForm.nombre,
+      monto: montoInicial,
+      meta: !Number.isNaN(meta) && meta > 0 ? meta : undefined,
+    };
+
+    setAhorros(prev => [nuevoAhorro, ...prev]);
+    setNuevoAhorroForm({ nombre: '', montoInicial: '', meta: '' });
+    setShowAhorroModal(false);
+  };
+
+  const abrirDestinoAhorro = (ahorro: Ahorro) => {
+    setAhorroDestino(ahorro);
+    setDestinoForm({ monto: '' });
+    setShowDestinoModal(true);
+  };
+
+  const handleDestinoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    setDestinoForm({ monto: value });
+  };
+
+  const handleDestinarFondos = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!ahorroDestino) {
+      return;
+    }
+
+    const monto = parseFloat(destinoForm.monto);
+
+    if (Number.isNaN(monto) || monto <= 0 || monto > saldoActual) {
+      return;
+    }
+
+    setSaldoActual(prev => prev - monto);
+    setAhorros(prev =>
+      prev.map(ahorro =>
+        ahorro.id === ahorroDestino.id ? { ...ahorro, monto: ahorro.monto + monto } : ahorro,
+      ),
+    );
+
+    setShowDestinoModal(false);
+    setAhorroDestino(null);
+    setDestinoForm({ monto: '' });
+  };
+
   const totalAhorros = ahorros.reduce((sum, ahorro) => sum + ahorro.monto, 0);
 
-  const gastosVisibles = mostrarTodosGastos ? gastos : gastos.slice(0, 10);
-
-  const pieData = {
-    labels: ['Comida', 'Vivienda', 'Transporte', 'Ocio', 'Otros'],
-    datasets: [{
-      data: [35, 25, 15, 10, 15],
-      backgroundColor: ['#4CAF50', '#FFA500', '#2196F3', '#9C27B0', '#FFEB3B'],
-      borderColor: ['#45a049', '#FB8500', '#1976D2', '#7B1FA2', '#FBC02D'],
-      borderWidth: 2,
-    }],
-  };
-
-  const pieOptions = {
-    responsive: true,
-    maintainAspectRatio: true,
-    plugins: {
-      legend: { position: 'bottom' as const },
-    },
-  };
+  const monthlyExpenses: MonthlyExpense[] = [
+    { mes: 'Oct', monto: 9200 },
+    { mes: 'Nov', monto: 10150 },
+    { mes: 'Dic', monto: 11300 },
+    { mes: 'Ene', monto: 12850 },
+    { mes: 'Feb', monto: 11900 },
+    { mes: 'Mar', monto: 14350.75 },
+  ];
 
   return (
     <>
       {/* Fila 1: Métricas principales */}
       <section className="row g-3 g-md-4 mb-4">
         <div className="col-12 col-md-6 col-lg-3">
-          <MetricCard title="Saldo Actual" value="$6,149.25" color="success" />
+          <article
+            className="card border-0 shadow-sm h-100 border-start border-success"
+            style={{ borderLeftWidth: '4px' }}
+          >
+            <div className="card-body d-flex flex-column justify-content-between">
+              <div>
+                <p className="text-secondary mb-1 small">Saldo Actual</p>
+                <h2 className="h4 mb-0">${saldoActual.toFixed(2)}</h2>
+              </div>
+              <button
+                type="button"
+                className="btn btn-outline-success btn-sm mt-3"
+                onClick={() => setShowIngresoModal(true)}
+              >
+                Nuevo ingreso
+              </button>
+            </div>
+          </article>
         </div>
         <div className="col-12 col-md-6 col-lg-3">
           <MetricCard title="Gastos del Mes" value="$14,350.75" color="danger" />
@@ -99,14 +206,11 @@ export function DashboardPage() {
       <section className="row g-3 g-md-4 mb-4">
         {/* Columna izquierda: Gráfico de tortas */}
         <div className="col-12 col-lg-4">
-          <article className="card border-0 shadow-sm h-100">
-            <div className="card-body">
-              <h2 className="h5 mb-3">Categorías de Gastos (Mes Actual)</h2>
-              <div style={{ height: '280px' }}>
-                <Pie data={pieData} options={pieOptions} />
-              </div>
-            </div>
-          </article>
+          <ExpensePieChart
+            title="Categorías de Gastos (Mes Actual)"
+            labels={['Comida', 'Vivienda', 'Transporte', 'Ocio', 'Otros']}
+            values={[35, 25, 15, 10, 15]}
+          />
         </div>
 
         {/* Columna central: Formulario y Recomendaciones */}
@@ -191,51 +295,13 @@ export function DashboardPage() {
 
         {/* Columna derecha: Últimos gastos */}
         <div className="col-12 col-lg-4">
-          <article className="card border-0 shadow-sm h-100">
-            <div className="card-body">
-              <h2 className="h5 mb-3">Últimos Gastos</h2>
-              <div style={{ maxHeight: '450px', overflowY: 'auto' }}>
-                {gastos.length === 0 ? (
-                  <p className="text-muted small">No hay gastos registrados</p>
-                ) : (
-                  gastosVisibles.map(gasto => (
-                    <div key={gasto.id} className="border-bottom pb-2 mb-2">
-                      <div className="d-flex justify-content-between align-items-start">
-                        <div>
-                          <p className="mb-0 small fw-500">{gasto.descripcion}</p>
-                          <small className="text-muted">{gasto.categoria}</small>
-                        </div>
-                        <div className="text-end">
-                          <p className="mb-0 small fw-bold text-danger">
-                            -${gasto.monto.toFixed(2)}
-                          </p>
-                          <small className="text-muted">{gasto.fecha}</small>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-              <div className="mt-3">
-                {!mostrarTodosGastos && gastos.length > 0 && (
-                  <button
-                    className="btn btn-sm btn-outline-primary w-100"
-                    onClick={() => setMostrarTodosGastos(true)}
-                  >
-                    Ver todos los gastos
-                  </button>
-                )}
-                {mostrarTodosGastos && (
-                  <button
-                    className="btn btn-sm btn-outline-secondary w-100"
-                    onClick={() => setMostrarTodosGastos(false)}
-                  >
-                    Mostrar menos
-                  </button>
-                )}
-              </div>
-            </div>
-          </article>
+          <RecentExpensesList title="Últimos Gastos" expenses={gastos} />
+        </div>
+      </section>
+
+      <section className="row g-3 g-md-4 mb-4">
+        <div className="col-12">
+          <LastSixMonthsExpenses title="Gasto de los Últimos 6 Meses" months={monthlyExpenses} />
         </div>
       </section>
 
@@ -245,14 +311,35 @@ export function DashboardPage() {
         <div className="col-12 col-lg-8">
           <article className="card border-0 shadow-sm">
             <div className="card-body">
-              <h2 className="h5 mb-3">Mis Ahorros</h2>
+              <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                <h2 className="h5 mb-0">Mis Ahorros</h2>
+                <button
+                  type="button"
+                  className="btn btn-outline-primary btn-sm"
+                  onClick={() => setShowAhorroModal(true)}
+                >
+                  Agregar ahorro
+                </button>
+              </div>
               <div className="row g-2">
                 {ahorros.map(ahorro => (
                   <div key={ahorro.id} className="col-12 col-md-6">
                     <div className="p-3 rounded-2 bg-light border">
                       <div className="d-flex justify-content-between align-items-start mb-2">
                         <h3 className="h6 mb-0">{ahorro.nombre}</h3>
-                        <span className="badge bg-primary">${ahorro.monto.toFixed(2)}</span>
+                        <div className="d-flex align-items-center gap-2">
+                          <span className="badge bg-primary">${ahorro.monto.toFixed(2)}</span>
+                          <button
+                            type="button"
+                            className="btn btn-success btn-sm rounded-circle p-0"
+                            style={{ width: '28px', height: '28px', lineHeight: '1' }}
+                            onClick={() => abrirDestinoAhorro(ahorro)}
+                            aria-label={`Destinar fondos a ${ahorro.nombre}`}
+                            title="Destinar fondos desde Saldo Actual"
+                          >
+                            +
+                          </button>
+                        </div>
                       </div>
                       {ahorro.meta && (
                         <div>
@@ -292,6 +379,227 @@ export function DashboardPage() {
           </div>
         </div>
       </section>
+
+      {showIngresoModal && (
+        <div className="modal d-block" tabIndex={-1} role="dialog" aria-modal="true">
+          <div className="modal-dialog modal-dialog-centered" role="document">
+            <div className="modal-content">
+              <form onSubmit={handleAgregarIngreso}>
+                <div className="modal-header">
+                  <h2 className="modal-title h5 mb-0">Nuevo ingreso</h2>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    aria-label="Cerrar"
+                    onClick={() => setShowIngresoModal(false)}
+                  ></button>
+                </div>
+                <div className="modal-body">
+                  <div className="mb-3">
+                    <label htmlFor="ingresoMonto" className="form-label">
+                      Monto
+                    </label>
+                    <input
+                      type="number"
+                      id="ingresoMonto"
+                      name="monto"
+                      className="form-control"
+                      min="0"
+                      step="0.01"
+                      value={ingresoForm.monto}
+                      onChange={handleIngresoChange}
+                      required
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="ingresoConcepto" className="form-label">
+                      Concepto
+                    </label>
+                    <input
+                      type="text"
+                      id="ingresoConcepto"
+                      name="concepto"
+                      className="form-control"
+                      placeholder="Ej: Pago quincenal"
+                      value={ingresoForm.concepto}
+                      onChange={handleIngresoChange}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="ingresoOrigen" className="form-label">
+                      Origen
+                    </label>
+                    <select
+                      id="ingresoOrigen"
+                      name="origen"
+                      className="form-select"
+                      value={ingresoForm.origen}
+                      onChange={handleIngresoChange}
+                    >
+                      <option value="Sueldo">Sueldo</option>
+                      <option value="Freelance">Freelance</option>
+                      <option value="Prestamo">Préstamo</option>
+                      <option value="Venta">Venta</option>
+                      <option value="Otro">Otro</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary"
+                    onClick={() => setShowIngresoModal(false)}
+                  >
+                    Cancelar
+                  </button>
+                  <button type="submit" className="btn btn-success">
+                    Registrar ingreso
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showAhorroModal && (
+        <div className="modal d-block" tabIndex={-1} role="dialog" aria-modal="true">
+          <div className="modal-dialog modal-dialog-centered" role="document">
+            <div className="modal-content">
+              <form onSubmit={handleAgregarAhorro}>
+                <div className="modal-header">
+                  <h2 className="modal-title h5 mb-0">Agregar ahorro</h2>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    aria-label="Cerrar"
+                    onClick={() => setShowAhorroModal(false)}
+                  ></button>
+                </div>
+                <div className="modal-body">
+                  <div className="mb-3">
+                    <label htmlFor="nuevoAhorroNombre" className="form-label">
+                      Nombre del ahorro
+                    </label>
+                    <input
+                      type="text"
+                      id="nuevoAhorroNombre"
+                      name="nombre"
+                      className="form-control"
+                      placeholder="Ej: Fondo de viaje"
+                      value={nuevoAhorroForm.nombre}
+                      onChange={handleNuevoAhorroChange}
+                      required
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="nuevoAhorroMonto" className="form-label">
+                      Monto inicial
+                    </label>
+                    <input
+                      type="number"
+                      id="nuevoAhorroMonto"
+                      name="montoInicial"
+                      className="form-control"
+                      min="0"
+                      step="0.01"
+                      value={nuevoAhorroForm.montoInicial}
+                      onChange={handleNuevoAhorroChange}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="nuevoAhorroMeta" className="form-label">
+                      Meta (opcional)
+                    </label>
+                    <input
+                      type="number"
+                      id="nuevoAhorroMeta"
+                      name="meta"
+                      className="form-control"
+                      min="0"
+                      step="0.01"
+                      value={nuevoAhorroForm.meta}
+                      onChange={handleNuevoAhorroChange}
+                    />
+                  </div>
+                </div>
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary"
+                    onClick={() => setShowAhorroModal(false)}
+                  >
+                    Cancelar
+                  </button>
+                  <button type="submit" className="btn btn-primary">
+                    Guardar ahorro
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showDestinoModal && ahorroDestino && (
+        <div className="modal d-block" tabIndex={-1} role="dialog" aria-modal="true">
+          <div className="modal-dialog modal-dialog-centered" role="document">
+            <div className="modal-content">
+              <form onSubmit={handleDestinarFondos}>
+                <div className="modal-header">
+                  <h2 className="modal-title h5 mb-0">Destinar fondos a {ahorroDestino.nombre}</h2>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    aria-label="Cerrar"
+                    onClick={() => {
+                      setShowDestinoModal(false);
+                      setAhorroDestino(null);
+                    }}
+                  ></button>
+                </div>
+                <div className="modal-body">
+                  <p className="small text-muted mb-2">Saldo disponible: ${saldoActual.toFixed(2)}</p>
+                  <label htmlFor="destinoMonto" className="form-label">
+                    Monto a transferir
+                  </label>
+                  <input
+                    type="number"
+                    id="destinoMonto"
+                    className="form-control"
+                    min="0"
+                    max={saldoActual}
+                    step="0.01"
+                    value={destinoForm.monto}
+                    onChange={handleDestinoChange}
+                    required
+                  />
+                </div>
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary"
+                    onClick={() => {
+                      setShowDestinoModal(false);
+                      setAhorroDestino(null);
+                    }}
+                  >
+                    Cancelar
+                  </button>
+                  <button type="submit" className="btn btn-success">
+                    Destinar fondos
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {(showIngresoModal || showAhorroModal || showDestinoModal) && (
+        <div className="modal-backdrop fade show"></div>
+      )}
     </>
   );
 }

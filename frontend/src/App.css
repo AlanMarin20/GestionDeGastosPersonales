@@ -11,6 +11,71 @@
   min-width: 0;
 }
 
+:root {
+  --marketing-bg-image: url('/images/imagen1.jpeg');
+  --landing-overlay-opacity: 0.;
+  --landing-card-opacity: 0.9;
+  --landing-card-blur: 1px;
+  --login-bg-blur: 8px;
+  --login-overlay-opacity: 0.;
+  --login-card-opacity: 0.86;
+  --login-card-blur: 2px;
+}
+
+.landing-page,
+.login-page {
+  position: relative;
+  isolation: isolate;
+  background-color: #e8f3fa;
+}
+
+.landing-page::before,
+.login-page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background-image: var(--marketing-bg-image);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.login-page::before {
+  filter: blur(var(--login-bg-blur));
+  transform: scale(1.05);
+}
+
+.landing-page::after,
+.login-page::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+
+.landing-page::after {
+  background: rgba(255, 255, 255, var(--landing-overlay-opacity));
+}
+
+.login-page::after {
+  background: rgba(255, 255, 255, var(--login-overlay-opacity));
+}
+
+.landing-content-card {
+  background: rgba(255, 255, 255, var(--landing-card-opacity));
+  backdrop-filter: saturate(120%) blur(var(--landing-card-blur));
+}
+
+.landing-footer {
+  background: rgba(255, 255, 255, 0.92) !important;
+}
+
+.login-content-card {
+  background: rgba(255, 255, 255, var(--login-card-opacity));
+  backdrop-filter: blur(var(--login-card-blur));
+}
+
 @media (max-width: 991.98px) {
   .app-sidebar {
     width: 100%;
