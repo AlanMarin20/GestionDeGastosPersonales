@@ -19,6 +19,8 @@ import "./components/dashboard/dashboard-widgets.css";
 
 const appRoot = document.getElementById("root");
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
 const state = {
   dashboard: {
     saldoActual: 6149.25,
@@ -794,7 +796,7 @@ function attachFormHandlers(pathname) {
       if (submitBtn) submitBtn.disabled = true;
 
       try {
-        const response = await fetch("http://localhost:3000/api/auth/login", {
+        const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),
@@ -846,7 +848,7 @@ function attachFormHandlers(pathname) {
       if (submitBtn) submitBtn.disabled = true;
 
       try {
-        const response = await fetch("http://localhost:3000/api/users", {
+        const response = await fetch(`${API_BASE_URL}/api/users`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name: nombre, email, password }),
