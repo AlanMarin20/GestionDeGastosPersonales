@@ -8,6 +8,7 @@ import { CategoriesModule } from 'src/categories/categories.module';
 import { UsersModule } from './users/users.module';
 import { IncomesModule } from './incomes/incomes.module';
 import { ExpensesModule } from './expenses/expenses.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { ExpensesModule } from './expenses/expenses.module';
     UsersModule,
     IncomesModule,
     ExpensesModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
