@@ -28,8 +28,11 @@ export class UsersService {
     return await this.userRepository.save(newUser);
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async findAll() {
+    // Usamos 'find' y seleccionamos explícitamente qué columnas queremos devolver por seguridad
+    return await this.userRepository.find({
+      select: ['id', 'name', 'email', 'createdAt', 'updatedAt'],
+    });
   }
 
   findOne(id: number) {
