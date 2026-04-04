@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import * as Joi from 'joi';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { CategoriesModule } from 'src/categories/categories.module';
 
 @Module({
   imports: [
@@ -16,6 +17,10 @@ import { AppService } from './app.service';
         ANTHROPIC_API_KEY: Joi.string().allow('').optional(),
         PORT: Joi.number().default(3000),
         DB_SSL: Joi.boolean().truthy('true').falsy('false').default(false),
+        DB_SYNCHRONIZE: Joi.boolean()
+          .truthy('true')
+          .falsy('false')
+          .default(false),
       }),
     }),
     TypeOrmModule.forRootAsync({
@@ -24,12 +29,13 @@ import { AppService } from './app.service';
         type: 'postgres',
         url: configService.get<string>('DATABASE_URL'),
         autoLoadEntities: true,
-        synchronize: false,
+        synchronize: configService.get<boolean>('DB_SYNCHRONIZE'),
         ssl: configService.get<boolean>('DB_SSL')
           ? { rejectUnauthorized: false }
           : false,
       }),
     }),
+    CategoriesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
