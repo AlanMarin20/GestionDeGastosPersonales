@@ -5,6 +5,9 @@ import * as Joi from 'joi';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CategoriesModule } from 'src/categories/categories.module';
+import { UsersModule } from './users/users.module';
+import { IncomesModule } from './incomes/incomes.module';
+import { ExpensesModule } from './expenses/expenses.module';
 
 @Module({
   imports: [
@@ -36,6 +39,9 @@ import { CategoriesModule } from 'src/categories/categories.module';
       }),
     }),
     CategoriesModule,
+    UsersModule,
+    IncomesModule,
+    ExpensesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
