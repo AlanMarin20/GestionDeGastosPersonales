@@ -12,6 +12,7 @@ import { renderDashboardPage as renderDashboardPageView } from "./pages/Dashboar
 import { renderEditarPerfilPage as renderEditarPerfilPageView } from "./pages/EditarPerfilPage";
 import { renderLandingPage as renderLandingPageView } from "./pages/LandingPage";
 import { renderLoginPage as renderLoginPageView } from "./pages/LoginPage";
+import { renderRegistroPage as renderRegistroPageView } from "./pages/RegistroPage";
 import "./index.css";
 import "./App.css";
 import "./components/dashboard/dashboard-widgets.css";
@@ -424,6 +425,10 @@ function renderLoginPage() {
   return renderLoginPageView({ renderAppHeader });
 }
 
+function renderRegistroPage() {
+  return renderRegistroPageView({ renderAppHeader });
+}
+
 function renderDashboardPage() {
   return renderDashboardPageView({
     state,
@@ -609,6 +614,10 @@ function buildRouteView(pathname) {
     return renderLoginPage();
   }
 
+  if (pathname === "/registro") {
+    return renderRegistroPage();
+  }
+
   if (pathname === "/dashboard") {
     return renderDashboardLayout(renderDashboardPage(), pathname);
   }
@@ -785,7 +794,7 @@ function attachFormHandlers(pathname) {
       if (submitBtn) submitBtn.disabled = true;
 
       try {
-        const response = await fetch("http://localhost:3000/auth/login", {
+        const response = await fetch("http://localhost:3000/api/auth/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),
@@ -799,6 +808,57 @@ function attachFormHandlers(pathname) {
         const data = await response.json();
         localStorage.setItem("access_token", data.access_token);
         navigate("/dashboard");
+      } catch (error) {
+        if (errorDiv) {
+          errorDiv.textContent = error.message;
+          errorDiv.classList.remove("d-none");
+        }
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+      }
+    });
+  }
+
+  if (pathname === "/registro") {
+    const registroForm = document.getElementById("registroForm");
+    registroForm?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const nombre = document.getElementById("nombre")?.value;
+      const email = document.getElementById("email")?.value;
+      const password = document.getElementById("contrasena")?.value;
+      const confirmPassword = document.getElementById(
+        "confirmarContrasena",
+      )?.value;
+      const errorDiv = document.getElementById("registroError");
+      const submitBtn = registroForm.querySelector('button[type="submit"]');
+
+      if (errorDiv) errorDiv.classList.add("d-none");
+
+      if (password !== confirmPassword) {
+        if (errorDiv) {
+          errorDiv.textContent = "Las contraseñas no coinciden";
+          errorDiv.classList.remove("d-none");
+        }
+        return;
+      }
+
+      if (submitBtn) submitBtn.disabled = true;
+
+      try {
+        const response = await fetch("http://localhost:3000/api/users", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: nombre, email, password }),
+        });
+
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          throw new Error(errData.message || "Error al registrar el usuario");
+        }
+
+        window.alert("¡Registro exitoso! Ahora puedes iniciar sesión.");
+        navigate("/login");
       } catch (error) {
         if (errorDiv) {
           errorDiv.textContent = error.message;
