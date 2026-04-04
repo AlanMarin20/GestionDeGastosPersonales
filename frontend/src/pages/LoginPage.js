@@ -1,7 +1,7 @@
 export function renderLoginPage({ renderAppHeader }) {
   return `
     <div class="login-page min-vh-100 d-flex flex-column">
-      ${renderAppHeader({ brandAction: '/' })}
+      ${renderAppHeader({ brandAction: "/" })}
       <main class="flex-grow-1 d-flex align-items-center justify-content-center py-5">
         <div class="container">
           <div class="row justify-content-center">
@@ -10,9 +10,10 @@ export function renderLoginPage({ renderAppHeader }) {
                 <div class="card-body p-4 p-md-5">
                   <h1 class="h3 mb-4 text-center">Iniciar Sesion</h1>
                   <form id="loginForm">
+                    <div id="loginError" class="alert alert-danger d-none small p-2 text-center" role="alert"></div>
                     <div class="mb-3">
-                      <label for="usuario" class="form-label">Usuario o Email</label>
-                      <input type="text" class="form-control form-control-lg" id="usuario" placeholder="usuario@ejemplo.com" required>
+                      <label for="email" class="form-label">Email</label>
+                      <input type="email" class="form-control form-control-lg" id="email" placeholder="ejemplo@correo.com" required>
                     </div>
                     <div class="mb-4">
                       <label for="contrasena" class="form-label">Contrasena</label>
@@ -23,7 +24,7 @@ export function renderLoginPage({ renderAppHeader }) {
                   <div class="text-center">
                     <p class="text-muted mb-0">
                       No tenes cuenta?
-                      <a href="#" class="text-primary text-decoration-none fw-semibold">Registrarse</a>
+                      <a href="/registro" data-link class="text-primary text-decoration-none fw-semibold">Registrarse</a>
                     </p>
                   </div>
                   <div class="position-relative my-4">
