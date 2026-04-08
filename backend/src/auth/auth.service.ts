@@ -25,15 +25,22 @@ export class AuthService {
 
     // 3. Si todo es correcto, creamos el "Payload" (los datos del token)
     const payload = { sub: user.id, email: user.email };
+    const publicUser = await this.usersService.findPublicById(user.id);
 
     // 4. Devolvemos el Token y los datos públicos del usuario
     return {
       access_token: await this.jwtService.signAsync(payload),
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-      },
+      user: publicUser,
     };
+  }
+
+  async getProfile(userId: string) {
+    const user = await this.usersService.findPublicById(userId);
+
+    if (!user) {
+      throw new UnauthorizedException('Usuario no encontrado');
+    }
+
+    return user;
   }
 }

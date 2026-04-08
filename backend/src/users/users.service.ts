@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
@@ -8,6 +8,14 @@ import { User } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {
+  private readonly publicUserSelect = {
+    id: true,
+    name: true,
+    email: true,
+    createdAt: true,
+    updatedAt: true,
+  } as const;
+
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
@@ -25,26 +33,60 @@ export class UsersService {
     const newUser = this.userRepository.create({ ...userData, passwordHash });
 
     // 4. Guarda el usuario en la base de datos y retorna el resultado
-    return await this.userRepository.save(newUser);
+    const savedUser = await this.userRepository.save(newUser);
+
+    return await this.userRepository.findOne({
+      where: { id: savedUser.id },
+      select: this.publicUserSelect,
+    });
   }
 
   async findAll() {
     // Usamos 'find' y seleccionamos explícitamente qué columnas queremos devolver por seguridad
     return await this.userRepository.find({
-      select: ['id', 'name', 'email', 'createdAt', 'updatedAt'],
+      select: this.publicUserSelect,
     });
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id} user`;
+  async findOne(id: string) {
+    return await this.userRepository.findOne({
+      where: { id },
+      select: this.publicUserSelect,
+    });
   }
 
   async findByEmail(email: string) {
     return await this.userRepository.findOne({ where: { email } });
   }
 
-  update(id: string, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async findPublicById(id: string) {
+    return await this.userRepository.findOne({
+      where: { id },
+      select: this.publicUserSelect,
+    });
+  }
+
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    const user = await this.userRepository.findOne({ where: { id } });
+
+    if (!user) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    const { password, ...userData } = updateUserDto;
+
+    Object.assign(user, userData);
+
+    if (password) {
+      user.passwordHash = await bcrypt.hash(password, 10);
+    }
+
+    const savedUser = await this.userRepository.save(user);
+
+    return await this.userRepository.findOne({
+      where: { id: savedUser.id },
+      select: this.publicUserSelect,
+    });
   }
 
   async remove(id: string) {

@@ -20,6 +20,7 @@ import "./components/dashboard/dashboard-widgets.css";
 const appRoot = document.getElementById("root");
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const ACCESS_TOKEN_KEY = "access_token";
 
 const state = {
   dashboard: {
@@ -200,8 +201,9 @@ const state = {
     showAllRecentExpenses: false,
   },
   perfil: {
-    nombre: "Juan Perez",
-    email: "juan.perez@example.com",
+    id: null,
+    nombre: "",
+    email: "",
     imagen: "https://via.placeholder.com/150",
     passwordData: {
       actual: "",
@@ -210,6 +212,8 @@ const state = {
     },
     imagePreview: "https://via.placeholder.com/150",
   },
+  currentUser: null,
+  profileLoaded: false,
   configuracion: {
     moneda: "USD",
     idioma: "es",
@@ -300,6 +304,74 @@ function escapeHtml(text) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#39;");
+}
+
+function getAccessToken() {
+  return localStorage.getItem(ACCESS_TOKEN_KEY);
+}
+
+async function apiFetch(path, options = {}) {
+  const headers = new Headers(options.headers || {});
+
+  if (!headers.has("Content-Type") && options.body) {
+    headers.set("Content-Type", "application/json");
+  }
+
+  const accessToken = getAccessToken();
+  if (accessToken) {
+    headers.set("Authorization", `Bearer ${accessToken}`);
+  }
+
+  return await fetch(`${API_BASE_URL}${path}`, {
+    ...options,
+    headers,
+  });
+}
+
+function syncProfileFromUser(user) {
+  if (!user) {
+    return;
+  }
+
+  state.currentUser = user;
+  state.profileLoaded = true;
+  state.perfil = {
+    ...state.perfil,
+    id: user.id ?? state.perfil.id,
+    nombre: user.name ?? state.perfil.nombre,
+    email: user.email ?? state.perfil.email,
+  };
+}
+
+async function loadCurrentUser() {
+  const accessToken = getAccessToken();
+
+  if (!accessToken) {
+    state.currentUser = null;
+    state.profileLoaded = true;
+    return null;
+  }
+
+  try {
+    const response = await apiFetch("/api/auth/me");
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        localStorage.removeItem(ACCESS_TOKEN_KEY);
+      }
+      state.currentUser = null;
+      state.profileLoaded = true;
+      return null;
+    }
+
+    const user = await response.json();
+    syncProfileFromUser(user);
+    return user;
+  } catch (error) {
+    state.currentUser = null;
+    state.profileLoaded = true;
+    return null;
+  }
 }
 
 function navigate(path, replace = false) {
@@ -808,7 +880,8 @@ function attachFormHandlers(pathname) {
         }
 
         const data = await response.json();
-        localStorage.setItem("access_token", data.access_token);
+        localStorage.setItem(ACCESS_TOKEN_KEY, data.access_token);
+        syncProfileFromUser(data.user);
         navigate("/dashboard");
       } catch (error) {
         if (errorDiv) {
@@ -1152,16 +1225,44 @@ function attachFormHandlers(pathname) {
 
   if (pathname === "/perfil/editar") {
     const perfilForm = document.getElementById("perfilForm");
-    perfilForm?.addEventListener("submit", (event) => {
+    perfilForm?.addEventListener("submit", async (event) => {
       event.preventDefault();
 
-      state.perfil.nombre =
-        document.getElementById("nombre")?.value ?? state.perfil.nombre;
-      state.perfil.email =
-        document.getElementById("email")?.value ?? state.perfil.email;
+      const nombre = document.getElementById("nombre")?.value?.trim() ?? "";
+      const email = document.getElementById("email")?.value?.trim() ?? "";
+      const submitBtn = perfilForm.querySelector('button[type="submit"]');
 
-      window.alert("Perfil actualizado correctamente");
-      render();
+      if (!state.currentUser?.id) {
+        window.alert("No se pudo identificar el usuario autenticado");
+        return;
+      }
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+      }
+
+      try {
+        const response = await apiFetch(`/api/users/${state.currentUser.id}`, {
+          method: "PATCH",
+          body: JSON.stringify({ name: nombre, email }),
+        });
+
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          throw new Error(errData.message || "No se pudo actualizar el perfil");
+        }
+
+        const updatedUser = await response.json();
+        syncProfileFromUser(updatedUser);
+        window.alert("Perfil actualizado correctamente");
+        render();
+      } catch (error) {
+        window.alert(error.message);
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+        }
+      }
     });
 
     const nombreInput = document.getElementById("nombre");
@@ -1401,4 +1502,6 @@ function render() {
 }
 
 attachGlobalNavigation();
-render();
+loadCurrentUser().finally(() => {
+  render();
+});
