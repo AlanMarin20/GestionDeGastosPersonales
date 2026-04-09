@@ -20,30 +20,34 @@ export function renderDashboardPage({
 
       return `
         <div class="col-12 col-md-6">
-          <div class="p-3 rounded-2 bg-light border">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-              <h3 class="h6 mb-0">${escapeHtml(ahorro.nombre)}</h3>
-              <div class="d-flex align-items-center gap-2">
-                <span class="badge bg-primary">${formatCurrency(ahorro.monto)}</span>
-                <button
-                  type="button"
-                  class="btn btn-success btn-sm rounded-circle p-0"
-                  style="width:28px;height:28px;line-height:1"
-                  data-action="open-destino-modal"
-                  data-ahorro-id="${ahorro.id}"
-                  aria-label="Destinar fondos a ${escapeHtml(ahorro.nombre)}"
-                  title="Destinar fondos desde Saldo Actual"
-                >+
-                </button>
+          <div class="p-4 bg-white border-0 shadow-sm" style="border-radius: 12px; transition: transform 0.2s;">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div>
+                <h3 class="h6 fw-bold mb-1 text-dark">${escapeHtml(ahorro.nombre)}</h3>
+                <span class="badge bg-primary bg-opacity-10 text-primary px-2 py-1" style="border-radius: 6px;">${formatCurrency(ahorro.monto)}</span>
               </div>
+              <button
+                type="button"
+                class="btn btn-primary btn-sm rounded-circle d-flex align-items-center justify-content-center shadow-sm"
+                style="width: 32px; height: 32px;"
+                data-action="open-destino-modal"
+                data-ahorro-id="${ahorro.id}"
+                aria-label="Destinar fondos a ${escapeHtml(ahorro.nombre)}"
+                title="Destinar fondos desde Saldo Actual"
+              >
+                <i class="lni lni-plus"></i>
+              </button>
             </div>
             ${
               ahorro.meta
                 ? `
                   <div>
-                    <small class="text-muted">Meta: ${formatCurrency(ahorro.meta)}</small>
-                    <div class="progress mt-2" style="height:6px">
-                      <div class="progress-bar bg-success" role="progressbar" style="width:${progress}%"></div>
+                    <div class="d-flex justify-content-between mb-1">
+                      <small class="text-muted fw-semibold" style="font-size: 0.75rem;">Progreso</small>
+                      <small class="text-muted fw-semibold" style="font-size: 0.75rem;">Meta: ${formatCurrency(ahorro.meta)}</small>
+                    </div>
+                    <div class="progress" style="height: 8px; border-radius: 4px; background-color: #e2e8f0;">
+                      <div class="progress-bar bg-success" role="progressbar" style="width: ${progress}%; border-radius: 4px;"></div>
                     </div>
                   </div>
                 `
