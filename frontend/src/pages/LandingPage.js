@@ -84,9 +84,7 @@ export function renderLandingPage({ renderAppHeader }) {
                 data-wow-delay=".6s"
                 >Acceder</a
               >
-              <a href="#features" class="scroll-bottom">
-                <i class="lni lni-arrow-down"></i
-              ></a>
+              
             </div>
           </div>
           <div class="col-lg-6">
