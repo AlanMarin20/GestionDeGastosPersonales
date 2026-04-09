@@ -63,20 +63,23 @@ export function renderDashboardPage({
   return `
     <section class="row g-3 g-md-4 mb-4">
       <div class="col-12 col-md-6 col-lg-3">
-        <article class="card border-0 shadow-sm h-100 border-start border-success" style="border-left-width:4px">
-          <div class="card-body d-flex flex-column justify-content-between">
-            <div>
-              <p class="text-secondary mb-1 small">Saldo Actual</p>
-              <h2 class="h4 mb-0">${formatCurrency(dashboard.saldoActual)}</h2>
+        <article class="card border-0 shadow-sm h-100 bg-primary bg-gradient text-white" style="border-radius: 15px;">
+          <div class="card-body p-4 position-relative overflow-hidden d-flex flex-column justify-content-between">
+            <div class="position-absolute opacity-25" style="top: -10px; right: -15px; font-size: 90px; transform: rotate(-10deg);">
+              <i class="lni lni-wallet"></i>
             </div>
-            <button type="button" class="btn btn-outline-success btn-sm mt-3" data-action="open-ingreso-modal">
-              Nuevo ingreso
+            <div style="z-index: 1; position: relative;">
+              <p class="mb-1 fw-semibold text-white-50">Saldo Actual</p>
+              <h2 class="h3 mb-0 fw-bold text-white">${formatCurrency(dashboard.saldoActual)}</h2>
+            </div>
+            <button type="button" class="btn btn-light btn-sm mt-3 fw-bold shadow-sm" data-action="open-ingreso-modal" style="border-radius: 8px; width: fit-content; z-index: 1; position: relative; color: #0d6efd;">
+              + Nuevo ingreso
             </button>
           </div>
         </article>
       </div>
       <div class="col-12 col-md-6 col-lg-3">
-        ${renderMetricCard({ title: 'Gastos del Mes', value: '$14,350.75', color: 'danger' })}
+        ${renderMetricCard({ title: 'Gastos del Mes', value: '$14,350.75', color: 'danger', icon: 'lni-stats-down' })}
       </div>
     </section>
 
@@ -92,7 +95,7 @@ export function renderDashboardPage({
       </div>
 
       <div class="col-12 col-lg-4">
-        <article class="card border-0 shadow-sm mb-3">
+        <article class="card border-0 shadow-sm mb-3" style="border-radius: 15px;">
           <div class="card-body">
             <h2 class="h5 mb-3">Anadir Nuevo Gasto</h2>
             <form id="nuevoGastoForm">
@@ -120,7 +123,7 @@ export function renderDashboardPage({
           </div>
         </article>
 
-        <article class="card border-0 shadow-sm">
+        <article class="card border-0 shadow-sm" style="border-radius: 15px;">
           <div class="card-body">
             <h2 class="h5 mb-3"><i class="bi bi-lightbulb me-2"></i>Recomendaciones</h2>
             <div class="alert alert-info alert-sm mb-2 py-2 px-3" role="alert">
@@ -160,7 +163,7 @@ export function renderDashboardPage({
 
     <section class="row g-3 g-md-4">
       <div class="col-12 col-lg-8">
-        <article class="card border-0 shadow-sm">
+        <article class="card border-0 shadow-sm" style="border-radius: 15px;">
           <div class="card-body">
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
               <h2 class="h5 mb-0">Mis Ahorros</h2>
@@ -171,11 +174,16 @@ export function renderDashboardPage({
         </article>
       </div>
       <div class="col-12 col-lg-4">
-        <div class="card border-0 shadow-sm h-100">
-          <div class="card-body d-flex flex-column justify-content-center text-center">
-            <p class="text-muted mb-2 small">Presupuesto Disponible</p>
-            <h2 class="h3 mb-0 text-success fw-bold">${formatCurrency(totalAhorros)}</h2>
-            <small class="text-muted mt-2">Suma total de todos los ahorros</small>
+        <div class="card border-0 shadow-sm h-100 bg-success bg-gradient text-white" style="border-radius: 15px;">
+          <div class="card-body p-4 position-relative overflow-hidden d-flex flex-column justify-content-center text-center">
+            <div class="position-absolute opacity-25" style="top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 150px;">
+              <i class="lni lni-coin"></i>
+            </div>
+            <div style="z-index: 1; position: relative;">
+              <p class="mb-2 fw-semibold text-white-50">Presupuesto Disponible</p>
+              <h2 class="display-5 mb-0 fw-bold text-white">${formatCurrency(totalAhorros)}</h2>
+              <small class="text-white-50 mt-2 d-block">Suma total de todos los ahorros</small>
+            </div>
           </div>
         </div>
       </div>

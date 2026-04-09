@@ -204,13 +204,13 @@ const state = {
     id: null,
     nombre: "",
     email: "",
-    imagen: "https://via.placeholder.com/150",
+    imagen: "https://ui-avatars.com/api/?name=Usuario&background=0d6efd&color=fff",
     passwordData: {
       actual: "",
       nueva: "",
       confirmar: "",
     },
-    imagePreview: "https://via.placeholder.com/150",
+    imagePreview: "https://ui-avatars.com/api/?name=Usuario&background=0d6efd&color=fff",
   },
   currentUser: null,
   profileLoaded: false,
@@ -515,20 +515,26 @@ function renderDashboardLayout(content, pathname) {
   `;
 }
 
-function renderMetricCard({ title, value, color = "primary" }) {
-  const colorClasses = {
-    success: "border-start border-success",
-    danger: "border-start border-danger",
-    info: "border-start border-info",
-    warning: "border-start border-warning",
-    primary: "border-start border-primary",
+function renderMetricCard({ title, value, color = "primary", icon = "lni-bar-chart" }) {
+  const gradientClasses = {
+    success: "bg-success bg-gradient text-white",
+    danger: "bg-danger bg-gradient text-white",
+    info: "bg-info bg-gradient text-dark",
+    warning: "bg-warning bg-gradient text-dark",
+    primary: "bg-primary bg-gradient text-white",
   };
+  
+  const textColor = (color === 'warning' || color === 'info') ? 'text-dark' : 'text-white';
+  const mutedColor = (color === 'warning' || color === 'info') ? 'text-dark opacity-75' : 'text-white-50';
 
   return `
-    <article class="card border-0 shadow-sm h-100 ${colorClasses[color] ?? colorClasses.primary}" style="border-left-width:4px">
-      <div class="card-body">
-        <p class="text-secondary mb-1 small">${escapeHtml(title)}</p>
-        <h2 class="h4 mb-0">${escapeHtml(value)}</h2>
+    <article class="card border-0 shadow-sm h-100 ${gradientClasses[color] ?? gradientClasses.primary}" style="border-radius: 15px;">
+      <div class="card-body p-4 position-relative overflow-hidden">
+        <div class="position-absolute opacity-25" style="top: -10px; right: -15px; font-size: 90px; transform: rotate(-10deg);">
+          <i class="lni ${icon}"></i>
+        </div>
+        <p class="mb-1 fw-semibold ${mutedColor}" style="z-index: 1; position: relative;">${escapeHtml(title)}</p>
+        <h2 class="h3 mb-0 fw-bold ${textColor}" style="z-index: 1; position: relative;">${escapeHtml(value)}</h2>
       </div>
     </article>
   `;
@@ -1439,7 +1445,7 @@ function buildPieChart(canvasId, labels, values) {
   }
 
   const instance = new Chart(canvas, {
-    type: "pie",
+    type: "doughnut",
     data: {
       labels,
       datasets: [
@@ -1460,8 +1466,10 @@ function buildPieChart(canvasId, labels, values) {
     options: {
       responsive: true,
       maintainAspectRatio: true,
+      cutout: '75%',
+      borderWidth: 0,
       plugins: {
-        legend: { position: "bottom" },
+        legend: { position: "bottom", labels: { usePointStyle: true, padding: 20 } },
       },
     },
   });
@@ -1484,7 +1492,13 @@ function buildLineChart(canvasId, months) {
           label: "Gasto Mensual",
           data: months.map((item) => item.monto),
           borderColor: "#0d6efd",
-          backgroundColor: "rgba(13, 110, 253, 0.1)",
+          backgroundColor: "rgba(13, 110, 253, 0.15)",
+          borderWidth: 3,
+          pointBackgroundColor: "#fff",
+          pointBorderColor: "#0d6efd",
+          pointBorderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6,
           tension: 0.4,
           fill: true,
         },
@@ -1494,11 +1508,28 @@ function buildLineChart(canvasId, months) {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: { position: "top" },
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(255, 255, 255, 0.9)',
+          titleColor: '#333',
+          bodyColor: '#666',
+          borderColor: '#e2e8f0',
+          borderWidth: 1,
+          padding: 10,
+          boxPadding: 4,
+          usePointStyle: true,
+        }
       },
       scales: {
+        x: {
+          grid: { display: false },
+          ticks: { font: { family: "'Inter', sans-serif" } }
+        },
         y: {
           beginAtZero: true,
+          border: { display: false },
+          grid: { color: "#e2e8f0", borderDash: [5, 5] },
+          ticks: { font: { family: "'Inter', sans-serif" }, padding: 10 }
         },
       },
     },
