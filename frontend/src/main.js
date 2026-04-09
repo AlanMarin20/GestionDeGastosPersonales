@@ -419,19 +419,28 @@ function renderDashboardLayout(content, pathname) {
   const currentRole = cambioRol(pathname);
   const isAsesor = currentRole === "Asesor";
 
+  let pageTitle = "Dashboard";
+  if (pathname === "/dashboard/asesor") pageTitle = "Panel de Asesor";
+  else if (pathname.startsWith("/cliente/")) pageTitle = "Detalle de Cliente";
+  else if (pathname === "/perfil/editar") pageTitle = "Mi Perfil";
+  else if (pathname === "/perfil/configuracion") pageTitle = "Configuración de la App";
+  else if (pathname === "/perfil/notificaciones") pageTitle = "Notificaciones";
+
   return `
     <div class="d-flex min-vh-100 overflow-hidden" style="background-color: #e2e8f0;">
       
       <!-- ======== Sidebar start (Offcanvas) ======== -->
       <div class="offcanvas offcanvas-start border-end-0 shadow" tabindex="-1" id="sidebarMenu" style="width: 280px; z-index: 1050;">
-        <div class="offcanvas-header p-4 border-bottom d-flex align-items-center justify-content-between" style="height: 80px;">
-          <div class="d-flex align-items-center gap-2">
+        <div class="offcanvas-header py-3 px-4 border-bottom d-flex align-items-center justify-content-start gap-3" style="height: 80px;">
+          <button class="btn border-0 shadow-sm d-flex align-items-center justify-content-center" type="button" data-bs-dismiss="offcanvas" style="background-color: #ffffff; color: #1e293b; width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;">
+            <i class="lni lni-close fw-bold fs-5"></i>
+          </button>
+          <div class="d-flex align-items-center gap-2 ms-2">
             <div class="bg-primary text-white d-flex align-items-center justify-content-center rounded-circle shadow-sm" style="width: 35px; height: 35px;">
               <i class="lni lni-wallet"></i>
             </div>
             <h5 class="offcanvas-title fw-bold text-dark mb-0 fs-5" style="letter-spacing: -0.5px;">FinanzasPro</h5>
           </div>
-          <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         
         <div class="offcanvas-body d-flex flex-column p-0">
@@ -466,8 +475,13 @@ function renderDashboardLayout(content, pathname) {
           <p class="text-muted small fw-bold mb-2 px-2 text-uppercase" style="letter-spacing: 1px;">Ajustes</p>
           <ul class="nav flex-column gap-1">
             <li class="nav-item">
-              <a href="/perfil/editar" data-link class="nav-link text-dark fw-semibold rounded px-3 py-2 ${pathname.startsWith('/perfil') ? 'bg-primary bg-opacity-10 text-primary' : ''}">
-                <i class="lni lni-cog me-2"></i> Perfil y Configuración
+              <a href="/perfil/editar" data-link class="nav-link text-dark fw-semibold rounded px-3 py-2 ${pathname === '/perfil/editar' ? 'bg-primary bg-opacity-10 text-primary' : ''}">
+                <i class="lni lni-user me-2"></i> Mi Perfil
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/perfil/configuracion" data-link class="nav-link text-dark fw-semibold rounded px-3 py-2 ${pathname === '/perfil/configuracion' ? 'bg-primary bg-opacity-10 text-primary' : ''}">
+                <i class="lni lni-cog me-2"></i> Configuración
               </a>
             </li>
           </ul>
@@ -486,10 +500,10 @@ function renderDashboardLayout(content, pathname) {
       <div class="flex-grow-1 d-flex flex-column h-100 overflow-y-auto w-100">
         
         <!-- ======== Topbar start ======== -->
-        <header class="bg-white shadow-sm py-3 px-4 d-flex justify-content-between align-items-center" style="z-index: 999; height: 80px;">
+        <header class="shadow-sm py-3 px-4 d-flex justify-content-between align-items-center" style="background-color: #eef2f6; z-index: 999; height: 80px;">
           <div class="d-flex align-items-center gap-3">
-            <button class="btn btn-light border-0 d-flex align-items-center justify-content-center shadow-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" style="width: 40px; height: 40px; border-radius: 50%;">
-              <i class="lni lni-menu fw-bold"></i>
+            <button class="btn border-0 shadow-sm d-flex align-items-center justify-content-center" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" style="background-color: #ffffff; color: #1e293b; width: 40px; height: 40px; border-radius: 50%;">
+              <i class="lni lni-menu fw-bold fs-5"></i>
             </button>
             
             <div class="d-flex align-items-center gap-2 d-none d-sm-flex ms-1">
@@ -498,22 +512,30 @@ function renderDashboardLayout(content, pathname) {
               </div>
               <h4 class="mb-0 fw-bold text-dark fs-5" style="letter-spacing: -0.5px;">FinanzasPro</h4>
             </div>
-            <span class="ms-sm-3 text-muted fw-semibold d-none d-md-block border-start ps-sm-3 border-2">${isAsesor ? 'Panel de Asesor' : 'Mi Billetera'}</span>
+            <span class="ms-sm-3 text-muted fw-semibold d-none d-md-block border-start ps-sm-3 border-2">${pageTitle}</span>
           </div>
           
-          <div class="d-flex align-items-center gap-3">
+          <div class="d-flex align-items-center">
             <div class="dropdown">
-              <button class="btn btn-light btn-sm dropdown-toggle fw-bold" type="button" data-bs-toggle="dropdown">
-                👤 ${currentRole}
-              </button>
-              <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
-                <li><a class="dropdown-item ${!isAsesor ? "active" : ""}" href="/dashboard" data-link>Vista Usuario</a></li>
-                <li><a class="dropdown-item ${isAsesor ? "active" : ""}" href="/dashboard/asesor" data-link>Vista Asesor</a></li>
+              <a href="#" class="d-block text-decoration-none" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
+                <img src="${state.perfil.imagePreview || 'https://via.placeholder.com/40'}" class="rounded-circle border border-2 border-primary shadow-sm" alt="Perfil" style="width: 45px; height: 45px; object-fit: cover; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-3" aria-labelledby="dropdownUser" style="border-radius: 12px; min-width: 220px;">
+                <li class="px-3 py-2 border-bottom mb-1">
+                  <div class="d-flex align-items-center gap-3">
+                    <img src="${state.perfil.imagePreview || 'https://via.placeholder.com/40'}" class="rounded-circle" alt="Perfil" style="width: 40px; height: 40px; object-fit: cover;">
+                    <div>
+                      <p class="mb-0 fw-bold text-dark lh-sm" style="font-size: 0.95rem;">${escapeHtml(state.perfil.nombre || 'Usuario')}</p>
+                      <small class="text-muted fw-semibold" style="font-size: 0.75rem;">${currentRole}</small>
+                    </div>
+                  </div>
+                </li>
+                <li><a class="dropdown-item py-2 fw-semibold text-dark ${!isAsesor ? "bg-primary bg-opacity-10 text-primary" : ""}" href="/dashboard" data-link><i class="lni lni-user me-2"></i> Vista Usuario</a></li>
+                <li><a class="dropdown-item py-2 fw-semibold text-dark ${isAsesor ? "bg-primary bg-opacity-10 text-primary" : ""}" href="/dashboard/asesor" data-link><i class="lni lni-briefcase me-2"></i> Vista Asesor</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item py-2 fw-bold text-danger" href="/login" data-link><i class="lni lni-exit me-2"></i> Cerrar Sesión</a></li>
               </ul>
             </div>
-            <a href="/perfil/editar" data-link class="text-decoration-none">
-              <img src="${state.perfil.imagePreview || 'https://via.placeholder.com/40'}" class="rounded-circle border border-2 border-primary shadow-sm" alt="Perfil" style="width: 45px; height: 45px; object-fit: cover;">
-            </a>
           </div>
         </header>
         <!-- ======== Topbar end ======== -->
