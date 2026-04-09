@@ -415,59 +415,102 @@ function renderAppHeader({ rightContent = "", brandAction = "" } = {}) {
   `;
 }
 
-function renderTopNavbar(pathname) {
-  const currentRole = cambioRol(pathname);
-  const brandAction = pathname.startsWith("/cliente/")
-    ? "/dashboard/asesor"
-    : "/dashboard";
-
-  return renderAppHeader({
-    brandAction,
-    rightContent: `
-      <div class="dropdown">
-        <button
-          class="btn btn-light btn-sm dropdown-toggle"
-          type="button"
-          id="roleDropdown"
-          data-bs-toggle="dropdown"
-          aria-expanded="false"
-        >
-          ${currentRole}
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="roleDropdown">
-          <li><a class="dropdown-item ${currentRole === "Usuario" ? "active" : ""}" href="/dashboard" data-link>Usuario</a></li>
-          <li><a class="dropdown-item ${currentRole === "Asesor" ? "active" : ""}" href="/dashboard/asesor" data-link>Asesor</a></li>
-        </ul>
-      </div>
-      <div class="dropdown">
-        <button
-          class="btn btn-light btn-sm dropdown-toggle"
-          type="button"
-          id="profileDropdown"
-          data-bs-toggle="dropdown"
-          aria-expanded="false"
-        >
-          Perfil
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
-          <li><a class="dropdown-item" href="/perfil/editar" data-link>Editar Perfil</a></li>
-          <li><a class="dropdown-item" href="/perfil/configuracion" data-link>Configuracion de Cuenta</a></li>
-          <li><a class="dropdown-item" href="/perfil/notificaciones" data-link>Preferencias de Notificacion</a></li>
-          <li><hr class="dropdown-divider"></li>
-          <li><a class="dropdown-item" href="/" data-link>Cerrar Sesion</a></li>
-        </ul>
-      </div>
-    `,
-  });
-}
-
 function renderDashboardLayout(content, pathname) {
+  const currentRole = cambioRol(pathname);
+  const isAsesor = currentRole === "Asesor";
+
   return `
-    <div class="app-shell bg-body-tertiary min-vh-100 d-flex flex-column">
-      ${renderTopNavbar(pathname)}
-      <main class="app-main container-fluid py-4 px-3 px-md-4 flex-grow-1">
-        ${content}
-      </main>
+    <div class="d-flex min-vh-100 overflow-hidden" style="background-color: #e2e8f0;">
+      
+      <!-- ======== Sidebar start ======== -->
+      <aside class="bg-white border-end shadow-sm d-none d-md-flex flex-column" style="width: 280px; z-index: 1000;">
+        <div class="p-4 border-bottom d-flex align-items-center justify-content-center" style="height: 80px;">
+          <a href="/" data-link class="text-decoration-none">
+            <img src="/assets/img/logo/logo.svg" alt="Logo" style="max-height: 40px;" />
+          </a>
+        </div>
+        
+        <nav class="flex-grow-1 p-3 overflow-y-auto">
+          <p class="text-muted small fw-bold mb-2 px-2 text-uppercase" style="letter-spacing: 1px;">Menú Principal</p>
+          <ul class="nav flex-column gap-1 mb-4">
+            <li class="nav-item">
+              <a href="${isAsesor ? '/dashboard/asesor' : '/dashboard'}" data-link class="nav-link text-dark fw-bold rounded px-3 py-2 ${pathname === '/dashboard' || pathname === '/dashboard/asesor' ? 'bg-primary bg-opacity-10 text-primary' : ''}">
+                <i class="lni lni-grid-alt me-2"></i> Panel de Control
+              </a>
+            </li>
+            ${!isAsesor ? `
+            <li class="nav-item">
+              <a href="#" class="nav-link text-dark fw-semibold rounded px-3 py-2">
+                <i class="lni lni-bar-chart me-2"></i> Reportes
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#" class="nav-link text-dark fw-semibold rounded px-3 py-2">
+                <i class="lni lni-credit-cards me-2"></i> Tarjetas
+              </a>
+            </li>
+            ` : `
+            <li class="nav-item">
+              <a href="#" class="nav-link text-dark fw-semibold rounded px-3 py-2">
+                <i class="lni lni-users me-2"></i> Mis Clientes
+              </a>
+            </li>
+            `}
+          </ul>
+
+          <p class="text-muted small fw-bold mb-2 px-2 text-uppercase" style="letter-spacing: 1px;">Ajustes</p>
+          <ul class="nav flex-column gap-1">
+            <li class="nav-item">
+              <a href="/perfil/editar" data-link class="nav-link text-dark fw-semibold rounded px-3 py-2 ${pathname.startsWith('/perfil') ? 'bg-primary bg-opacity-10 text-primary' : ''}">
+                <i class="lni lni-cog me-2"></i> Perfil y Configuración
+              </a>
+            </li>
+          </ul>
+        </nav>
+
+        <div class="p-3 border-top">
+          <a href="/" data-link class="btn btn-outline-danger w-100 fw-bold text-start">
+            <i class="lni lni-exit me-2"></i> Cerrar Sesión
+          </a>
+        </div>
+      </aside>
+      <!-- ======== Sidebar end ======== -->
+
+      <!-- ======== Main Content Wrapper ======== -->
+      <div class="flex-grow-1 d-flex flex-column h-100 overflow-y-auto">
+        
+        <!-- ======== Topbar start ======== -->
+        <header class="bg-white shadow-sm py-3 px-4 d-flex justify-content-between align-items-center" style="z-index: 999; height: 80px;">
+          <div class="d-flex align-items-center gap-3">
+            <button class="btn btn-light d-md-none border-0" type="button">
+              <i class="lni lni-menu"></i>
+            </button>
+            <h4 class="mb-0 fw-bold text-dark d-none d-sm-block">${isAsesor ? 'Panel de Asesor' : 'Mi Billetera'}</h4>
+          </div>
+          
+          <div class="d-flex align-items-center gap-3">
+            <div class="dropdown">
+              <button class="btn btn-light btn-sm dropdown-toggle fw-bold" type="button" data-bs-toggle="dropdown">
+                👤 ${currentRole}
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
+                <li><a class="dropdown-item ${!isAsesor ? "active" : ""}" href="/dashboard" data-link>Vista Usuario</a></li>
+                <li><a class="dropdown-item ${isAsesor ? "active" : ""}" href="/dashboard/asesor" data-link>Vista Asesor</a></li>
+              </ul>
+            </div>
+            <a href="/perfil/editar" data-link class="text-decoration-none">
+              <img src="${state.perfil.imagePreview || 'https://via.placeholder.com/40'}" class="rounded-circle border border-2 border-primary shadow-sm" alt="Perfil" style="width: 45px; height: 45px; object-fit: cover;">
+            </a>
+          </div>
+        </header>
+        <!-- ======== Topbar end ======== -->
+
+        <!-- ======== Page Content ======== -->
+        <main class="container-fluid py-4 px-3 px-md-4 flex-grow-1">
+          ${content}
+        </main>
+        
+      </div>
     </div>
   `;
 }
