@@ -19,7 +19,7 @@ export function renderDashboardPage({
       const progress = ahorro.meta ? Math.min((ahorro.monto / ahorro.meta) * 100, 100) : 0;
 
       return `
-        <div class="col-12 col-md-6">
+        <div class="col-12 col-lg-4">
           <div class="p-4 bg-white border-0 shadow-sm" style="border-radius: 12px; transition: transform 0.2s;">
             <div class="d-flex justify-content-between align-items-start mb-3">
               <div>
@@ -65,8 +65,9 @@ export function renderDashboardPage({
       : '';
 
   return `
+    <!-- ======== Fila 1: Metricas Principales ======== -->
     <section class="row g-3 g-md-4 mb-4">
-      <div class="col-12 col-md-6 col-lg-3">
+      <div class="col-12 col-md-4">
         <article class="card border-0 shadow-sm h-100 bg-primary bg-gradient text-white" style="border-radius: 15px;">
           <div class="card-body p-4 position-relative overflow-hidden d-flex flex-column justify-content-between">
             <div class="position-absolute opacity-25" style="top: -10px; right: -15px; font-size: 90px; transform: rotate(-10deg);">
@@ -82,24 +83,65 @@ export function renderDashboardPage({
           </div>
         </article>
       </div>
-      <div class="col-12 col-md-6 col-lg-3">
+      <div class="col-12 col-md-4">
+        <article class="card border-0 shadow-sm h-100 bg-success bg-gradient text-white" style="border-radius: 15px;">
+          <div class="card-body p-4 position-relative overflow-hidden d-flex flex-column justify-content-between">
+            <div class="position-absolute opacity-25" style="top: -10px; right: -15px; font-size: 90px; transform: rotate(-10deg);">
+              <i class="lni lni-coin"></i>
+            </div>
+            <div style="z-index: 1; position: relative;">
+              <p class="mb-1 fw-semibold text-white-50">Presupuesto Disponible</p>
+              <h2 class="h3 mb-0 fw-bold text-white">${formatCurrency(totalAhorros)}</h2>
+            </div>
+            <div class="mt-3" style="z-index: 1; position: relative;">
+              <small class="text-white-50 fw-semibold d-block">Suma total de ahorros</small>
+            </div>
+          </div>
+        </article>
+      </div>
+      <div class="col-12 col-md-4">
         ${renderMetricCard({ title: 'Gastos del Mes', value: '$14,350.75', color: 'danger', icon: 'lni-stats-down' })}
       </div>
     </section>
 
+    <!-- ======== Fila 2: Graficos Estirados ======== -->
     <section class="row g-3 g-md-4 mb-4">
+      <div class="col-12 col-lg-8">
+        ${
+          graficoGastos({
+            title: 'Evolucion de Gastos (Ultimos 12 Meses)',
+            canvasId: 'dashboardLineChart',
+            ariaLabel: 'Ultimos 12 meses',
+            height: '280px'
+          })
+        }
+      </div>
       <div class="col-12 col-lg-4">
         ${
           graficoTorta({
-            title: 'Categorias de Gastos (Mes Actual)',
+            title: 'Distribucion Mensual',
             canvasId: 'dashboardPieChart',
             ariaLabel: 'Categorias de gastos',
           })
         }
       </div>
+    </section>
 
-      <div class="col-12 col-lg-4">
-        <article class="card border-0 shadow-sm mb-3" style="border-radius: 15px;">
+    <!-- ======== Fila 3: Listas y Formularios ======== -->
+    <section class="row g-3 g-md-4 mb-4">
+      <div class="col-12 col-lg-7">
+        ${
+          listaUltimosGastos({
+            title: 'Movimientos Recientes',
+            expenses: dashboard.gastos,
+            showAll: dashboard.showAllRecentExpenses,
+            toggleAction: 'toggle-dashboard-expenses',
+            formatCurrency,
+          })
+        }
+      </div>
+      <div class="col-12 col-lg-5 d-flex flex-column gap-3">
+        <article class="card border-0 shadow-sm" style="border-radius: 15px;">
           <div class="card-body">
             <h2 class="h5 mb-3">Anadir Nuevo Gasto</h2>
             <form id="nuevoGastoForm">
@@ -139,57 +181,20 @@ export function renderDashboardPage({
           </div>
         </article>
       </div>
-
-      <div class="col-12 col-lg-4">
-        ${
-          listaUltimosGastos({
-            title: 'Ultimos Gastos',
-            expenses: dashboard.gastos,
-            showAll: dashboard.showAllRecentExpenses,
-            toggleAction: 'toggle-dashboard-expenses',
-            formatCurrency,
-          })
-        }
-      </div>
     </section>
 
-    <section class="row g-3 g-md-4 mb-4">
-      <div class="col-12">
-        ${
-          graficoGastos({
-            title: 'Gastos de los Ultimos 12 Meses',
-            canvasId: 'dashboardLineChart',
-            ariaLabel: 'Ultimos 12 meses',
-          })
-        }
-      </div>
-    </section>
-
+    <!-- ======== Fila 4: Panel Horizontal de Ahorros ======== -->
     <section class="row g-3 g-md-4">
-      <div class="col-12 col-lg-8">
+      <div class="col-12">
         <article class="card border-0 shadow-sm" style="border-radius: 15px;">
-          <div class="card-body">
-            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-              <h2 class="h5 mb-0">Mis Ahorros</h2>
-              <button type="button" class="btn btn-outline-primary btn-sm" data-action="open-ahorro-modal">Agregar ahorro</button>
+          <div class="card-body p-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+              <h2 class="h5 mb-0 fw-bold text-dark">Mis Metas de Ahorro</h2>
+              <button type="button" class="btn btn-outline-primary btn-sm fw-bold" style="border-radius: 8px;" data-action="open-ahorro-modal">+ Agregar meta</button>
             </div>
             <div class="row g-2">${ahorroCards}</div>
           </div>
         </article>
-      </div>
-      <div class="col-12 col-lg-4">
-        <div class="card border-0 shadow-sm h-100 bg-success bg-gradient text-white" style="border-radius: 15px;">
-          <div class="card-body p-4 position-relative overflow-hidden d-flex flex-column justify-content-center text-center">
-            <div class="position-absolute opacity-25" style="top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 150px;">
-              <i class="lni lni-coin"></i>
-            </div>
-            <div style="z-index: 1; position: relative;">
-              <p class="mb-2 fw-semibold text-white-50">Presupuesto Disponible</p>
-              <h2 class="display-5 mb-0 fw-bold text-white">${formatCurrency(totalAhorros)}</h2>
-              <small class="text-white-50 mt-2 d-block">Suma total de todos los ahorros</small>
-            </div>
-          </div>
-        </div>
       </div>
     </section>
 

@@ -1452,24 +1452,38 @@ function buildPieChart(canvasId, labels, values) {
         {
           data: values,
           backgroundColor: [
-            "#4CAF50",
-            "#FFA500",
-            "#2196F3",
-            "#9C27B0",
-            "#FFEB3B",
+            "rgba(13, 110, 253, 0.85)", // Azul
+            "rgba(25, 135, 84, 0.85)",  // Verde
+            "rgba(220, 53, 69, 0.85)",  // Rojo
+            "rgba(255, 193, 7, 0.85)",  // Amarillo
+            "rgba(13, 202, 240, 0.85)", // Celeste
           ],
-          borderColor: ["#45a049", "#FB8500", "#1976D2", "#7B1FA2", "#FBC02D"],
-          borderWidth: 2,
+          borderColor: "#ffffff",
+          borderWidth: 3,
+          hoverOffset: 8,
         },
       ],
     },
     options: {
       responsive: true,
-      maintainAspectRatio: true,
-      cutout: '75%',
-      borderWidth: 0,
+      maintainAspectRatio: false,
+      cutout: '80%',
+      layout: { padding: 10 },
       plugins: {
-        legend: { position: "bottom", labels: { usePointStyle: true, padding: 20 } },
+        legend: { 
+          position: "right", 
+          labels: { usePointStyle: true, padding: 15, font: { family: "'Inter', sans-serif", size: 13 } } 
+        },
+        tooltip: {
+          backgroundColor: 'rgba(255, 255, 255, 0.9)',
+          titleColor: '#333',
+          bodyColor: '#666',
+          borderColor: '#e2e8f0',
+          borderWidth: 1,
+          padding: 12,
+          boxPadding: 6,
+          usePointStyle: true,
+        }
       },
     },
   });

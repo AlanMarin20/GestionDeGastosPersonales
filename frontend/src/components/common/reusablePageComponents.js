@@ -10,10 +10,10 @@ export function encabezado({ title, subtitle, backAction = 'back' }) {
 
 export function graficoTorta({ title, canvasId, ariaLabel }) {
   return `
-    <article class="card border-0 shadow-sm dashboard-widget-card">
-      <div class="card-body">
-        <h2 class="h5 mb-3">${escapeHtml(title)}</h2>
-        <div class="dashboard-widget-chart">
+    <article class="card border-0 shadow-sm h-100" style="border-radius: 15px;">
+      <div class="card-body p-4 d-flex flex-column">
+        <h2 class="h5 mb-4 fw-bold text-dark">${escapeHtml(title)}</h2>
+        <div class="flex-grow-1 position-relative" style="min-height: 250px; width: 100%;">
           <canvas id="${escapeHtml(canvasId)}" aria-label="${escapeHtml(ariaLabel)}" role="img"></canvas>
         </div>
       </div>
@@ -23,10 +23,10 @@ export function graficoTorta({ title, canvasId, ariaLabel }) {
 
 export function graficoGastos({ title, canvasId, ariaLabel, height = '300px' }) {
   return `
-    <article class="card border-0 shadow-sm dashboard-widget-card">
-      <div class="card-body">
-        <h2 class="h5 mb-3">${escapeHtml(title)}</h2>
-        <div style="height:${escapeHtml(height)}">
+    <article class="card border-0 shadow-sm h-100" style="border-radius: 15px;">
+      <div class="card-body p-4 d-flex flex-column">
+        <h2 class="h5 mb-4 fw-bold text-dark">${escapeHtml(title)}</h2>
+        <div class="flex-grow-1 position-relative" style="min-height:${escapeHtml(height)}; width: 100%;">
           <canvas id="${escapeHtml(canvasId)}" aria-label="${escapeHtml(ariaLabel)}" role="img"></canvas>
         </div>
       </div>
