@@ -1,8 +1,10 @@
 export function encabezado({ title, subtitle, backAction = 'back' }) {
   return `
     <div class="mb-4">
-      <button class="btn btn-outline-secondary btn-sm mb-3" data-action="${backAction}">← Volver</button>
-      <h1 class="h3">${escapeHtml(title)}</h1>
+      <button class="btn btn-link text-decoration-none text-muted p-0 mb-3 d-inline-flex align-items-center gap-2 fw-semibold" data-action="${backAction}" style="transition: color 0.2s;" onmouseover="this.classList.replace('text-muted', 'text-primary')" onmouseout="this.classList.replace('text-primary', 'text-muted')">
+        <i class="lni lni-arrow-left"></i> Volver
+      </button>
+      <h1 class="h3 fw-bold text-dark mb-1">${escapeHtml(title)}</h1>
       <p class="text-muted">${escapeHtml(subtitle)}</p>
     </div>
   `;
