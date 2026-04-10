@@ -27,7 +27,9 @@ export function renderDetalleClientePage({
   state,
   escapeHtml,
   formatCurrency,
-  encabezado,
+  encabezadoInterno,
+  profileImage,
+  profileName,
 }) {
   const cliente = resolveDetalleCliente(pathname, state);
   if (!cliente) {
@@ -37,13 +39,13 @@ export function renderDetalleClientePage({
   const detalle = state.detalleCliente;
 
   return `
-    ${
-      encabezado({
-        title: cliente.nombre,
-        subtitle: `Presupuesto Mensual: ${formatCurrency(cliente.presupuesto)}`,
-        backAction: 'back-to-asesor',
-      })
-    }
+    ${encabezadoInterno({
+      pageTitle: `Cliente: ${cliente.nombre}`,
+      profileImage,
+      profileName,
+      currentRole: 'Asesor',
+      isAsesor: true,
+    })}
 
     <section class="row g-3 g-md-4 mb-4">
       <div class="col-12 col-md-6 col-lg-3">

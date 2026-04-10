@@ -1,16 +1,22 @@
-export function renderConfiguracionCuentaPage({ state, escapeHtml, encabezado }) {
+export function renderConfiguracionCuentaPage({
+  state,
+  escapeHtml,
+  encabezadoInterno,
+  profileImage,
+  profileName,
+}) {
   const config = state.configuracion;
 
   return `
-    <div class="container py-4">
-      ${
-        encabezado({
-          title: 'Configuracion de Cuenta',
-          subtitle: 'Administra tu cuenta y preferencias',
-          backAction: 'back',
-        })
-      }
+    ${encabezadoInterno({
+      pageTitle: '',
+      profileImage,
+      profileName,
+      currentRole: 'Usuario',
+      isAsesor: false,
+    })}
 
+    <div class="container py-4">
       <div class="row">
         <div class="col-12 col-lg-6 mb-4">
           <div class="card border-0 shadow-sm h-100" style="border-radius: 15px;">

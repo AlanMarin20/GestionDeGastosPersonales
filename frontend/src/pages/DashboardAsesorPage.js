@@ -1,4 +1,11 @@
-export function renderDashboardAsesorPage({ state, escapeHtml, formatCurrency }) {
+export function renderDashboardAsesorPage({
+  state,
+  escapeHtml,
+  formatCurrency,
+  encabezadoInterno,
+  profileImage,
+  profileName,
+}) {
   const asesor = state.asesor;
   const clientesFiltrados = asesor.clientes.filter((c) =>
     c.nombre.toLowerCase().includes(asesor.busqueda.toLowerCase()),
@@ -24,6 +31,14 @@ export function renderDashboardAsesorPage({ state, escapeHtml, formatCurrency })
   };
 
   return `
+    ${encabezadoInterno({
+      pageTitle: '',
+      profileImage,
+      profileName,
+      currentRole: 'Asesor',
+      isAsesor: true,
+    })}
+
     <section class="row g-3 g-md-4 mb-4">
       <div class="col-12 col-md-6 col-lg-4">
         <div class="card border-0 shadow-sm border-start" style="border-left-width:4px;border-left-color:#0d6efd">

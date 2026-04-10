@@ -1,16 +1,22 @@
-export function renderEditarPerfilPage({ state, escapeHtml, encabezado }) {
+export function renderEditarPerfilPage({
+  state,
+  escapeHtml,
+  encabezadoInterno,
+  profileImage,
+  profileName,
+}) {
   const perfil = state.perfil;
 
   return `
-    <div class="container py-4">
-      ${
-        encabezado({
-          title: 'Editar Perfil',
-          subtitle: 'Actualiza tu informacion personal',
-          backAction: 'back',
-        })
-      }
+    ${encabezadoInterno({
+      pageTitle: '',
+      profileImage,
+      profileName,
+      currentRole: 'Usuario',
+      isAsesor: false,
+    })}
 
+    <div class="container py-4">
       <div class="row">
         <div class="col-12 col-lg-4 mb-4">
           <div class="card border-0 shadow-sm h-100" style="border-radius: 15px;">

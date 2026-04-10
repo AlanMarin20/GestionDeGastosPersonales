@@ -1,7 +1,10 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import * as bootstrap from "bootstrap";
 import Chart from "chart.js/auto";
-import { encabezado } from "./components/common/reusablePageComponents";
+import {
+  encabezadoExterno,
+  encabezadoInterno,
+} from "./components/common/reusablePageComponents";
 import { renderConfiguracionCuentaPage as renderConfiguracionCuentaPageView } from "./pages/ConfiguracionCuentaPage";
 import {
   renderDetalleClientePage as renderDetalleClientePageView,
@@ -21,6 +24,7 @@ const appRoot = document.getElementById("root");
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 const ACCESS_TOKEN_KEY = "access_token";
+const DEFAULT_PROFILE_IMAGE = "/assets/img/user-avatar-default.svg";
 
 const state = {
   dashboard: {
@@ -204,13 +208,13 @@ const state = {
     id: null,
     nombre: "",
     email: "",
-    imagen: "https://ui-avatars.com/api/?name=Usuario&background=0d6efd&color=fff",
+    imagen: DEFAULT_PROFILE_IMAGE,
     passwordData: {
       actual: "",
       nueva: "",
       confirmar: "",
     },
-    imagePreview: "https://ui-avatars.com/api/?name=Usuario&background=0d6efd&color=fff",
+    imagePreview: DEFAULT_PROFILE_IMAGE,
   },
   currentUser: null,
   profileLoaded: false,
@@ -394,37 +398,8 @@ function cambioRol(pathname) {
     : "Usuario";
 }
 
-function renderAppHeader({ rightContent = "", brandAction = "" } = {}) {
-  return `
-    <header class="border-bottom bg-primary">
-      <nav class="container-fluid px-3 px-md-4 navbar navbar-expand-lg py-3">
-        <button
-          type="button"
-          class="navbar-brand fw-semibold mb-0 text-white bg-transparent border-0 p-0"
-          ${brandAction ? `data-nav="${brandAction}" style="cursor:pointer"` : ""}
-        >
-          Gestion de Gastos Personales
-        </button>
-        ${
-          rightContent
-            ? `<div class="ms-auto d-flex align-items-center gap-2">${rightContent}</div>`
-            : ""
-        }
-      </nav>
-    </header>
-  `;
-}
-
 function renderDashboardLayout(content, pathname) {
-  const currentRole = cambioRol(pathname);
-  const isAsesor = currentRole === "Asesor";
-
-  let pageTitle = "Dashboard";
-  if (pathname === "/dashboard/asesor") pageTitle = "Panel de Asesor";
-  else if (pathname.startsWith("/cliente/")) pageTitle = "Detalle de Cliente";
-  else if (pathname === "/perfil/editar") pageTitle = "Mi Perfil";
-  else if (pathname === "/perfil/configuracion") pageTitle = "Configuración de la App";
-  else if (pathname === "/perfil/notificaciones") pageTitle = "Notificaciones";
+  const isAsesor = cambioRol(pathname) === "Asesor";
 
   return `
     <div class="d-flex min-vh-100 overflow-hidden" style="background-color: #e2e8f0;">
@@ -498,47 +473,6 @@ function renderDashboardLayout(content, pathname) {
 
       <!-- ======== Main Content Wrapper ======== -->
       <div class="flex-grow-1 d-flex flex-column h-100 overflow-y-auto w-100">
-        
-        <!-- ======== Topbar start ======== -->
-        <header class="shadow-sm py-3 px-4 d-flex justify-content-between align-items-center" style="background-color: #eef2f6; z-index: 999; height: 80px;">
-          <div class="d-flex align-items-center gap-3">
-            <button class="btn border-0 shadow-sm d-flex align-items-center justify-content-center" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" style="background-color: #ffffff; color: #1e293b; width: 40px; height: 40px; border-radius: 50%;">
-              <i class="lni lni-menu fw-bold fs-5"></i>
-            </button>
-            
-            <div class="d-flex align-items-center gap-2 d-none d-sm-flex ms-1">
-              <div class="bg-primary text-white d-flex align-items-center justify-content-center rounded-circle shadow-sm" style="width: 35px; height: 35px;">
-                <i class="lni lni-wallet"></i>
-              </div>
-              <h4 class="mb-0 fw-bold text-dark fs-5" style="letter-spacing: -0.5px;">FinanzasPro</h4>
-            </div>
-            <span class="ms-sm-3 text-muted fw-semibold d-none d-md-block border-start ps-sm-3 border-2">${pageTitle}</span>
-          </div>
-          
-          <div class="d-flex align-items-center">
-            <div class="dropdown">
-              <a href="#" class="d-block text-decoration-none" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
-                <img src="${state.perfil.imagePreview || 'https://via.placeholder.com/40'}" class="rounded-circle border border-2 border-primary shadow-sm" alt="Perfil" style="width: 45px; height: 45px; object-fit: cover; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-              </a>
-              <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-3" aria-labelledby="dropdownUser" style="border-radius: 12px; min-width: 220px;">
-                <li class="px-3 py-2 border-bottom mb-1">
-                  <div class="d-flex align-items-center gap-3">
-                    <img src="${state.perfil.imagePreview || 'https://via.placeholder.com/40'}" class="rounded-circle" alt="Perfil" style="width: 40px; height: 40px; object-fit: cover;">
-                    <div>
-                      <p class="mb-0 fw-bold text-dark lh-sm" style="font-size: 0.95rem;">${escapeHtml(state.perfil.nombre || 'Usuario')}</p>
-                      <small class="text-muted fw-semibold" style="font-size: 0.75rem;">${currentRole}</small>
-                    </div>
-                  </div>
-                </li>
-                <li><a class="dropdown-item py-2 fw-semibold text-dark ${!isAsesor ? "bg-primary bg-opacity-10 text-primary" : ""}" href="/dashboard" data-link><i class="lni lni-user me-2"></i> Vista Usuario</a></li>
-                <li><a class="dropdown-item py-2 fw-semibold text-dark ${isAsesor ? "bg-primary bg-opacity-10 text-primary" : ""}" href="/dashboard/asesor" data-link><i class="lni lni-briefcase me-2"></i> Vista Asesor</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item py-2 fw-bold text-danger" href="/login" data-link><i class="lni lni-exit me-2"></i> Cerrar Sesión</a></li>
-              </ul>
-            </div>
-          </div>
-        </header>
-        <!-- ======== Topbar end ======== -->
 
         <!-- ======== Page Content ======== -->
         <main class="container-fluid py-4 px-3 px-md-4 flex-grow-1">
@@ -563,36 +497,72 @@ function renderMetricCard({ title, value, color = "primary", icon = "lni-bar-cha
   const mutedColor = (color === 'warning' || color === 'info') ? 'text-dark opacity-75' : 'text-white-50';
 
   return `
-    <article class="card border-0 shadow-sm h-100 ${gradientClasses[color] ?? gradientClasses.primary}" style="border-radius: 15px;">
-      <div class="card-body p-4 position-relative overflow-hidden">
-        <div class="position-absolute opacity-25" style="top: -10px; right: -15px; font-size: 90px; transform: rotate(-10deg);">
+    <article class="card border-0 shadow-sm ${gradientClasses[color] ?? gradientClasses.primary}" style="border-radius: 15px; min-height: 90px;">
+      <div class="card-body p-3 position-relative overflow-hidden d-flex flex-column justify-content-center">
+        <div class="position-absolute opacity-25" style="top: -5px; right: -5px; font-size: 60px; transform: rotate(-10deg);">
           <i class="lni ${icon}"></i>
         </div>
-        <p class="mb-1 fw-semibold ${mutedColor}" style="z-index: 1; position: relative;">${escapeHtml(title)}</p>
-        <h2 class="h3 mb-0 fw-bold ${textColor}" style="z-index: 1; position: relative;">${escapeHtml(value)}</h2>
+        <p class="mb-1 fw-semibold ${mutedColor}" style="z-index: 1; position: relative; font-size: 0.8rem;">${escapeHtml(title)}</p>
+        <h2 class="mb-0 fw-bold ${textColor}" style="z-index: 1; position: relative; font-size: 1rem;">${escapeHtml(value)}</h2>
+      </div>
+    </article>
+  `;
+}
+
+function renderValueCard({ title, value, color = "primary", icon = "lni-bar-chart", hasButton = false, buttonAction = "", buttonId = "" }) {
+  const gradientClasses = {
+    success: "bg-success bg-gradient text-white",
+    danger: "bg-danger bg-gradient text-white",
+    info: "bg-info bg-gradient text-dark",
+    warning: "bg-warning bg-gradient text-dark",
+    primary: "bg-primary bg-gradient text-white",
+  };
+  
+  const textColor = (color === 'warning' || color === 'info') ? 'text-dark' : 'text-white';
+  const mutedColor = (color === 'warning' || color === 'info') ? 'text-dark opacity-75' : 'text-white-50';
+
+  const buttonHTML = hasButton ? `<button type="button" class="btn btn-light btn-sm fw-bold shadow-sm" data-action="${buttonAction}" data-id="${buttonId}" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); border-radius: 50%; width: 24px; height: 24px; padding: 0; display: flex; align-items: center; justify-content: center; z-index: 2; color: #0d6efd; font-size: 14px;">+</button>` : '';
+
+  return `
+    <article class="card border-0 shadow-sm ${gradientClasses[color] ?? gradientClasses.primary}" style="border-radius: 15px; min-height: 90px;">
+      <div class="card-body p-3 position-relative overflow-hidden d-flex flex-column justify-content-center">
+        <div class="position-absolute opacity-25" style="top: -5px; right: -5px; font-size: 60px; transform: rotate(-10deg);">
+          <i class="lni ${icon}"></i>
+        </div>
+        <p class="mb-1 fw-semibold ${mutedColor}" style="z-index: 1; position: relative; font-size: 0.8rem;">${escapeHtml(title)}</p>
+        <h2 class="mb-0 fw-bold ${textColor}" style="z-index: 1; position: relative; font-size: 1rem;">${escapeHtml(value)}</h2>
+        ${buttonHTML}
       </div>
     </article>
   `;
 }
 
 function renderLandingPage() {
-  return renderLandingPageView({ renderAppHeader });
+  return renderLandingPageView({ encabezadoExterno });
 }
 
 function renderLoginPage() {
-  return renderLoginPageView({ renderAppHeader });
+  return renderLoginPageView({ encabezadoExterno });
 }
 
 function renderRegistroPage() {
-  return renderRegistroPageView({ renderAppHeader });
+  return renderRegistroPageView({ encabezadoExterno });
 }
 
 function renderDashboardPage() {
+  const currentRole = "Usuario";
+
   return renderDashboardPageView({
     state,
     formatCurrency,
     escapeHtml,
     renderMetricCard,
+    renderValueCard,
+    encabezadoInterno,
+    profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
+    profileName: state.perfil.nombre || "Usuario",
+    currentRole,
+    isAsesor: false,
   });
 }
 
@@ -601,6 +571,9 @@ function renderDashboardAsesorPage() {
     state,
     escapeHtml,
     formatCurrency,
+    encabezadoInterno,
+    profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
+    profileName: state.perfil.nombre || "Usuario",
   });
 }
 
@@ -614,16 +587,30 @@ function renderDetalleClientePage(pathname) {
     state,
     escapeHtml,
     formatCurrency,
-    encabezado,
+    encabezadoInterno,
+    profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
+    profileName: state.perfil.nombre || "Usuario",
   });
 }
 
 function renderEditarPerfilPage() {
-  return renderEditarPerfilPageView({ state, escapeHtml, encabezado });
+  return renderEditarPerfilPageView({
+    state,
+    escapeHtml,
+    encabezadoInterno,
+    profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
+    profileName: state.perfil.nombre || "Usuario",
+  });
 }
 
 function renderConfiguracionCuentaPage() {
-  return renderConfiguracionCuentaPageView({ state, escapeHtml, encabezado });
+  return renderConfiguracionCuentaPageView({
+    state,
+    escapeHtml,
+    encabezadoInterno,
+    profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
+    profileName: state.perfil.nombre || "Usuario",
+  });
 }
 
 function renderNotificationToggleItem({
@@ -650,10 +637,12 @@ function renderPreferenciaNotificacionesPage() {
 
   return `
     <div class="container py-4">
-      ${encabezado({
-        title: "Preferencias de Notificacion",
-        subtitle: "Controla como y cuando recibiras notificaciones",
-        backAction: "back",
+      ${encabezadoInterno({
+        pageTitle: "Notificaciones",
+        profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
+        profileName: state.perfil.nombre || "Usuario",
+        currentRole: "Usuario",
+        isAsesor: false,
       })}
 
       <div class="card border-0 shadow-sm mb-4">

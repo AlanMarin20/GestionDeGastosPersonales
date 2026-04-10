@@ -9,6 +9,12 @@ export function renderDashboardPage({
   formatCurrency,
   escapeHtml,
   renderMetricCard,
+  renderValueCard,
+  encabezadoInterno,
+  profileImage,
+  profileName,
+  currentRole,
+  isAsesor,
 }) {
   const dashboard = state.dashboard;
   const totalAhorros = dashboard.ahorros.reduce((sum, ahorro) => sum + ahorro.monto, 0);
@@ -29,13 +35,13 @@ export function renderDashboardPage({
               <button
                 type="button"
                 class="btn btn-primary btn-sm rounded-circle d-flex align-items-center justify-content-center shadow-sm"
-                style="width: 32px; height: 32px;"
+                style="width: 32px; height: 32px; font-weight: bold; font-size: 18px;"
                 data-action="open-destino-modal"
                 data-ahorro-id="${ahorro.id}"
                 aria-label="Destinar fondos a ${escapeHtml(ahorro.nombre)}"
                 title="Destinar fondos desde Saldo Actual"
               >
-                <i class="lni lni-plus"></i>
+                +
               </button>
             </div>
             ${
@@ -65,82 +71,29 @@ export function renderDashboardPage({
       : '';
 
   return `
+    ${encabezadoInterno({
+      pageTitle: '',
+      profileImage,
+      profileName,
+      currentRole,
+      isAsesor,
+    })}
+
     <!-- ======== Fila 1: Metricas Principales ======== -->
     <section class="row g-3 g-md-4 mb-4">
-      <div class="col-12 col-md-4">
-        <article class="card border-0 shadow-sm h-100 bg-primary bg-gradient text-white" style="border-radius: 15px;">
-          <div class="card-body p-4 position-relative overflow-hidden d-flex flex-column justify-content-between">
-            <div class="position-absolute opacity-25" style="top: -10px; right: -15px; font-size: 90px; transform: rotate(-10deg);">
-              <i class="lni lni-wallet"></i>
-            </div>
-            <div style="z-index: 1; position: relative;">
-              <p class="mb-1 fw-semibold text-white-50">Saldo Actual</p>
-              <h2 class="h3 mb-0 fw-bold text-white">${formatCurrency(dashboard.saldoActual)}</h2>
-            </div>
-            <button type="button" class="btn btn-light btn-sm mt-3 fw-bold shadow-sm" data-action="open-ingreso-modal" style="border-radius: 8px; width: fit-content; z-index: 1; position: relative; color: #0d6efd;">
-              + Nuevo ingreso
-            </button>
-          </div>
-        </article>
+      <!-- Contenedores Saldo Actual y Presupuesto Disponible -->
+      <div class="col-12 col-lg-3 d-flex flex-column gap-1">
+        ${renderValueCard({ title: 'Saldo Actual', value: formatCurrency(dashboard.saldoActual), color: 'primary', icon: 'lni-wallet', hasButton: true, buttonAction: 'open-ingreso-modal' })}
+        ${renderValueCard({ title: 'Presupuesto Total Disponible', value: formatCurrency(totalAhorros), color: 'success', icon: 'lni-coin' })}
       </div>
-      <div class="col-12 col-md-4">
-        <article class="card border-0 shadow-sm h-100 bg-success bg-gradient text-white" style="border-radius: 15px;">
-          <div class="card-body p-4 position-relative overflow-hidden d-flex flex-column justify-content-between">
-            <div class="position-absolute opacity-25" style="top: -10px; right: -15px; font-size: 90px; transform: rotate(-10deg);">
-              <i class="lni lni-coin"></i>
-            </div>
-            <div style="z-index: 1; position: relative;">
-              <p class="mb-1 fw-semibold text-white-50">Presupuesto Disponible</p>
-              <h2 class="h3 mb-0 fw-bold text-white">${formatCurrency(totalAhorros)}</h2>
-            </div>
-            <div class="mt-3" style="z-index: 1; position: relative;">
-              <small class="text-white-50 fw-semibold d-block">Suma total de ahorros</small>
-            </div>
-          </div>
-        </article>
-      </div>
-      <div class="col-12 col-md-4">
+      
+      <!-- Gastos del Mes -->
+      <div class="col-12 col-lg-3">
         ${renderMetricCard({ title: 'Gastos del Mes', value: '$14,350.75', color: 'danger', icon: 'lni-stats-down' })}
       </div>
-    </section>
-
-    <!-- ======== Fila 2: Graficos Estirados ======== -->
-    <section class="row g-3 g-md-4 mb-4">
-      <div class="col-12 col-lg-8">
-        ${
-          graficoGastos({
-            title: 'Evolucion de Gastos (Ultimos 12 Meses)',
-            canvasId: 'dashboardLineChart',
-            ariaLabel: 'Ultimos 12 meses',
-            height: '280px'
-          })
-        }
-      </div>
-      <div class="col-12 col-lg-4">
-        ${
-          graficoTorta({
-            title: 'Distribucion Mensual',
-            canvasId: 'dashboardPieChart',
-            ariaLabel: 'Categorias de gastos',
-          })
-        }
-      </div>
-    </section>
-
-    <!-- ======== Fila 3: Listas y Formularios ======== -->
-    <section class="row g-3 g-md-4 mb-4">
-      <div class="col-12 col-lg-7">
-        ${
-          listaUltimosGastos({
-            title: 'Movimientos Recientes',
-            expenses: dashboard.gastos,
-            showAll: dashboard.showAllRecentExpenses,
-            toggleAction: 'toggle-dashboard-expenses',
-            formatCurrency,
-          })
-        }
-      </div>
-      <div class="col-12 col-lg-5 d-flex flex-column gap-3">
+      
+      <!-- Añadir Nuevo Gasto (Arriba) -->
+      <div class="col-12 col-lg-6">
         <article class="card border-0 shadow-sm" style="border-radius: 15px;">
           <div class="card-body">
             <h2 class="h5 mb-3">Anadir Nuevo Gasto</h2>
@@ -165,38 +118,100 @@ export function renderDashboardPage({
                 </select>
               </div>
               <button type="submit" class="btn btn-primary btn-sm w-100">Registrar Gasto</button>
+              <button type="button" class="btn btn-outline-primary btn-sm w-100 mt-2">Registrar Gasto con imagen</button>
             </form>
           </div>
         </article>
-
-        <article class="card border-0 shadow-sm" style="border-radius: 15px;">
-          <div class="card-body">
-            <h2 class="h5 mb-3"><i class="bi bi-lightbulb me-2"></i>Recomendaciones</h2>
-            <div class="alert alert-info alert-sm mb-2 py-2 px-3" role="alert">
-              <small><strong>💡 Sugerencia IA:</strong> Reducir gastos de comida un 15%</small>
-            </div>
-            <div class="alert alert-warning alert-sm py-2 px-3" role="alert">
-              <small><strong>Asesor:</strong> Tu presupuesto de vivienda es alto. Considera revisarlo.</small>
-            </div>
-          </div>
-        </article>
       </div>
     </section>
 
-    <!-- ======== Fila 4: Panel Horizontal de Ahorros ======== -->
-    <section class="row g-3 g-md-4">
-      <div class="col-12">
-        <article class="card border-0 shadow-sm" style="border-radius: 15px;">
-          <div class="card-body p-4">
-            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
-              <h2 class="h5 mb-0 fw-bold text-dark">Mis Metas de Ahorro</h2>
-              <button type="button" class="btn btn-outline-primary btn-sm fw-bold" style="border-radius: 8px;" data-action="open-ahorro-modal">+ Agregar meta</button>
-            </div>
-            <div class="row g-2">${ahorroCards}</div>
+    ${true
+      ? `
+        <!-- ======== Recomendaciones ======== -->
+        <section class="row g-3 g-md-4 mb-4">
+          <div class="col-12 col-lg-6">
+            <article class="card border-0 shadow-sm" style="border-radius: 15px;">
+              <div class="card-body">
+                <h2 class="h5 mb-3"><i class="bi bi-lightbulb me-2"></i>Recomendaciones</h2>
+                <div class="alert alert-info alert-sm mb-2 py-2 px-3" role="alert">
+                  <small><strong>💡 Sugerencia IA:</strong> Reducir gastos de comida un 15%</small>
+                </div>
+                <div class="alert alert-warning alert-sm py-2 px-3" role="alert">
+                  <small><strong>Asesor:</strong> Tu presupuesto de vivienda es alto. Considera revisarlo.</small>
+                </div>
+              </div>
+            </article>
           </div>
-        </article>
+        </section>
+      `
+      : ''}
+
+    <!-- ======== Fila 1b: Graficos Estirados ======== -->
+    <section class="row g-3 g-md-4 mb-4">
+      <div class="col-12 col-lg-8">
+        ${
+          graficoGastos({
+            title: 'Evolucion de Gastos (Ultimos 12 Meses)',
+            canvasId: 'dashboardLineChart',
+            ariaLabel: 'Ultimos 12 meses',
+            height: '280px'
+          })
+        }
+      </div>
+      <div class="col-12 col-lg-4">
+        ${
+          graficoTorta({
+            title: 'Distribucion Mensual',
+            canvasId: 'dashboardPieChart',
+            ariaLabel: 'Categorias de gastos',
+          })
+        }
       </div>
     </section>
+
+    ${true
+      ? `
+        <!-- ======== Fila 2: Listas y Movimientos Recientes ======== -->
+        <section class="row g-3 g-md-4 mb-4">
+          <div class="col-12">
+            ${
+              listaUltimosGastos({
+                title: 'Gastos Recientes',
+                expenses: dashboard.gastos,
+                showAll: dashboard.showAllRecentExpenses,
+                toggleAction: 'toggle-dashboard-expenses',
+                formatCurrency,
+              })
+            }
+          </div>
+        </section>
+      `
+      : ''}
+
+    ${true
+      ? `
+        <!-- ======== Fila 3: Panel Horizontal de Ahorros ======== -->
+        <section class="row g-3 g-md-4">
+          <div class="col-12">
+            <article class="card border-0 shadow-sm" style="border-radius: 15px;">
+              <div class="card-body p-4">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+                  <div class="d-flex align-items-center gap-3">
+                    <h2 class="h5 mb-0 fw-bold text-dark">Ahorros</h2>
+                    <div class="bg-success text-white px-3 py-2" style="border-radius: 8px; min-width: 150px; text-align: center;">
+                      <small class="d-block fw-semibold" style="font-size: 0.75rem;">Pozo Ahorrado</small>
+                      <h3 class="h6 mb-0 fw-bold">${formatCurrency(totalAhorros)}</h3>
+                    </div>
+                  </div>
+                  <button type="button" class="btn btn-outline-primary btn-sm fw-bold" style="border-radius: 8px;" data-action="open-ahorro-modal">+ Crear ahorro</button>
+                </div>
+                <div class="row g-2">${ahorroCards}</div>
+              </div>
+            </article>
+          </div>
+        </section>
+      `
+      : ''}
 
     ${
       dashboard.modals.ingreso
@@ -250,7 +265,7 @@ export function renderDashboardPage({
               <div class="modal-content">
                 <form id="nuevoAhorroForm">
                   <div class="modal-header">
-                    <h2 class="modal-title h5 mb-0">Agregar ahorro</h2>
+                    <h2 class="modal-title h5 mb-0">Crear ahorro</h2>
                     <button type="button" class="btn-close" aria-label="Cerrar" data-action="close-ahorro-modal"></button>
                   </div>
                   <div class="modal-body">
