@@ -1,11 +1,11 @@
-export function renderRegistroPage({ encabezadoExterno }) {
+export function renderRegistroPage({ encabezadoExterno, botonIniciarCrearCuenta }) {
   return `
     <div class="login-page min-vh-100 position-relative overflow-hidden" style="background-color: #e2e8f0;">
       <!-- ======== bg-shapes (Efecto moderno sin imagenes) ======== -->
       <div class="position-absolute rounded-circle" style="width: 50vw; height: 50vw; max-width: 600px; max-height: 600px; background: linear-gradient(135deg, rgba(13, 110, 253, 0.4) 0%, rgba(13, 110, 253, 0.05) 100%); top: -10%; left: -10%; z-index: 0; filter: blur(40px); pointer-events: none;"></div>
       <div class="position-absolute rounded-circle" style="width: 40vw; height: 40vw; max-width: 500px; max-height: 500px; background: linear-gradient(135deg, rgba(25, 135, 84, 0.4) 0%, rgba(25, 135, 84, 0.05) 100%); bottom: -5%; right: -5%; z-index: 0; filter: blur(40px); pointer-events: none;"></div>
 
-      ${encabezadoExterno({ rightHref: '/', rightText: 'Volver al Inicio', withLightBackground: true })}
+      ${encabezadoExterno({ rightHref: '/', rightText: 'Volver al Inicio', rightClass: 'auth-back-btn', withLightBackground: true })}
 
       <!-- ======== signup-section start ======== -->
       <section class="login-section pt-150 pb-120 position-relative" style="z-index: 1;">
@@ -44,7 +44,12 @@ export function renderRegistroPage({ encabezadoExterno }) {
                       </div>
                     </div>
                     
-                    <button type="submit" class="main-btn btn-hover w-100 mb-4" style="border-radius: 8px;">Crear Cuenta</button>
+                    ${botonIniciarCrearCuenta({
+                      text: 'Crear Cuenta',
+                      type: 'submit',
+                      className: 'main-btn btn-hover w-100 mt-3',
+                      style: 'border-radius: 8px;',
+                    })}
                   </form>
                   
                   <div class="text-center">

@@ -56,6 +56,7 @@ export function encabezadoInterno({
 export function encabezadoExterno({
   rightHref = '/',
   rightText = 'Volver al Inicio',
+  rightClass = '',
   withLightBackground = false,
 } = {}) {
   const headerStyle = withLightBackground
@@ -76,7 +77,12 @@ export function encabezadoExterno({
                   </span>
                   <span class="fw-bold text-dark fs-5" style="letter-spacing: -0.4px;">FinanzasPro</span>
                 </a>
-                <a href="${escapeHtml(rightHref)}" data-link class="main-btn border-btn btn-hover btn-sm">${escapeHtml(rightText)}</a>
+                ${botonEncabezadoExterno({
+                  href: rightHref,
+                  text: rightText,
+                  className: rightClass,
+                  sizeClass: 'btn-sm',
+                })}
               </nav>
             </div>
           </div>
@@ -84,6 +90,273 @@ export function encabezadoExterno({
       </div>
     </header>
     <!-- ======== header end ======== -->
+  `;
+}
+
+// Se utiliza para Acceder, Volver al Inicio
+export function botonEncabezadoExterno({
+  href = '/',
+  text = 'Acceder',
+  className = '',
+  sizeClass = 'btn-sm',
+  wowDelay = '',
+} = {}) {
+  const classes = ['main-btn', 'border-btn', 'btn-hover', 'boton-outline-reusable'];
+
+  if (sizeClass) {
+    classes.push(sizeClass);
+  }
+
+  if (wowDelay) {
+    classes.push('wow', 'fadeInUp');
+  }
+
+  if (className) {
+    classes.push(className);
+  }
+
+  const wowDelayAttribute = wowDelay ? ` data-wow-delay="${escapeHtml(wowDelay)}"` : '';
+
+  return `<a href="${escapeHtml(href)}" data-link class="${escapeHtml(classes.join(' '))}"${wowDelayAttribute}>${escapeHtml(text)}</a>`;
+}
+
+export function botonIniciarCrearCuenta({
+  text,
+  type = 'button',
+  className = 'main-btn btn-hover w-100 mb-4',
+  style = 'border-radius: 8px;',
+  iconHtml = '',
+  id = '',
+} = {}) {
+  const idAttr = id ? ` id="${escapeHtml(id)}"` : '';
+  const iconMarkup = iconHtml ? `<span class="d-inline-flex align-items-center">${iconHtml}</span>` : '';
+  const textMarkup = `<span>${escapeHtml(text)}</span>`;
+  const content = iconHtml
+    ? `<span class="d-flex align-items-center justify-content-center gap-3">${iconMarkup}${textMarkup}</span>`
+    : textMarkup;
+
+  return `<button type="${escapeHtml(type)}" class="${escapeHtml(className)}" style="${escapeHtml(style)}"${idAttr}>${content}</button>`;
+}
+
+// tiene foto, titulo y descripcion
+export function tarjetaLandingPage({
+  title,
+  description,
+  iconClass = '',
+  iconImageSrc = '',
+  iconAlt = '',
+} = {}) {
+  const iconMarkup = iconImageSrc
+    ? `<img src="${escapeHtml(iconImageSrc)}" alt="${escapeHtml(iconAlt || title)}" style="width: 28px; height: 28px; object-fit: contain;" />`
+    : `<i class="lni ${escapeHtml(iconClass)}"></i>`;
+
+  return `
+    <div class="col-lg-4 col-md-8 col-sm-10">
+      <div class="single-feature">
+        <div class="icon">
+          ${iconMarkup}
+        </div>
+        <div class="content">
+          <h3>${escapeHtml(title)}</h3>
+          <p>
+            ${escapeHtml(description)}
+          </p>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+export function descripcionLanding({
+  title,
+  description,
+  containerClass = 'hero-content',
+  titleClass = 'wow fadeInUp',
+  titleDelay = '.4s',
+  descriptionClass = 'wow fadeInUp',
+  descriptionDelay = '.6s',
+  ctaMarkup = '',
+} = {}) {
+  const titleDelayAttr = titleDelay ? ` data-wow-delay="${escapeHtml(titleDelay)}"` : '';
+  const descriptionDelayAttr = descriptionDelay ? ` data-wow-delay="${escapeHtml(descriptionDelay)}"` : '';
+
+  return `
+    <div class="${escapeHtml(containerClass)}">
+      <h2 class="${escapeHtml(titleClass)}"${titleDelayAttr}>
+        ${escapeHtml(title)}
+      </h2>
+      <p class="${escapeHtml(descriptionClass)}"${descriptionDelayAttr}>
+        ${escapeHtml(description)}
+      </p>
+      ${ctaMarkup}
+    </div>
+  `;
+}
+
+export function imagenesLanding({
+  src,
+  alt,
+  wrapperClass = 'hero-img wow fadeInUp d-flex align-items-center justify-content-center',
+  delay = '.5s',
+  wrapperStyle = '',
+  imageClass = 'w-100',
+  extraMarkup = '',
+} = {}) {
+  const delayAttr = delay ? ` data-wow-delay="${escapeHtml(delay)}"` : '';
+  const styleAttr = wrapperStyle ? ` style="${escapeHtml(wrapperStyle)}"` : '';
+
+  return `
+    <div class="${escapeHtml(wrapperClass)}"${delayAttr}${styleAttr}>
+      <img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}" class="${escapeHtml(imageClass)}" />
+      ${extraMarkup}
+    </div>
+  `;
+}
+
+export function tarjetaValor({
+  title,
+  value,
+  color = 'primary',
+  icon = 'lni-bar-chart',
+  variant = 'filled',
+  hasButton = false,
+  buttonAction = '',
+  buttonId = '',
+} = {}) {
+  const gradientClasses = {
+    success: 'bg-success bg-gradient text-white',
+    danger: 'bg-danger bg-gradient text-white',
+    info: 'bg-info bg-gradient text-dark',
+    warning: 'bg-warning bg-gradient text-dark',
+    primary: 'bg-primary bg-gradient text-white',
+  };
+
+  const outlineStyles = {
+    success: {
+      cardClass: 'bg-white text-success border border-success',
+      textClass: 'text-success',
+      mutedClass: 'text-success opacity-75',
+    },
+    danger: {
+      cardClass: 'bg-white text-danger border border-danger',
+      textClass: 'text-danger',
+      mutedClass: 'text-danger opacity-75',
+    },
+    info: {
+      cardClass: 'bg-white text-info border border-info',
+      textClass: 'text-info',
+      mutedClass: 'text-info opacity-75',
+    },
+    warning: {
+      cardClass: 'bg-white text-warning border border-warning',
+      textClass: 'text-warning',
+      mutedClass: 'text-warning opacity-75',
+    },
+    primary: {
+      cardClass: 'bg-white text-primary border border-primary',
+      textClass: 'text-primary',
+      mutedClass: 'text-primary opacity-75',
+    },
+  };
+
+  const isOutline = variant === 'outline';
+  const selectedOutline = outlineStyles[color] ?? outlineStyles.primary;
+  const cardClasses = isOutline
+    ? selectedOutline.cardClass
+    : (gradientClasses[color] ?? gradientClasses.primary);
+  const textColor = isOutline
+    ? selectedOutline.textClass
+    : ((color === 'warning' || color === 'info') ? 'text-dark' : 'text-white');
+  const mutedColor = isOutline
+    ? selectedOutline.mutedClass
+    : ((color === 'warning' || color === 'info') ? 'text-dark opacity-75' : 'text-white-50');
+  const buttonHTML = hasButton
+    ? botonMasAccion({
+        className: 'btn btn-light btn-sm fw-bold shadow-sm border-0',
+        dataAttributes: { action: buttonAction, id: buttonId },
+        ariaLabel: `Accion para ${title}`,
+        title: `Accion para ${title}`,
+        style: 'position: absolute; right: 8px; top: 50%; transform: translateY(-50%); border-radius: 50%; width: 24px; height: 24px; padding: 0; display: flex; align-items: center; justify-content: center; z-index: 2; color: #0d6efd; font-size: 16px; line-height: 1;',
+      })
+    : '';
+
+  return `
+    <article class="card border-0 shadow-sm ${cardClasses}" style="border-radius: 15px; min-height: 90px;">
+      <div class="card-body p-3 position-relative overflow-hidden d-flex flex-column justify-content-center">
+        <div class="position-absolute opacity-25" style="top: -5px; right: -5px; font-size: 60px; transform: rotate(-10deg);">
+          <i class="lni ${escapeHtml(icon)}"></i>
+        </div>
+        <p class="mb-1 fw-semibold ${mutedColor}" style="z-index: 1; position: relative; font-size: 13px;">${escapeHtml(title)}</p>
+        <h2 class="mb-0 fw-bold ${textColor}" style="z-index: 1; position: relative; font-size: 16px;">${escapeHtml(value)}</h2>
+        ${buttonHTML}
+      </div>
+    </article>
+  `;
+}
+
+export function botonMasAccion({
+  dataAttributes = {},
+  ariaLabel = 'Agregar',
+  title = 'Agregar',
+  className = 'btn btn-primary btn-sm fw-bold shadow-sm',
+  style = 'border-radius: 50%; width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center; color: #ffffff; font-size: 18px; line-height: 1;',
+} = {}) {
+  const dataAttrs = Object.entries(dataAttributes)
+    .filter(([, value]) => value !== undefined && value !== null && value !== '')
+    .map(([key, value]) => ` data-${escapeHtml(key)}="${escapeHtml(String(value))}"`)
+    .join('');
+
+  return `<button type="button" class="${escapeHtml(className)}" style="${escapeHtml(style)}" aria-label="${escapeHtml(ariaLabel)}" title="${escapeHtml(title)}"${dataAttrs}><span style="display:block; line-height:1; transform: translateY(-1px);">+</span></button>`;
+}
+
+export function botonRegistrarGastos({
+  text,
+  type = 'button',
+  className = 'btn btn-primary btn-sm w-100',
+  style = '',
+  iconClass = '',
+} = {}) {
+  const iconMarkup = iconClass ? `<i class="${escapeHtml(iconClass)} me-1"></i>` : '';
+  const styleAttr = style ? ` style="${escapeHtml(style)}"` : '';
+  return `<button type="${escapeHtml(type)}" class="${escapeHtml(className)}"${styleAttr}>${iconMarkup}${escapeHtml(text)}</button>`;
+}
+
+export function tarjetaAhorro({ ahorro, formatCurrency }) {
+  const progress = ahorro.meta ? Math.min((ahorro.monto / ahorro.meta) * 100, 100) : 0;
+
+  return `
+    <div class="col-12 col-lg-4">
+      <div class="p-4 bg-white border shadow-sm" style="border-radius: 12px; border-color: rgba(13, 110, 253, 0.24) !important; box-shadow: 0 10px 22px rgba(13, 110, 253, 0.12) !important; transition: transform 0.2s, box-shadow 0.2s;">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <div>
+            <h3 class="h6 fw-bold mb-1 text-dark">${escapeHtml(ahorro.nombre)}</h3>
+            <span class="badge bg-primary bg-opacity-10 text-primary px-2 py-1" style="border-radius: 6px;">${formatCurrency(ahorro.monto)}</span>
+          </div>
+          ${botonMasAccion({
+            className: 'btn btn-primary btn-sm fw-bold shadow-sm border-0',
+            dataAttributes: { action: 'open-destino-modal', 'ahorro-id': ahorro.id },
+            ariaLabel: `Destinar fondos a ${ahorro.nombre}`,
+            title: 'Destinar fondos desde Saldo Actual',
+            style: 'border-radius: 50%; width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center; color: #ffffff; font-size: 18px; line-height: 1;',
+          })}
+        </div>
+        ${
+          ahorro.meta
+            ? `
+              <div>
+                <div class="d-flex justify-content-between mb-1">
+                  <small class="text-muted fw-semibold" style="font-size: 12px;">Progreso</small>
+                  <small class="text-muted fw-semibold" style="font-size: 12px;">Meta: ${formatCurrency(ahorro.meta)}</small>
+                </div>
+                <div class="progress" style="height: 8px; border-radius: 4px; background-color: #e2e8f0;">
+                  <div class="progress-bar bg-success" role="progressbar" style="width: ${progress}%; border-radius: 4px;"></div>
+                </div>
+              </div>
+            `
+            : ''
+        }
+      </div>
+    </div>
   `;
 }
 

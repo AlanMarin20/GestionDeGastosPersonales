@@ -3,6 +3,7 @@ export function renderDashboardAsesorPage({
   escapeHtml,
   formatCurrency,
   encabezadoInterno,
+  tarjetaValor,
   profileImage,
   profileName,
 }) {
@@ -41,20 +42,21 @@ export function renderDashboardAsesorPage({
 
     <section class="row g-3 g-md-4 mb-4">
       <div class="col-12 col-md-6 col-lg-4">
-        <div class="card border-0 shadow-sm border-start" style="border-left-width:4px;border-left-color:#0d6efd">
-          <div class="card-body">
-            <p class="text-muted mb-1 small">Clientes Asesorados</p>
-            <h2 class="h4 mb-0">${asesor.clientes.length}</h2>
-          </div>
-        </div>
+        ${tarjetaValor({
+          title: 'Clientes Asociados',
+          value: String(asesor.clientes.length),
+          color: 'primary',
+          icon: 'lni-users',
+          variant: 'outline',
+        })}
       </div>
       <div class="col-12 col-md-6 col-lg-4">
-        <div class="card border-0 shadow-sm border-start" style="border-left-width:4px;border-left-color:#dc3545">
-          <div class="card-body">
-            <p class="text-muted mb-1 small">En Alerta</p>
-            <h2 class="h4 mb-0">${clientesEnAlerta}</h2>
-          </div>
-        </div>
+        ${tarjetaValor({
+          title: 'En Alerta',
+          value: String(clientesEnAlerta),
+          color: 'danger',
+          icon: 'lni-warning',
+        })}
       </div>
       <div class="col-12 col-md-6 col-lg-4 d-flex flex-column gap-2">
         <button class="btn btn-primary w-100" type="button" data-bs-toggle="modal" data-bs-target="#agregarClienteModal">+ Agregar Cliente</button>
@@ -96,7 +98,17 @@ export function renderDashboardAsesorPage({
 
                         return `
                           <tr>
-                            <td class="fw-500">${escapeHtml(cliente.nombre)}</td>
+                            <td>
+                              <div class="d-flex align-items-center gap-2">
+                                <img
+                                  src="/assets/img/user-avatar-default.svg"
+                                  alt="Foto de ${escapeHtml(cliente.nombre)}"
+                                  class="rounded-circle border border-1 border-light-subtle"
+                                  style="width: 34px; height: 34px; object-fit: cover;"
+                                >
+                                <span class="fw-500">${escapeHtml(cliente.nombre)}</span>
+                              </div>
+                            </td>
                             <td>${formatCurrency(cliente.gastosMes)}</td>
                             <td>${formatCurrency(cliente.presupuesto)}</td>
                             <td>

@@ -2,14 +2,15 @@ import {
   graficoGastos,
   graficoTorta,
   listaUltimosGastos,
+  tarjetaAhorro,
+  tarjetaValor,
+  botonRegistrarGastos,
 } from '../components/common/reusablePageComponents';
 
 export function renderDashboardPage({
   state,
   formatCurrency,
   escapeHtml,
-  renderMetricCard,
-  renderValueCard,
   encabezadoInterno,
   profileImage,
   profileName,
@@ -21,48 +22,7 @@ export function renderDashboardPage({
   const ahorroDestino = dashboard.ahorros.find((item) => item.id === dashboard.ahorroDestinoId) || null;
 
   const ahorroCards = dashboard.ahorros
-    .map((ahorro) => {
-      const progress = ahorro.meta ? Math.min((ahorro.monto / ahorro.meta) * 100, 100) : 0;
-
-      return `
-        <div class="col-12 col-lg-4">
-          <div class="p-4 bg-white border-0 shadow-sm" style="border-radius: 12px; transition: transform 0.2s;">
-            <div class="d-flex justify-content-between align-items-start mb-3">
-              <div>
-                <h3 class="h6 fw-bold mb-1 text-dark">${escapeHtml(ahorro.nombre)}</h3>
-                <span class="badge bg-primary bg-opacity-10 text-primary px-2 py-1" style="border-radius: 6px;">${formatCurrency(ahorro.monto)}</span>
-              </div>
-              <button
-                type="button"
-                class="btn btn-primary btn-sm rounded-circle d-flex align-items-center justify-content-center shadow-sm"
-                style="width: 32px; height: 32px; font-weight: bold; font-size: 18px;"
-                data-action="open-destino-modal"
-                data-ahorro-id="${ahorro.id}"
-                aria-label="Destinar fondos a ${escapeHtml(ahorro.nombre)}"
-                title="Destinar fondos desde Saldo Actual"
-              >
-                +
-              </button>
-            </div>
-            ${
-              ahorro.meta
-                ? `
-                  <div>
-                    <div class="d-flex justify-content-between mb-1">
-                      <small class="text-muted fw-semibold" style="font-size: 12px;">Progreso</small>
-                      <small class="text-muted fw-semibold" style="font-size: 12px;">Meta: ${formatCurrency(ahorro.meta)}</small>
-                    </div>
-                    <div class="progress" style="height: 8px; border-radius: 4px; background-color: #e2e8f0;">
-                      <div class="progress-bar bg-success" role="progressbar" style="width: ${progress}%; border-radius: 4px;"></div>
-                    </div>
-                  </div>
-                `
-                : ''
-            }
-          </div>
-        </div>
-      `;
-    })
+    .map((ahorro) => tarjetaAhorro({ ahorro, formatCurrency }))
     .join('');
 
   const modalBackdrop =
@@ -83,13 +43,13 @@ export function renderDashboardPage({
     <section class="row g-2 mb-2">
       <!-- Contenedores Saldo Actual y Presupuesto Disponible -->
       <div class="col-12 col-lg-3 d-flex flex-column gap-1">
-        ${renderValueCard({ title: 'Saldo Actual', value: formatCurrency(dashboard.saldoActual), color: 'primary', icon: 'lni-wallet', hasButton: true, buttonAction: 'open-ingreso-modal' })}
-        ${renderValueCard({ title: 'Presupuesto Total Disponible', value: formatCurrency(totalAhorros), color: 'success', icon: 'lni-coin' })}
+        ${tarjetaValor({ title: 'Saldo Actual', value: formatCurrency(dashboard.saldoActual), color: 'primary', icon: 'lni-wallet', hasButton: true, buttonAction: 'open-ingreso-modal' })}
+        ${tarjetaValor({ title: 'Presupuesto Total Disponible', value: formatCurrency(totalAhorros), color: 'success', icon: 'lni-coin' })}
       </div>
       
       <!-- Gastos del Mes -->
       <div class="col-12 col-lg-3">
-        ${renderMetricCard({ title: 'Gastos del Mes', value: '$14,350.75', color: 'danger', icon: 'lni-stats-down' })}
+        ${tarjetaValor({ title: 'Gastos del Mes', value: '$14,350.75', color: 'danger', icon: 'lni-stats-down' })}
       </div>
       
       <!-- Añadir Nuevo Gasto (Arriba) -->
@@ -117,8 +77,17 @@ export function renderDashboardPage({
                     .join('')}
                 </select>
               </div>
-              <button type="submit" class="btn btn-primary btn-sm w-100">Registrar Gasto</button>
-              <button type="button" class="btn btn-outline-primary btn-sm w-100 mt-2">Registrar Gasto con imagen</button>
+              ${botonRegistrarGastos({
+                id: 'registrar-gasto-btn',
+                text: 'Registrar Gasto',
+                type: 'submit',
+                className: 'btn btn-primary btn-sm w-100',
+              })}
+              ${botonRegistrarGastos({
+                text: 'Registrar Gasto con imagen',
+                className: 'btn btn-outline-primary btn-sm w-100 mt-2',
+                iconClass: 'lni lni-camera',
+              })}
             </form>
           </div>
         </article>

@@ -6,8 +6,12 @@
   };
 
   function fadeout() {
-    document.querySelector(".preloader").style.opacity = "0";
-    document.querySelector(".preloader").style.display = "none";
+    const preloader = document.querySelector(".preloader");
+    if (!preloader) {
+      return;
+    }
+    preloader.style.opacity = "0";
+    preloader.style.display = "none";
   }
 
   /*=====================================
@@ -15,19 +19,31 @@
     ======================================= */
   window.onscroll = function () {
     const header_navbar = document.querySelector(".navbar-area");
+    if (!header_navbar) {
+      return;
+    }
+
     const sticky = header_navbar.offsetTop;
     const logo = document.querySelector(".navbar-brand img");
 
     if (window.pageYOffset > sticky) {
       header_navbar.classList.add("sticky");
-      logo.src = "assets/img/logo/logo-2.svg";
+      if (logo) {
+        logo.src = "assets/img/logo/logo-2.svg";
+      }
     } else {
       header_navbar.classList.remove("sticky");
-      logo.src = "assets/img/logo/logo.svg";
+      if (logo) {
+        logo.src = "assets/img/logo/logo.svg";
+      }
     }
 
     // show or hide the back-top-top button
     const backToTo = document.querySelector(".scroll-top");
+    if (!backToTo) {
+      return;
+    }
+
     if (
       document.body.scrollTop > 50 ||
       document.documentElement.scrollTop > 50
@@ -82,15 +98,17 @@
   let navbarToggler = document.querySelector(".navbar-toggler");
   const navbarCollapse = document.querySelector(".navbar-collapse");
 
-  document.querySelectorAll(".page-scroll").forEach((e) =>
-    e.addEventListener("click", () => {
-      navbarToggler.classList.remove("active");
-      navbarCollapse.classList.remove("show");
-    })
-  );
-  navbarToggler.addEventListener("click", function () {
-    navbarToggler.classList.toggle("active");
-  });
+  if (navbarToggler && navbarCollapse) {
+    document.querySelectorAll(".page-scroll").forEach((e) =>
+      e.addEventListener("click", () => {
+        navbarToggler.classList.remove("active");
+        navbarCollapse.classList.remove("show");
+      })
+    );
+    navbarToggler.addEventListener("click", function () {
+      navbarToggler.classList.toggle("active");
+    });
+  }
 
   // WOW active
   new WOW().init();

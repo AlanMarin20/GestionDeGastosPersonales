@@ -4,6 +4,12 @@ import Chart from "chart.js/auto";
 import {
   encabezadoExterno,
   encabezadoInterno,
+  botonEncabezadoExterno,
+  botonIniciarCrearCuenta,
+  descripcionLanding,
+  imagenesLanding,
+  tarjetaValor,
+  tarjetaLandingPage,
 } from "./components/common/reusablePageComponents";
 import { renderConfiguracionCuentaPage as renderConfiguracionCuentaPageView } from "./pages/ConfiguracionCuentaPage";
 import {
@@ -484,69 +490,16 @@ function renderDashboardLayout(content, pathname) {
   `;
 }
 
-function renderMetricCard({ title, value, color = "primary", icon = "lni-bar-chart" }) {
-  const gradientClasses = {
-    success: "bg-success bg-gradient text-white",
-    danger: "bg-danger bg-gradient text-white",
-    info: "bg-info bg-gradient text-dark",
-    warning: "bg-warning bg-gradient text-dark",
-    primary: "bg-primary bg-gradient text-white",
-  };
-  
-  const textColor = (color === 'warning' || color === 'info') ? 'text-dark' : 'text-white';
-  const mutedColor = (color === 'warning' || color === 'info') ? 'text-dark opacity-75' : 'text-white-50';
-
-  return `
-    <article class="card border-0 shadow-sm ${gradientClasses[color] ?? gradientClasses.primary}" style="border-radius: 15px; min-height: 90px;">
-      <div class="card-body p-3 position-relative overflow-hidden d-flex flex-column justify-content-center">
-        <div class="position-absolute opacity-25" style="top: -5px; right: -5px; font-size: 60px; transform: rotate(-10deg);">
-          <i class="lni ${icon}"></i>
-        </div>
-        <p class="mb-1 fw-semibold ${mutedColor}" style="z-index: 1; position: relative; font-size: 13px;">${escapeHtml(title)}</p>
-        <h2 class="mb-0 fw-bold ${textColor}" style="z-index: 1; position: relative; font-size: 16px;">${escapeHtml(value)}</h2>
-      </div>
-    </article>
-  `;
-}
-
-function renderValueCard({ title, value, color = "primary", icon = "lni-bar-chart", hasButton = false, buttonAction = "", buttonId = "" }) {
-  const gradientClasses = {
-    success: "bg-success bg-gradient text-white",
-    danger: "bg-danger bg-gradient text-white",
-    info: "bg-info bg-gradient text-dark",
-    warning: "bg-warning bg-gradient text-dark",
-    primary: "bg-primary bg-gradient text-white",
-  };
-  
-  const textColor = (color === 'warning' || color === 'info') ? 'text-dark' : 'text-white';
-  const mutedColor = (color === 'warning' || color === 'info') ? 'text-dark opacity-75' : 'text-white-50';
-
-  const buttonHTML = hasButton ? `<button type="button" class="btn btn-light btn-sm fw-bold shadow-sm" data-action="${buttonAction}" data-id="${buttonId}" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); border-radius: 50%; width: 24px; height: 24px; padding: 0; display: flex; align-items: center; justify-content: center; z-index: 2; color: #0d6efd; font-size: 14px;">+</button>` : '';
-
-  return `
-    <article class="card border-0 shadow-sm ${gradientClasses[color] ?? gradientClasses.primary}" style="border-radius: 15px; min-height: 90px;">
-      <div class="card-body p-3 position-relative overflow-hidden d-flex flex-column justify-content-center">
-        <div class="position-absolute opacity-25" style="top: -5px; right: -5px; font-size: 60px; transform: rotate(-10deg);">
-          <i class="lni ${icon}"></i>
-        </div>
-        <p class="mb-1 fw-semibold ${mutedColor}" style="z-index: 1; position: relative; font-size: 13px;">${escapeHtml(title)}</p>
-        <h2 class="mb-0 fw-bold ${textColor}" style="z-index: 1; position: relative; font-size: 16px;">${escapeHtml(value)}</h2>
-        ${buttonHTML}
-      </div>
-    </article>
-  `;
-}
-
 function renderLandingPage() {
-  return renderLandingPageView({ encabezadoExterno });
+  return renderLandingPageView({ encabezadoExterno, botonEncabezadoExterno, tarjetaLandingPage, descripcionLanding, imagenesLanding });
 }
 
 function renderLoginPage() {
-  return renderLoginPageView({ encabezadoExterno });
+  return renderLoginPageView({ encabezadoExterno, botonIniciarCrearCuenta });
 }
 
 function renderRegistroPage() {
-  return renderRegistroPageView({ encabezadoExterno });
+  return renderRegistroPageView({ encabezadoExterno, botonIniciarCrearCuenta });
 }
 
 function renderDashboardPage() {
@@ -556,8 +509,6 @@ function renderDashboardPage() {
     state,
     formatCurrency,
     escapeHtml,
-    renderMetricCard,
-    renderValueCard,
     encabezadoInterno,
     profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
     profileName: state.perfil.nombre || "Usuario",
@@ -572,6 +523,7 @@ function renderDashboardAsesorPage() {
     escapeHtml,
     formatCurrency,
     encabezadoInterno,
+    tarjetaValor,
     profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
     profileName: state.perfil.nombre || "Usuario",
   });

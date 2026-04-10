@@ -88,3 +88,69 @@
     flex-direction: column;
   }
 }
+
+.landing-access-btn {
+  background: transparent !important;
+  border-color: #ffffff !important;
+  color: #ffffff !important;
+  box-shadow: none;
+}
+
+.navbar-area.sticky .landing-access-btn {
+  background: transparent !important;
+  border-color: #0d6efd !important;
+  color: #0d6efd !important;
+  box-shadow: none;
+}
+
+.reusable-outline-btn:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.navbar-area.sticky .landing-access-btn:hover {
+  background: rgba(13, 110, 253, 0.08) !important;
+}
+
+.auth-back-btn {
+  background: transparent !important;
+  border-color: #0d6efd !important;
+  color: #0d6efd !important;
+}
+
+.custom-landing-hero .hero-content {
+  margin-bottom: 0;
+  max-width: 520px;
+  position: relative;
+  z-index: 2;
+}
+
+.custom-landing-hero .hero-img {
+  position: relative;
+  z-index: 1;
+}
+
+.custom-landing-hero .landing-hero-image {
+  width: min(100%, 750px);
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.scroll-top .scroll-top-triangle {
+  width: 0;
+  height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-bottom: 10px solid #ffffff;
+}
+
+@media (max-width: 991.98px) {
+  .custom-landing-hero .hero-content {
+    margin-bottom: 24px;
+    max-width: 100%;
+  }
+
+  .custom-landing-hero .hero-img {
+    min-height: auto !important;
+  }
+}

@@ -23,7 +23,8 @@ export class AuthGuard implements CanActivate {
       // Asignamos el payload a la request para usarlo en nuestras rutas protegidas
       request['user'] = payload;
     } catch (error) {
-      console.error('Detalle del error JWT:', error.message);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error('Detalle del error JWT:', errorMessage);
       throw new UnauthorizedException('Token inválido o expirado');
     }
     return true;
