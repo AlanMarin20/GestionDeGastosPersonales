@@ -49,8 +49,8 @@ export function renderDashboardPage({
                 ? `
                   <div>
                     <div class="d-flex justify-content-between mb-1">
-                      <small class="text-muted fw-semibold" style="font-size: 0.75rem;">Progreso</small>
-                      <small class="text-muted fw-semibold" style="font-size: 0.75rem;">Meta: ${formatCurrency(ahorro.meta)}</small>
+                      <small class="text-muted fw-semibold" style="font-size: 12px;">Progreso</small>
+                      <small class="text-muted fw-semibold" style="font-size: 12px;">Meta: ${formatCurrency(ahorro.meta)}</small>
                     </div>
                     <div class="progress" style="height: 8px; border-radius: 4px; background-color: #e2e8f0;">
                       <div class="progress-bar bg-success" role="progressbar" style="width: ${progress}%; border-radius: 4px;"></div>
@@ -80,7 +80,7 @@ export function renderDashboardPage({
     })}
 
     <!-- ======== Fila 1: Metricas Principales ======== -->
-    <section class="row g-3 g-md-4 mb-4">
+    <section class="row g-2 mb-2">
       <!-- Contenedores Saldo Actual y Presupuesto Disponible -->
       <div class="col-12 col-lg-3 d-flex flex-column gap-1">
         ${renderValueCard({ title: 'Saldo Actual', value: formatCurrency(dashboard.saldoActual), color: 'primary', icon: 'lni-wallet', hasButton: true, buttonAction: 'open-ingreso-modal' })}
@@ -95,18 +95,18 @@ export function renderDashboardPage({
       <!-- Añadir Nuevo Gasto (Arriba) -->
       <div class="col-12 col-lg-6">
         <article class="card border-0 shadow-sm" style="border-radius: 15px;">
-          <div class="card-body">
-            <h2 class="h5 mb-3">Anadir Nuevo Gasto</h2>
+          <div class="card-body" style="padding: 12px; min-height: 280px;">
+            <h2 class="h5 mb-2">Anadir Nuevo Gasto</h2>
             <form id="nuevoGastoForm">
-              <div class="mb-3">
+              <div class="mb-2">
                 <label for="descripcion" class="form-label small fw-500">Descripcion</label>
                 <input type="text" class="form-control form-control-sm" id="descripcion" name="descripcion" placeholder="Ej: Almuerzo" value="${escapeHtml(dashboard.formData.descripcion)}">
               </div>
-              <div class="mb-3">
+              <div class="mb-2">
                 <label for="monto" class="form-label small fw-500">Monto ($)</label>
                 <input type="number" class="form-control form-control-sm" id="monto" name="monto" placeholder="0.00" step="0.01" value="${escapeHtml(dashboard.formData.monto)}">
               </div>
-              <div class="mb-3">
+              <div class="mb-2">
                 <label for="categoria" class="form-label small fw-500">Categoria</label>
                 <select class="form-select form-select-sm" id="categoria" name="categoria">
                   ${['Comida', 'Vivienda', 'Transporte', 'Ocio', 'Otros']
@@ -125,26 +125,20 @@ export function renderDashboardPage({
       </div>
     </section>
 
-    ${true
-      ? `
-        <!-- ======== Recomendaciones ======== -->
-        <section class="row g-3 g-md-4 mb-4">
-          <div class="col-12 col-lg-6">
-            <article class="card border-0 shadow-sm" style="border-radius: 15px;">
-              <div class="card-body">
-                <h2 class="h5 mb-3"><i class="bi bi-lightbulb me-2"></i>Recomendaciones</h2>
-                <div class="alert alert-info alert-sm mb-2 py-2 px-3" role="alert">
-                  <small><strong>💡 Sugerencia IA:</strong> Reducir gastos de comida un 15%</small>
-                </div>
-                <div class="alert alert-warning alert-sm py-2 px-3" role="alert">
-                  <small><strong>Asesor:</strong> Tu presupuesto de vivienda es alto. Considera revisarlo.</small>
-                </div>
-              </div>
-            </article>
+    <!-- ======== Recomendaciones ======== -->
+    <section class="mb-3" style="max-width: 555px;">
+      <article class="card border-0 shadow-sm" style="border-radius: 15px;">
+        <div class="card-body" style="padding: 16px;">
+          <h2 class="mb-0" style="font-size: 16px; margin-bottom: 8px !important;"><i class="bi bi-lightbulb me-2"></i>Recomendaciones</h2>
+          <div class="alert alert-info alert-sm mb-0" style="margin-bottom: 8px !important; padding: 8px 16px;" role="alert">
+            <small style="font-size: 14px;"><strong>💡 Sugerencia IA:</strong> Reducir gastos de comida un 15%</small>
           </div>
-        </section>
-      `
-      : ''}
+          <div class="alert alert-warning alert-sm mb-0" style="padding: 8px 16px;" role="alert">
+            <small style="font-size: 14px;"><strong>Asesor:</strong> Tu presupuesto de vivienda es alto. Considera revisarlo.</small>
+          </div>
+        </div>
+      </article>
+    </section>
 
     <!-- ======== Fila 1b: Graficos Estirados ======== -->
     <section class="row g-3 g-md-4 mb-4">
@@ -169,49 +163,41 @@ export function renderDashboardPage({
       </div>
     </section>
 
-    ${true
-      ? `
-        <!-- ======== Fila 2: Listas y Movimientos Recientes ======== -->
-        <section class="row g-3 g-md-4 mb-4">
-          <div class="col-12">
-            ${
-              listaUltimosGastos({
-                title: 'Gastos Recientes',
-                expenses: dashboard.gastos,
-                showAll: dashboard.showAllRecentExpenses,
-                toggleAction: 'toggle-dashboard-expenses',
-                formatCurrency,
-              })
-            }
-          </div>
-        </section>
-      `
-      : ''}
+    <!-- ======== Fila 2: Listas y Movimientos Recientes ======== -->
+    <section class="row g-3 g-md-4 mb-4">
+      <div class="col-12">
+        ${
+          listaUltimosGastos({
+            title: 'Gastos Recientes',
+            expenses: dashboard.gastos,
+            showAll: dashboard.showAllRecentExpenses,
+            toggleAction: 'toggle-dashboard-expenses',
+            formatCurrency,
+          })
+        }
+      </div>
+    </section>
 
-    ${true
-      ? `
-        <!-- ======== Fila 3: Panel Horizontal de Ahorros ======== -->
-        <section class="row g-3 g-md-4">
-          <div class="col-12">
-            <article class="card border-0 shadow-sm" style="border-radius: 15px;">
-              <div class="card-body p-4">
-                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
-                  <div class="d-flex align-items-center gap-3">
-                    <h2 class="h5 mb-0 fw-bold text-dark">Ahorros</h2>
-                    <div class="bg-success text-white px-3 py-2" style="border-radius: 8px; min-width: 150px; text-align: center;">
-                      <small class="d-block fw-semibold" style="font-size: 0.75rem;">Pozo Ahorrado</small>
-                      <h3 class="h6 mb-0 fw-bold">${formatCurrency(totalAhorros)}</h3>
-                    </div>
-                  </div>
-                  <button type="button" class="btn btn-outline-primary btn-sm fw-bold" style="border-radius: 8px;" data-action="open-ahorro-modal">+ Crear ahorro</button>
+    <!-- ======== Fila 3: Panel Horizontal de Ahorros ======== -->
+    <section class="row g-3 g-md-4">
+      <div class="col-12">
+        <article class="card border-0 shadow-sm" style="border-radius: 15px;">
+          <div class="card-body p-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+              <div class="d-flex align-items-center gap-3">
+                <h2 class="h5 mb-0 fw-bold text-dark">Ahorros</h2>
+                <div class="bg-success text-white px-3 py-2" style="border-radius: 8px; min-width: 150px; text-align: center;">
+                  <small class="d-block fw-semibold" style="font-size: 12px;">Pozo Ahorrado</small>
+                  <h3 class="h6 mb-0 fw-bold">${formatCurrency(totalAhorros)}</h3>
                 </div>
-                <div class="row g-2">${ahorroCards}</div>
               </div>
-            </article>
+              <button type="button" class="btn btn-outline-primary btn-sm fw-bold" style="border-radius: 8px;" data-action="open-ahorro-modal">+ Crear ahorro</button>
+            </div>
+            <div class="row g-2">${ahorroCards}</div>
           </div>
-        </section>
-      `
-      : ''}
+        </article>
+      </div>
+    </section>
 
     ${
       dashboard.modals.ingreso

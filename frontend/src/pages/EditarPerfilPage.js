@@ -43,11 +43,11 @@ export function renderEditarPerfilPage({
                 <div class="row">
                   <div class="col-12 mb-3">
                     <label for="nombre" class="form-label fw-semibold text-muted small text-uppercase" style="letter-spacing: 0.5px;">Nombre Completo</label>
-                    <input type="text" class="form-control form-control-lg bg-light border-0" id="nombre" name="nombre" value="${escapeHtml(perfil.nombre)}" style="border-radius: 8px; font-size: 1rem;">
+                    <input type="text" class="form-control form-control-lg bg-light border-0" id="nombre" name="nombre" value="${escapeHtml(perfil.nombre)}" style="border-radius: 8px; font-size: 16px;">
                   </div>
                   <div class="col-12 mb-4">
                     <label for="email" class="form-label fw-semibold text-muted small text-uppercase" style="letter-spacing: 0.5px;">Correo Electrónico</label>
-                    <input type="email" class="form-control form-control-lg bg-light border-0" id="email" name="email" value="${escapeHtml(perfil.email)}" style="border-radius: 8px; font-size: 1rem;">
+                    <input type="email" class="form-control form-control-lg bg-light border-0" id="email" name="email" value="${escapeHtml(perfil.email)}" style="border-radius: 8px; font-size: 16px;">
                   </div>
                 </div>
                 <div class="d-flex justify-content-end">
@@ -63,16 +63,16 @@ export function renderEditarPerfilPage({
               <form id="passwordForm">
                 <div class="mb-3">
                   <label for="actual" class="form-label fw-semibold text-muted small text-uppercase" style="letter-spacing: 0.5px;">Contraseña Actual</label>
-                  <input type="password" class="form-control form-control-lg bg-light border-0" id="actual" name="actual" value="${escapeHtml(perfil.passwordData.actual)}" style="border-radius: 8px; font-size: 1rem;">
+                  <input type="password" class="form-control form-control-lg bg-light border-0" id="actual" name="actual" value="${escapeHtml(perfil.passwordData.actual)}" style="border-radius: 8px; font-size: 16px;">
                 </div>
                 <div class="row">
                   <div class="col-md-6 mb-3">
                     <label for="nueva" class="form-label fw-semibold text-muted small text-uppercase" style="letter-spacing: 0.5px;">Nueva Contraseña</label>
-                    <input type="password" class="form-control form-control-lg bg-light border-0" id="nueva" name="nueva" value="${escapeHtml(perfil.passwordData.nueva)}" style="border-radius: 8px; font-size: 1rem;">
+                    <input type="password" class="form-control form-control-lg bg-light border-0" id="nueva" name="nueva" value="${escapeHtml(perfil.passwordData.nueva)}" style="border-radius: 8px; font-size: 16px;">
                   </div>
                   <div class="col-md-6 mb-4">
                     <label for="confirmar" class="form-label fw-semibold text-muted small text-uppercase" style="letter-spacing: 0.5px;">Confirmar Contraseña</label>
-                    <input type="password" class="form-control form-control-lg bg-light border-0" id="confirmar" name="confirmar" value="${escapeHtml(perfil.passwordData.confirmar)}" style="border-radius: 8px; font-size: 1rem;">
+                    <input type="password" class="form-control form-control-lg bg-light border-0" id="confirmar" name="confirmar" value="${escapeHtml(perfil.passwordData.confirmar)}" style="border-radius: 8px; font-size: 16px;">
                   </div>
                 </div>
                 <div class="d-flex justify-content-end">

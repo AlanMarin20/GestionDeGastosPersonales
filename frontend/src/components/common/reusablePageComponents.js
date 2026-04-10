@@ -36,8 +36,8 @@ export function encabezadoInterno({
               <div class="d-flex align-items-center gap-3">
                 <img src="${escapeHtml(profileImage)}" class="rounded-circle" alt="Perfil" style="width: 40px; height: 40px; object-fit: cover;">
                 <div>
-                  <p class="mb-0 fw-bold text-dark lh-sm" style="font-size: 0.95rem;">${escapeHtml(profileName)}</p>
-                  <small class="text-muted fw-semibold" style="font-size: 0.75rem;">${escapeHtml(currentRole)}</small>
+                  <p class="mb-0 fw-bold text-dark lh-sm" style="font-size: 15px;">${escapeHtml(profileName)}</p>
+                  <small class="text-muted fw-semibold" style="font-size: 12px;">${escapeHtml(currentRole)}</small>
                 </div>
               </div>
             </li>

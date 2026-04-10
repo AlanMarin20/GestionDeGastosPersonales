@@ -25,7 +25,7 @@ export function renderConfiguracionCuentaPage({
 
               <div class="mb-3">
                 <label for="moneda" class="form-label fw-semibold text-muted small text-uppercase" style="letter-spacing: 0.5px;">Moneda Principal</label>
-                <select class="form-select form-select-lg bg-light border-0" id="moneda" name="moneda" style="border-radius: 8px; font-size: 1rem;">
+                <select class="form-select form-select-lg bg-light border-0" id="moneda" name="moneda" style="border-radius: 8px; font-size: 16px;">
                   <option value="USD" ${config.moneda === 'USD' ? 'selected' : ''}>Dolar USD</option>
                   <option value="ARS" ${config.moneda === 'ARS' ? 'selected' : ''}>Peso Argentino</option>
                   <option value="EUR" ${config.moneda === 'EUR' ? 'selected' : ''}>Euro</option>
@@ -34,7 +34,7 @@ export function renderConfiguracionCuentaPage({
 
               <div class="mb-4">
                 <label for="idioma" class="form-label fw-semibold text-muted small text-uppercase" style="letter-spacing: 0.5px;">Idioma</label>
-                <select class="form-select form-select-lg bg-light border-0" id="idioma" name="idioma" style="border-radius: 8px; font-size: 1rem;">
+                <select class="form-select form-select-lg bg-light border-0" id="idioma" name="idioma" style="border-radius: 8px; font-size: 16px;">
                   <option value="es" ${config.idioma === 'es' ? 'selected' : ''}>Espanol</option>
                   <option value="en" ${config.idioma === 'en' ? 'selected' : ''}>English</option>
                   <option value="pt" ${config.idioma === 'pt' ? 'selected' : ''}>Portugues</option>
@@ -42,7 +42,7 @@ export function renderConfiguracionCuentaPage({
               </div>
 
               <div class="form-check form-switch mb-4 d-flex align-items-center gap-2">
-                <input class="form-check-input mt-0" type="checkbox" id="temaOscuro" ${config.temaOscuro ? 'checked' : ''} style="width: 2.5em; height: 1.25em; cursor: pointer;">
+                <input class="form-check-input mt-0" type="checkbox" id="temaOscuro" ${config.temaOscuro ? 'checked' : ''} style="width: 40px; height: 20px; cursor: pointer;">
                 <label class="form-check-label fw-semibold text-dark" for="temaOscuro" style="cursor: pointer;">Modo Oscuro</label>
               </div>
 
@@ -59,7 +59,7 @@ export function renderConfiguracionCuentaPage({
               <h5 class="fw-bold mb-4 text-dark border-bottom pb-3">Seguridad de la App</h5>
 
               <div class="form-check form-switch mb-4 d-flex align-items-start gap-2">
-                <input class="form-check-input mt-1" type="checkbox" id="autenticacionDos" ${config.autenticacionDos ? 'checked' : ''} style="width: 2.5em; height: 1.25em; cursor: pointer;">
+                <input class="form-check-input mt-1" type="checkbox" id="autenticacionDos" ${config.autenticacionDos ? 'checked' : ''} style="width: 40px; height: 20px; cursor: pointer;">
                 <div>
                   <label class="form-check-label fw-semibold text-dark" for="autenticacionDos" style="cursor: pointer;">Autenticación en Dos Pasos</label>
                   <small class="d-block text-muted">Agrega una capa extra de seguridad a tu cuenta.</small>

@@ -502,8 +502,8 @@ function renderMetricCard({ title, value, color = "primary", icon = "lni-bar-cha
         <div class="position-absolute opacity-25" style="top: -5px; right: -5px; font-size: 60px; transform: rotate(-10deg);">
           <i class="lni ${icon}"></i>
         </div>
-        <p class="mb-1 fw-semibold ${mutedColor}" style="z-index: 1; position: relative; font-size: 0.8rem;">${escapeHtml(title)}</p>
-        <h2 class="mb-0 fw-bold ${textColor}" style="z-index: 1; position: relative; font-size: 1rem;">${escapeHtml(value)}</h2>
+        <p class="mb-1 fw-semibold ${mutedColor}" style="z-index: 1; position: relative; font-size: 13px;">${escapeHtml(title)}</p>
+        <h2 class="mb-0 fw-bold ${textColor}" style="z-index: 1; position: relative; font-size: 16px;">${escapeHtml(value)}</h2>
       </div>
     </article>
   `;
@@ -529,8 +529,8 @@ function renderValueCard({ title, value, color = "primary", icon = "lni-bar-char
         <div class="position-absolute opacity-25" style="top: -5px; right: -5px; font-size: 60px; transform: rotate(-10deg);">
           <i class="lni ${icon}"></i>
         </div>
-        <p class="mb-1 fw-semibold ${mutedColor}" style="z-index: 1; position: relative; font-size: 0.8rem;">${escapeHtml(title)}</p>
-        <h2 class="mb-0 fw-bold ${textColor}" style="z-index: 1; position: relative; font-size: 1rem;">${escapeHtml(value)}</h2>
+        <p class="mb-1 fw-semibold ${mutedColor}" style="z-index: 1; position: relative; font-size: 13px;">${escapeHtml(title)}</p>
+        <h2 class="mb-0 fw-bold ${textColor}" style="z-index: 1; position: relative; font-size: 16px;">${escapeHtml(value)}</h2>
         ${buttonHTML}
       </div>
     </article>
