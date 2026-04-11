@@ -61,6 +61,7 @@ export function renderLoginPage({ encabezadoExterno, botonIniciarCrearCuenta }) 
             </div>
           </div>
       </section>
+
     </div>
   `;
 }

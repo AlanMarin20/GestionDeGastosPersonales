@@ -4,6 +4,8 @@ export function renderEditarPerfilPage({
   encabezadoInterno,
   profileImage,
   profileName,
+  currentRole,
+  brandTarget,
 }) {
   const perfil = state.perfil;
 
@@ -12,8 +14,9 @@ export function renderEditarPerfilPage({
       pageTitle: '',
       profileImage,
       profileName,
-      currentRole: 'Usuario',
+      currentRole,
       isAsesor: false,
+      brandTarget,
     })}
 
     <div class="container py-4">

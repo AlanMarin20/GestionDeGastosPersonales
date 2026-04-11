@@ -4,6 +4,8 @@ export function renderConfiguracionCuentaPage({
   encabezadoInterno,
   profileImage,
   profileName,
+  currentRole,
+  brandTarget,
 }) {
   const config = state.configuracion;
 
@@ -12,8 +14,9 @@ export function renderConfiguracionCuentaPage({
       pageTitle: '',
       profileImage,
       profileName,
-      currentRole: 'Usuario',
+      currentRole,
       isAsesor: false,
+      brandTarget,
     })}
 
     <div class="container py-4">

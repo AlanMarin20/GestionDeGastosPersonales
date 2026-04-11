@@ -6,6 +6,7 @@ import {
   encabezadoInterno,
   botonEncabezadoExterno,
   botonIniciarCrearCuenta,
+  botonScrollTop,
   descripcionLanding,
   imagenesLanding,
   tarjetaValor,
@@ -404,79 +405,33 @@ function cambioRol(pathname) {
     : "Usuario";
 }
 
-function renderDashboardLayout(content, pathname) {
-  const isAsesor = cambioRol(pathname) === "Asesor";
+function getCurrentRoleLabel(pathname = window.location.pathname) {
+  return cambioRol(pathname);
+}
 
+function getAdvisorClientHref(pathname) {
+  return "/dashboard/asesor";
+}
+
+function getBrandTarget(pathname) {
+  if (pathname === "/dashboard") {
+    return "scroll-top";
+  }
+
+  if (pathname.startsWith("/cliente/")) {
+    return "/dashboard";
+  }
+
+  if (pathname === "/dashboard/asesor") {
+    return "/dashboard";
+  }
+
+  return "/dashboard";
+}
+
+function renderDashboardLayout(content, { showScrollTop = true } = {}) {
   return `
     <div class="d-flex min-vh-100 overflow-hidden" style="background-color: #e2e8f0;">
-      
-      <!-- ======== Sidebar start (Offcanvas) ======== -->
-      <div class="offcanvas offcanvas-start border-end-0 shadow" tabindex="-1" id="sidebarMenu" style="width: 280px; z-index: 1050;">
-        <div class="offcanvas-header py-3 px-4 border-bottom d-flex align-items-center justify-content-start gap-3" style="height: 80px;">
-          <button class="btn border-0 shadow-sm d-flex align-items-center justify-content-center" type="button" data-bs-dismiss="offcanvas" style="background-color: #ffffff; color: #1e293b; width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;">
-            <i class="lni lni-close fw-bold fs-5"></i>
-          </button>
-          <div class="d-flex align-items-center gap-2 ms-2">
-            <div class="bg-primary text-white d-flex align-items-center justify-content-center rounded-circle shadow-sm" style="width: 35px; height: 35px;">
-              <i class="lni lni-wallet"></i>
-            </div>
-            <h5 class="offcanvas-title fw-bold text-dark mb-0 fs-5" style="letter-spacing: -0.5px;">FinanzasPro</h5>
-          </div>
-        </div>
-        
-        <div class="offcanvas-body d-flex flex-column p-0">
-          <nav class="flex-grow-1 p-3 overflow-y-auto">
-          <p class="text-muted small fw-bold mb-2 px-2 text-uppercase" style="letter-spacing: 1px;">Menú Principal</p>
-          <ul class="nav flex-column gap-1 mb-4">
-            <li class="nav-item">
-              <a href="${isAsesor ? '/dashboard/asesor' : '/dashboard'}" data-link class="nav-link text-dark fw-bold rounded px-3 py-2 ${pathname === '/dashboard' || pathname === '/dashboard/asesor' ? 'bg-primary bg-opacity-10 text-primary' : ''}">
-                <i class="lni lni-grid-alt me-2"></i> Panel de Control
-              </a>
-            </li>
-            ${!isAsesor ? `
-            <li class="nav-item">
-              <a href="#" class="nav-link text-dark fw-semibold rounded px-3 py-2">
-                <i class="lni lni-bar-chart me-2"></i> Reportes
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="#" class="nav-link text-dark fw-semibold rounded px-3 py-2">
-                <i class="lni lni-credit-cards me-2"></i> Tarjetas
-              </a>
-            </li>
-            ` : `
-            <li class="nav-item">
-              <a href="#" class="nav-link text-dark fw-semibold rounded px-3 py-2">
-                <i class="lni lni-users me-2"></i> Mis Clientes
-              </a>
-            </li>
-            `}
-          </ul>
-
-          <p class="text-muted small fw-bold mb-2 px-2 text-uppercase" style="letter-spacing: 1px;">Ajustes</p>
-          <ul class="nav flex-column gap-1">
-            <li class="nav-item">
-              <a href="/perfil/editar" data-link class="nav-link text-dark fw-semibold rounded px-3 py-2 ${pathname === '/perfil/editar' ? 'bg-primary bg-opacity-10 text-primary' : ''}">
-                <i class="lni lni-user me-2"></i> Mi Perfil
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="/perfil/configuracion" data-link class="nav-link text-dark fw-semibold rounded px-3 py-2 ${pathname === '/perfil/configuracion' ? 'bg-primary bg-opacity-10 text-primary' : ''}">
-                <i class="lni lni-cog me-2"></i> Configuración
-              </a>
-            </li>
-          </ul>
-        </nav>
-
-          <div class="p-4 border-top d-flex justify-content-center">
-            <a href="/" data-link class="btn btn-outline-danger fw-bold rounded-pill px-4 d-flex align-items-center gap-2" style="transition: all 0.2s;">
-              <i class="lni lni-exit"></i> Cerrar Sesión
-            </a>
-          </div>
-        </div>
-      </div>
-      <!-- ======== Sidebar end ======== -->
-
       <!-- ======== Main Content Wrapper ======== -->
       <div class="flex-grow-1 d-flex flex-column h-100 overflow-y-auto w-100">
 
@@ -484,6 +439,8 @@ function renderDashboardLayout(content, pathname) {
         <main class="container-fluid py-4 px-3 px-md-4 flex-grow-1">
           ${content}
         </main>
+
+        ${showScrollTop ? botonScrollTop() : ""}
         
       </div>
     </div>
@@ -491,7 +448,7 @@ function renderDashboardLayout(content, pathname) {
 }
 
 function renderLandingPage() {
-  return renderLandingPageView({ encabezadoExterno, botonEncabezadoExterno, tarjetaLandingPage, descripcionLanding, imagenesLanding });
+  return renderLandingPageView({ encabezadoExterno, botonEncabezadoExterno, tarjetaLandingPage, descripcionLanding, imagenesLanding, botonScrollTop });
 }
 
 function renderLoginPage() {
@@ -503,7 +460,8 @@ function renderRegistroPage() {
 }
 
 function renderDashboardPage() {
-  const currentRole = "Usuario";
+  const currentRole = getCurrentRoleLabel();
+  const brandTarget = getBrandTarget("/dashboard");
 
   return renderDashboardPageView({
     state,
@@ -514,10 +472,12 @@ function renderDashboardPage() {
     profileName: state.perfil.nombre || "Usuario",
     currentRole,
     isAsesor: false,
+    brandTarget,
   });
 }
 
 function renderDashboardAsesorPage() {
+  const pathname = window.location.pathname;
   return renderDashboardAsesorPageView({
     state,
     escapeHtml,
@@ -526,6 +486,8 @@ function renderDashboardAsesorPage() {
     tarjetaValor,
     profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
     profileName: state.perfil.nombre || "Usuario",
+    currentRole: getCurrentRoleLabel(),
+    brandTarget: getBrandTarget(pathname),
   });
 }
 
@@ -542,6 +504,10 @@ function renderDetalleClientePage(pathname) {
     encabezadoInterno,
     profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
     profileName: state.perfil.nombre || "Usuario",
+    currentRole: getCurrentRoleLabel(pathname),
+    brandTarget: getBrandTarget(pathname),
+    advisorClientHref: getAdvisorClientHref(pathname),
+    showAdvisorClientLink: true,
   });
 }
 
@@ -552,6 +518,8 @@ function renderEditarPerfilPage() {
     encabezadoInterno,
     profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
     profileName: state.perfil.nombre || "Usuario",
+    currentRole: getCurrentRoleLabel(),
+    brandTarget: getBrandTarget(window.location.pathname),
   });
 }
 
@@ -562,6 +530,8 @@ function renderConfiguracionCuentaPage() {
     encabezadoInterno,
     profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
     profileName: state.perfil.nombre || "Usuario",
+    currentRole: getCurrentRoleLabel(),
+    brandTarget: getBrandTarget(window.location.pathname),
   });
 }
 
@@ -593,8 +563,9 @@ function renderPreferenciaNotificacionesPage() {
         pageTitle: "Notificaciones",
         profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
         profileName: state.perfil.nombre || "Usuario",
-        currentRole: "Usuario",
+        currentRole: getCurrentRoleLabel(),
         isAsesor: false,
+        brandTarget: getBrandTarget(window.location.pathname),
       })}
 
       <div class="card border-0 shadow-sm mb-4">
@@ -718,33 +689,32 @@ function buildRouteView(pathname) {
   }
 
   if (pathname === "/dashboard") {
-    return renderDashboardLayout(renderDashboardPage(), pathname);
+    return renderDashboardLayout(renderDashboardPage());
   }
 
   if (pathname === "/dashboard/asesor") {
-    return renderDashboardLayout(renderDashboardAsesorPage(), pathname);
+    return renderDashboardLayout(renderDashboardAsesorPage(), {
+      showScrollTop: false,
+    });
   }
 
   if (pathname.startsWith("/cliente/")) {
     if (!resolveDetalleCliente(pathname)) {
       return null;
     }
-    return renderDashboardLayout(renderDetalleClientePage(pathname), pathname);
+    return renderDashboardLayout(renderDetalleClientePage(pathname));
   }
 
   if (pathname === "/perfil/editar") {
-    return renderDashboardLayout(renderEditarPerfilPage(), pathname);
+    return renderDashboardLayout(renderEditarPerfilPage());
   }
 
   if (pathname === "/perfil/configuracion") {
-    return renderDashboardLayout(renderConfiguracionCuentaPage(), pathname);
+    return renderDashboardLayout(renderConfiguracionCuentaPage());
   }
 
   if (pathname === "/perfil/notificaciones") {
-    return renderDashboardLayout(
-      renderPreferenciaNotificacionesPage(),
-      pathname,
-    );
+    return renderDashboardLayout(renderPreferenciaNotificacionesPage());
   }
 
   return null;
@@ -789,6 +759,28 @@ function attachGlobalNavigation() {
     if (action === "back-to-asesor") {
       event.preventDefault();
       navigate("/dashboard/asesor");
+      return;
+    }
+
+    if (action === "scroll-top-page") {
+      event.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
+    if (action === "brand-scroll-top") {
+      event.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
+    if (action === "brand-navigation") {
+      event.preventDefault();
+      const target = actionButton.getAttribute("data-target");
+
+      if (target) {
+        navigate(target);
+      }
       return;
     }
 
@@ -1552,10 +1544,9 @@ function initCharts(pathname) {
 }
 
 function render() {
-  // Limpiar backdrops de Bootstrap en caso de navegación rápida desde el menú lateral flotante
+  // Limpiar backdrops de Bootstrap en caso de navegación rápida desde menús desplegables
   document.body.style.overflow = '';
   document.body.style.paddingRight = '';
-  document.querySelectorAll('.offcanvas-backdrop').forEach(el => el.remove());
 
   const pathname = window.location.pathname;
   const view = buildRouteView(pathname);

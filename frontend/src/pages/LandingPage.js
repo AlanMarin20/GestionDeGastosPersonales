@@ -1,4 +1,4 @@
-export function renderLandingPage({ encabezadoExterno, botonEncabezadoExterno, tarjetaLandingPage, descripcionLanding, imagenesLanding }) {
+export function renderLandingPage({ encabezadoExterno, botonEncabezadoExterno, tarjetaLandingPage, descripcionLanding, imagenesLanding, botonScrollTop }) {
   return `
     ${encabezadoExterno({ rightHref: '/login', rightText: 'Acceder', rightClass: 'landing-access-btn' })}
 
@@ -8,8 +8,14 @@ export function renderLandingPage({ encabezadoExterno, botonEncabezadoExterno, t
         <div class="row align-items-center position-relative landing-hero-row">
           <div class="col-lg-5">
             ${descripcionLanding({
-              title: 'Descripcion sobre el uso como usuario comun',
-              description: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore',
+              title: 'Tomá el control total de tu economía',
+              description: 'Transformá la manera en que gestionás '+
+                'tu dinero. Nuestra plataforma utiliza inteligencia ' +
+                'artificial avanzada para digitalizar tus comprobantes ' +
+                'al instante, permitiéndote visualizar tus consumos sin ' +
+                'esfuerzo manual. Organizá tus ingresos, controlá tus ' +
+                'gastos y accedé a métricas personalizadas desde cualquier ' +
+                'dispositivo con una interfaz diseñada para tu comodidad.',
               containerClass: 'hero-content',
               titleClass: 'wow fadeInUp',
               titleDelay: '.4s',
@@ -45,17 +51,27 @@ export function renderLandingPage({ encabezadoExterno, botonEncabezadoExterno, t
         <div class="row justify-content-center">
           ${tarjetaLandingPage({
             title: 'Registrá',
-            description: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore',
+            description: 'Digitalizá tus comprobantes rápidamente ' +
+            'con nuestra tecnología de reconocimiento de texto o ' +
+            'realizá cargas manuales detalladas mediante formularios ' +
+            'dinámicos. Nos adaptamos a tu ritmo para que ningún gasto ' +
+            'quede fuera de tu historial.',
             iconClass: 'lni-bootstrap',
           })}
           ${tarjetaLandingPage({
             title: 'Analizá',
-            description: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore',
+            description: 'Visualizá la distribución de tus gastos por ' +
+            'categoría o período de tiempo a través de gráficos interactivos ' +
+            'de torta y barras. Identificá patrones mensuales y mantené ' +
+            'un seguimiento preciso de tus ingresos y ahorros en un solo lugar.',
             iconClass: 'lni-layout',
           })}
           ${tarjetaLandingPage({
             title: 'Optimizá',
-            description: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore',
+            description: 'Utilizá la información generada para establecer ' +
+            'presupuestos y objetivos de ahorro realistas. Recibí ' +
+            'sugerencias personalizadas de tu asesor financiero para ' +
+            'reducir gastos innecesarios y mejorar tu salud económica general.',
             iconClass: 'lni-coffee-cup',
           })}
         </div>
@@ -81,8 +97,15 @@ export function renderLandingPage({ encabezadoExterno, botonEncabezadoExterno, t
           </div>
           <div class="col-xl-6 col-lg-6">
             ${descripcionLanding({
-              title: 'Descripcion sobre el uso como asesor',
-              description: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed dinonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem. Lorem ipsum dolor sit amet.',
+              title: 'Herramientas de análisis para una asesoría de precisión',
+              description: 'Potenciá el valor de tu asesoría ' +
+              'financiera con un panel de control avanzado. ' +
+              'Accedé a los perfiles de consumo de tus clientes, ' +
+              'identificá comportamientos de gasto problemáticos ' +
+              'y generá recomendaciones basadas en datos reales y ' +
+              'estadísticas detalladas. FinanzasPro te brinda la ' +
+              'infraestructura necesaria para gestionar múltiples ' +
+              'carteras de usuarios con eficiencia y profesionalismo.',
               containerClass: 'about-content section-title mb-30',
               titleClass: 'mb-25 wow fadeInUp',
               titleDelay: '.2s',
@@ -103,13 +126,13 @@ export function renderLandingPage({ encabezadoExterno, botonEncabezadoExterno, t
             <div class="col-xl-4 col-lg-4 col-md-6">
               <div class="footer-widget">
                 <div class="logo mb-30">
-                  <a href="/" data-link>
-                    <img src="/assets/img/logo/logo.svg" alt="" />
+                  <a href="/" data-link class="d-inline-flex align-items-center gap-2 text-decoration-none">
+                    <img src="/assets/img/logo/iconoSfondo.png" alt="FinanzasPro" style="width: 38px; height: 38px; object-fit: cover; border-radius: 50%;" />
+                    <span class="fw-bold text-white fs-4" style="letter-spacing: -0.4px;">FinanzasPro</span>
                   </a>
                 </div>
                 <p class="desc mb-30 text-white">
-                  Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed
-                  dinonumy eirmod tempor invidunt.
+                  Innovación y precisión en la gestión de tus activos. Diseñamos herramientas inteligentes para que alcances tu libertad financiera con el respaldo de expertos.
                 </p>
                 <ul class="socials">
                   <li>
@@ -179,9 +202,6 @@ export function renderLandingPage({ encabezadoExterno, botonEncabezadoExterno, t
     </footer>
     <!-- ======== footer end ======== -->
 
-    <!-- ======== scroll-top ======== -->
-    <a href="#" class="scroll-top btn-hover" aria-label="Volver al comienzo">
-      <span class="scroll-top-triangle" aria-hidden="true"></span>
-    </a>
+    ${botonScrollTop()}
   `;
 }

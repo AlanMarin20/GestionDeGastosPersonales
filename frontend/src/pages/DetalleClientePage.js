@@ -2,6 +2,7 @@ import {
   graficoGastos,
   graficoTorta,
   listaUltimosGastos,
+  tarjetaValor,
 } from '../components/common/reusablePageComponents';
 
 export function resolveDetalleCliente(pathname, state) {
@@ -30,6 +31,10 @@ export function renderDetalleClientePage({
   encabezadoInterno,
   profileImage,
   profileName,
+  currentRole,
+  brandTarget,
+  advisorClientHref,
+  showAdvisorClientLink,
 }) {
   const cliente = resolveDetalleCliente(pathname, state);
   if (!cliente) {
@@ -37,48 +42,32 @@ export function renderDetalleClientePage({
   }
 
   const detalle = state.detalleCliente;
+  const presupuestoDisponible = cliente.presupuesto;
 
   return `
     ${encabezadoInterno({
       pageTitle: `Cliente: ${cliente.nombre}`,
       profileImage,
       profileName,
-      currentRole: 'Asesor',
+      currentRole,
       isAsesor: true,
+      brandTarget,
+      advisorClientHref,
+      showAdvisorClientLink,
     })}
 
     <section class="row g-3 g-md-4 mb-4">
       <div class="col-12 col-md-6 col-lg-3">
-        <div class="card border-0 shadow-sm border-start" style="border-left-width:4px;border-left-color:#198754">
-          <div class="card-body">
-            <p class="text-muted mb-1 small">Saldo Actual</p>
-            <h2 class="h4 mb-0">${formatCurrency(cliente.saldoActual)}</h2>
-          </div>
-        </div>
+        ${tarjetaValor({ title: 'Saldo Actual', value: formatCurrency(cliente.saldoActual), color: 'primary', icon: 'lni-wallet' })}
       </div>
       <div class="col-12 col-md-6 col-lg-3">
-        <div class="card border-0 shadow-sm border-start" style="border-left-width:4px;border-left-color:#dc3545">
-          <div class="card-body">
-            <p class="text-muted mb-1 small">Gastado Este Mes</p>
-            <h2 class="h4 mb-0">${formatCurrency(cliente.gastadoMes)}</h2>
-          </div>
-        </div>
+        ${tarjetaValor({ title: 'Gastos del Mes', value: formatCurrency(cliente.gastadoMes), color: 'danger', icon: 'lni-stats-down' })}
       </div>
       <div class="col-12 col-md-6 col-lg-3">
-        <div class="card border-0 shadow-sm border-start" style="border-left-width:4px;border-left-color:#0d6efd">
-          <div class="card-body">
-            <p class="text-muted mb-1 small">Total Ahorros</p>
-            <h2 class="h4 mb-0">$2,500.00</h2>
-          </div>
-        </div>
+        ${tarjetaValor({ title: 'Presupuesto Total Disponible', value: formatCurrency(presupuestoDisponible), color: 'success', icon: 'lni-coin' })}
       </div>
       <div class="col-12 col-md-6 col-lg-3">
-        <div class="card border-0 shadow-sm border-start" style="border-left-width:4px;border-left-color:#ffc107">
-          <div class="card-body">
-            <p class="text-muted mb-1 small">% Presupuesto</p>
-            <h2 class="h4 mb-0">${((cliente.gastadoMes / cliente.presupuesto) * 100).toFixed(1)}%</h2>
-          </div>
-        </div>
+        ${tarjetaValor({ title: 'Pozo Ahorrado', value: formatCurrency(presupuestoDisponible), color: 'info', icon: 'lni-pie-chart' })}
       </div>
     </section>
 
@@ -107,8 +96,12 @@ export function renderDetalleClientePage({
             })
           }
         </div>
+      </div>
+    </section>
 
-        <div class="card border-0 shadow-sm mb-3">
+    <section class="row g-3 g-md-4 mb-4">
+      <div class="col-12 col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
           <div class="card-body">
             <h5 class="card-title mb-3">Agregar Recomendacion</h5>
             <form id="agregarRecomendacionForm">
@@ -119,8 +112,10 @@ export function renderDetalleClientePage({
             </form>
           </div>
         </div>
+      </div>
 
-        <div class="card border-0 shadow-sm">
+      <div class="col-12 col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
           <div class="card-body">
             <h5 class="card-title mb-3">Recomendaciones Enviadas</h5>
             <div style="max-height:250px;overflow-y:auto">
@@ -150,6 +145,7 @@ export function renderDetalleClientePage({
             title: 'Gastos de los Ultimos 12 Meses',
             canvasId: 'detalleLineChart',
             ariaLabel: 'Ultimos 12 meses',
+            height: '260px',
           })
         }
       </div>

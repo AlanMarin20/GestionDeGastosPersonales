@@ -16,6 +16,7 @@ export function renderDashboardPage({
   profileName,
   currentRole,
   isAsesor,
+  brandTarget,
 }) {
   const dashboard = state.dashboard;
   const totalAhorros = dashboard.ahorros.reduce((sum, ahorro) => sum + ahorro.monto, 0);
@@ -37,6 +38,7 @@ export function renderDashboardPage({
       profileName,
       currentRole,
       isAsesor,
+      brandTarget,
     })}
 
     <!-- ======== Fila 1: Metricas Principales ======== -->
@@ -114,7 +116,7 @@ export function renderDashboardPage({
       <div class="col-12 col-lg-8">
         ${
           graficoGastos({
-            title: 'Evolucion de Gastos (Ultimos 12 Meses)',
+            title: 'Gastos de los Ultimos 12 Meses',
             canvasId: 'dashboardLineChart',
             ariaLabel: 'Ultimos 12 meses',
             height: '280px'
@@ -124,7 +126,7 @@ export function renderDashboardPage({
       <div class="col-12 col-lg-4">
         ${
           graficoTorta({
-            title: 'Distribucion Mensual',
+            title: 'Distribucion de Gastos',
             canvasId: 'dashboardPieChart',
             ariaLabel: 'Categorias de gastos',
           })
@@ -137,7 +139,7 @@ export function renderDashboardPage({
       <div class="col-12">
         ${
           listaUltimosGastos({
-            title: 'Gastos Recientes',
+            title: 'Ultimos Gastos',
             expenses: dashboard.gastos,
             showAll: dashboard.showAllRecentExpenses,
             toggleAction: 'toggle-dashboard-expenses',
@@ -155,9 +157,8 @@ export function renderDashboardPage({
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
               <div class="d-flex align-items-center gap-3">
                 <h2 class="h5 mb-0 fw-bold text-dark">Ahorros</h2>
-                <div class="bg-success text-white px-3 py-2" style="border-radius: 8px; min-width: 150px; text-align: center;">
-                  <small class="d-block fw-semibold" style="font-size: 12px;">Pozo Ahorrado</small>
-                  <h3 class="h6 mb-0 fw-bold">${formatCurrency(totalAhorros)}</h3>
+                <div style="min-width: 240px; max-width: 280px;">
+                  ${tarjetaValor({ title: 'Pozo Ahorrado', value: formatCurrency(totalAhorros), color: 'success', icon: 'lni-coin' })}
                 </div>
               </div>
               <button type="button" class="btn btn-outline-primary btn-sm fw-bold" style="border-radius: 8px;" data-action="open-ahorro-modal">+ Crear ahorro</button>

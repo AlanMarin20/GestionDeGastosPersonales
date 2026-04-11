@@ -64,6 +64,7 @@ export function renderRegistroPage({ encabezadoExterno, botonIniciarCrearCuenta 
           </div>
         </div>
       </section>
+
     </div>
   `;
 }

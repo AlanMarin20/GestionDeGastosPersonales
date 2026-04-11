@@ -4,34 +4,52 @@ export function encabezadoInterno({
   profileName = 'Usuario',
   currentRole = 'Usuario',
   isAsesor = false,
+  brandTarget = '/dashboard',
+  advisorClientHref = '/dashboard/asesor',
+  showAdvisorClientLink = false,
 } = {}) {
+  const roleLabel = isAsesor ? 'Asesor' : 'Usuario';
+  const brandAction = brandTarget === 'scroll-top' ? 'brand-scroll-top' : 'brand-navigation';
+
   return `
     <!-- ======== Topbar start ======== -->
-    <header class="shadow-sm py-3 px-4 d-flex justify-content-between align-items-center" style="background-color: #eef2f6; z-index: 999; height: 80px;">
+    <header class="shadow-sm py-3 px-4 d-flex justify-content-between align-items-center gap-3" style="background-color: #eef2f6; z-index: 999; min-height: 80px;">
       <div class="d-flex align-items-center gap-3">
-        <button class="btn border-0 shadow-sm d-flex flex-column align-items-center justify-content-center gap-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-label="Abrir menú" style="background-color: #ffffff; color: #1e293b; width: 40px; height: 40px; border-radius: 50%;">
-          <span style="display:block;width:16px;height:2px;background-color:#1e293b;border-radius:2px;"></span>
-          <span style="display:block;width:16px;height:2px;background-color:#1e293b;border-radius:2px;"></span>
-          <span style="display:block;width:16px;height:2px;background-color:#1e293b;border-radius:2px;"></span>
+        <button type="button" class="btn p-0 border-0 bg-transparent d-inline-flex align-items-center gap-2 d-none d-sm-inline-flex ms-1 text-decoration-none" data-action="${escapeHtml(brandAction)}" data-target="${escapeHtml(brandTarget)}" aria-label="Ir a FinanzasPro" style="cursor: pointer; line-height: 1; white-space: nowrap;">
+          <span class="d-inline-flex align-items-center justify-content-center rounded-circle shadow-sm overflow-hidden flex-shrink-0" style="width: 31px; height: 31px; background: transparent;">
+            <img src="/assets/img/logo/iconoSfondo.png" alt="Icono FinanzasPro" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+          </span>
+          <h4 class="mb-0 fw-bold text-dark fs-5" style="letter-spacing: -0.5px; line-height: 1; margin-top: 1px;">FinanzasPro</h4>
         </button>
-
-        <div class="d-flex align-items-center gap-2 d-none d-sm-flex ms-1">
-          <div class="bg-primary text-white d-flex align-items-center justify-content-center rounded-circle shadow-sm" style="width: 35px; height: 35px;">
-            <i class="lni lni-wallet"></i>
-          </div>
-          <h4 class="mb-0 fw-bold text-dark fs-5" style="letter-spacing: -0.5px;">FinanzasPro</h4>
-        </div>
         ${pageTitle
           ? `<span class="ms-sm-3 text-muted fw-semibold d-none d-md-block border-start ps-sm-3 border-2">${escapeHtml(pageTitle)}</span>`
           : ''}
       </div>
 
-      <div class="d-flex align-items-center">
+      <div class="d-flex align-items-center gap-2 gap-md-3">
         <div class="dropdown">
-          <a href="#" class="d-block text-decoration-none" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
+          <button class="btn btn-outline-primary btn-sm fw-semibold dropdown-toggle shadow-sm" type="button" id="roleSwitcher" data-bs-toggle="dropdown" aria-expanded="false" style="border-radius: 999px; min-width: 150px;">
+            ${escapeHtml(roleLabel)}
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-3" aria-labelledby="roleSwitcher" style="border-radius: 12px; min-width: 210px;">
+            <li>
+              <a class="dropdown-item py-2 fw-semibold text-dark ${!isAsesor ? 'bg-primary bg-opacity-10 text-primary' : ''}" href="/dashboard" data-link>
+                <i class="lni lni-user me-2"></i> Usuario
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item py-2 fw-semibold text-dark ${isAsesor ? 'bg-primary bg-opacity-10 text-primary' : ''}" href="/dashboard/asesor" data-link>
+                <i class="lni lni-briefcase me-2"></i> Asesor
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="dropdown">
+          <a href="#" class="d-block text-decoration-none" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Abrir menú de usuario">
             <img src="${escapeHtml(profileImage)}" class="rounded-circle border border-2 border-primary shadow-sm" alt="Perfil" style="width: 45px; height: 45px; object-fit: cover; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
           </a>
-          <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-3" aria-labelledby="dropdownUser" style="border-radius: 12px; min-width: 220px;">
+          <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-3" aria-labelledby="dropdownUser" style="border-radius: 12px; min-width: 250px;">
             <li class="px-3 py-2 border-bottom mb-1">
               <div class="d-flex align-items-center gap-3">
                 <img src="${escapeHtml(profileImage)}" class="rounded-circle" alt="Perfil" style="width: 40px; height: 40px; object-fit: cover;">
@@ -41,8 +59,11 @@ export function encabezadoInterno({
                 </div>
               </div>
             </li>
-            <li><a class="dropdown-item py-2 fw-semibold text-dark ${!isAsesor ? 'bg-primary bg-opacity-10 text-primary' : ''}" href="/dashboard" data-link><i class="lni lni-user me-2"></i> Vista Usuario</a></li>
-            <li><a class="dropdown-item py-2 fw-semibold text-dark ${isAsesor ? 'bg-primary bg-opacity-10 text-primary' : ''}" href="/dashboard/asesor" data-link><i class="lni lni-briefcase me-2"></i> Vista Asesor</a></li>
+            <li><a class="dropdown-item py-2 fw-semibold text-dark" href="/dashboard" data-link><i class="lni lni-grid-alt me-2"></i> Mi Dasboard</a></li>
+            ${showAdvisorClientLink ? `<li><a class="dropdown-item py-2 fw-semibold text-dark" href="${escapeHtml(advisorClientHref)}" data-link><i class="lni lni-users me-2"></i> Ver otro cliente</a></li>` : ''}
+            <li><a class="dropdown-item py-2 fw-semibold text-dark" href="/perfil/editar" data-link><i class="lni lni-user me-2"></i> Editar perfil</a></li>
+            <li><a class="dropdown-item py-2 fw-semibold text-dark" href="/perfil/configuracion" data-link><i class="lni lni-cog me-2"></i> Configuración</a></li>
+            <li><a class="dropdown-item py-2 fw-semibold text-dark" href="/perfil/notificaciones" data-link><i class="lni lni-alarm me-2"></i> Notificaciones</a></li>
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item py-2 fw-bold text-danger" href="/login" data-link><i class="lni lni-exit me-2"></i> Cerrar Sesión</a></li>
           </ul>
@@ -71,11 +92,11 @@ export function encabezadoExterno({
           <div class="row align-items-center">
             <div class="col-lg-12">
               <nav class="navbar navbar-expand-lg d-flex justify-content-between py-3">
-                <a class="navbar-brand d-flex align-items-center gap-2" href="/" data-link>
-                  <span class="bg-primary text-white d-flex align-items-center justify-content-center rounded-circle shadow-sm" style="width: 34px; height: 34px;">
-                    <i class="lni lni-wallet"></i>
+                <a class="navbar-brand d-inline-flex align-items-center gap-2" href="/" data-link style="line-height: 1; white-space: nowrap;">
+                  <span class="d-inline-flex align-items-center justify-content-center rounded-circle shadow-sm overflow-hidden flex-shrink-0" style="width: 31px; height: 31px; background: transparent;">
+                    <img src="/assets/img/logo/iconoSfondo.png" alt="Icono FinanzasPro" style="width: 100%; height: 100%; object-fit: cover; display: block;">
                   </span>
-                  <span class="fw-bold text-dark fs-5" style="letter-spacing: -0.4px;">FinanzasPro</span>
+                  <span class="fw-bold text-dark fs-5" style="letter-spacing: -0.4px; line-height: 1; margin-top: 1px;">FinanzasPro</span>
                 </a>
                 ${botonEncabezadoExterno({
                   href: rightHref,
@@ -90,6 +111,14 @@ export function encabezadoExterno({
       </div>
     </header>
     <!-- ======== header end ======== -->
+  `;
+}
+
+export function botonScrollTop() {
+  return `
+    <button type="button" class="scroll-top btn-hover" data-action="scroll-top-page" aria-label="Volver al comienzo">
+      <span class="scroll-top-triangle" aria-hidden="true"></span>
+    </button>
   `;
 }
 

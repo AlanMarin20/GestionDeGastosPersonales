@@ -6,6 +6,8 @@ export function renderDashboardAsesorPage({
   tarjetaValor,
   profileImage,
   profileName,
+  currentRole,
+  brandTarget,
 }) {
   const asesor = state.asesor;
   const clientesFiltrados = asesor.clientes.filter((c) =>
@@ -36,8 +38,9 @@ export function renderDashboardAsesorPage({
       pageTitle: '',
       profileImage,
       profileName,
-      currentRole: 'Asesor',
+      currentRole,
       isAsesor: true,
+      brandTarget,
     })}
 
     <section class="row g-3 g-md-4 mb-4">

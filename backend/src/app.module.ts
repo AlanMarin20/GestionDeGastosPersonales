@@ -4,7 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import * as Joi from 'joi';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { CategoriesModule } from 'src/categories/categories.module';
+import { CategoriesModule } from './categories/categories.module';
 import { UsersModule } from './users/users.module';
 import { IncomesModule } from './incomes/incomes.module';
 import { ExpensesModule } from './expenses/expenses.module';
