@@ -24,17 +24,19 @@
     }
 
     const sticky = header_navbar.offsetTop;
-    const logo = document.querySelector(".navbar-brand img");
+    const logo = document.querySelector(
+      ".navbar-brand img[data-default-logo][data-sticky-logo]"
+    );
 
     if (window.pageYOffset > sticky) {
       header_navbar.classList.add("sticky");
-      if (logo) {
-        logo.src = "assets/img/logo/logo-2.svg";
+      if (logo?.dataset.stickyLogo) {
+        logo.src = logo.dataset.stickyLogo;
       }
     } else {
       header_navbar.classList.remove("sticky");
-      if (logo) {
-        logo.src = "assets/img/logo/logo.svg";
+      if (logo?.dataset.defaultLogo) {
+        logo.src = logo.dataset.defaultLogo;
       }
     }
 

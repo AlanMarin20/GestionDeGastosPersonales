@@ -41,74 +41,78 @@ export function renderDashboardPage({
       brandTarget,
     })}
 
-    <!-- ======== Fila 1: Metricas Principales ======== -->
-    <section class="row g-2 mb-2">
-      <!-- Contenedores Saldo Actual y Presupuesto Disponible -->
-      <div class="col-12 col-lg-3 d-flex flex-column gap-1">
-        ${tarjetaValor({ title: 'Saldo Actual', value: formatCurrency(dashboard.saldoActual), color: 'primary', icon: 'lni-wallet', hasButton: true, buttonAction: 'open-ingreso-modal' })}
-        ${tarjetaValor({ title: 'Presupuesto Total Disponible', value: formatCurrency(totalAhorros), color: 'success', icon: 'lni-coin' })}
-      </div>
-      
-      <!-- Gastos del Mes -->
-      <div class="col-12 col-lg-3">
-        ${tarjetaValor({ title: 'Gastos del Mes', value: '$14,350.75', color: 'danger', icon: 'lni-stats-down' })}
-      </div>
-      
-      <!-- Añadir Nuevo Gasto (Arriba) -->
-      <div class="col-12 col-lg-6">
-        <article class="card border-0 shadow-sm" style="border-radius: 15px;">
-          <div class="card-body" style="padding: 12px; min-height: 280px;">
-            <h2 class="h5 mb-2">Anadir Nuevo Gasto</h2>
-            <form id="nuevoGastoForm">
-              <div class="mb-2">
-                <label for="descripcion" class="form-label small fw-500">Descripcion</label>
-                <input type="text" class="form-control form-control-sm" id="descripcion" name="descripcion" placeholder="Ej: Almuerzo" value="${escapeHtml(dashboard.formData.descripcion)}">
-              </div>
-              <div class="mb-2">
-                <label for="monto" class="form-label small fw-500">Monto ($)</label>
-                <input type="number" class="form-control form-control-sm" id="monto" name="monto" placeholder="0.00" step="0.01" value="${escapeHtml(dashboard.formData.monto)}">
-              </div>
-              <div class="mb-2">
-                <label for="categoria" class="form-label small fw-500">Categoria</label>
-                <select class="form-select form-select-sm" id="categoria" name="categoria">
-                  ${['Comida', 'Vivienda', 'Transporte', 'Ocio', 'Otros']
-                    .map(
-                      (cat) =>
-                        `<option value="${cat}" ${dashboard.formData.categoria === cat ? 'selected' : ''}>${cat}</option>`,
-                    )
-                    .join('')}
-                </select>
-              </div>
-              ${botonRegistrarGastos({
-                id: 'registrar-gasto-btn',
-                text: 'Registrar Gasto',
-                type: 'submit',
-                className: 'btn btn-primary btn-sm w-100',
-              })}
-              ${botonRegistrarGastos({
-                text: 'Registrar Gasto con imagen',
-                className: 'btn btn-outline-primary btn-sm w-100 mt-2',
-                iconClass: 'lni lni-camera',
-              })}
-            </form>
-          </div>
-        </article>
-      </div>
-    </section>
+    <!-- ======== Seccion 1: Resumen, gasto y recomendaciones ======== -->
+    <section class="mb-4">
+      <div class="row g-3 align-items-start">
+        <!-- Columna izquierda: tarjetas + recomendaciones debajo -->
+        <div class="col-12 col-lg-6 d-flex flex-column gap-3">
+          <!-- Subseccion 1a: Saldo actual, presupuesto disponible, gastos del mes -->
+          <div class="row g-2">
+            <div class="col-12 col-lg-6 d-flex flex-column gap-1">
+              ${tarjetaValor({ title: 'Saldo Actual', value: formatCurrency(dashboard.saldoActual), color: 'primary', icon: 'lni-wallet', hasButton: true, buttonAction: 'open-ingreso-modal' })}
+              ${tarjetaValor({ title: 'Presupuesto Total Disponible', value: formatCurrency(totalAhorros), color: 'success', icon: 'lni-coin' })}
+            </div>
 
-    <!-- ======== Recomendaciones ======== -->
-    <section class="mb-3" style="max-width: 555px;">
-      <article class="card border-0 shadow-sm" style="border-radius: 15px;">
-        <div class="card-body" style="padding: 16px;">
-          <h2 class="mb-0" style="font-size: 16px; margin-bottom: 8px !important;"><i class="bi bi-lightbulb me-2"></i>Recomendaciones</h2>
-          <div class="alert alert-info alert-sm mb-0" style="margin-bottom: 8px !important; padding: 8px 16px;" role="alert">
-            <small style="font-size: 14px;"><strong>💡 Sugerencia IA:</strong> Reducir gastos de comida un 15%</small>
+            <div class="col-12 col-lg-6">
+              ${tarjetaValor({ title: 'Gastos del Mes', value: '$14,350.75', color: 'danger', icon: 'lni-stats-down' })}
+            </div>
           </div>
-          <div class="alert alert-warning alert-sm mb-0" style="padding: 8px 16px;" role="alert">
-            <small style="font-size: 14px;"><strong>Asesor:</strong> Tu presupuesto de vivienda es alto. Considera revisarlo.</small>
-          </div>
+
+          <!-- Subseccion 1c: Recomendaciones -->
+          <article class="card border-0 shadow-sm" style="border-radius: 15px;">
+            <div class="card-body" style="padding: 16px;">
+              <h2 class="mb-0" style="font-size: 16px; margin-bottom: 8px !important;"><i class="bi bi-lightbulb me-2"></i>Recomendaciones</h2>
+              <div class="alert alert-info alert-sm mb-0" style="margin-bottom: 8px !important; padding: 8px 16px;" role="alert">
+                <small style="font-size: 14px;"><strong>💡 Sugerencia IA:</strong> Reducir gastos de comida un 15%</small>
+              </div>
+              <div class="alert alert-warning alert-sm mb-0" style="padding: 8px 16px;" role="alert">
+                <small style="font-size: 14px;"><strong>Asesor:</strong> Tu presupuesto de vivienda es alto. Considera revisarlo.</small>
+              </div>
+            </div>
+          </article>
         </div>
-      </article>
+
+        <!-- Subseccion 1b: Añadir nuevo gasto -->
+        <div class="col-12 col-lg-6">
+          <article class="card border-0 shadow-sm h-100" style="border-radius: 15px;">
+            <div class="card-body" style="padding: 18px; min-height: 280px;">
+              <h2 class="h5 mb-2">Anadir Nuevo Gasto</h2>
+              <form id="nuevoGastoForm">
+                <div class="mb-2">
+                  <label for="descripcion" class="form-label small fw-500">Descripcion</label>
+                  <input type="text" class="form-control form-control-sm" id="descripcion" name="descripcion" placeholder="Ej: Almuerzo" value="${escapeHtml(dashboard.formData.descripcion)}">
+                </div>
+                <div class="mb-2">
+                  <label for="monto" class="form-label small fw-500">Monto ($)</label>
+                  <input type="number" class="form-control form-control-sm" id="monto" name="monto" placeholder="0.00" step="0.01" value="${escapeHtml(dashboard.formData.monto)}">
+                </div>
+                <div class="mb-2">
+                  <label for="categoria" class="form-label small fw-500">Categoria</label>
+                  <select class="form-select form-select-sm" id="categoria" name="categoria">
+                    ${['Comida', 'Vivienda', 'Transporte', 'Ocio', 'Otros']
+                      .map(
+                        (cat) =>
+                          `<option value="${cat}" ${dashboard.formData.categoria === cat ? 'selected' : ''}>${cat}</option>`,
+                      )
+                      .join('')}
+                  </select>
+                </div>
+                ${botonRegistrarGastos({
+                  id: 'registrar-gasto-btn',
+                  text: 'Registrar Gasto',
+                  type: 'submit',
+                  className: 'btn btn-primary btn-sm w-100',
+                })}
+                ${botonRegistrarGastos({
+                  text: 'Registrar Gasto con imagen',
+                  className: 'btn btn-outline-primary btn-sm w-100 mt-2',
+                  iconClass: 'lni lni-camera',
+                })}
+              </form>
+            </div>
+          </article>
+        </div>
+      </div>
     </section>
 
     <!-- ======== Fila 1b: Graficos Estirados ======== -->
