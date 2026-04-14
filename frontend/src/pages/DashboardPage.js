@@ -1,6 +1,7 @@
 import {
   graficoGastos,
   graficoTorta,
+  contenedorRecomendaciones,
   listaUltimosGastos,
   tarjetaAhorro,
   tarjetaValor,
@@ -39,6 +40,7 @@ export function renderDashboardPage({
       currentRole,
       isAsesor,
       brandTarget,
+      transparent: true,
     })}
 
     <!-- ======== Seccion 1: Resumen, gasto y recomendaciones ======== -->
@@ -46,30 +48,28 @@ export function renderDashboardPage({
       <div class="row g-3 align-items-start">
         <!-- Columna izquierda: tarjetas + recomendaciones debajo -->
         <div class="col-12 col-lg-6 d-flex flex-column gap-3">
-          <!-- Subseccion 1a: Saldo actual, presupuesto disponible, gastos del mes -->
+          <!-- Subseccion 1a: Saldo actual, presupuesto disponible, gastos del mes y pozo ahorrado -->
           <div class="row g-2">
             <div class="col-12 col-lg-6 d-flex flex-column gap-1">
               ${tarjetaValor({ title: 'Saldo Actual', value: formatCurrency(dashboard.saldoActual), color: 'primary', icon: 'lni-wallet', hasButton: true, buttonAction: 'open-ingreso-modal' })}
               ${tarjetaValor({ title: 'Presupuesto Total Disponible', value: formatCurrency(totalAhorros), color: 'success', icon: 'lni-coin' })}
             </div>
 
-            <div class="col-12 col-lg-6">
+            <div class="col-12 col-lg-6 d-flex flex-column gap-1">
               ${tarjetaValor({ title: 'Gastos del Mes', value: '$14,350.75', color: 'danger', icon: 'lni-stats-down' })}
+              ${tarjetaValor({ title: 'Pozo Ahorrado', value: formatCurrency(totalAhorros), color: 'info', icon: 'lni-pie-chart' })}
             </div>
           </div>
 
           <!-- Subseccion 1c: Recomendaciones -->
-          <article class="card border-0 shadow-sm" style="border-radius: 15px;">
-            <div class="card-body" style="padding: 16px;">
-              <h2 class="mb-0" style="font-size: 16px; margin-bottom: 8px !important;"><i class="bi bi-lightbulb me-2"></i>Recomendaciones</h2>
-              <div class="alert alert-info alert-sm mb-0" style="margin-bottom: 8px !important; padding: 8px 16px;" role="alert">
-                <small style="font-size: 14px;"><strong>💡 Sugerencia IA:</strong> Reducir gastos de comida un 15%</small>
-              </div>
-              <div class="alert alert-warning alert-sm mb-0" style="padding: 8px 16px;" role="alert">
-                <small style="font-size: 14px;"><strong>Asesor:</strong> Tu presupuesto de vivienda es alto. Considera revisarlo.</small>
-              </div>
-            </div>
-          </article>
+          ${contenedorRecomendaciones({
+            recommendations: [
+              { fecha: 'Sugerencia IA:', texto: 'Reducir gastos de comida un 15%' },
+              { fecha: 'Asesor:', texto: 'Tu presupuesto de salida es muy alto' },
+              { fecha: 'Asesor:', texto: 'Tu presupuesto de vivienda esta dentro del limite' },
+            ],
+            maxHeight: '145px',
+          })}
         </div>
 
         <!-- Subseccion 1b: Añadir nuevo gasto -->
@@ -162,7 +162,7 @@ export function renderDashboardPage({
               <div class="d-flex align-items-center gap-3">
                 <h2 class="h5 mb-0 fw-bold text-dark">Ahorros</h2>
                 <div style="min-width: 240px; max-width: 280px;">
-                  ${tarjetaValor({ title: 'Pozo Ahorrado', value: formatCurrency(totalAhorros), color: 'success', icon: 'lni-coin' })}
+                  ${tarjetaValor({ title: 'Pozo Ahorrado', value: formatCurrency(totalAhorros), color: 'info', icon: 'lni-pie-chart' })}
                 </div>
               </div>
               <button type="button" class="btn btn-outline-primary btn-sm fw-bold" style="border-radius: 8px;" data-action="open-ahorro-modal">+ Crear ahorro</button>

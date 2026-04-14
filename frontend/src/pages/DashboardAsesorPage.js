@@ -41,6 +41,7 @@ export function renderDashboardAsesorPage({
       currentRole,
       isAsesor: true,
       brandTarget,
+      transparent: true,
     })}
 
     <section class="row g-3 g-md-4 mb-4">

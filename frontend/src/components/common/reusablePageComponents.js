@@ -7,13 +7,23 @@ export function encabezadoInterno({
   brandTarget = '/dashboard',
   advisorClientHref = '/dashboard/asesor',
   showAdvisorClientLink = false,
+  transparent = false,
 } = {}) {
   const roleLabel = isAsesor ? 'Asesor' : 'Usuario';
   const brandAction = brandTarget === 'scroll-top' ? 'brand-scroll-top' : 'brand-navigation';
+  const headerClasses = ['py-3', 'px-4', 'd-flex', 'justify-content-between', 'align-items-center', 'gap-3'];
+
+  if (!transparent) {
+    headerClasses.unshift('shadow-sm');
+  }
+
+  const headerStyle = transparent
+    ? 'background-color: transparent; backdrop-filter: none; z-index: 999; min-height: 80px;'
+    : 'background-color: var(--app-header-bg, #eef2f6); z-index: 999; min-height: 80px;';
 
   return `
     <!-- ======== Topbar start ======== -->
-    <header class="shadow-sm py-3 px-4 d-flex justify-content-between align-items-center gap-3" style="background-color: #eef2f6; z-index: 999; min-height: 80px;">
+    <header class="${escapeHtml(headerClasses.join(' '))}" style="${headerStyle}">
       <div class="d-flex align-items-center gap-3">
         <button type="button" class="btn p-0 border-0 bg-transparent d-inline-flex align-items-center gap-2 d-none d-sm-inline-flex ms-1 text-decoration-none" data-action="${escapeHtml(brandAction)}" data-target="${escapeHtml(brandTarget)}" aria-label="Ir a FinanzasPro" style="cursor: pointer; line-height: 1; white-space: nowrap;">
           <span class="d-inline-flex align-items-center justify-content-center rounded-circle shadow-sm overflow-hidden flex-shrink-0" style="width: 31px; height: 31px; background: transparent;">
@@ -81,7 +91,7 @@ export function encabezadoExterno({
   withLightBackground = false,
 } = {}) {
   const headerStyle = withLightBackground
-    ? 'z-index: 999; background-color: rgba(226, 232, 240, 0.95); backdrop-filter: blur(4px);'
+    ? 'z-index: 999; background-color: var(--app-header-overlay, rgba(226, 232, 240, 0.95)); backdrop-filter: blur(4px);'
     : 'z-index: 999;';
 
   return `
@@ -176,7 +186,7 @@ export function tarjetaLandingPage({
   iconAlt = '',
 } = {}) {
   const iconMarkup = iconImageSrc
-    ? `<img src="${escapeHtml(iconImageSrc)}" alt="${escapeHtml(iconAlt || title)}" style="width: 28px; height: 28px; object-fit: contain;" />`
+    ? `<img src="${escapeHtml(iconImageSrc)}" alt="${escapeHtml(iconAlt || title)}" style="width: 100%; height: 100%; object-fit: cover; object-position: center; display: block;" />`
     : `<i class="lni ${escapeHtml(iconClass)}"></i>`;
 
   return `
@@ -229,14 +239,16 @@ export function imagenesLanding({
   delay = '.5s',
   wrapperStyle = '',
   imageClass = 'w-100',
+  imageStyle = '',
   extraMarkup = '',
 } = {}) {
   const delayAttr = delay ? ` data-wow-delay="${escapeHtml(delay)}"` : '';
   const styleAttr = wrapperStyle ? ` style="${escapeHtml(wrapperStyle)}"` : '';
+  const imageStyleAttr = imageStyle ? ` style="${escapeHtml(imageStyle)}"` : '';
 
   return `
     <div class="${escapeHtml(wrapperClass)}"${delayAttr}${styleAttr}>
-      <img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}" class="${escapeHtml(imageClass)}" />
+      <img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}" class="${escapeHtml(imageClass)}"${imageStyleAttr} />
       ${extraMarkup}
     </div>
   `;
@@ -310,7 +322,7 @@ export function tarjetaValor({
     : '';
 
   return `
-    <article class="card border-0 shadow-sm ${cardClasses}" style="border-radius: 15px; min-height: 90px;">
+    <article class="card border-0 shadow-sm kpi-value-card kpi-${escapeHtml(color)} ${cardClasses}" style="border-radius: 15px; min-height: 90px;">
       <div class="card-body p-3 position-relative overflow-hidden d-flex flex-column justify-content-center">
         <div class="position-absolute opacity-25" style="top: -5px; right: -5px; font-size: 60px; transform: rotate(-10deg);">
           <i class="lni ${escapeHtml(icon)}"></i>
@@ -389,12 +401,12 @@ export function tarjetaAhorro({ ahorro, formatCurrency }) {
   `;
 }
 
-export function graficoTorta({ title, canvasId, ariaLabel }) {
+export function graficoTorta({ title, canvasId, ariaLabel, height = '250px' }) {
   return `
     <article class="card border-0 shadow-sm h-100" style="border-radius: 15px;">
       <div class="card-body p-4 d-flex flex-column">
         <h2 class="h5 mb-4 fw-bold text-dark">${escapeHtml(title)}</h2>
-        <div class="flex-grow-1 position-relative" style="min-height: 250px; width: 100%;">
+        <div class="flex-grow-1 position-relative" style="min-height:${escapeHtml(height)}; width: 100%;">
           <canvas id="${escapeHtml(canvasId)}" aria-label="${escapeHtml(ariaLabel)}" role="img"></canvas>
         </div>
       </div>
@@ -409,6 +421,52 @@ export function graficoGastos({ title, canvasId, ariaLabel, height = '300px' }) 
         <h2 class="h5 mb-4 fw-bold text-dark">${escapeHtml(title)}</h2>
         <div class="flex-grow-1 position-relative" style="min-height:${escapeHtml(height)}; width: 100%;">
           <canvas id="${escapeHtml(canvasId)}" aria-label="${escapeHtml(ariaLabel)}" role="img"></canvas>
+        </div>
+      </div>
+    </article>
+  `;
+}
+
+export function contenedorRecomendaciones({
+  title = 'Recomendaciones',
+  recommendations = [],
+  emptyText = 'No hay recomendaciones aun',
+  maxHeight = '',
+  padding = '16px',
+  titleIcon = 'bi bi-lightbulb',
+  cardStyle = 'border-radius: 15px;',
+  bodyStyle = '',
+  titleClass = 'mb-0',
+  titleStyle = 'font-size: 16px; margin-bottom: 8px !important;',
+  itemsWrapperClass = 'd-flex flex-column gap-2',
+  itemRenderer = null,
+} = {}) {
+  const items = recommendations ?? [];
+  const hasScrollableArea = Boolean(maxHeight);
+  const scrollStyle = hasScrollableArea
+    ? `max-height: ${escapeHtml(maxHeight)}; overflow-y: auto; padding-right: 12px;`
+    : '';
+
+  const renderItem = itemRenderer ?? ((item, index) => `
+    <div class="alert ${index % 2 === 0 ? 'alert-info' : 'alert-warning'} alert-sm mb-0" style="padding: 8px 16px;" role="alert">
+      <small style="font-size: 14px;"><strong>${escapeHtml(item.fecha)}:</strong> ${escapeHtml(item.texto)}</small>
+    </div>
+  `);
+
+  return `
+    <article class="card border-0 shadow-sm" style="${escapeHtml(cardStyle)}">
+      <div class="card-body" style="padding: ${escapeHtml(padding)};${bodyStyle ? ` ${escapeHtml(bodyStyle)}` : ''}${scrollStyle ? ` ${scrollStyle}` : ''}">
+        <h2 class="${escapeHtml(titleClass)}" style="${escapeHtml(titleStyle)}"><i class="${escapeHtml(titleIcon)} me-2"></i>${escapeHtml(title)}</h2>
+        <div class="${escapeHtml(itemsWrapperClass)}">
+          ${
+            items.length === 0
+              ? `<p class="text-muted small mb-0">${escapeHtml(emptyText)}</p>`
+              : items
+                  .map(
+                    (item, index) => renderItem(item, index),
+                  )
+                  .join('')
+          }
         </div>
       </div>
     </article>

@@ -940,6 +940,18 @@ p {
   margin-bottom: 30px;
   font-size: 65px;
   line-height: 1;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feature-section .single-feature .icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
 }
 
 .feature-section .single-feature .content h3 {

@@ -31,6 +31,7 @@ const appRoot = document.getElementById("root");
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 const ACCESS_TOKEN_KEY = "access_token";
+const THEME_STORAGE_KEY = "theme_preference";
 const DEFAULT_PROFILE_IMAGE = "/assets/img/user-avatar-default.svg";
 
 const state = {
@@ -431,7 +432,7 @@ function getBrandTarget(pathname) {
 
 function renderDashboardLayout(content, { showScrollTop = true } = {}) {
   return `
-    <div class="d-flex min-vh-100 overflow-hidden" style="background-color: #e2e8f0;">
+    <div class="d-flex min-vh-100 overflow-hidden" style="background-color: var(--app-surface-bg);">
       <!-- ======== Main Content Wrapper ======== -->
       <div class="flex-grow-1 d-flex flex-column h-100 overflow-y-auto w-100">
 
@@ -1352,8 +1353,10 @@ function attachFormHandlers(pathname) {
     });
 
     const temaOscuroInput = document.getElementById("temaOscuro");
-    temaOscuroInput?.addEventListener("change", () => {
-      state.configuracion.temaOscuro = !state.configuracion.temaOscuro;
+    temaOscuroInput?.addEventListener("change", (event) => {
+      state.configuracion.temaOscuro = event.target.checked;
+      saveThemePreference(state.configuracion.temaOscuro);
+      applyTheme(state.configuracion.temaOscuro);
       render();
     });
 
@@ -1406,11 +1409,52 @@ function attachFormHandlers(pathname) {
   }
 }
 
-function buildPieChart(canvasId, labels, values) {
+function buildPieChart(canvasId, labels, values, centerPercentage = 0) {
   const canvas = document.getElementById(canvasId);
   if (!canvas) {
     return;
   }
+
+  const isDark = state.configuracion.temaOscuro;
+  const legendColor = isDark ? "#cbd5e1" : "#334155";
+  const tooltipBackground = isDark
+    ? "rgba(15, 23, 42, 0.95)"
+    : "rgba(255, 255, 255, 0.9)";
+  const tooltipTitle = isDark ? "#f8fafc" : "#333";
+  const tooltipBody = isDark ? "#cbd5e1" : "#666";
+  const tooltipBorder = isDark ? "#334155" : "#e2e8f0";
+  const datasetBorder = isDark ? "#0f172a" : "#ffffff";
+  const centerTextColor = isDark ? "#f8fafc" : "#0f172a";
+  const centerSubTextColor = isDark ? "#94a3b8" : "#64748b";
+
+  const normalizedCenter = Math.max(0, Math.min(100, centerPercentage));
+  const centerText = `${normalizedCenter.toFixed(1)}%`;
+
+  const centerTextPlugin = {
+    id: `centerText-${canvasId}`,
+    afterDraw(chart) {
+      const { ctx, chartArea } = chart;
+      if (!chartArea) {
+        return;
+      }
+
+      const centerX = (chartArea.left + chartArea.right) / 2;
+      const centerY = (chartArea.top + chartArea.bottom) / 2;
+
+      ctx.save();
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+
+      ctx.fillStyle = centerTextColor;
+      ctx.font = "700 24px Inter, sans-serif";
+      ctx.fillText(centerText, centerX, centerY - 8);
+
+      ctx.fillStyle = centerSubTextColor;
+      ctx.font = "500 12px Inter, sans-serif";
+      ctx.fillText("Gastado", centerX, centerY + 14);
+      ctx.restore();
+    },
+  };
 
   const instance = new Chart(canvas, {
     type: "doughnut",
@@ -1426,12 +1470,13 @@ function buildPieChart(canvasId, labels, values) {
             "rgba(255, 193, 7, 0.85)",  // Amarillo
             "rgba(13, 202, 240, 0.85)", // Celeste
           ],
-          borderColor: "#ffffff",
+          borderColor: datasetBorder,
           borderWidth: 3,
           hoverOffset: 8,
         },
       ],
     },
+    plugins: [centerTextPlugin],
     options: {
       responsive: true,
       maintainAspectRatio: false,
@@ -1440,17 +1485,31 @@ function buildPieChart(canvasId, labels, values) {
       plugins: {
         legend: { 
           position: "right", 
-          labels: { usePointStyle: true, padding: 15, font: { family: "'Inter', sans-serif", size: 13 } } 
+          labels: {
+            usePointStyle: true,
+            padding: 15,
+            color: legendColor,
+            font: { family: "'Inter', sans-serif", size: 13 },
+          },
         },
         tooltip: {
-          backgroundColor: 'rgba(255, 255, 255, 0.9)',
-          titleColor: '#333',
-          bodyColor: '#666',
-          borderColor: '#e2e8f0',
+          backgroundColor: tooltipBackground,
+          titleColor: tooltipTitle,
+          bodyColor: tooltipBody,
+          borderColor: tooltipBorder,
           borderWidth: 1,
           padding: 12,
           boxPadding: 6,
           usePointStyle: true,
+          callbacks: {
+            label(context) {
+              const data = context.dataset.data || [];
+              const total = data.reduce((acc, val) => acc + Number(val || 0), 0);
+              const current = Number(context.raw || 0);
+              const percentage = total > 0 ? (current / total) * 100 : 0;
+              return `${context.label}: ${percentage.toFixed(1)}%`;
+            },
+          },
         }
       },
     },
@@ -1465,6 +1524,17 @@ function buildLineChart(canvasId, months) {
     return;
   }
 
+  const isDark = state.configuracion.temaOscuro;
+  const axisTextColor = isDark ? "#cbd5e1" : "#334155";
+  const gridColor = isDark ? "#334155" : "#e2e8f0";
+  const tooltipBackground = isDark
+    ? "rgba(15, 23, 42, 0.95)"
+    : "rgba(255, 255, 255, 0.9)";
+  const tooltipTitle = isDark ? "#f8fafc" : "#333";
+  const tooltipBody = isDark ? "#cbd5e1" : "#666";
+  const tooltipBorder = isDark ? "#334155" : "#e2e8f0";
+  const pointBackgroundColor = isDark ? "#0f172a" : "#fff";
+
   const instance = new Chart(canvas, {
     type: "line",
     data: {
@@ -1476,7 +1546,7 @@ function buildLineChart(canvasId, months) {
           borderColor: "#0d6efd",
           backgroundColor: "rgba(13, 110, 253, 0.15)",
           borderWidth: 3,
-          pointBackgroundColor: "#fff",
+          pointBackgroundColor,
           pointBorderColor: "#0d6efd",
           pointBorderWidth: 2,
           pointRadius: 4,
@@ -1492,10 +1562,10 @@ function buildLineChart(canvasId, months) {
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: 'rgba(255, 255, 255, 0.9)',
-          titleColor: '#333',
-          bodyColor: '#666',
-          borderColor: '#e2e8f0',
+          backgroundColor: tooltipBackground,
+          titleColor: tooltipTitle,
+          bodyColor: tooltipBody,
+          borderColor: tooltipBorder,
           borderWidth: 1,
           padding: 10,
           boxPadding: 4,
@@ -1505,13 +1575,20 @@ function buildLineChart(canvasId, months) {
       scales: {
         x: {
           grid: { display: false },
-          ticks: { font: { family: "'Inter', sans-serif" } }
+          ticks: {
+            color: axisTextColor,
+            font: { family: "'Inter', sans-serif" },
+          }
         },
         y: {
           beginAtZero: true,
           border: { display: false },
-          grid: { color: "#e2e8f0", borderDash: [5, 5] },
-          ticks: { font: { family: "'Inter', sans-serif" }, padding: 10 }
+          grid: { color: gridColor, borderDash: [5, 5] },
+          ticks: {
+            color: axisTextColor,
+            font: { family: "'Inter', sans-serif" },
+            padding: 10,
+          }
         },
       },
     },
@@ -1525,25 +1602,68 @@ function initCharts(pathname) {
   chartInstances = [];
 
   if (pathname === "/dashboard") {
+    const gastosMensuales = 14350.75;
+    const pozoAhorrado = state.dashboard.ahorros.reduce(
+      (sum, ahorro) => sum + ahorro.monto,
+      0,
+    );
+    const referenciaTotal = gastosMensuales + pozoAhorrado;
+    const porcentajeGastado =
+      referenciaTotal > 0 ? (gastosMensuales / referenciaTotal) * 100 : 0;
+
     buildPieChart(
       "dashboardPieChart",
       ["Comida", "Vivienda", "Transporte", "Ocio", "Otros"],
       [35, 25, 15, 10, 15],
+      porcentajeGastado,
     );
     buildLineChart("dashboardLineChart", monthlyExpensesDashboard);
   }
 
   if (pathname.startsWith("/cliente/")) {
+    const detalleCliente = resolveDetalleCliente(pathname);
+    const presupuesto = Number(detalleCliente?.presupuesto || 0);
+    const gastadoMes = Number(detalleCliente?.gastadoMes || 0);
+    const porcentajeGastado = presupuesto > 0 ? (gastadoMes / presupuesto) * 100 : 0;
+
     buildPieChart(
       "detallePieChart",
       ["Comida", "Vivienda", "Transporte", "Salud", "Otros"],
       [35, 25, 15, 10, 15],
+      porcentajeGastado,
     );
     buildLineChart("detalleLineChart", monthlyExpensesDetalle);
   }
 }
 
+function applyTheme(isDark) {
+  const nextTheme = isDark ? "dark" : "light";
+  document.documentElement.setAttribute("data-bs-theme", nextTheme);
+  document.documentElement.setAttribute("data-theme", nextTheme);
+  document.body.classList.toggle("theme-dark", isDark);
+  document.body.classList.toggle("theme-light", !isDark);
+}
+
+function loadThemePreference() {
+  const storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+  if (storedTheme === "dark") {
+    return true;
+  }
+
+  if (storedTheme === "light") {
+    return false;
+  }
+
+  return window.matchMedia("(prefers-color-scheme: dark)").matches;
+}
+
+function saveThemePreference(isDark) {
+  localStorage.setItem(THEME_STORAGE_KEY, isDark ? "dark" : "light");
+}
+
 function render() {
+  applyTheme(state.configuracion.temaOscuro);
+
   // Limpiar backdrops de Bootstrap en caso de navegación rápida desde menús desplegables
   document.body.style.overflow = '';
   document.body.style.paddingRight = '';
@@ -1562,6 +1682,8 @@ function render() {
 }
 
 attachGlobalNavigation();
+state.configuracion.temaOscuro = loadThemePreference();
+applyTheme(state.configuracion.temaOscuro);
 loadCurrentUser().finally(() => {
   render();
 });

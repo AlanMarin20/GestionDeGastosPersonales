@@ -32,12 +32,13 @@ export function renderLandingPage({ encabezadoExterno, botonEncabezadoExterno, t
           </div>
           <div class="col-lg-7">
             ${imagenesLanding({
-              src: '/assets/img/hero/dashboard-generico-usuario.svg',
+              src: '/assets/img/hero/genericaDashboardPage.png',
               alt: 'Vista de dashboard de usuario',
               wrapperClass: 'hero-img wow fadeInUp d-flex align-items-center justify-content-center',
               delay: '.5s',
               wrapperStyle: 'min-height: 440px;',
               imageClass: 'landing-hero-image',
+              imageStyle: 'border-radius: 30px;',
             })}
           </div>
         </div>
@@ -56,7 +57,8 @@ export function renderLandingPage({ encabezadoExterno, botonEncabezadoExterno, t
             'realizá cargas manuales detalladas mediante formularios ' +
             'dinámicos. Nos adaptamos a tu ritmo para que ningún gasto ' +
             'quede fuera de tu historial.',
-            iconClass: 'lni-bootstrap',
+            iconImageSrc: '/assets/img/hero/landingRegistra.png',
+            iconAlt: 'Icono de registro',
           })}
           ${tarjetaLandingPage({
             title: 'Analizá',
@@ -64,7 +66,8 @@ export function renderLandingPage({ encabezadoExterno, botonEncabezadoExterno, t
             'categoría o período de tiempo a través de gráficos interactivos ' +
             'de torta y barras. Identificá patrones mensuales y mantené ' +
             'un seguimiento preciso de tus ingresos y ahorros en un solo lugar.',
-            iconClass: 'lni-layout',
+            iconImageSrc: '/assets/img/hero/landingAnaliza.png',
+            iconAlt: 'Icono de análisis',
           })}
           ${tarjetaLandingPage({
             title: 'Optimizá',
@@ -72,7 +75,8 @@ export function renderLandingPage({ encabezadoExterno, botonEncabezadoExterno, t
             'presupuestos y objetivos de ahorro realistas. Recibí ' +
             'sugerencias personalizadas de tu asesor financiero para ' +
             'reducir gastos innecesarios y mejorar tu salud económica general.',
-            iconClass: 'lni-coffee-cup',
+            iconImageSrc: '/assets/img/hero/landingOptimiza.png',
+            iconAlt: 'Icono de optimización',
           })}
         </div>
       </div>
@@ -85,10 +89,11 @@ export function renderLandingPage({ encabezadoExterno, botonEncabezadoExterno, t
         <div class="row align-items-center">
           <div class="col-xl-6 col-lg-6">
             ${imagenesLanding({
-              src: '/assets/img/about/about-1.png',
+              src: '/assets/img/hero/genericaDetalleClientePage.png',
               alt: 'Imagen descriptiva del uso como asesor',
               wrapperClass: 'about-img',
               imageClass: 'w-100',
+              imageStyle: 'border-radius: 30px;',
               extraMarkup: `
                 <img src="/assets/img/about/about-left-shape.svg" alt="" class="shape shape-1" />
                 <img src="/assets/img/about/left-dots.svg" alt="" class="shape shape-2" />
@@ -122,79 +127,51 @@ export function renderLandingPage({ encabezadoExterno, botonEncabezadoExterno, t
     <footer class="footer">
       <div class="container">
         <div class="widget-wrapper">
-          <div class="row">
-            <div class="col-xl-4 col-lg-4 col-md-6">
+          <div class="row justify-content-center text-center mb-4">
+            <div class="col-12 col-lg-8">
               <div class="footer-widget">
-                <div class="logo mb-30">
+                <div class="logo mb-3">
                   <a href="/" data-link class="d-inline-flex align-items-center gap-2 text-decoration-none">
                     <img src="/assets/img/logo/iconoSfondo.png" alt="FinanzasPro" style="width: 38px; height: 38px; object-fit: cover; border-radius: 50%;" />
                     <span class="fw-bold text-white fs-4" style="letter-spacing: -0.4px;">FinanzasPro</span>
                   </a>
                 </div>
-                <p class="desc mb-30 text-white">
+                <p class="desc mb-0 text-white">
                   Innovación y precisión en la gestión de tus activos. Diseñamos herramientas inteligentes para que alcances tu libertad financiera con el respaldo de expertos.
                 </p>
-                <ul class="socials">
-                  <li>
-                    <a href="jvascript:void(0)">
-                      <i class="lni lni-facebook-filled"></i>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="jvascript:void(0)">
-                      <i class="lni lni-twitter-filled"></i>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="jvascript:void(0)">
-                      <i class="lni lni-instagram-filled"></i>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="jvascript:void(0)">
-                      <i class="lni lni-linkedin-original"></i>
-                    </a>
-                  </li>
+              </div>
+            </div>
+          </div>
+
+          <div class="row text-center">
+            <div class="col-12 col-md-4">
+              <div class="footer-widget">
+                <h3>Desarrolladores</h3>
+                <ul class="links">
+                  <li>Joaquin Contreras</li>
+                  <li>Alan Marin</li>
                 </ul>
               </div>
             </div>
 
-            <div class="col-xl-2 col-lg-2 col-md-6">
+            <div class="col-12 col-md-4">
               <div class="footer-widget">
-                <h3>About Us</h3>
+                <h3>LinkedIn</h3>
                 <ul class="links">
-                  <li><a href="javascript:void(0)">Home</a></li>
-                  <li><a href="javascript:void(0)">Feature</a></li>
-                  <li><a href="javascript:void(0)">About</a></li>
-                  <li><a href="javascript:void(0)">Testimonials</a></li>
+                  <li><a href="https://www.linkedin.com/in/joaquincontreras755" target="_blank" rel="noopener noreferrer">Joaquin Contreras</a></li>
+                  <li><a href="https://www.linkedin.com/in/alanmarin20/" target="_blank" rel="noopener noreferrer">Alan Marin</a></li>
                 </ul>
               </div>
             </div>
 
-            <div class="col-xl-3 col-lg-3 col-md-6">
+            <div class="col-12 col-md-4">
               <div class="footer-widget">
-                <h3>Features</h3>
+                <h3>Contacto</h3>
                 <ul class="links">
-                  <li><a href="javascript:void(0)">How it works</a></li>
-                  <li><a href="javascript:void(0)">Privacy policy</a></li>
-                  <li><a href="javascript:void(0)">Terms of service</a></li>
-                  <li><a href="javascript:void(0)">Refund policy</a></li>
+                  <li><a href="mailto:cjoaquin835@gmail.com">cjoaquin835@gmail.com</a></li>
+                  <li><a href="mailto:marinalan396@gmail.com">marinalan396@gmail.com</a></li>
                 </ul>
               </div>
-            </div>
-
-            <div class="col-xl-3 col-lg-3 col-md-6">
-              <div class="footer-widget">
-                <h3>Other Products</h3>
-                <ul class="links">
-                  <li><a href="jvascript:void(0)">Accounting Software</a></li>
-                  <li><a href="jvascript:void(0)">Billing Software</a></li>
-                  <li><a href="jvascript:void(0)">Booking System</a></li>
-                  <li><a href="jvascript:void(0)">Tracking System</a></li>
-                </ul>
-                Distributed by <a href="https://themewagon.com" target="_blank" style="color: #bfc7d7">ThemeWagon</a>
-              </div>
-          
             </div>
           </div>
         </div>

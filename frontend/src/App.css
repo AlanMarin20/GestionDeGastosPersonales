@@ -154,3 +154,223 @@
     min-height: auto !important;
   }
 }
+
+:root {
+  --app-bg: #e2e8f0;
+  --app-surface-bg: #e2e8f0;
+  --app-header-bg: #eef2f6;
+  --app-header-overlay: rgba(226, 232, 240, 0.95);
+  --app-card-bg: #ffffff;
+  --app-border-color: #dbe2ea;
+  --app-text-primary: #1e293b;
+  --app-text-secondary: #64748b;
+}
+
+body.theme-dark {
+  --app-bg: #0b1220;
+  --app-surface-bg: #0f172a;
+  --app-header-bg: #111b2f;
+  --app-header-overlay: rgba(15, 23, 42, 0.92);
+  --app-card-bg: #172337;
+  --app-border-color: #2a3b57;
+  --app-text-primary: #e2e8f0;
+  --app-text-secondary: #94a3b8;
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--app-bg);
+  color: var(--app-text-primary);
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+body.theme-dark .card:not(.kpi-value-card),
+body.theme-dark .dropdown-menu,
+body.theme-dark .modal-content,
+body.theme-dark .offcanvas,
+body.theme-dark .list-group-item,
+body.theme-dark .table,
+body.theme-dark .alert,
+body.theme-dark .bg-white,
+body.theme-dark .login-content-card,
+body.theme-dark .landing-content-card {
+  background-color: var(--app-card-bg) !important;
+  border-color: var(--app-border-color) !important;
+  color: var(--app-text-primary) !important;
+}
+
+body.theme-dark .table > :not(caption) > * > * {
+  background-color: transparent !important;
+  color: var(--app-text-primary) !important;
+  border-bottom-color: var(--app-border-color) !important;
+}
+
+body.theme-dark .table-light,
+body.theme-dark .table-light > tr > th,
+body.theme-dark .table-light > tr > td,
+body.theme-dark thead.table-light th {
+  background-color: #1f2d45 !important;
+  color: #dbeafe !important;
+  border-color: var(--app-border-color) !important;
+}
+
+body.theme-dark .form-control,
+body.theme-dark .form-select,
+body.theme-dark .input-group-text {
+  background-color: #111f34 !important;
+  border-color: var(--app-border-color) !important;
+  color: var(--app-text-primary) !important;
+}
+
+body.theme-dark .form-control::placeholder {
+  color: #7f93b1 !important;
+}
+
+body.theme-dark .text-dark,
+body.theme-dark .dropdown-item.text-dark,
+body.theme-dark .btn-outline-dark,
+body.theme-dark .fw-bold.text-dark {
+  color: var(--app-text-primary) !important;
+  border-color: #5f7397 !important;
+}
+
+body.theme-dark .text-muted,
+body.theme-dark small,
+body.theme-dark .text-body-secondary {
+  color: var(--app-text-secondary) !important;
+}
+
+body.theme-dark .border,
+body.theme-dark .border-top,
+body.theme-dark .border-bottom,
+body.theme-dark hr,
+body.theme-dark .dropdown-divider {
+  border-color: var(--app-border-color) !important;
+}
+
+body.theme-dark .navbar-area,
+body.theme-dark .landing-footer {
+  background-color: transparent !important;
+}
+
+body.theme-dark .landing-page,
+body.theme-dark .login-page {
+  background-color: var(--app-surface-bg) !important;
+}
+
+body.theme-dark .landing-page::after,
+body.theme-dark .login-page::after {
+  background: rgba(10, 16, 28, 0.55);
+}
+
+body.theme-dark .footer,
+body.theme-dark .footer-widget,
+body.theme-dark .footer-widget .links li a,
+body.theme-dark .footer-widget h3,
+body.theme-dark .footer-widget .desc {
+  color: #dbe7ff !important;
+}
+
+body.theme-dark .single-feature,
+body.theme-dark .about-content,
+body.theme-dark .section-title h2,
+body.theme-dark .section-title h3,
+body.theme-dark .section-title p,
+body.theme-dark .hero-content h2,
+body.theme-dark .hero-content p {
+  color: var(--app-text-primary) !important;
+}
+
+body.theme-dark .single-feature {
+  background-color: #132036 !important;
+  border-color: var(--app-border-color) !important;
+}
+
+body.theme-dark .dropdown-item:hover,
+body.theme-dark .dropdown-item:focus {
+  background-color: rgba(59, 130, 246, 0.15) !important;
+  color: #dbeafe !important;
+}
+
+body.theme-dark .progress {
+  background-color: #0f1a2c !important;
+}
+
+body.theme-dark .alert-info {
+  background-color: rgba(56, 189, 248, 0.12) !important;
+  color: #bfdbfe !important;
+  border-color: rgba(56, 189, 248, 0.35) !important;
+}
+
+body.theme-dark .alert-success {
+  background-color: rgba(34, 197, 94, 0.13) !important;
+  color: #bbf7d0 !important;
+  border-color: rgba(34, 197, 94, 0.35) !important;
+}
+
+body.theme-dark .auth-back-btn,
+body.theme-dark .landing-access-btn {
+  border-color: #7fb4ff !important;
+  color: #dbeafe !important;
+}
+
+body.theme-dark .google-auth-btn {
+  background-color: #132036 !important;
+  color: #e2e8f0 !important;
+  border-color: #5f7397 !important;
+  box-shadow: 0 6px 16px rgba(2, 6, 23, 0.45) !important;
+}
+
+body.theme-dark .google-auth-btn:hover,
+body.theme-dark .google-auth-btn:focus {
+  background-color: #1b2b45 !important;
+  color: #f8fafc !important;
+  border-color: #8fb7ff !important;
+}
+
+/* Igualamos altura de las tres tarjetas del bloque Features en landing */
+.feature-section .single-feature {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.feature-section .single-feature .content {
+  flex: 1;
+}
+
+body.theme-dark .kpi-value-card {
+  border: 1px solid transparent !important;
+  box-shadow: 0 12px 24px rgba(2, 6, 23, 0.35) !important;
+}
+
+body.theme-dark .kpi-value-card.kpi-primary {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%) !important;
+  border-color: rgba(147, 197, 253, 0.35) !important;
+}
+
+body.theme-dark .kpi-value-card.kpi-success {
+  background: linear-gradient(135deg, #15803d 0%, #166534 100%) !important;
+  border-color: rgba(134, 239, 172, 0.35) !important;
+}
+
+body.theme-dark .kpi-value-card.kpi-danger {
+  background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%) !important;
+  border-color: rgba(252, 165, 165, 0.35) !important;
+}
+
+body.theme-dark .kpi-value-card.kpi-info {
+  background: linear-gradient(135deg, #0e7490 0%, #155e75 100%) !important;
+  border-color: rgba(125, 211, 252, 0.35) !important;
+}
+
+body.theme-dark .kpi-value-card .text-dark,
+body.theme-dark .kpi-value-card .text-info,
+body.theme-dark .kpi-value-card .text-warning,
+body.theme-dark .kpi-value-card .text-primary,
+body.theme-dark .kpi-value-card .text-success,
+body.theme-dark .kpi-value-card .text-danger,
+body.theme-dark .kpi-value-card h2,
+body.theme-dark .kpi-value-card p {
+  color: #f8fafc !important;
+}

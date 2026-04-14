@@ -1,6 +1,7 @@
 import {
   graficoGastos,
   graficoTorta,
+  contenedorRecomendaciones,
   listaUltimosGastos,
   tarjetaValor,
 } from '../components/common/reusablePageComponents';
@@ -54,6 +55,7 @@ export function renderDetalleClientePage({
       brandTarget,
       advisorClientHref,
       showAdvisorClientLink,
+      transparent: true,
     })}
 
     <section class="row g-3 g-md-4 mb-4">
@@ -79,6 +81,7 @@ export function renderDetalleClientePage({
               title: 'Distribucion de Gastos',
               canvasId: 'detallePieChart',
               ariaLabel: 'Distribucion de gastos',
+              height: '436px',
             })
           }
         </div>
@@ -101,7 +104,7 @@ export function renderDetalleClientePage({
 
     <section class="row g-3 g-md-4 mb-4">
       <div class="col-12 col-lg-6">
-        <div class="card border-0 shadow-sm h-100">
+        <div class="card border-0 shadow-sm" style="height: 209px;">
           <div class="card-body">
             <h5 class="card-title mb-3">Agregar Recomendacion</h5>
             <form id="agregarRecomendacionForm">
@@ -115,26 +118,13 @@ export function renderDetalleClientePage({
       </div>
 
       <div class="col-12 col-lg-6">
-        <div class="card border-0 shadow-sm h-100">
-          <div class="card-body">
-            <h5 class="card-title mb-3">Recomendaciones Enviadas</h5>
-            <div style="max-height:250px;overflow-y:auto">
-              ${
-                detalle.recomendaciones.length === 0
-                  ? '<p class="text-muted small">No hay recomendaciones aun</p>'
-                  : detalle.recomendaciones
-                      .map(
-                        (recom) => `
-                          <div class="alert alert-info mb-2 py-2 px-3" role="alert">
-                            <small><strong>${escapeHtml(recom.fecha)}</strong><br>${escapeHtml(recom.texto)}</small>
-                          </div>
-                        `,
-                      )
-                      .join('')
-              }
-            </div>
-          </div>
-        </div>
+        ${contenedorRecomendaciones({
+          title: 'Recomendaciones Enviadas',
+          recommendations: detalle.recomendaciones,
+          emptyText: 'No hay recomendaciones aun',
+          cardStyle: 'border-radius: 15px; height: 209px;',
+          maxHeight: '210px',
+        })}
       </div>
     </section>
 
