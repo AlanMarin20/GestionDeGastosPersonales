@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
+import { DataSource } from 'typeorm';
 import { AppModule } from './../src/app.module';
 
 const runE2E = process.env.RUN_E2E === 'true';
@@ -30,6 +31,7 @@ const runRbacE2E = runE2E && process.env.RUN_RBAC_E2E === 'true';
 
 (runRbacE2E ? describe : describe.skip)('RBAC flows (e2e)', () => {
   let app: INestApplication<App>;
+  let dataSource: DataSource;
 
   const timestamp = Date.now();
   const adminEmail = `rbac.admin.${timestamp}@test.local`;
@@ -41,6 +43,31 @@ const runRbacE2E = runE2E && process.env.RUN_RBAC_E2E === 'true';
   let userId = '';
   let usuarioRoleId = 0;
 
+  async function cleanupRbacTestData() {
+    if (!dataSource) {
+      return;
+    }
+
+    await dataSource.query(
+      `DELETE FROM public.usuario_roles
+       WHERE usuario_id IN (
+         SELECT id FROM public.usuarios WHERE email = $1 OR email = $2
+       )`,
+      [adminEmail, userEmail],
+    );
+
+    await dataSource.query(
+      `DELETE FROM public.usuarios
+       WHERE email = $1 OR email = $2`,
+      [adminEmail, userEmail],
+    );
+
+    await dataSource.query(
+      `DELETE FROM public.roles WHERE nombre = $1`,
+      [`blocked-${timestamp}`],
+    );
+  }
+
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
@@ -48,9 +75,13 @@ const runRbacE2E = runE2E && process.env.RUN_RBAC_E2E === 'true';
 
     app = moduleFixture.createNestApplication();
     await app.init();
+    dataSource = app.get(DataSource);
+
+    await cleanupRbacTestData();
   });
 
   afterAll(async () => {
+    await cleanupRbacTestData();
     await app.close();
   });
 
