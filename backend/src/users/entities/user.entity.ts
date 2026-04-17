@@ -4,25 +4,37 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 
-@Entity('users')
+@Entity('usuarios')
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'varchar', length: 100 })
+  @Column({ name: 'nombre_completo', type: 'varchar', length: 100 })
   name: string;
 
   @Column({ type: 'varchar', length: 100, unique: true })
   email: string;
 
-  @Column({ type: 'varchar' })
-  passwordHash: string; // Guardaremos la contraseña encriptada más adelante
+  @Column({ name: 'contrasenia_hash', type: 'varchar' })
+  passwordHash: string;
 
-  @CreateDateColumn({ name: 'created_at' })
+  @ManyToOne(() => User, { nullable: true })
+  @JoinColumn({ name: 'asesor_id' })
+  advisor?: User;
+
+  @Column({ name: 'esta_activo', type: 'boolean', default: true })
+  isActive: boolean;
+
+  @CreateDateColumn({ name: 'creado_en', type: 'timestamp without time zone' })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'updated_at' })
+  @UpdateDateColumn({
+    name: 'actualizado_en',
+    type: 'timestamp without time zone',
+  })
   updatedAt: Date;
 }

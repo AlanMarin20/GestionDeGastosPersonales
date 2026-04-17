@@ -1,34 +1,50 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { IncomesService } from './incomes.service';
 import { CreateIncomeDto } from './dto/create-income.dto';
 import { UpdateIncomeDto } from './dto/update-income.dto';
+import { AuthGuard } from '../auth/auth.guard';
 
+@UseGuards(AuthGuard)
 @Controller('incomes')
 export class IncomesController {
   constructor(private readonly incomesService: IncomesService) {}
 
   @Post()
-  create(@Body() createIncomeDto: CreateIncomeDto) {
-    return this.incomesService.create(createIncomeDto);
+  create(@Request() req, @Body() createIncomeDto: CreateIncomeDto) {
+    return this.incomesService.create(req.user.sub, createIncomeDto);
   }
 
   @Get()
-  findAll() {
-    return this.incomesService.findAll();
+  findAll(@Request() req) {
+    return this.incomesService.findAll(req.user.sub);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.incomesService.findOne(+id);
+  findOne(@Request() req, @Param('id') id: string) {
+    return this.incomesService.findOne(id, req.user.sub);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateIncomeDto: UpdateIncomeDto) {
-    return this.incomesService.update(+id, updateIncomeDto);
+  update(
+    @Request() req,
+    @Param('id') id: string,
+    @Body() updateIncomeDto: UpdateIncomeDto,
+  ) {
+    return this.incomesService.update(id, req.user.sub, updateIncomeDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.incomesService.remove(+id);
+  remove(@Request() req, @Param('id') id: string) {
+    return this.incomesService.remove(id, req.user.sub);
   }
 }

@@ -9,6 +9,9 @@ import { UsersModule } from './users/users.module';
 import { IncomesModule } from './incomes/incomes.module';
 import { ExpensesModule } from './expenses/expenses.module';
 import { AuthModule } from './auth/auth.module';
+import { BudgetsModule } from './budgets/budgets.module';
+import { SavingsGoalsModule } from './savings-goals/savings-goals.module';
+import { SavingsMovementsModule } from './savings-movements/savings-movements.module';
 
 @Module({
   imports: [
@@ -44,6 +47,9 @@ import { AuthModule } from './auth/auth.module';
     IncomesModule,
     ExpensesModule,
     AuthModule,
+    BudgetsModule,
+    SavingsGoalsModule,
+    SavingsMovementsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

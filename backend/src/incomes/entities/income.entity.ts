@@ -3,40 +3,41 @@ import {
   Column,
   PrimaryGeneratedColumn,
   CreateDateColumn,
-  UpdateDateColumn,
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Category } from '../../categories/entities/category.entity';
 
-@Entity('incomes')
+@Entity('ingresos')
 export class Income {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2 }) // Perfecto para dinero ej: 99999999.99
+  @Column({ name: 'monto', type: 'numeric', precision: 12, scale: 2 })
   amount: number;
 
-  @Column({ type: 'date' })
-  date: Date;
+  @Column({
+    name: 'fecha_ingreso',
+    type: 'date',
+    default: () => 'CURRENT_DATE',
+  })
+  incomeDate: Date;
 
-  @Column({ type: 'text', nullable: true })
-  description: string;
+  @Column({ name: 'fuente', type: 'varchar', nullable: true })
+  source?: string;
 
-  // Relación con Usuario
-  @ManyToOne(() => User)
-  @JoinColumn({ name: 'user_id' })
+  @Column({ name: 'descripcion', type: 'text', nullable: true })
+  description?: string;
+
+  @ManyToOne(() => User, { nullable: false })
+  @JoinColumn({ name: 'usuario_id' })
   user: User;
 
-  // Relación con Categoría
-  @ManyToOne(() => Category)
-  @JoinColumn({ name: 'category_id' })
-  category: Category;
+  @ManyToOne(() => Category, { nullable: true })
+  @JoinColumn({ name: 'categoria_id' })
+  category?: Category;
 
-  @CreateDateColumn({ name: 'created_at' })
+  @CreateDateColumn({ name: 'creado_en', type: 'timestamp without time zone' })
   createdAt: Date;
-
-  @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: Date;
 }

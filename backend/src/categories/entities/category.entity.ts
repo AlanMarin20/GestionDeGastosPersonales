@@ -1,28 +1,30 @@
 import {
   Column,
-  CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
 } from 'typeorm';
+import { User } from '../../users/entities/user.entity';
 
-@Entity('categories')
+@Entity('categorias')
 export class Category {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn({ type: 'integer' })
+  id: number;
 
-  @Column({ type: 'varchar', length: 50, unique: true })
+  @Column({ name: 'nombre', type: 'varchar' })
   name: string;
 
-  @Column({ type: 'varchar', length: 20, default: 'gasto' })
-  type: string;
+  @Column({ name: 'icono', type: 'varchar', nullable: true })
+  icon?: string;
 
-  @Column({ type: 'text', nullable: true })
-  description: string;
+  @Column({ type: 'varchar', nullable: true })
+  color?: string;
 
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
+  @Column({ name: 'es_default', type: 'boolean', default: false })
+  isDefault: boolean;
 
-  @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: Date;
+  @ManyToOne(() => User, { nullable: true })
+  @JoinColumn({ name: 'usuario_id' })
+  user?: User;
 }

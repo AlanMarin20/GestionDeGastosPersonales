@@ -1,24 +1,27 @@
 import {
-  IsIn,
+  IsBoolean,
   IsOptional,
   IsString,
   MaxLength,
-  MinLength,
 } from 'class-validator';
 
 export class UpdateCategoryDto {
   @IsOptional()
   @IsString()
-  @MinLength(1)
-  @MaxLength(50)
+  @MaxLength(120)
   name?: string;
 
   @IsOptional()
   @IsString()
-  @IsIn(['ingreso', 'gasto'])
-  type?: string;
+  @MaxLength(120)
+  icon?: string;
 
   @IsOptional()
   @IsString()
-  description?: string;
+  @MaxLength(60)
+  color?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  isDefault?: boolean;
 }

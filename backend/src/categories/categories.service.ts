@@ -27,11 +27,11 @@ export class CategoriesService {
 
   findAll() {
     return this.categoriesRepository.find({
-      order: { createdAt: 'DESC' },
+      order: { id: 'DESC' },
     });
   }
 
-  async findOne(id: string) {
+  async findOne(id: number) {
     const category = await this.categoriesRepository.findOneBy({ id });
 
     if (!category) {
@@ -41,7 +41,7 @@ export class CategoriesService {
     return category;
   }
 
-  async update(id: string, updateCategoryDto: UpdateCategoryDto) {
+  async update(id: number, updateCategoryDto: UpdateCategoryDto) {
     const categoryToUpdate = await this.categoriesRepository.preload({
       id,
       ...updateCategoryDto,
@@ -58,7 +58,7 @@ export class CategoriesService {
     }
   }
 
-  async remove(id: string) {
+  async remove(id: number) {
     const category = await this.findOne(id);
     await this.categoriesRepository.remove(category);
 
