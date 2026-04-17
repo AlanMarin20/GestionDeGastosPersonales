@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { QueryFailedError, Repository } from 'typeorm';
 import { Role } from '../roles/entities/role.entity';
 import { User } from '../users/entities/user.entity';
 import { CreateUserRoleDto } from './dto/create-user-role.dto';
@@ -43,7 +43,11 @@ export class UserRolesService {
       role: { id: role.id },
     });
 
-    return await this.userRoleRepository.save(userRole);
+    try {
+      return await this.userRoleRepository.save(userRole);
+    } catch (error) {
+      this.handleQueryError(error);
+    }
   }
 
   async bootstrapAdmin(userId: string) {
@@ -114,7 +118,11 @@ export class UserRolesService {
       userRole.role = { id: role.id } as UserRole['role'];
     }
 
-    return await this.userRoleRepository.save(userRole);
+    try {
+      return await this.userRoleRepository.save(userRole);
+    } catch (error) {
+      this.handleQueryError(error);
+    }
   }
 
   async remove(id: string) {
@@ -140,6 +148,18 @@ export class UserRolesService {
     }
 
     return role;
+  }
+
+  private handleQueryError(error: unknown): never {
+    if (error instanceof QueryFailedError) {
+      const pgError = error as QueryFailedError & { code?: string };
+
+      if (pgError.code === '23505') {
+        throw new ConflictException('This user already has the selected role');
+      }
+    }
+
+    throw error;
   }
 
   private async ensureDefaultRoles() {
