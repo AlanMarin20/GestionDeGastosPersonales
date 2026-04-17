@@ -44,6 +44,22 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
+## RBAC Bootstrap (first admin)
+
+This backend uses JWT authentication plus role-based authorization for critical
+endpoints like role assignment and role catalog management.
+
+On a fresh database, initialize the first admin user with this flow:
+
+1. Create a user (`POST /api/users`)
+2. Login (`POST /api/auth/login`) and get `access_token`
+3. Call `POST /api/user-roles/bootstrap-admin` with header:
+   `Authorization: Bearer <access_token>`
+
+The bootstrap endpoint only works once (when `usuario_roles` has no rows). It
+creates default roles (`admin`, `asesor`, `usuario`) if missing and assigns
+`admin` to the authenticated user.
+
 ## Run tests
 
 ```bash

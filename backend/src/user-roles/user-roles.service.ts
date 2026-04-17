@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Role } from '../roles/entities/role.entity';
@@ -22,12 +26,49 @@ export class UserRolesService {
     await this.ensureUserExists(createDto.userId);
     const role = await this.ensureRoleExists(createDto.roleId);
 
+    const existingUserRole = await this.userRoleRepository.findOne({
+      where: {
+        user: { id: createDto.userId },
+        role: { id: role.id },
+      },
+      relations: { user: true, role: true },
+    });
+
+    if (existingUserRole) {
+      throw new ConflictException('This user already has the selected role');
+    }
+
     const userRole = this.userRoleRepository.create({
       user: { id: createDto.userId },
       role: { id: role.id },
     });
 
     return await this.userRoleRepository.save(userRole);
+  }
+
+  async bootstrapAdmin(userId: string) {
+    await this.ensureUserExists(userId);
+
+    const assignmentCount = await this.userRoleRepository.count();
+    if (assignmentCount > 0) {
+      throw new ConflictException(
+        'Bootstrap already completed. There are existing role assignments.',
+      );
+    }
+
+    const adminRole = await this.ensureDefaultRoles();
+
+    const adminUserRole = this.userRoleRepository.create({
+      user: { id: userId },
+      role: { id: adminRole.id },
+    });
+
+    const savedAssignment = await this.userRoleRepository.save(adminUserRole);
+
+    return {
+      message: 'Bootstrap admin assigned successfully',
+      assignment: savedAssignment,
+    };
   }
 
   async findAll() {
@@ -99,5 +140,39 @@ export class UserRolesService {
     }
 
     return role;
+  }
+
+  private async ensureDefaultRoles() {
+    const defaultRoles: Array<{ name: string; description: string }> = [
+      { name: 'admin', description: 'Administrador del sistema' },
+      { name: 'asesor', description: 'Asesor financiero' },
+      { name: 'usuario', description: 'Usuario final' },
+    ];
+
+    let adminRole: Role | null = null;
+
+    for (const defaultRole of defaultRoles) {
+      let role = await this.roleRepository.findOne({
+        where: { nombre: defaultRole.name },
+      });
+
+      if (!role) {
+        role = this.roleRepository.create({
+          nombre: defaultRole.name,
+          descripcion: defaultRole.description,
+        });
+        role = await this.roleRepository.save(role);
+      }
+
+      if (defaultRole.name === 'admin') {
+        adminRole = role;
+      }
+    }
+
+    if (!adminRole) {
+      throw new NotFoundException('Admin role could not be initialized');
+    }
+
+    return adminRole;
   }
 }
