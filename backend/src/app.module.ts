@@ -16,6 +16,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { RecommendationsModule } from './recommendations/recommendations.module';
 import { RolesModule } from './roles/roles.module';
 import { UserRolesModule } from './user-roles/user-roles.module';
+import { RolesGuard } from './auth/roles.guard';
 
 @Module({
   imports: [
@@ -60,6 +61,6 @@ import { UserRolesModule } from './user-roles/user-roles.module';
     UserRolesModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, RolesGuard],
 })
 export class AppModule {}
