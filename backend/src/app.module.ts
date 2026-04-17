@@ -14,6 +14,8 @@ import { SavingsGoalsModule } from './savings-goals/savings-goals.module';
 import { SavingsMovementsModule } from './savings-movements/savings-movements.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { RecommendationsModule } from './recommendations/recommendations.module';
+import { RolesModule } from './roles/roles.module';
+import { UserRolesModule } from './user-roles/user-roles.module';
 
 @Module({
   imports: [
@@ -54,6 +56,8 @@ import { RecommendationsModule } from './recommendations/recommendations.module'
     SavingsMovementsModule,
     NotificationsModule,
     RecommendationsModule,
+    RolesModule,
+    UserRolesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
