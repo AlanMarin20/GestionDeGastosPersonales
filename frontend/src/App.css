@@ -271,6 +271,18 @@
   }
 }
 
+.faq-cat-box:hover {
+  background-color: rgba(13, 110, 253, 0.05);
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.faq-link:hover {
+  color: var(--bs-primary) !important;
+  text-decoration: underline !important;
+  text-underline-offset: 4px;
+}
+
 :root {
   --app-bg: #e2e8f0;
   --app-surface-bg: #e2e8f0;

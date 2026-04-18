@@ -2,7 +2,7 @@ export function renderLandingPage({ encabezadoExterno, botonEncabezadoExterno, t
   const headerAuthMarkup = `
     <div class="landing-auth-group d-flex align-items-center gap-2 gap-md-3">
       <div class="landing-nav-links d-none d-lg-flex align-items-center gap-4 pe-2">
-        <a href="/" data-link class="text-white text-decoration-none nav-link-hover">Inicio</a>
+        <a href="/" data-link class="text-white text-decoration-none fw-bold" style="opacity: 1;">Inicio</a>
         <a href="/faqs" data-link class="text-white text-decoration-none nav-link-hover">FAQ's</a>
         <a href="/sobre-nosotros" data-link class="text-white text-decoration-none nav-link-hover">Sobre nosotros</a>
       </div>

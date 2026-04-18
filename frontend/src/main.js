@@ -21,6 +21,7 @@ import { renderDashboardAsesorPage as renderDashboardAsesorPageView } from "./pa
 import { renderDashboardPage as renderDashboardPageView } from "./pages/DashboardPage";
 import { renderEditarPerfilPage as renderEditarPerfilPageView } from "./pages/EditarPerfilPage";
 import { renderLandingPage as renderLandingPageView } from "./pages/LandingPage";
+import { renderFaqPage as renderFaqPageView } from "./pages/FaqPage";
 import { renderLoginPage as renderLoginPageView } from "./pages/LoginPage";
 import { renderRegistroPage as renderRegistroPageView } from "./pages/RegistroPage";
 import "./index.css";
@@ -452,6 +453,10 @@ function renderLandingPage() {
   return renderLandingPageView({ encabezadoExterno, botonEncabezadoExterno, tarjetaLandingPage, descripcionLanding, imagenesLanding, botonScrollTop });
 }
 
+function renderFaqPage() {
+  return renderFaqPageView({ encabezadoExterno, botonEncabezadoExterno, botonScrollTop });
+}
+
 function renderLoginPage() {
   return renderLoginPageView({ encabezadoExterno, botonIniciarCrearCuenta });
 }
@@ -683,6 +688,10 @@ function buildRouteView(pathname) {
 
   if (pathname === "/login") {
     return renderLoginPage();
+  }
+
+  if (pathname === "/faqs") {
+    return renderFaqPage();
   }
 
   if (pathname === "/registro") {
