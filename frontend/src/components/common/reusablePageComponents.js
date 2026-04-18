@@ -89,6 +89,7 @@ export function encabezadoExterno({
   rightText = 'Volver al Inicio',
   rightClass = '',
   withLightBackground = false,
+  rightMarkup = '',
 } = {}) {
   const headerStyle = withLightBackground
     ? 'z-index: 999; background-color: var(--app-header-overlay, rgba(226, 232, 240, 0.95)); backdrop-filter: blur(4px);'
@@ -108,7 +109,7 @@ export function encabezadoExterno({
                   </span>
                   <span class="fw-bold text-dark fs-5" style="letter-spacing: -0.4px; line-height: 1; margin-top: 1px;">FinanzasPro</span>
                 </a>
-                ${botonEncabezadoExterno({
+                ${rightMarkup || botonEncabezadoExterno({
                   href: rightHref,
                   text: rightText,
                   className: rightClass,

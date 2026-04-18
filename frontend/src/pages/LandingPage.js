@@ -1,6 +1,34 @@
 export function renderLandingPage({ encabezadoExterno, botonEncabezadoExterno, tarjetaLandingPage, descripcionLanding, imagenesLanding, botonScrollTop }) {
+  const headerAuthMarkup = `
+    <div class="landing-auth-group d-flex align-items-center gap-2 gap-md-3">
+      <div class="landing-nav-links d-none d-lg-flex align-items-center gap-4 pe-2">
+        <a href="/" data-link class="text-white text-decoration-none nav-link-hover">Inicio</a>
+        <a href="/faqs" data-link class="text-white text-decoration-none nav-link-hover">FAQ's</a>
+        <a href="/sobre-nosotros" data-link class="text-white text-decoration-none nav-link-hover">Sobre nosotros</a>
+      </div>
+      <span class="landing-auth-copy">Hace valer más tu dinero</span>
+      ${botonEncabezadoExterno({
+        href: '/login',
+        text: 'Iniciar sesión',
+        className: 'landing-access-btn landing-login-btn',
+        sizeClass: 'btn-sm',
+      })}
+      ${botonEncabezadoExterno({
+        href: '/registro',
+        text: 'Registrarse',
+        className: 'landing-access-btn landing-register-btn',
+        sizeClass: 'btn-sm',
+      })}
+    </div>
+  `;
+
   return `
-    ${encabezadoExterno({ rightHref: '/login', rightText: 'Acceder', rightClass: 'landing-access-btn' })}
+    ${encabezadoExterno({
+      rightHref: '/login',
+      rightText: 'Iniciar sesión',
+      rightClass: 'landing-access-btn landing-login-btn',
+      rightMarkup: headerAuthMarkup,
+    })}
 
     <!-- ======== hero-section start ======== -->
     <section id="home" class="hero-section custom-landing-hero">
@@ -21,13 +49,6 @@ export function renderLandingPage({ encabezadoExterno, botonEncabezadoExterno, t
               titleDelay: '.4s',
               descriptionClass: 'wow fadeInUp',
               descriptionDelay: '.6s',
-              ctaMarkup: botonEncabezadoExterno({
-                href: '/login',
-                text: 'Acceder',
-                className: 'landing-access-btn',
-                sizeClass: '',
-                wowDelay: '.6s',
-              }),
             })}
           </div>
           <div class="col-lg-7">
