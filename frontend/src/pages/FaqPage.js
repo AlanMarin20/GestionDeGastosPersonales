@@ -39,40 +39,32 @@ export function renderFaqPage({ encabezadoExterno, botonEncabezadoExterno, boton
             
             <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px; overflow: hidden;">
               <div class="card-body p-0 d-flex align-items-center">
-                <span class="ps-4 pe-2 fw-bold text-muted">Buscar</span>
-                <input type="text" class="form-control border-0 py-3 flex-grow-1" placeholder="Escribe tu duda aquí..." style="box-shadow: none; font-size: 1.1rem; background: transparent; color: var(--app-text-primary);">
-                <div class="px-4 text-muted border-start d-flex align-items-center justify-content-center" style="border-color: var(--app-border-color) !important; cursor: pointer; height: 100%;">
-                  <i class="lni lni-search-alt fs-4"></i>
+                <div class="px-3 text-muted d-flex align-items-center justify-content-center flex-shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                 </div>
+                <input type="text" class="form-control border-0 px-3 py-3 flex-grow-1" placeholder="Escribe tu duda aquí..." style="box-shadow: none; font-size: 1.1rem; background: transparent; color: var(--app-text-primary);">
               </div>
             </div>
 
-            <div class="card border-0 shadow-sm flex-grow-1" style="border-radius: 15px;">
-              <div class="card-body p-4">
-                <div class="row g-3 h-100">
-                  <div class="col-12 col-md-4">
-                    <div class="p-4 border rounded-3 text-center h-100 faq-cat-box d-flex flex-column align-items-center justify-content-center" style="cursor: pointer; transition: all 0.2s; border-color: var(--app-border-color) !important;">
-                      <i class="lni lni-rocket fs-2 text-primary mb-3"></i>
-                      <h5 class="fw-bold mb-2">Primeros pasos</h5>
-                      <p class="text-muted small mb-0">Crear una cuenta y empezar</p>
-                    </div>
+            <div class="p-4">
+                <div class="row g-4">
+                  <div class="col-6">
+                    <h6 class="fw-bold mb-3 border-bottom pb-2" style="border-color: var(--app-border-color) !important;">Primeros pasos</h6>
+                    <ul class="list-unstyled mb-0">
+                      <li class="mb-2"><a href="#" class="text-decoration-none text-muted faq-link">Crear una cuenta en FinanzasPro</a></li>
+                      <li class="mb-2"><a href="#" class="text-decoration-none text-muted faq-link">Iniciar sesión</a></li>
+                      <li class="mb-0"><a href="#" class="text-decoration-none text-muted faq-link">Tu perfil</a></li>
+                    </ul>
                   </div>
-                  <div class="col-12 col-md-4">
-                    <div class="p-4 border rounded-3 text-center h-100 faq-cat-box d-flex flex-column align-items-center justify-content-center" style="cursor: pointer; transition: all 0.2s; border-color: var(--app-border-color) !important;">
-                      <i class="lni lni-enter fs-2 text-primary mb-3"></i>
-                      <h5 class="fw-bold mb-2">Iniciar Sesión</h5>
-                      <p class="text-muted small mb-0">Acceso y contraseñas</p>
-                    </div>
-                  </div>
-                  <div class="col-12 col-md-4">
-                    <div class="p-4 border rounded-3 text-center h-100 faq-cat-box d-flex flex-column align-items-center justify-content-center" style="cursor: pointer; transition: all 0.2s; border-color: var(--app-border-color) !important;">
-                      <i class="lni lni-user fs-2 text-primary mb-3"></i>
-                      <h5 class="fw-bold mb-2">Tu perfil</h5>
-                      <p class="text-muted small mb-0">Ajustes y preferencias</p>
-                    </div>
+                  <div class="col-6">
+                    <h6 class="fw-bold mb-3 border-bottom pb-2" style="border-color: var(--app-border-color) !important;">Entidades conectadas</h6>
+                    <ul class="list-unstyled mb-0">
+                      <li class="mb-2"><a href="#" class="text-decoration-none text-muted faq-link">Conectar entidades y productos</a></li>
+                      <li class="mb-2"><a href="#" class="text-decoration-none text-muted faq-link">Mis movimientos</a></li>
+                      <li class="mb-0"><a href="#" class="text-decoration-none text-muted faq-link">Sección de "Análisis"</a></li>
+                    </ul>
                   </div>
                 </div>
-              </div>
             </div>
           </div>
 
@@ -102,15 +94,15 @@ export function renderFaqPage({ encabezadoExterno, botonEncabezadoExterno, boton
             <div class="card border-0 shadow-sm flex-grow-1" style="border-radius: 15px;">
               <div class="card-body p-4">
                 <h6 class="fw-bold mb-3 border-bottom pb-2" style="border-color: var(--app-border-color) !important;">Artículos populares</h6>
-                <ul class="list-unstyled mb-0">
+                <ul class="list-unstyled mb-0 text-start">
                   <li class="mb-3">
-                    <a href="#" class="text-decoration-none text-muted faq-link d-block lh-sm"><i class="lni lni-chevron-right me-1" style="font-size: 0.8em;"></i> ¿Cómo puedo darme de baja?</a>
+                    <a href="#" class="text-decoration-none text-muted faq-link d-block lh-sm text-start"><i class="lni lni-chevron-right me-1" style="font-size: 0.8em;"></i> ¿Cómo puedo darme de baja?</a>
                   </li>
                   <li class="mb-3">
-                    <a href="#" class="text-decoration-none text-muted faq-link d-block lh-sm"><i class="lni lni-chevron-right me-1" style="font-size: 0.8em;"></i> ¿Cómo recupero mi clave?</a>
+                    <a href="#" class="text-decoration-none text-muted faq-link d-block lh-sm text-start"><i class="lni lni-chevron-right me-1" style="font-size: 0.8em;"></i> ¿Cómo recupero mi clave?</a>
                   </li>
                   <li class="mb-0">
-                    <a href="#" class="text-decoration-none text-muted faq-link d-block lh-sm"><i class="lni lni-chevron-right me-1" style="font-size: 0.8em;"></i> ¿Qué incluye el servicio?</a>
+                    <a href="#" class="text-decoration-none text-muted faq-link d-block lh-sm text-start"><i class="lni lni-chevron-right me-1" style="font-size: 0.8em;"></i> ¿Qué incluye el servicio?</a>
                   </li>
                 </ul>
               </div>
