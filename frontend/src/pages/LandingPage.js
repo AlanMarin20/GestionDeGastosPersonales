@@ -45,9 +45,9 @@ export function renderLandingPage({ encabezadoExterno, botonEncabezadoExterno, t
                 'gastos y accedé a métricas personalizadas desde cualquier ' +
                 'dispositivo con una interfaz diseñada para tu comodidad.',
               containerClass: 'hero-content',
-              titleClass: 'wow fadeInUp',
+              titleClass: 'wow fadeInUp fw-bold text-white',
               titleDelay: '.4s',
-              descriptionClass: 'wow fadeInUp',
+              descriptionClass: 'wow fadeInUp fw-normal text-white opacity-75',
               descriptionDelay: '.6s',
             })}
           </div>
@@ -148,7 +148,7 @@ export function renderLandingPage({ encabezadoExterno, botonEncabezadoExterno, t
     <footer class="footer">
       <div class="container">
         <div class="widget-wrapper">
-          <div class="row justify-content-center text-center mb-4">
+          <div class="row justify-content-center text-center">
             <div class="col-12 col-lg-8">
               <div class="footer-widget">
                 <div class="logo mb-3">
@@ -158,40 +158,8 @@ export function renderLandingPage({ encabezadoExterno, botonEncabezadoExterno, t
                   </a>
                 </div>
                 <p class="desc mb-0 text-white">
-                  Innovación y precisión en la gestión de tus activos. Diseñamos herramientas inteligentes para que alcances tu libertad financiera con el respaldo de expertos.
+                  © 2026 FinanzasPro. Todos los derechos reservados. Plataforma autorizada para la prestación de servicios de información sobre cuentas.
                 </p>
-              </div>
-            </div>
-          </div>
-
-          <div class="row text-center">
-            <div class="col-12 col-md-4">
-              <div class="footer-widget">
-                <h3>Desarrolladores</h3>
-                <ul class="links">
-                  <li>Joaquin Contreras</li>
-                  <li>Alan Marin</li>
-                </ul>
-              </div>
-            </div>
-
-            <div class="col-12 col-md-4">
-              <div class="footer-widget">
-                <h3>LinkedIn</h3>
-                <ul class="links">
-                  <li><a href="https://www.linkedin.com/in/joaquincontreras755" target="_blank" rel="noopener noreferrer">Joaquin Contreras</a></li>
-                  <li><a href="https://www.linkedin.com/in/alanmarin20/" target="_blank" rel="noopener noreferrer">Alan Marin</a></li>
-                </ul>
-              </div>
-            </div>
-
-            <div class="col-12 col-md-4">
-              <div class="footer-widget">
-                <h3>Contacto</h3>
-                <ul class="links">
-                  <li><a href="mailto:cjoaquin835@gmail.com">cjoaquin835@gmail.com</a></li>
-                  <li><a href="mailto:marinalan396@gmail.com">marinalan396@gmail.com</a></li>
-                </ul>
               </div>
             </div>
           </div>
