@@ -22,6 +22,11 @@ import { renderDashboardPage as renderDashboardPageView } from "./pages/Dashboar
 import { renderEditarPerfilPage as renderEditarPerfilPageView } from "./pages/EditarPerfilPage";
 import { renderLandingPage as renderLandingPageView } from "./pages/LandingPage";
 import { renderFaqPage as renderFaqPageView } from "./pages/FaqPage";
+import { renderSobreNosotrosPage as renderSobreNosotrosPageView } from "./pages/SobreNosotrosPage";
+import {
+  renderFaqDetailPage as renderFaqDetailPageView,
+  resolveFaqArticle,
+} from "./pages/FaqDetailPage";
 import { renderLoginPage as renderLoginPageView } from "./pages/LoginPage";
 import { renderRegistroPage as renderRegistroPageView } from "./pages/RegistroPage";
 import "./index.css";
@@ -457,6 +462,25 @@ function renderFaqPage() {
   return renderFaqPageView({ encabezadoExterno, botonEncabezadoExterno, botonScrollTop });
 }
 
+function renderSobreNosotrosPage() {
+  return renderSobreNosotrosPageView({ encabezadoExterno, botonEncabezadoExterno, botonScrollTop });
+}
+
+function renderFaqDetail(pathname) {
+  const article = resolveFaqArticle(pathname);
+
+  if (!article) {
+    return null;
+  }
+
+  return renderFaqDetailPageView({
+    encabezadoExterno,
+    botonEncabezadoExterno,
+    botonScrollTop,
+    article,
+  });
+}
+
 function renderLoginPage() {
   return renderLoginPageView({ encabezadoExterno, botonIniciarCrearCuenta });
 }
@@ -692,6 +716,14 @@ function buildRouteView(pathname) {
 
   if (pathname === "/faqs") {
     return renderFaqPage();
+  }
+
+  if (pathname === "/sobre-nosotros") {
+    return renderSobreNosotrosPage();
+  }
+
+  if (pathname.startsWith("/faqs/")) {
+    return renderFaqDetail(pathname);
   }
 
   if (pathname === "/registro") {

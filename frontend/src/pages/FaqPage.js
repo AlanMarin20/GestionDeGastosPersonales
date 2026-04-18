@@ -1,12 +1,12 @@
 export function renderFaqPage({ encabezadoExterno, botonEncabezadoExterno, botonScrollTop }) {
   const headerAuthMarkup = `
-    <div class="landing-auth-group d-flex align-items-center gap-2 gap-md-3">
+    <div class="landing-auth-group faq-auth-group d-flex align-items-center gap-2 gap-md-3">
       <div class="landing-nav-links d-none d-lg-flex align-items-center gap-4 pe-2">
         <a href="/" data-link class="text-white text-decoration-none nav-link-hover">Inicio</a>
         <a href="/faqs" data-link class="text-white text-decoration-none fw-bold" style="opacity: 1;">FAQ's</a>
         <a href="/sobre-nosotros" data-link class="text-white text-decoration-none nav-link-hover">Sobre nosotros</a>
       </div>
-      <span class="landing-auth-copy" style="position: absolute; pointer-events: none; opacity: 0; visibility: hidden;">Hace valer más tu dinero</span>
+      <span class="landing-auth-copy">Hace valer más tu dinero</span>
       ${botonEncabezadoExterno({
         href: '/login',
         text: 'Iniciar sesión',
@@ -48,20 +48,29 @@ export function renderFaqPage({ encabezadoExterno, botonEncabezadoExterno, boton
 
             <div class="p-4">
                 <div class="row g-4">
-                  <div class="col-6">
+                  <div class="col-12 col-md-4">
                     <h6 class="fw-bold mb-3 border-bottom pb-2" style="border-color: var(--app-border-color) !important;">Primeros pasos</h6>
                     <ul class="list-unstyled mb-0">
-                      <li class="mb-2"><a href="#" class="text-decoration-none text-muted faq-link">Crear una cuenta en FinanzasPro</a></li>
-                      <li class="mb-2"><a href="#" class="text-decoration-none text-muted faq-link">Iniciar sesión</a></li>
-                      <li class="mb-0"><a href="#" class="text-decoration-none text-muted faq-link">Tu perfil</a></li>
+                      <li class="mb-2"><a href="/faqs/crear-cuenta" data-link class="text-decoration-none text-muted faq-link">Crear una cuenta en FinanzasPro</a></li>
+                      <li class="mb-2"><a href="/faqs/iniciar-sesion" data-link class="text-decoration-none text-muted faq-link">Iniciar sesión</a></li>
+                      <li class="mb-0"><a href="/faqs/tu-perfil" data-link class="text-decoration-none text-muted faq-link">Tu perfil</a></li>
                     </ul>
                   </div>
-                  <div class="col-6">
+                  <div class="col-12 col-md-4">
+                    <h6 class="fw-bold mb-3 border-bottom pb-2" style="border-color: var(--app-border-color) !important;">Asesores</h6>
+                    <ul class="list-unstyled mb-0">
+                      <li class="mb-2"><a href="/faqs/asesores-como-funciona" data-link class="text-decoration-none text-muted faq-link">Cómo funciona</a></li>
+                      <li class="mb-2"><a href="/faqs/convertite-en-asesor" data-link class="text-decoration-none text-muted faq-link">Convertite en asesor</a></li>
+                      <li class="mb-2"><a href="/faqs/precio-asesor" data-link class="text-decoration-none text-muted faq-link">Precio</a></li>
+                      <li class="mb-0"><a href="/faqs/herramientas-asesor" data-link class="text-decoration-none text-muted faq-link">Herramientas de asesoría</a></li>
+                    </ul>
+                  </div>
+                  <div class="col-12 col-md-4">
                     <h6 class="fw-bold mb-3 border-bottom pb-2" style="border-color: var(--app-border-color) !important;">Entidades conectadas</h6>
                     <ul class="list-unstyled mb-0">
-                      <li class="mb-2"><a href="#" class="text-decoration-none text-muted faq-link">Conectar entidades y productos</a></li>
-                      <li class="mb-2"><a href="#" class="text-decoration-none text-muted faq-link">Mis movimientos</a></li>
-                      <li class="mb-0"><a href="#" class="text-decoration-none text-muted faq-link">Sección de "Análisis"</a></li>
+                      <li class="mb-2"><a href="/faqs/conectar-entidades" data-link class="text-decoration-none text-muted faq-link">Conectar entidades y productos</a></li>
+                      <li class="mb-2"><a href="/faqs/mis-movimientos" data-link class="text-decoration-none text-muted faq-link">Mis movimientos</a></li>
+                      <li class="mb-0"><a href="/faqs/seccion-analisis" data-link class="text-decoration-none text-muted faq-link">Sección de "Análisis"</a></li>
                     </ul>
                   </div>
                 </div>
@@ -84,9 +93,10 @@ export function renderFaqPage({ encabezadoExterno, botonEncabezadoExterno, boton
               <div class="card-body p-4">
                 <h6 class="fw-bold mb-3 border-bottom pb-2" style="border-color: var(--app-border-color) !important;">Categorías</h6>
                 <ul class="list-unstyled mb-0">
-                  <li class="mb-2"><a href="#" class="text-decoration-none text-muted faq-link">Primeros pasos</a></li>
-                  <li class="mb-2"><a href="#" class="text-decoration-none text-muted faq-link">Iniciar Sesión</a></li>
-                  <li class="mb-0"><a href="#" class="text-decoration-none text-muted faq-link">Tu perfil</a></li>
+                  <li class="mb-2"><a href="/faqs/crear-cuenta" data-link class="text-decoration-none text-muted faq-link">Primeros pasos</a></li>
+                  <li class="mb-2"><a href="/faqs/asesores-como-funciona" data-link class="text-decoration-none text-muted faq-link">Asesores</a></li>
+                  <li class="mb-2"><a href="/faqs/conectar-entidades" data-link class="text-decoration-none text-muted faq-link">Entidades conectadas</a></li>
+                  <li class="mb-0"><a href="/faqs/dar-de-baja" data-link class="text-decoration-none text-muted faq-link">Artículos populares</a></li>
                 </ul>
               </div>
             </div>
@@ -96,13 +106,13 @@ export function renderFaqPage({ encabezadoExterno, botonEncabezadoExterno, boton
                 <h6 class="fw-bold mb-3 border-bottom pb-2" style="border-color: var(--app-border-color) !important;">Artículos populares</h6>
                 <ul class="list-unstyled mb-0 text-start">
                   <li class="mb-3">
-                    <a href="#" class="text-decoration-none text-muted faq-link d-block lh-sm text-start"><i class="lni lni-chevron-right me-1" style="font-size: 0.8em;"></i> ¿Cómo puedo darme de baja?</a>
+                    <a href="/faqs/dar-de-baja" data-link class="text-decoration-none text-muted faq-link d-block lh-sm text-start"><i class="lni lni-chevron-right me-1" style="font-size: 0.8em;"></i> ¿Cómo puedo darme de baja?</a>
                   </li>
                   <li class="mb-3">
-                    <a href="#" class="text-decoration-none text-muted faq-link d-block lh-sm text-start"><i class="lni lni-chevron-right me-1" style="font-size: 0.8em;"></i> ¿Cómo recupero mi clave?</a>
+                    <a href="/faqs/recuperar-clave" data-link class="text-decoration-none text-muted faq-link d-block lh-sm text-start"><i class="lni lni-chevron-right me-1" style="font-size: 0.8em;"></i> ¿Cómo recupero mi clave?</a>
                   </li>
                   <li class="mb-0">
-                    <a href="#" class="text-decoration-none text-muted faq-link d-block lh-sm text-start"><i class="lni lni-chevron-right me-1" style="font-size: 0.8em;"></i> ¿Qué incluye el servicio?</a>
+                    <a href="/faqs/servicio-incluye" data-link class="text-decoration-none text-muted faq-link d-block lh-sm text-start"><i class="lni lni-chevron-right me-1" style="font-size: 0.8em;"></i> ¿Qué incluye el servicio?</a>
                   </li>
                 </ul>
               </div>
