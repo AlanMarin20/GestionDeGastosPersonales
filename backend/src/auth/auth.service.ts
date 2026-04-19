@@ -1,21 +1,22 @@
 import {
-  BadRequestException,
+  // BadRequestException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { randomBytes } from 'crypto';
-import { createRemoteJWKSet, jwtVerify } from 'jose';
+// import { randomBytes } from 'crypto';
+// import { createRemoteJWKSet, jwtVerify } from 'jose';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class AuthService {
-  private readonly frontendUrl =
-    process.env.FRONTEND_URL || 'http://localhost:5173';
-  private readonly appleJwks = createRemoteJWKSet(
-    new URL('https://appleid.apple.com/auth/keys'),
-  );
+  // OAuth de terceros deshabilitado temporalmente.
+  // private readonly frontendUrl =
+  //   process.env.FRONTEND_URL || 'http://localhost:5173';
+  // private readonly appleJwks = createRemoteJWKSet(
+  //   new URL('https://appleid.apple.com/auth/keys'),
+  // );
 
   constructor(
     private usersService: UsersService,
@@ -49,6 +50,8 @@ export class AuthService {
     return user;
   }
 
+  /*
+  OAuth de terceros (Google/Apple) deshabilitado temporalmente.
   getGoogleAuthorizationUrl() {
     const clientId = process.env.GOOGLE_CLIENT_ID;
     const redirectUri = process.env.GOOGLE_REDIRECT_URI;
@@ -316,6 +319,17 @@ export class AuthService {
     return {
       email,
       name: '',
+    };
+  }
+  */
+
+  private async buildAuthResponse(userId: string, email: string) {
+    const payload = { sub: userId, email };
+    const publicUser = await this.usersService.findPublicById(userId);
+
+    return {
+      access_token: await this.jwtService.signAsync(payload),
+      user: publicUser,
     };
   }
 }

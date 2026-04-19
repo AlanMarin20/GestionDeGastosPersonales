@@ -5,12 +5,12 @@ import {
   HttpCode,
   HttpStatus,
   Post,
-  Query,
-  Res,
+  // Query,
+  // Res,
   Request,
   UseGuards,
 } from '@nestjs/common';
-import type { Response } from 'express';
+// import type { Response } from 'express';
 import { AuthService } from './auth.service';
 import { AuthGuard } from './auth.guard';
 
@@ -24,6 +24,8 @@ export class AuthController {
     return this.authService.login(signInDto.email, signInDto.password);
   }
 
+  /*
+  OAuth de terceros (Google/Apple) deshabilitado temporalmente.
   @Get('google')
   googleLogin(@Res() res: Response) {
     return res.redirect(this.authService.getGoogleAuthorizationUrl());
@@ -71,6 +73,7 @@ export class AuthController {
   ) {
     return this.handleAppleCallback(code, res);
   }
+  */
 
   // El @UseGuards activa nuestro "cadenero". Si no hay token válido, rechaza la petición.
   @UseGuards(AuthGuard)
@@ -79,6 +82,7 @@ export class AuthController {
     return this.authService.getProfile(req.user.sub);
   }
 
+  /*
   private async handleAppleCallback(code: string, res: Response) {
     if (!code) {
       return res.redirect(
@@ -102,4 +106,5 @@ export class AuthController {
       return res.redirect(this.authService.buildOAuthErrorRedirect(errorMessage));
     }
   }
+  */
 }
