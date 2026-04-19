@@ -22,7 +22,7 @@ export class SavingsMovementsService {
 
     if (!goal) {
       throw new NotFoundException(
-        `Savings goal with id ${createDto.goalId} not found`,
+        `Meta de ahorro con id ${createDto.goalId} no encontrada`,
       );
     }
 
@@ -59,7 +59,7 @@ export class SavingsMovementsService {
     });
 
     if (!movement) {
-      throw new NotFoundException(`Savings movement with id ${id} not found`);
+      throw new NotFoundException(`Movimiento de ahorro con id ${id} no encontrado`);
     }
 
     return movement;
@@ -75,7 +75,7 @@ export class SavingsMovementsService {
 
       if (!newGoal) {
         throw new NotFoundException(
-          `Savings goal with id ${updateDto.goalId} not found`,
+          `Meta de ahorro con id ${updateDto.goalId} no encontrada`,
         );
       }
 
@@ -99,6 +99,6 @@ export class SavingsMovementsService {
     const movement = await this.findOne(id, userId);
     await this.movementRepository.remove(movement);
 
-    return { message: 'Savings movement deleted successfully' };
+    return { message: 'Movimiento de ahorro eliminado correctamente' };
   }
 }

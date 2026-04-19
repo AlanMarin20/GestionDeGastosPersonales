@@ -29,6 +29,7 @@ import {
 } from "./pages/FaqDetailPage";
 import { renderLoginPage as renderLoginPageView } from "./pages/LoginPage";
 import { renderRegistroPage as renderRegistroPageView } from "./pages/RegistroPage";
+import { renderRegistroExitosoPage as renderRegistroExitosoPageView } from "./pages/RegistroExitosoPage";
 import "./index.css";
 import "./App.css";
 import "./components/dashboard/dashboard-widgets.css";
@@ -41,6 +42,12 @@ const THEME_STORAGE_KEY = "theme_preference";
 // OAuth de terceros deshabilitado temporalmente.
 // const OAUTH_CALLBACK_PATH = "/auth/callback";
 const DEFAULT_PROFILE_IMAGE = "/assets/img/user-avatar-default.svg";
+const PASSWORD_POLICY_MESSAGE =
+  "La contraseña debe tener al menos 8 caracteres e incluir mayúscula, minúscula, número y carácter especial";
+const REGISTRO_EXITOSO_REDIRECT_SECONDS = 5;
+
+let registroExitosoRedirectTimeoutId = null;
+let registroExitosoCountdownIntervalId = null;
 
 const state = {
   dashboard: {
@@ -310,6 +317,12 @@ function formatCurrency(value) {
   return `$${Number(value).toFixed(2)}`;
 }
 
+function isStrongPassword(password) {
+  return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/.test(
+    password,
+  );
+}
+
 /*
 function startSocialAuth(provider) {
   window.location.assign(`${API_BASE_URL}/api/auth/${provider}`);
@@ -417,6 +430,8 @@ async function loadCurrentUser() {
 }
 
 function navigate(path, replace = false) {
+  closeLandingMobileMenu();
+
   if (replace) {
     history.replaceState({}, "", path);
   } else {
@@ -427,6 +442,93 @@ function navigate(path, replace = false) {
 
 function navigateBack() {
   history.back();
+}
+
+function getLandingMobileMenuElements() {
+  const menu = document.querySelector("[data-landing-mobile-menu]");
+  const backdrop = document.querySelector("[data-landing-mobile-backdrop]");
+  const toggleButton = document.querySelector(
+    "[data-action='toggle-landing-mobile-menu']",
+  );
+  const menuContainer = menu?.closest(".landing-auth-group") ||
+    toggleButton?.closest(".landing-auth-group") || null;
+
+  return {
+    menu,
+    backdrop,
+    toggleButton,
+    menuContainer,
+  };
+}
+
+function closeLandingMobileMenu({ restoreFocus = false } = {}) {
+  const { menu, backdrop, toggleButton } = getLandingMobileMenuElements();
+
+  document.body.classList.remove("landing-mobile-menu-open");
+
+  if (!menu || !toggleButton) {
+    if (backdrop) {
+      backdrop.classList.remove("is-open");
+      backdrop.hidden = true;
+    }
+    return;
+  }
+
+  const wasOpen = !menu.hidden;
+  menu.classList.remove("is-open");
+  menu.hidden = true;
+
+  if (backdrop) {
+    backdrop.classList.remove("is-open");
+    backdrop.hidden = true;
+  }
+
+  toggleButton.setAttribute("aria-expanded", "false");
+
+  if (restoreFocus && wasOpen) {
+    toggleButton.focus();
+  }
+}
+
+function toggleLandingMobileMenu() {
+  const { menu, backdrop, toggleButton } = getLandingMobileMenuElements();
+
+  if (!menu || !toggleButton) {
+    return;
+  }
+
+  if (menu.hidden) {
+    menu.hidden = false;
+    if (backdrop) {
+      backdrop.hidden = false;
+    }
+
+    menu.classList.remove("is-open");
+    backdrop?.classList.remove("is-open");
+
+    window.requestAnimationFrame(() => {
+      menu.classList.add("is-open");
+      backdrop?.classList.add("is-open");
+    });
+
+    document.body.classList.add("landing-mobile-menu-open");
+    toggleButton.setAttribute("aria-expanded", "true");
+    return;
+  }
+
+  closeLandingMobileMenu();
+}
+
+function clearRegistroExitosoAutoRedirect() {
+  if (registroExitosoRedirectTimeoutId !== null) {
+    window.clearTimeout(registroExitosoRedirectTimeoutId);
+    registroExitosoRedirectTimeoutId = null;
+  }
+
+  if (registroExitosoCountdownIntervalId !== null) {
+    window.clearInterval(registroExitosoCountdownIntervalId);
+    registroExitosoCountdownIntervalId = null;
+  }
 }
 
 function cambioRol(pathname) {
@@ -511,6 +613,10 @@ function renderLoginPage() {
 
 function renderRegistroPage() {
   return renderRegistroPageView({ encabezadoExterno, botonIniciarCrearCuenta });
+}
+
+function renderRegistroExitosoPage() {
+  return renderRegistroExitosoPageView({ encabezadoExterno });
 }
 
 function renderDashboardPage() {
@@ -754,6 +860,10 @@ function buildRouteView(pathname) {
     return renderRegistroPage();
   }
 
+  if (pathname === "/registro/exitoso") {
+    return renderRegistroExitosoPage();
+  }
+
   if (pathname === "/dashboard") {
     return renderDashboardLayout(renderDashboardPage());
   }
@@ -805,6 +915,7 @@ function attachGlobalNavigation() {
       if (!href) {
         return;
       }
+      closeLandingMobileMenu();
       event.preventDefault();
       navigate(href);
       return;
@@ -822,10 +933,33 @@ function attachGlobalNavigation() {
 
     const actionButton = event.target.closest("[data-action]");
     if (!actionButton) {
+      const { menu, menuContainer } = getLandingMobileMenuElements();
+      const clickedInsideTriggerGroup = menuContainer
+        ? menuContainer.contains(event.target)
+        : false;
+      const clickedInsideMenu = menu
+        ? menu.contains(event.target)
+        : false;
+
+      if (menu && !menu.hidden && !clickedInsideTriggerGroup && !clickedInsideMenu) {
+        closeLandingMobileMenu();
+      }
       return;
     }
 
     const action = actionButton.getAttribute("data-action");
+
+    if (action === "toggle-landing-mobile-menu") {
+      event.preventDefault();
+      toggleLandingMobileMenu();
+      return;
+    }
+
+    if (action === "close-landing-mobile-menu") {
+      event.preventDefault();
+      closeLandingMobileMenu({ restoreFocus: true });
+      return;
+    }
 
     if (action === "back") {
       event.preventDefault();
@@ -953,10 +1087,29 @@ function attachGlobalNavigation() {
     }
   });
 
-  window.addEventListener("popstate", render);
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      closeLandingMobileMenu({ restoreFocus: true });
+    }
+  });
+
+  window.addEventListener("resize", () => {
+    if (window.innerWidth >= 992) {
+      closeLandingMobileMenu();
+    }
+  });
+
+  window.addEventListener("popstate", () => {
+    closeLandingMobileMenu();
+    render();
+  });
 }
 
 function attachFormHandlers(pathname) {
+  if (pathname !== "/registro/exitoso") {
+    clearRegistroExitosoAutoRedirect();
+  }
+
   if (pathname === "/login") {
     const loginForm = document.getElementById("loginForm");
     const emailInput = document.getElementById("email");
@@ -1170,6 +1323,11 @@ function attachFormHandlers(pathname) {
         return;
       }
 
+      if (!isStrongPassword(password)) {
+        setAuthError(PASSWORD_POLICY_MESSAGE, [passwordInput]);
+        return;
+      }
+
       if (password !== confirmPassword) {
         setAuthError("Las contraseñas no coinciden", [
           passwordInput,
@@ -1198,8 +1356,7 @@ function attachFormHandlers(pathname) {
           throw new Error(message || fallbackMessage);
         }
 
-        window.alert("¡Registro exitoso! Ahora puedes iniciar sesión.");
-        navigate("/login");
+        navigate("/registro/exitoso", true);
       } catch (error) {
         const message =
           error instanceof Error
@@ -1210,6 +1367,36 @@ function attachFormHandlers(pathname) {
         if (submitBtn) submitBtn.disabled = false;
       }
     });
+  }
+
+  if (pathname === "/registro/exitoso") {
+    clearRegistroExitosoAutoRedirect();
+
+    const countdownElement = document.getElementById("registroExitosoCountdown");
+    let secondsLeft = REGISTRO_EXITOSO_REDIRECT_SECONDS;
+
+    if (countdownElement) {
+      countdownElement.textContent = String(secondsLeft);
+    }
+
+    registroExitosoCountdownIntervalId = window.setInterval(() => {
+      secondsLeft = Math.max(secondsLeft - 1, 0);
+      if (countdownElement) {
+        countdownElement.textContent = String(secondsLeft);
+      }
+
+      if (secondsLeft === 0) {
+        if (registroExitosoCountdownIntervalId !== null) {
+          window.clearInterval(registroExitosoCountdownIntervalId);
+          registroExitosoCountdownIntervalId = null;
+        }
+      }
+    }, 1000);
+
+    registroExitosoRedirectTimeoutId = window.setTimeout(() => {
+      clearRegistroExitosoAutoRedirect();
+      navigate("/login", true);
+    }, REGISTRO_EXITOSO_REDIRECT_SECONDS * 1000);
   }
 
   if (pathname === "/dashboard") {
@@ -1916,7 +2103,8 @@ function isFixedDarkRoute(pathname) {
     pathname.startsWith("/faqs/") ||
     pathname === "/sobre-nosotros" ||
     pathname === "/login" ||
-    pathname === "/registro";
+    pathname === "/registro" ||
+    pathname === "/registro/exitoso";
 }
 
 function resolveThemeForPath(pathname) {

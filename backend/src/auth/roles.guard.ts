@@ -30,7 +30,7 @@ export class RolesGuard implements CanActivate {
     const userId: string | undefined = request.user?.sub;
 
     if (!userId) {
-      throw new ForbiddenException('User context not found');
+      throw new ForbiddenException('No se encontró el contexto del usuario');
     }
 
     const userRoles = await this.dataSource.getRepository(UserRole).find({
@@ -51,7 +51,7 @@ export class RolesGuard implements CanActivate {
     );
 
     if (!hasPermission) {
-      throw new ForbiddenException('Insufficient role permissions');
+      throw new ForbiddenException('No tienes permisos suficientes para este recurso');
     }
 
     return true;

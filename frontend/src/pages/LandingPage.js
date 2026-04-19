@@ -19,6 +19,18 @@ export function renderLandingPage({ encabezadoExterno, botonEncabezadoExterno, t
         className: 'landing-access-btn landing-register-btn',
         sizeClass: 'btn-sm',
       })}
+      <button
+        type="button"
+        class="landing-mobile-menu-toggle d-lg-none"
+        data-action="toggle-landing-mobile-menu"
+        aria-expanded="false"
+        aria-controls="landing-mobile-navigation"
+        aria-label="Abrir menú de navegación"
+      >
+        <span class="landing-mobile-menu-toggle-line" aria-hidden="true"></span>
+        <span class="landing-mobile-menu-toggle-line" aria-hidden="true"></span>
+        <span class="landing-mobile-menu-toggle-line" aria-hidden="true"></span>
+      </button>
     </div>
   `;
 
@@ -29,6 +41,40 @@ export function renderLandingPage({ encabezadoExterno, botonEncabezadoExterno, t
       rightClass: 'landing-access-btn landing-login-btn',
       rightMarkup: headerAuthMarkup,
     })}
+
+    <div
+      class="landing-mobile-menu-backdrop d-lg-none"
+      data-landing-mobile-backdrop
+      data-action="close-landing-mobile-menu"
+      hidden
+    ></div>
+    <nav
+      id="landing-mobile-navigation"
+      class="landing-mobile-menu d-lg-none"
+      aria-label="Navegación móvil"
+      data-landing-mobile-menu
+      hidden
+    >
+      <div class="landing-mobile-menu-head">
+        <span class="landing-mobile-menu-title">Navegación</span>
+        <button
+          type="button"
+          class="landing-mobile-menu-close"
+          data-action="close-landing-mobile-menu"
+          aria-label="Cerrar menú de navegación"
+        >
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <a href="/" data-link class="landing-mobile-menu-link landing-mobile-menu-item" style="--landing-menu-item-index: 0;">Inicio</a>
+      <a href="/faqs" data-link class="landing-mobile-menu-link landing-mobile-menu-item" style="--landing-menu-item-index: 1;">FAQ's</a>
+      <a href="/sobre-nosotros" data-link class="landing-mobile-menu-link landing-mobile-menu-item" style="--landing-menu-item-index: 2;">Sobre nosotros</a>
+      <span class="landing-mobile-menu-divider landing-mobile-menu-item" style="--landing-menu-item-index: 3;" aria-hidden="true"></span>
+      <a href="/login" data-link class="landing-mobile-menu-link landing-mobile-menu-link-auth landing-mobile-menu-item" style="--landing-menu-item-index: 4;">Iniciar sesión</a>
+      <a href="/registro" data-link class="landing-mobile-menu-link landing-mobile-menu-link-auth landing-mobile-menu-item" style="--landing-menu-item-index: 5;">Registrarse</a>
+    </nav>
+
+    <div class="landing-page-content-shell">
 
     <!-- ======== hero-section start ======== -->
     <section id="home" class="hero-section custom-landing-hero">
@@ -153,6 +199,13 @@ export function renderLandingPage({ encabezadoExterno, botonEncabezadoExterno, t
                     <span class="fw-bold text-white fs-4" style="letter-spacing: -0.4px;">FinanzasPro</span>
                   </a>
                 </div>
+                <nav class="landing-footer-links mb-3" aria-label="Enlaces de navegación pública">
+                  <a href="/" data-link class="landing-footer-link">Inicio</a>
+                  <a href="/faqs" data-link class="landing-footer-link">FAQ's</a>
+                  <a href="/sobre-nosotros" data-link class="landing-footer-link">Sobre nosotros</a>
+                  <a href="/login" data-link class="landing-footer-link">Iniciar sesión</a>
+                  <a href="/registro" data-link class="landing-footer-link">Registrarse</a>
+                </nav>
                 <p class="desc mb-0 text-white">
                   © 2026 FinanzasPro. Todos los derechos reservados. Plataforma autorizada para la prestación de servicios de información sobre cuentas.
                 </p>
@@ -163,6 +216,8 @@ export function renderLandingPage({ encabezadoExterno, botonEncabezadoExterno, t
       </div>
     </footer>
     <!-- ======== footer end ======== -->
+
+    </div>
 
     ${botonScrollTop()}
   `;

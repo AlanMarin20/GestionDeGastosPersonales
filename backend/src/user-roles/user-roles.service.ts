@@ -35,7 +35,7 @@ export class UserRolesService {
     });
 
     if (existingUserRole) {
-      throw new ConflictException('This user already has the selected role');
+      throw new ConflictException('Este usuario ya tiene el rol seleccionado');
     }
 
     const userRole = this.userRoleRepository.create({
@@ -56,7 +56,7 @@ export class UserRolesService {
     const assignmentCount = await this.userRoleRepository.count();
     if (assignmentCount > 0) {
       throw new ConflictException(
-        'Bootstrap already completed. There are existing role assignments.',
+        'La inicialización ya fue completada. Ya existen asignaciones de roles.',
       );
     }
 
@@ -70,7 +70,7 @@ export class UserRolesService {
     const savedAssignment = await this.userRoleRepository.save(adminUserRole);
 
     return {
-      message: 'Bootstrap admin assigned successfully',
+      message: 'Administrador inicial asignado correctamente',
       assignment: savedAssignment,
     };
   }
@@ -99,7 +99,7 @@ export class UserRolesService {
     });
 
     if (!userRole) {
-      throw new NotFoundException(`User role with id ${id} not found`);
+      throw new NotFoundException(`Rol de usuario con id ${id} no encontrado`);
     }
 
     return userRole;
@@ -129,13 +129,13 @@ export class UserRolesService {
     const userRole = await this.findOne(id);
     await this.userRoleRepository.remove(userRole);
 
-    return { message: 'User role deleted successfully' };
+    return { message: 'Rol de usuario eliminado correctamente' };
   }
 
   private async ensureUserExists(userId: string) {
     const user = await this.userRepository.findOneBy({ id: userId });
     if (!user) {
-      throw new NotFoundException(`User with id ${userId} not found`);
+      throw new NotFoundException(`Usuario con id ${userId} no encontrado`);
     }
 
     return user;
@@ -144,7 +144,7 @@ export class UserRolesService {
   private async ensureRoleExists(roleId: number) {
     const role = await this.roleRepository.findOneBy({ id: roleId });
     if (!role) {
-      throw new NotFoundException(`Role with id ${roleId} not found`);
+      throw new NotFoundException(`Rol con id ${roleId} no encontrado`);
     }
 
     return role;
@@ -155,7 +155,7 @@ export class UserRolesService {
       const pgError = error as QueryFailedError & { code?: string };
 
       if (pgError.code === '23505') {
-        throw new ConflictException('This user already has the selected role');
+        throw new ConflictException('Este usuario ya tiene el rol seleccionado');
       }
     }
 
@@ -190,7 +190,7 @@ export class UserRolesService {
     }
 
     if (!adminRole) {
-      throw new NotFoundException('Admin role could not be initialized');
+      throw new NotFoundException('No se pudo inicializar el rol de administrador');
     }
 
     return adminRole;

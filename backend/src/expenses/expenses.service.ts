@@ -45,7 +45,7 @@ export class ExpensesService {
     });
 
     if (!expense) {
-      throw new NotFoundException(`Expense with id ${id} not found`);
+      throw new NotFoundException(`Gasto con id ${id} no encontrado`);
     }
 
     return expense;
@@ -80,6 +80,6 @@ export class ExpensesService {
     const expense = await this.findOne(id, userId);
     await this.expenseRepository.remove(expense);
 
-    return { message: 'Expense deleted successfully' };
+    return { message: 'Gasto eliminado correctamente' };
   }
 }

@@ -35,7 +35,7 @@ export class CategoriesService {
     const category = await this.categoriesRepository.findOneBy({ id });
 
     if (!category) {
-      throw new NotFoundException(`Category with id ${id} not found`);
+      throw new NotFoundException(`Categoría con id ${id} no encontrada`);
     }
 
     return category;
@@ -48,7 +48,7 @@ export class CategoriesService {
     });
 
     if (!categoryToUpdate) {
-      throw new NotFoundException(`Category with id ${id} not found`);
+      throw new NotFoundException(`Categoría con id ${id} no encontrada`);
     }
 
     try {
@@ -62,7 +62,7 @@ export class CategoriesService {
     const category = await this.findOne(id);
     await this.categoriesRepository.remove(category);
 
-    return { message: 'Category deleted successfully' };
+    return { message: 'Categoría eliminada correctamente' };
   }
 
   private handleQueryError(error: unknown): never {
@@ -70,7 +70,7 @@ export class CategoriesService {
       const pgError = error as QueryFailedError & { code?: string };
 
       if (pgError.code === '23505') {
-        throw new ConflictException('Category name already exists');
+        throw new ConflictException('El nombre de la categoría ya existe');
       }
     }
 
