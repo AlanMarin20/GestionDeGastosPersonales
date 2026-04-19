@@ -29,6 +29,7 @@ import {
 } from "./pages/FaqDetailPage";
 import { renderLoginPage as renderLoginPageView } from "./pages/LoginPage";
 import { renderRegistroPage as renderRegistroPageView } from "./pages/RegistroPage";
+import { renderRegistroExitosoPage as renderRegistroExitosoPageView } from "./pages/RegistroExitosoPage";
 import "./index.css";
 import "./App.css";
 import "./components/dashboard/dashboard-widgets.css";
@@ -41,6 +42,10 @@ const THEME_STORAGE_KEY = "theme_preference";
 // OAuth de terceros deshabilitado temporalmente.
 // const OAUTH_CALLBACK_PATH = "/auth/callback";
 const DEFAULT_PROFILE_IMAGE = "/assets/img/user-avatar-default.svg";
+const REGISTRO_EXITOSO_REDIRECT_SECONDS = 5;
+
+let registroExitosoRedirectTimeoutId = null;
+let registroExitosoCountdownIntervalId = null;
 
 const state = {
   dashboard: {
@@ -429,6 +434,18 @@ function navigateBack() {
   history.back();
 }
 
+function clearRegistroExitosoAutoRedirect() {
+  if (registroExitosoRedirectTimeoutId !== null) {
+    window.clearTimeout(registroExitosoRedirectTimeoutId);
+    registroExitosoRedirectTimeoutId = null;
+  }
+
+  if (registroExitosoCountdownIntervalId !== null) {
+    window.clearInterval(registroExitosoCountdownIntervalId);
+    registroExitosoCountdownIntervalId = null;
+  }
+}
+
 function cambioRol(pathname) {
   return pathname.startsWith("/dashboard/asesor") ||
     pathname.startsWith("/cliente/")
@@ -511,6 +528,10 @@ function renderLoginPage() {
 
 function renderRegistroPage() {
   return renderRegistroPageView({ encabezadoExterno, botonIniciarCrearCuenta });
+}
+
+function renderRegistroExitosoPage() {
+  return renderRegistroExitosoPageView({ encabezadoExterno });
 }
 
 function renderDashboardPage() {
@@ -754,6 +775,10 @@ function buildRouteView(pathname) {
     return renderRegistroPage();
   }
 
+  if (pathname === "/registro/exitoso") {
+    return renderRegistroExitosoPage();
+  }
+
   if (pathname === "/dashboard") {
     return renderDashboardLayout(renderDashboardPage());
   }
@@ -937,6 +962,10 @@ function attachGlobalNavigation() {
 }
 
 function attachFormHandlers(pathname) {
+  if (pathname !== "/registro/exitoso") {
+    clearRegistroExitosoAutoRedirect();
+  }
+
   if (pathname === "/login") {
     const loginForm = document.getElementById("loginForm");
     const emailInput = document.getElementById("email");
@@ -1178,8 +1207,7 @@ function attachFormHandlers(pathname) {
           throw new Error(message || fallbackMessage);
         }
 
-        window.alert("¡Registro exitoso! Ahora puedes iniciar sesión.");
-        navigate("/login");
+        navigate("/registro/exitoso", true);
       } catch (error) {
         const message =
           error instanceof Error
@@ -1190,6 +1218,33 @@ function attachFormHandlers(pathname) {
         if (submitBtn) submitBtn.disabled = false;
       }
     });
+  }
+
+  if (pathname === "/registro/exitoso") {
+    clearRegistroExitosoAutoRedirect();
+
+    const countdownElement = document.getElementById("registroExitosoCountdown");
+    let secondsLeft = REGISTRO_EXITOSO_REDIRECT_SECONDS;
+
+    if (countdownElement) {
+      countdownElement.textContent = String(secondsLeft);
+    }
+
+    registroExitosoCountdownIntervalId = window.setInterval(() => {
+      secondsLeft = Math.max(secondsLeft - 1, 0);
+      if (countdownElement) {
+        countdownElement.textContent = String(secondsLeft);
+      }
+
+      if (secondsLeft === 0) {
+        clearRegistroExitosoAutoRedirect();
+      }
+    }, 1000);
+
+    registroExitosoRedirectTimeoutId = window.setTimeout(() => {
+      clearRegistroExitosoAutoRedirect();
+      navigate("/login", true);
+    }, REGISTRO_EXITOSO_REDIRECT_SECONDS * 1000);
   }
 
   if (pathname === "/dashboard") {
@@ -1896,7 +1951,8 @@ function isFixedDarkRoute(pathname) {
     pathname.startsWith("/faqs/") ||
     pathname === "/sobre-nosotros" ||
     pathname === "/login" ||
-    pathname === "/registro";
+    pathname === "/registro" ||
+    pathname === "/registro/exitoso";
 }
 
 function resolveThemeForPath(pathname) {
