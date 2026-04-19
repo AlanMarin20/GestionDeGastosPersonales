@@ -477,7 +477,7 @@ export function renderFaqDetailPage({
   `;
 
   return `
-    <div class="min-vh-100 d-flex flex-column" style="background-color: var(--app-surface-bg);">
+    <div class="min-vh-100 d-flex flex-column public-page-shell public-faq-detail-page" style="background-color: var(--app-surface-bg);">
       ${encabezadoExterno({
         rightHref: "/login",
         rightText: "Iniciar sesión",

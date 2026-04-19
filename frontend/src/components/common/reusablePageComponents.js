@@ -107,7 +107,7 @@ export function encabezadoExterno({
                   <span class="d-inline-flex align-items-center justify-content-center rounded-circle shadow-sm overflow-hidden flex-shrink-0" style="width: 31px; height: 31px; background: transparent;">
                     <img src="/assets/img/logo/iconoSfondo.png" alt="Icono FinanzasPro" style="width: 100%; height: 100%; object-fit: cover; display: block;">
                   </span>
-                  <span class="fw-bold text-dark fs-5" style="letter-spacing: -0.4px; line-height: 1; margin-top: 1px;">FinanzasPro</span>
+                  <span class="fw-bold text-white fs-5" style="letter-spacing: -0.4px; line-height: 1; margin-top: 1px;">FinanzasPro</span>
                 </a>
                 ${rightMarkup || botonEncabezadoExterno({
                   href: rightHref,

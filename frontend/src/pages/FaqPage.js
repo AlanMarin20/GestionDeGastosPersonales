@@ -23,7 +23,7 @@ export function renderFaqPage({ encabezadoExterno, botonEncabezadoExterno, boton
   `;
 
   return `
-    <div class="min-vh-100 d-flex flex-column" style="background-color: var(--app-surface-bg);">
+    <div class="min-vh-100 d-flex flex-column public-page-shell public-faq-page" style="background-color: var(--app-surface-bg);">
       ${encabezadoExterno({
         rightHref: '/login',
         rightText: 'Iniciar sesión',
@@ -46,7 +46,7 @@ export function renderFaqPage({ encabezadoExterno, botonEncabezadoExterno, boton
               </div>
             </div>
 
-            <div class="p-4">
+            <div class="p-4 public-glass-block" style="border-radius: 15px;">
                 <div class="row g-4">
                   <div class="col-12 col-md-4">
                     <h6 class="fw-bold mb-3 border-bottom pb-2" style="border-color: var(--app-border-color) !important;">Primeros pasos</h6>

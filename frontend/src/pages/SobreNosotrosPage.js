@@ -23,7 +23,7 @@ export function renderSobreNosotrosPage({ encabezadoExterno, botonEncabezadoExte
   `;
 
   return `
-    <div class="min-vh-100 d-flex flex-column" style="background-color: var(--app-surface-bg);">
+    <div class="min-vh-100 d-flex flex-column public-page-shell public-about-page" style="background-color: var(--app-surface-bg);">
       ${encabezadoExterno({
         rightHref: "/login",
         rightText: "Iniciar sesión",
@@ -64,7 +64,7 @@ export function renderSobreNosotrosPage({ encabezadoExterno, botonEncabezadoExte
 
                 <div class="row g-4">
                   <div class="col-12 col-md-6">
-                    <div class="border rounded-3 h-100 p-4" style="border-color: var(--app-border-color) !important;">
+                    <div class="border rounded-3 h-100 p-4 team-member-panel" style="border-color: var(--app-border-color) !important;">
                       <div class="d-flex align-items-center gap-3 mb-3">
                         <img
                           src="/assets/img/about/joaquin-contreras.webp"
@@ -91,7 +91,7 @@ export function renderSobreNosotrosPage({ encabezadoExterno, botonEncabezadoExte
                   </div>
 
                   <div class="col-12 col-md-6">
-                    <div class="border rounded-3 h-100 p-4" style="border-color: var(--app-border-color) !important;">
+                    <div class="border rounded-3 h-100 p-4 team-member-panel" style="border-color: var(--app-border-color) !important;">
                       <div class="d-flex align-items-center gap-3 mb-3">
                         <img
                           src="/assets/img/about/alan-marin.webp"

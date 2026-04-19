@@ -68,7 +68,7 @@ export function renderLandingPage({ encabezadoExterno, botonEncabezadoExterno, t
     <!-- ======== hero-section end ======== -->
 
     <!-- ======== feature-section start ======== -->
-    <section id="features" class="feature-section pt-120">
+    <section id="features" class="feature-section pt-120 custom-landing-features">
       <div class="container">
         <div class="row justify-content-center">
           ${tarjetaLandingPage({
@@ -105,20 +105,16 @@ export function renderLandingPage({ encabezadoExterno, botonEncabezadoExterno, t
     <!-- ======== feature-section end ======== -->
 
     <!-- ======== about-section start ======== -->
-    <section id="about" class="about-section pt-150">
+    <section id="about" class="about-section pt-150 custom-landing-about">
       <div class="container">
         <div class="row align-items-center">
           <div class="col-xl-6 col-lg-6">
             ${imagenesLanding({
               src: '/assets/img/hero/genericaDetalleClientePage.png',
               alt: 'Imagen descriptiva del uso como asesor',
-              wrapperClass: 'about-img',
-              imageClass: 'w-100',
+              wrapperClass: 'about-img landing-about-img',
+              imageClass: 'w-100 landing-about-image',
               imageStyle: 'border-radius: 30px;',
-              extraMarkup: `
-                <img src="/assets/img/about/about-left-shape.svg" alt="" class="shape shape-1" />
-                <img src="/assets/img/about/left-dots.svg" alt="" class="shape shape-2" />
-              `,
             })}
           </div>
           <div class="col-xl-6 col-lg-6">

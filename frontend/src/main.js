@@ -38,6 +38,7 @@ const appRoot = document.getElementById("root");
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 const ACCESS_TOKEN_KEY = "access_token";
 const THEME_STORAGE_KEY = "theme_preference";
+const OAUTH_CALLBACK_PATH = "/auth/callback";
 const DEFAULT_PROFILE_IMAGE = "/assets/img/user-avatar-default.svg";
 
 const state = {
@@ -306,6 +307,26 @@ let chartInstances = [];
 
 function formatCurrency(value) {
   return `$${Number(value).toFixed(2)}`;
+}
+
+function startSocialAuth(provider) {
+  window.location.assign(`${API_BASE_URL}/api/auth/${provider}`);
+}
+
+function processOAuthCallback() {
+  const params = new URLSearchParams(window.location.search);
+  const accessToken = params.get("access_token");
+  const errorMessage = params.get("error");
+
+  if (accessToken) {
+    localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
+    navigate("/dashboard", true);
+    return;
+  }
+
+  const nextError =
+    errorMessage || "No se pudo completar la autenticación social";
+  navigate(`/login?authError=${encodeURIComponent(nextError)}`, true);
 }
 
 function getCurrentDateShort() {
@@ -915,15 +936,67 @@ function attachGlobalNavigation() {
 function attachFormHandlers(pathname) {
   if (pathname === "/login") {
     const loginForm = document.getElementById("loginForm");
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("contrasena");
+    const errorDiv = document.getElementById("loginError");
+    const googleButton = document.getElementById("loginGoogleBtn");
+    const appleButton = document.getElementById("loginAppleBtn");
+
+    const removeFieldErrorState = () => {
+      [emailInput, passwordInput].forEach((field) => {
+        field?.classList.remove("auth-input-error");
+      });
+    };
+
+    const setAuthError = (message, fieldsToHighlight = []) => {
+      if (errorDiv) {
+        errorDiv.textContent = message;
+        errorDiv.classList.remove("d-none");
+      }
+
+      removeFieldErrorState();
+      fieldsToHighlight.forEach((field) => {
+        field?.classList.add("auth-input-error");
+      });
+    };
+
+    const clearAuthError = () => {
+      if (errorDiv) {
+        errorDiv.classList.add("d-none");
+      }
+      removeFieldErrorState();
+    };
+
+    [emailInput, passwordInput].forEach((field) => {
+      field?.addEventListener("input", () => {
+        field.classList.remove("auth-input-error");
+      });
+    });
+
+    const authErrorFromQuery = new URLSearchParams(window.location.search).get(
+      "authError",
+    );
+    if (authErrorFromQuery) {
+      setAuthError(authErrorFromQuery, [emailInput, passwordInput]);
+      history.replaceState({}, "", "/login");
+    }
+
+    googleButton?.addEventListener("click", () => {
+      startSocialAuth("google");
+    });
+
+    appleButton?.addEventListener("click", () => {
+      startSocialAuth("apple");
+    });
+
     loginForm?.addEventListener("submit", async (event) => {
       event.preventDefault();
 
-      const email = document.getElementById("email")?.value;
-      const password = document.getElementById("contrasena")?.value;
-      const errorDiv = document.getElementById("loginError");
+      const email = emailInput?.value;
+      const password = passwordInput?.value;
       const submitBtn = loginForm.querySelector('button[type="submit"]');
 
-      if (errorDiv) errorDiv.classList.add("d-none");
+      clearAuthError();
       if (submitBtn) submitBtn.disabled = true;
 
       try {
@@ -943,10 +1016,11 @@ function attachFormHandlers(pathname) {
         syncProfileFromUser(data.user);
         navigate("/dashboard");
       } catch (error) {
-        if (errorDiv) {
-          errorDiv.textContent = error.message;
-          errorDiv.classList.remove("d-none");
-        }
+        const message =
+          error instanceof Error
+            ? error.message
+            : "No se pudo iniciar sesión";
+        setAuthError(message, [emailInput, passwordInput]);
       } finally {
         if (submitBtn) submitBtn.disabled = false;
       }
@@ -955,25 +1029,71 @@ function attachFormHandlers(pathname) {
 
   if (pathname === "/registro") {
     const registroForm = document.getElementById("registroForm");
+    const nombreInput = document.getElementById("nombre");
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("contrasena");
+    const confirmPasswordInput = document.getElementById("confirmarContrasena");
+    const errorDiv = document.getElementById("registroError");
+    const googleButton = document.getElementById("registerGoogleBtn");
+    const appleButton = document.getElementById("registerAppleBtn");
+
+    const removeFieldErrorState = () => {
+      [emailInput, passwordInput, confirmPasswordInput].forEach((field) => {
+        field?.classList.remove("auth-input-error");
+      });
+    };
+
+    const setAuthError = (message, fieldsToHighlight = []) => {
+      if (errorDiv) {
+        errorDiv.textContent = message;
+        errorDiv.classList.remove("d-none");
+      }
+
+      removeFieldErrorState();
+      fieldsToHighlight.forEach((field) => {
+        field?.classList.add("auth-input-error");
+      });
+    };
+
+    const clearAuthError = () => {
+      if (errorDiv) {
+        errorDiv.classList.add("d-none");
+      }
+      removeFieldErrorState();
+    };
+
+    [nombreInput, emailInput, passwordInput, confirmPasswordInput].forEach(
+      (field) => {
+        field?.addEventListener("input", () => {
+          field.classList.remove("auth-input-error");
+        });
+      },
+    );
+
+    googleButton?.addEventListener("click", () => {
+      startSocialAuth("google");
+    });
+
+    appleButton?.addEventListener("click", () => {
+      startSocialAuth("apple");
+    });
+
     registroForm?.addEventListener("submit", async (event) => {
       event.preventDefault();
 
-      const nombre = document.getElementById("nombre")?.value;
-      const email = document.getElementById("email")?.value;
-      const password = document.getElementById("contrasena")?.value;
-      const confirmPassword = document.getElementById(
-        "confirmarContrasena",
-      )?.value;
-      const errorDiv = document.getElementById("registroError");
+      const nombre = nombreInput?.value;
+      const email = emailInput?.value;
+      const password = passwordInput?.value;
+      const confirmPassword = confirmPasswordInput?.value;
       const submitBtn = registroForm.querySelector('button[type="submit"]');
 
-      if (errorDiv) errorDiv.classList.add("d-none");
+      clearAuthError();
 
       if (password !== confirmPassword) {
-        if (errorDiv) {
-          errorDiv.textContent = "Las contraseñas no coinciden";
-          errorDiv.classList.remove("d-none");
-        }
+        setAuthError("Las contraseñas no coinciden", [
+          passwordInput,
+          confirmPasswordInput,
+        ]);
         return;
       }
 
@@ -994,10 +1114,11 @@ function attachFormHandlers(pathname) {
         window.alert("¡Registro exitoso! Ahora puedes iniciar sesión.");
         navigate("/login");
       } catch (error) {
-        if (errorDiv) {
-          errorDiv.textContent = error.message;
-          errorDiv.classList.remove("d-none");
-        }
+        const message =
+          error instanceof Error
+            ? error.message
+            : "No se pudo registrar el usuario";
+        setAuthError(message, [emailInput, passwordInput, confirmPasswordInput]);
       } finally {
         if (submitBtn) submitBtn.disabled = false;
       }
@@ -1702,14 +1823,37 @@ function saveThemePreference(isDark) {
   localStorage.setItem(THEME_STORAGE_KEY, isDark ? "dark" : "light");
 }
 
+function isFixedDarkRoute(pathname) {
+  return pathname === "/" ||
+    pathname === "/faqs" ||
+    pathname.startsWith("/faqs/") ||
+    pathname === "/sobre-nosotros" ||
+    pathname === "/login" ||
+    pathname === "/registro";
+}
+
+function resolveThemeForPath(pathname) {
+  if (isFixedDarkRoute(pathname)) {
+    return true;
+  }
+
+  return state.configuracion.temaOscuro;
+}
+
 function render() {
-  applyTheme(state.configuracion.temaOscuro);
+  const pathname = window.location.pathname;
+
+  if (pathname === OAUTH_CALLBACK_PATH) {
+    processOAuthCallback();
+    return;
+  }
+
+  applyTheme(resolveThemeForPath(pathname));
 
   // Limpiar backdrops de Bootstrap en caso de navegación rápida desde menús desplegables
   document.body.style.overflow = '';
   document.body.style.paddingRight = '';
 
-  const pathname = window.location.pathname;
   const view = buildRouteView(pathname);
 
   if (!view) {
@@ -1724,7 +1868,7 @@ function render() {
 
 attachGlobalNavigation();
 state.configuracion.temaOscuro = loadThemePreference();
-applyTheme(state.configuracion.temaOscuro);
+applyTheme(resolveThemeForPath(window.location.pathname));
 loadCurrentUser().finally(() => {
   render();
 });
