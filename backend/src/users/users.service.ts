@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
@@ -33,7 +33,15 @@ export class UsersService {
     const newUser = this.userRepository.create({ ...userData, passwordHash });
 
     // 4. Guarda el usuario en la base de datos y retorna el resultado
-    const savedUser = await this.userRepository.save(newUser);
+    let savedUser: User;
+    try {
+      savedUser = await this.userRepository.save(newUser);
+    } catch (error) {
+      if (this.isEmailAlreadyInUseError(error)) {
+        throw new ConflictException('El email ya está en uso');
+      }
+      throw error;
+    }
 
     return await this.userRepository.findOne({
       where: { id: savedUser.id },
@@ -92,5 +100,14 @@ export class UsersService {
   async remove(id: string) {
     await this.userRepository.delete(id);
     return { message: 'Usuario eliminado correctamente' };
+  }
+
+  private isEmailAlreadyInUseError(error: unknown) {
+    if (!error || typeof error !== 'object') {
+      return false;
+    }
+
+    const databaseError = error as { code?: string; detail?: string };
+    return databaseError.code === '23505' && databaseError.detail?.includes('(email)');
   }
 }
