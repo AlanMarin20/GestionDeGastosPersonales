@@ -153,6 +153,13 @@ export function renderLandingPage({ encabezadoExterno, botonEncabezadoExterno, t
                     <span class="fw-bold text-white fs-4" style="letter-spacing: -0.4px;">FinanzasPro</span>
                   </a>
                 </div>
+                <nav class="landing-footer-links mb-3" aria-label="Enlaces de navegación pública">
+                  <a href="/" data-link class="landing-footer-link">Inicio</a>
+                  <a href="/faqs" data-link class="landing-footer-link">FAQ's</a>
+                  <a href="/sobre-nosotros" data-link class="landing-footer-link">Sobre nosotros</a>
+                  <a href="/login" data-link class="landing-footer-link">Iniciar sesión</a>
+                  <a href="/registro" data-link class="landing-footer-link">Registrarse</a>
+                </nav>
                 <p class="desc mb-0 text-white">
                   © 2026 FinanzasPro. Todos los derechos reservados. Plataforma autorizada para la prestación de servicios de información sobre cuentas.
                 </p>
