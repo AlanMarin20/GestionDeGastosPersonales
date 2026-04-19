@@ -13,7 +13,7 @@ export function renderRegistroExitosoPage({ encabezadoExterno }) {
               <div class="card border-0 shadow-lg" style="border-radius: 15px;">
                 <div class="card-body p-5 text-center">
                   <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-4" style="width: 80px; height: 80px; background: rgba(34, 197, 94, 0.16); border: 1px solid rgba(34, 197, 94, 0.3);">
-                    <i class="lni lni-checkmark-circle" style="font-size: 2rem; color: #22c55e;"></i>
+                    <span aria-hidden="true" style="font-size: 2.35rem; line-height: 1; color: #22c55e; font-weight: 800;">✓</span>
                   </div>
 
                   <h3 class="mb-3">Cuenta creada con éxito</h3>

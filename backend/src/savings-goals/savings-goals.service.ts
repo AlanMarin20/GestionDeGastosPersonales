@@ -40,7 +40,7 @@ export class SavingsGoalsService {
     });
 
     if (!goal) {
-      throw new NotFoundException(`Savings goal with id ${id} not found`);
+      throw new NotFoundException(`Meta de ahorro con id ${id} no encontrada`);
     }
 
     return goal;
@@ -76,6 +76,6 @@ export class SavingsGoalsService {
     const goal = await this.findOne(id, userId);
     await this.goalRepository.remove(goal);
 
-    return { message: 'Savings goal deleted successfully' };
+    return { message: 'Meta de ahorro eliminada correctamente' };
   }
 }

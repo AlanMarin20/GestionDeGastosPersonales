@@ -35,7 +35,7 @@ export class NotificationsService {
     });
 
     if (!notification) {
-      throw new NotFoundException(`Notification with id ${id} not found`);
+      throw new NotFoundException(`Notificación con id ${id} no encontrada`);
     }
 
     return notification;
@@ -68,6 +68,6 @@ export class NotificationsService {
     const notification = await this.findOne(id, userId);
     await this.notificationRepository.remove(notification);
 
-    return { message: 'Notification deleted successfully' };
+    return { message: 'Notificación eliminada correctamente' };
   }
 }

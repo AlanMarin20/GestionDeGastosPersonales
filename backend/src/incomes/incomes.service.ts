@@ -44,7 +44,7 @@ export class IncomesService {
     });
 
     if (!income) {
-      throw new NotFoundException(`Income with id ${id} not found`);
+      throw new NotFoundException(`Ingreso con id ${id} no encontrado`);
     }
 
     return income;
@@ -76,6 +76,6 @@ export class IncomesService {
     const income = await this.findOne(id, userId);
     await this.incomeRepository.remove(income);
 
-    return { message: 'Income deleted successfully' };
+    return { message: 'Ingreso eliminado correctamente' };
   }
 }

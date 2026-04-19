@@ -48,7 +48,7 @@ export class RecommendationsService {
     });
 
     if (!recommendation) {
-      throw new NotFoundException(`Recommendation with id ${id} not found`);
+      throw new NotFoundException(`Recomendación con id ${id} no encontrada`);
     }
 
     return recommendation;
@@ -85,6 +85,6 @@ export class RecommendationsService {
     const recommendation = await this.findOneForUser(id, userId);
     await this.recommendationRepository.remove(recommendation);
 
-    return { message: 'Recommendation deleted successfully' };
+    return { message: 'Recomendación eliminada correctamente' };
   }
 }

@@ -39,7 +39,7 @@ export class RolesService {
     const role = await this.roleRepository.findOneBy({ id });
 
     if (!role) {
-      throw new NotFoundException(`Role with id ${id} not found`);
+      throw new NotFoundException(`Rol con id ${id} no encontrado`);
     }
 
     return role;
@@ -66,7 +66,7 @@ export class RolesService {
     const role = await this.findOne(id);
     await this.roleRepository.remove(role);
 
-    return { message: 'Role deleted successfully' };
+    return { message: 'Rol eliminado correctamente' };
   }
 
   private handleQueryError(error: unknown): never {
@@ -74,7 +74,7 @@ export class RolesService {
       const pgError = error as QueryFailedError & { code?: string };
 
       if (pgError.code === '23505') {
-        throw new ConflictException('Role name already exists');
+        throw new ConflictException('El nombre del rol ya existe');
       }
     }
 

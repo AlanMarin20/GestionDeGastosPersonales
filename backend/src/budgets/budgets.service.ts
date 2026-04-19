@@ -39,7 +39,7 @@ export class BudgetsService {
     });
 
     if (!budget) {
-      throw new NotFoundException(`Budget with id ${id} not found`);
+      throw new NotFoundException(`Presupuesto con id ${id} no encontrado`);
     }
 
     return budget;
@@ -68,6 +68,6 @@ export class BudgetsService {
     const budget = await this.findOne(id, userId);
     await this.budgetRepository.remove(budget);
 
-    return { message: 'Budget deleted successfully' };
+    return { message: 'Presupuesto eliminado correctamente' };
   }
 }

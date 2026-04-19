@@ -42,6 +42,8 @@ const THEME_STORAGE_KEY = "theme_preference";
 // OAuth de terceros deshabilitado temporalmente.
 // const OAUTH_CALLBACK_PATH = "/auth/callback";
 const DEFAULT_PROFILE_IMAGE = "/assets/img/user-avatar-default.svg";
+const PASSWORD_POLICY_MESSAGE =
+  "La contraseña debe tener al menos 8 caracteres e incluir mayúscula, minúscula, número y carácter especial";
 const REGISTRO_EXITOSO_REDIRECT_SECONDS = 5;
 
 let registroExitosoRedirectTimeoutId = null;
@@ -313,6 +315,12 @@ let chartInstances = [];
 
 function formatCurrency(value) {
   return `$${Number(value).toFixed(2)}`;
+}
+
+function isStrongPassword(password) {
+  return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/.test(
+    password,
+  );
 }
 
 /*
@@ -1179,6 +1187,11 @@ function attachFormHandlers(pathname) {
         return;
       }
 
+      if (!isStrongPassword(password)) {
+        setAuthError(PASSWORD_POLICY_MESSAGE, [passwordInput]);
+        return;
+      }
+
       if (password !== confirmPassword) {
         setAuthError("Las contraseñas no coinciden", [
           passwordInput,
@@ -1237,7 +1250,10 @@ function attachFormHandlers(pathname) {
       }
 
       if (secondsLeft === 0) {
-        clearRegistroExitosoAutoRedirect();
+        if (registroExitosoCountdownIntervalId !== null) {
+          window.clearInterval(registroExitosoCountdownIntervalId);
+          registroExitosoCountdownIntervalId = null;
+        }
       }
     }, 1000);
 
