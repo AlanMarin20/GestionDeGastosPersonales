@@ -38,7 +38,8 @@ const appRoot = document.getElementById("root");
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 const ACCESS_TOKEN_KEY = "access_token";
 const THEME_STORAGE_KEY = "theme_preference";
-const OAUTH_CALLBACK_PATH = "/auth/callback";
+// OAuth de terceros deshabilitado temporalmente.
+// const OAUTH_CALLBACK_PATH = "/auth/callback";
 const DEFAULT_PROFILE_IMAGE = "/assets/img/user-avatar-default.svg";
 
 const state = {
@@ -309,6 +310,7 @@ function formatCurrency(value) {
   return `$${Number(value).toFixed(2)}`;
 }
 
+/*
 function startSocialAuth(provider) {
   window.location.assign(`${API_BASE_URL}/api/auth/${provider}`);
 }
@@ -328,6 +330,7 @@ function processOAuthCallback() {
     errorMessage || "No se pudo completar la autenticación social";
   navigate(`/login?authError=${encodeURIComponent(nextError)}`, true);
 }
+*/
 
 function getCurrentDateShort() {
   return new Date().toLocaleDateString("es-ES", {
@@ -939,8 +942,9 @@ function attachFormHandlers(pathname) {
     const emailInput = document.getElementById("email");
     const passwordInput = document.getElementById("contrasena");
     const errorDiv = document.getElementById("loginError");
-    const googleButton = document.getElementById("loginGoogleBtn");
-    const appleButton = document.getElementById("loginAppleBtn");
+    // OAuth social temporalmente deshabilitado.
+    // const googleButton = document.getElementById("loginGoogleBtn");
+    // const appleButton = document.getElementById("loginAppleBtn");
 
     const removeFieldErrorState = () => {
       [emailInput, passwordInput].forEach((field) => {
@@ -973,6 +977,7 @@ function attachFormHandlers(pathname) {
       });
     });
 
+    /*
     const authErrorFromQuery = new URLSearchParams(window.location.search).get(
       "authError",
     );
@@ -988,6 +993,7 @@ function attachFormHandlers(pathname) {
     appleButton?.addEventListener("click", () => {
       startSocialAuth("apple");
     });
+    */
 
     loginForm?.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -1034,8 +1040,9 @@ function attachFormHandlers(pathname) {
     const passwordInput = document.getElementById("contrasena");
     const confirmPasswordInput = document.getElementById("confirmarContrasena");
     const errorDiv = document.getElementById("registroError");
-    const googleButton = document.getElementById("registerGoogleBtn");
-    const appleButton = document.getElementById("registerAppleBtn");
+    // OAuth social temporalmente deshabilitado.
+    // const googleButton = document.getElementById("registerGoogleBtn");
+    // const appleButton = document.getElementById("registerAppleBtn");
 
     const removeFieldErrorState = () => {
       [emailInput, passwordInput, confirmPasswordInput].forEach((field) => {
@@ -1070,6 +1077,7 @@ function attachFormHandlers(pathname) {
       },
     );
 
+    /*
     googleButton?.addEventListener("click", () => {
       startSocialAuth("google");
     });
@@ -1077,6 +1085,7 @@ function attachFormHandlers(pathname) {
     appleButton?.addEventListener("click", () => {
       startSocialAuth("apple");
     });
+    */
 
     registroForm?.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -1843,10 +1852,11 @@ function resolveThemeForPath(pathname) {
 function render() {
   const pathname = window.location.pathname;
 
-  if (pathname === OAUTH_CALLBACK_PATH) {
-    processOAuthCallback();
-    return;
-  }
+  // OAuth de terceros deshabilitado temporalmente.
+  // if (pathname === OAUTH_CALLBACK_PATH) {
+  //   processOAuthCallback();
+  //   return;
+  // }
 
   applyTheme(resolveThemeForPath(pathname));
 

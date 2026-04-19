@@ -212,6 +212,7 @@
   background: transparent !important;
 }
 
+/*
 .apple-auth-btn {
   border-color: rgba(148, 163, 184, 0.55) !important;
   color: #e2e8f0 !important;
@@ -225,6 +226,7 @@
   color: #f8fafc !important;
   background: linear-gradient(135deg, rgba(15, 23, 42, 0.92) 0%, rgba(30, 41, 59, 0.8) 100%) !important;
 }
+*/
 
 .auth-error-alert {
   border: 1px solid rgba(248, 113, 113, 0.92) !important;
@@ -838,12 +840,14 @@ body.theme-dark .landing-auth-copy {
   color: #dbeafe !important;
 }
 
+/*
 body.theme-dark .google-auth-btn {
   background-color: #132036 !important;
   color: #e2e8f0 !important;
   border-color: #5f7397 !important;
   box-shadow: 0 6px 16px rgba(2, 6, 23, 0.45) !important;
 }
+*/
 
 body.theme-dark .auth-error-alert {
   border-color: rgba(248, 113, 113, 0.95) !important;
@@ -851,12 +855,14 @@ body.theme-dark .auth-error-alert {
   color: #fee2e2 !important;
 }
 
+/*
 body.theme-dark .google-auth-btn:hover,
 body.theme-dark .google-auth-btn:focus {
   background-color: #1b2b45 !important;
   color: #f8fafc !important;
   border-color: #8fb7ff !important;
 }
+*/
 
 /* Igualamos altura de las tres tarjetas del bloque Features en landing */
 .feature-section .single-feature {
