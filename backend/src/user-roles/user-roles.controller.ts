@@ -22,11 +22,6 @@ import { UserRolesService } from './user-roles.service';
 export class UserRolesController {
   constructor(private readonly userRolesService: UserRolesService) {}
 
-  @Post('bootstrap-admin')
-  bootstrapAdmin(@Request() req) {
-    return this.userRolesService.bootstrapAdmin(req.user.sub);
-  }
-
   @UseGuards(RolesGuard)
   @Roles('admin')
   @Post()
