@@ -11,11 +11,6 @@ const ASESOR_NAV_SECTION = {
       label: "Generar recomendaciones",
       icon: "lni lni-bulb",
     },
-    {
-      href: "/dashboard/asesor/panel",
-      label: "Panel asesor",
-      icon: "lni lni-users",
-    },
   ],
 };
 
@@ -122,6 +117,9 @@ export function renderDashboardAppLayout({
   const initials = buildInitials(profileName);
   const roleLabel = isAsesor ? "asesor" : "usuario";
   const roleBadge = isAsesor ? "ASE" : "USR";
+  const notificationsRoute = isAsesor
+    ? "/dashboard/asesor/recomendaciones"
+    : "/dashboard/recomendaciones";
   const primaryAction = isAsesor
     ? {
         label: "Vista usuario",
@@ -174,15 +172,40 @@ export function renderDashboardAppLayout({
           </div>
 
           <div class="gd-topbar-actions">
-            <button type="button" class="gd-top-btn" data-nav="/dashboard/recomendaciones">
-              <i class="lni lni-alarm" aria-hidden="true"></i>
-              <span>Alertas</span>
-              ${
-                notificationCount > 0
-                  ? `<span class="gd-alert-dot" aria-label="${notificationCount} alertas pendientes"></span>`
-                  : ""
-              }
-            </button>
+            <div class="gd-top-notifications">
+              <button type="button" class="gd-top-btn gd-top-notifications-trigger" data-action="toggle-notifications-menu" aria-expanded="false" aria-haspopup="true" aria-label="Abrir notificaciones">
+                <i class="lni lni-alarm" aria-hidden="true"></i>
+                <span>Notificaciones</span>
+                ${
+                  notificationCount > 0
+                    ? `<span class="gd-alert-dot" aria-label="${notificationCount} alertas pendientes"></span>`
+                    : ""
+                }
+              </button>
+
+              <section class="gd-notifications-menu" aria-label="Notificaciones">
+                <header class="gd-notifications-head">
+                  <h2 class="gd-notifications-title">Notificaciones</h2>
+                  <span class="gd-notifications-count">${escapeHtml(String(notificationCount))}</span>
+                </header>
+
+                <div class="gd-notifications-body">
+                  ${
+                    notificationCount > 0
+                      ? `<a href="${escapeHtml(notificationsRoute)}" data-link class="gd-notification-item">
+                          <span class="gd-notification-item-title">Ver alertas pendientes</span>
+                          <span class="gd-notification-item-sub">${escapeHtml(String(notificationCount))} elementos por revisar</span>
+                        </a>`
+                      : `<p class="gd-notifications-empty">No tienes notificaciones nuevas.</p>`
+                  }
+
+                  <a href="/perfil/notificaciones" data-link class="gd-notification-item">
+                    <span class="gd-notification-item-title">Preferencias de notificacion</span>
+                    <span class="gd-notification-item-sub">Configura alertas y recordatorios</span>
+                  </a>
+                </div>
+              </section>
+            </div>
             <button type="button" class="gd-top-btn gd-top-btn-primary" data-nav="${escapeHtml(primaryAction.path)}">
               <i class="${escapeHtml(primaryAction.icon)}" aria-hidden="true"></i>
               <span>${escapeHtml(primaryAction.label)}</span>

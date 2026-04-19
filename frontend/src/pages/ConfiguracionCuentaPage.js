@@ -15,11 +15,27 @@ export function renderConfiguracionCuentaPage({
   profileName,
 }) {
   const config = state.configuracion;
+  const themeLabel = {
+    light: "Claro",
+    dark: "Oscuro",
+    system: "Sistema",
+  }[config.tema] || "Sistema";
+  const fontSizeLabel = {
+    sm: "Pequeno",
+    md: "Normal",
+    lg: "Grande",
+  }[config.tamanioFuente] || "Normal";
+  const densityLabel = {
+    comfortable: "Comoda",
+    compact: "Compacta",
+  }[config.densidad] || "Comoda";
 
   const content = `
     <div class="gd-grid-2">
       <article class="gd-card">
-        <h2 class="gd-card-title mb-3">Preferencias de la app</h2>
+        <h2 class="gd-card-title mb-1">Preferencias de la app</h2>
+        <p class="gd-muted mb-3">Ajusta moneda, tema y experiencia visual de tu panel.</p>
+
         <div class="gd-form-grid">
           <div>
             <label class="gd-form-label" for="moneda">Moneda principal</label>
@@ -37,13 +53,70 @@ export function renderConfiguracionCuentaPage({
               <option value="pt" ${config.idioma === "pt" ? "selected" : ""}>Portugues</option>
             </select>
           </div>
-          <div class="gd-form-full d-flex align-items-center justify-content-between border rounded-3 px-3 py-2" style="border-color: var(--gd-border) !important;">
-            <div>
-              <p class="gd-card-title mb-0" style="font-size: 0.75rem;">Modo oscuro</p>
-              <small class="gd-muted">Activa el tema oscuro para paneles internos.</small>
-            </div>
-            <input class="form-check-input mt-0" type="checkbox" id="temaOscuro" ${config.temaOscuro ? "checked" : ""}>
+
+          <div>
+            <label class="gd-form-label" for="temaModo">Tema</label>
+            <select id="temaModo" name="temaModo" class="gd-form-select">
+              <option value="system" ${config.tema === "system" ? "selected" : ""}>Sistema</option>
+              <option value="light" ${config.tema === "light" ? "selected" : ""}>Claro</option>
+              <option value="dark" ${config.tema === "dark" ? "selected" : ""}>Oscuro</option>
+            </select>
           </div>
+
+          <div>
+            <label class="gd-form-label" for="tamanioFuente">Tamano de fuente</label>
+            <select id="tamanioFuente" name="tamanioFuente" class="gd-form-select">
+              <option value="sm" ${config.tamanioFuente === "sm" ? "selected" : ""}>Pequeno</option>
+              <option value="md" ${config.tamanioFuente === "md" ? "selected" : ""}>Normal</option>
+              <option value="lg" ${config.tamanioFuente === "lg" ? "selected" : ""}>Grande</option>
+            </select>
+          </div>
+
+          <div class="gd-form-full gd-setting-row">
+            <div>
+              <p class="gd-card-title mb-0" style="font-size: 0.75rem;">Densidad visual</p>
+              <small class="gd-muted">Define cuanto espacio entre tarjetas y filas.</small>
+            </div>
+            <select id="densidad" name="densidad" class="gd-form-select gd-setting-select-inline">
+              <option value="comfortable" ${config.densidad === "comfortable" ? "selected" : ""}>Comoda</option>
+              <option value="compact" ${config.densidad === "compact" ? "selected" : ""}>Compacta</option>
+            </select>
+          </div>
+
+          <label class="gd-form-full gd-setting-row" for="mostrarCentavos">
+            <div>
+              <p class="gd-card-title mb-0" style="font-size: 0.75rem;">Mostrar centavos</p>
+              <small class="gd-muted">Visualiza montos con 2 decimales en tablas y metricas.</small>
+            </div>
+            <input class="form-check-input mt-0" type="checkbox" id="mostrarCentavos" ${config.mostrarCentavos ? "checked" : ""}>
+          </label>
+
+          <label class="gd-form-full gd-setting-row" for="reducirAnimaciones">
+            <div>
+              <p class="gd-card-title mb-0" style="font-size: 0.75rem;">Reducir animaciones</p>
+              <small class="gd-muted">Desactiva transiciones para una experiencia mas estable.</small>
+            </div>
+            <input class="form-check-input mt-0" type="checkbox" id="reducirAnimaciones" ${config.reducirAnimaciones ? "checked" : ""}>
+          </label>
+
+          <div class="gd-form-full gd-settings-preview">
+            <p class="gd-card-title mb-2" style="font-size: 0.75rem;">Vista previa de preferencias</p>
+            <div class="gd-settings-preview-list">
+              <div class="gd-settings-preview-item">
+                <span>Tema</span>
+                <strong>${escapeHtml(themeLabel)}</strong>
+              </div>
+              <div class="gd-settings-preview-item">
+                <span>Fuente</span>
+                <strong>${escapeHtml(fontSizeLabel)}</strong>
+              </div>
+              <div class="gd-settings-preview-item">
+                <span>Densidad</span>
+                <strong>${escapeHtml(densityLabel)}</strong>
+              </div>
+            </div>
+          </div>
+
           <div class="gd-form-full d-flex justify-content-end mt-1">
             <button type="button" class="gd-btn-primary" id="guardarConfiguracionBtn">Guardar configuracion</button>
           </div>
@@ -63,6 +136,11 @@ export function renderConfiguracionCuentaPage({
         <div class="rounded-3 p-3" style="background: rgba(30, 64, 175, 0.12); border: 1px solid rgba(59, 130, 246, 0.35);">
           <p class="gd-card-title mb-1" style="font-size: 0.75rem;">Estado de seguridad</p>
           <small class="gd-muted">Tu cuenta tiene las protecciones activas correctamente.</small>
+        </div>
+
+        <div class="rounded-3 p-3 mt-3" style="background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.3);">
+          <p class="gd-card-title mb-1" style="font-size: 0.75rem;">Sugerencia</p>
+          <small class="gd-muted">Activa autenticacion en dos pasos y revisar sesiones cada semana reduce riesgos de acceso no autorizado.</small>
         </div>
       </article>
     </div>

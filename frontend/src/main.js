@@ -44,6 +44,7 @@ const appRoot = document.getElementById("root");
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 const ACCESS_TOKEN_KEY = "access_token";
 const THEME_STORAGE_KEY = "theme_preference";
+const APP_PREFERENCES_STORAGE_KEY = "app_preferences";
 // OAuth de terceros deshabilitado temporalmente.
 // const OAUTH_CALLBACK_PATH = "/auth/callback";
 const DEFAULT_PROFILE_IMAGE = "/assets/img/user-avatar-default.svg";
@@ -52,6 +53,39 @@ const PASSWORD_POLICY_MESSAGE =
 const REGISTRO_EXITOSO_REDIRECT_SECONDS = 5;
 const APP_NOTIFICATION_CONTAINER_ID = "app-notification-stack";
 const APP_CONFIRM_DIALOG_ID = "app-confirm-dialog";
+const THEME_MODES = new Set(["light", "dark", "system"]);
+const FONT_SIZE_MODES = new Set(["sm", "md", "lg"]);
+const DENSITY_MODES = new Set(["comfortable", "compact"]);
+
+const CURRENCY_CONFIG = {
+  USD: {
+    currency: "USD",
+    fallbackLocale: "en-US",
+    localeByLanguage: {
+      es: "es-AR",
+      en: "en-US",
+      pt: "pt-BR",
+    },
+  },
+  ARS: {
+    currency: "ARS",
+    fallbackLocale: "es-AR",
+    localeByLanguage: {
+      es: "es-AR",
+      en: "en-US",
+      pt: "pt-BR",
+    },
+  },
+  EUR: {
+    currency: "EUR",
+    fallbackLocale: "es-ES",
+    localeByLanguage: {
+      es: "es-ES",
+      en: "en-IE",
+      pt: "pt-PT",
+    },
+  },
+};
 
 let registroExitosoRedirectTimeoutId = null;
 let registroExitosoCountdownIntervalId = null;
@@ -594,7 +628,12 @@ const state = {
   configuracion: {
     moneda: "USD",
     idioma: "es",
+    tema: "system",
     temaOscuro: false,
+    tamanioFuente: "md",
+    densidad: "comfortable",
+    reducirAnimaciones: false,
+    mostrarCentavos: false,
     autenticacionDos: false,
     sesionesActivas: true,
     sesiones: [
@@ -725,13 +764,42 @@ function getCurrentDateShort() {
   });
 }
 
-const moneyFormatter = new Intl.NumberFormat("es-AR", {
-  maximumFractionDigits: 0,
-  minimumFractionDigits: 0,
-});
+function normalizeThemeMode(value) {
+  return THEME_MODES.has(value) ? value : "system";
+}
+
+function normalizeFontSizeMode(value) {
+  return FONT_SIZE_MODES.has(value) ? value : "md";
+}
+
+function normalizeDensityMode(value) {
+  return DENSITY_MODES.has(value) ? value : "comfortable";
+}
+
+function normalizeCurrency(value) {
+  return CURRENCY_CONFIG[value] ? value : "USD";
+}
+
+function createMoneyFormatter() {
+  const currencyCode = normalizeCurrency(state.configuracion.moneda);
+  const currencyConfig = CURRENCY_CONFIG[currencyCode] || CURRENCY_CONFIG.USD;
+  const language = String(state.configuracion.idioma || "es");
+  const locale = currencyConfig.localeByLanguage?.[language] ||
+    currencyConfig.fallbackLocale;
+  const shouldShowDecimals = Boolean(state.configuracion.mostrarCentavos);
+
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: currencyConfig.currency,
+    maximumFractionDigits: shouldShowDecimals ? 2 : 0,
+    minimumFractionDigits: shouldShowDecimals ? 2 : 0,
+  });
+}
 
 function formatMoney(value) {
-  return `$${moneyFormatter.format(Number(value) || 0)}`;
+  const normalizedValue = Number(value);
+  const amount = Number.isFinite(normalizedValue) ? normalizedValue : 0;
+  return createMoneyFormatter().format(amount);
 }
 
 function getMonthKeyFromDate(dateIso) {
@@ -1665,14 +1733,6 @@ function renderAsesorRecomendacionesPage() {
   });
 }
 
-function renderPanelAsesorPage() {
-  return renderDashboardAsesorPage({
-    activePath: "/dashboard/asesor/panel",
-    pageTitle: "Panel asesor",
-    pageSubtitle: "Panel operativo para seguimiento y accion por cliente",
-  });
-}
-
 function resolveDetalleCliente(pathname) {
   return resolveDetalleClienteView(pathname, state);
 }
@@ -1779,7 +1839,7 @@ function buildRouteView(pathname) {
   }
 
   if (pathname === "/dashboard/asesor/panel") {
-    return renderDashboardLayout(renderPanelAsesorPage(), {
+    return renderDashboardLayout(renderDashboardAsesorPage(), {
       showScrollTop: false,
     });
   }
@@ -1968,6 +2028,29 @@ function showAppConfirm({
   });
 }
 
+function closeDashboardNotificationsMenu() {
+  document.querySelectorAll(".gd-top-notifications.is-open").forEach((menu) => {
+    menu.classList.remove("is-open");
+    const trigger = menu.querySelector("[data-action='toggle-notifications-menu']");
+    trigger?.setAttribute("aria-expanded", "false");
+  });
+}
+
+function toggleDashboardNotificationsMenu(trigger) {
+  const menu = trigger?.closest(".gd-top-notifications");
+  if (!menu) {
+    return;
+  }
+
+  const shouldOpen = !menu.classList.contains("is-open");
+  closeDashboardNotificationsMenu();
+
+  if (shouldOpen) {
+    menu.classList.add("is-open");
+    trigger.setAttribute("aria-expanded", "true");
+  }
+}
+
 function attachGlobalNavigation() {
   document.addEventListener("click", async (event) => {
     const link = event.target.closest("a[data-link]");
@@ -1976,6 +2059,7 @@ function attachGlobalNavigation() {
       if (!href) {
         return;
       }
+      closeDashboardNotificationsMenu();
       closeLandingMobileMenu();
       event.preventDefault();
       navigate(href);
@@ -1987,6 +2071,7 @@ function attachGlobalNavigation() {
       const path = navButton.getAttribute("data-nav");
       if (path) {
         event.preventDefault();
+        closeDashboardNotificationsMenu();
         navigate(path);
       }
       return;
@@ -2005,6 +2090,10 @@ function attachGlobalNavigation() {
       if (menu && !menu.hidden && !clickedInsideTriggerGroup && !clickedInsideMenu) {
         closeLandingMobileMenu();
       }
+
+      if (!event.target.closest(".gd-top-notifications")) {
+        closeDashboardNotificationsMenu();
+      }
       return;
     }
 
@@ -2013,6 +2102,12 @@ function attachGlobalNavigation() {
     if (action === "toggle-landing-mobile-menu") {
       event.preventDefault();
       toggleLandingMobileMenu();
+      return;
+    }
+
+    if (action === "toggle-notifications-menu") {
+      event.preventDefault();
+      toggleDashboardNotificationsMenu(actionButton);
       return;
     }
 
@@ -2272,6 +2367,7 @@ function attachGlobalNavigation() {
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
       closeLandingMobileMenu({ restoreFocus: true });
+      closeDashboardNotificationsMenu();
     }
   });
 
@@ -2279,10 +2375,13 @@ function attachGlobalNavigation() {
     if (window.innerWidth >= 992) {
       closeLandingMobileMenu();
     }
+
+    closeDashboardNotificationsMenu();
   });
 
   window.addEventListener("popstate", () => {
     closeLandingMobileMenu();
+    closeDashboardNotificationsMenu();
     render();
   });
 }
@@ -3023,31 +3122,66 @@ function attachFormHandlers(pathname) {
   if (pathname === "/perfil/configuracion") {
     const monedaSelect = document.getElementById("moneda");
     monedaSelect?.addEventListener("change", (event) => {
-      state.configuracion.moneda = event.target.value;
+      state.configuracion.moneda = normalizeCurrency(event.target.value);
+      saveAppPreferences();
+      render();
     });
 
     const idiomaSelect = document.getElementById("idioma");
     idiomaSelect?.addEventListener("change", (event) => {
-      state.configuracion.idioma = event.target.value;
+      state.configuracion.idioma = ["es", "en", "pt"].includes(event.target.value)
+        ? event.target.value
+        : "es";
+      saveAppPreferences();
+      render();
     });
 
-    const temaOscuroInput = document.getElementById("temaOscuro");
-    temaOscuroInput?.addEventListener("change", (event) => {
-      state.configuracion.temaOscuro = event.target.checked;
-      saveThemePreference(state.configuracion.temaOscuro);
-      applyTheme(state.configuracion.temaOscuro);
+    const temaModoSelect = document.getElementById("temaModo");
+    temaModoSelect?.addEventListener("change", (event) => {
+      state.configuracion.tema = normalizeThemeMode(event.target.value);
+      saveAppPreferences();
+      render();
+    });
+
+    const tamanioFuenteSelect = document.getElementById("tamanioFuente");
+    tamanioFuenteSelect?.addEventListener("change", (event) => {
+      state.configuracion.tamanioFuente = normalizeFontSizeMode(event.target.value);
+      saveAppPreferences();
+      render();
+    });
+
+    const densidadSelect = document.getElementById("densidad");
+    densidadSelect?.addEventListener("change", (event) => {
+      state.configuracion.densidad = normalizeDensityMode(event.target.value);
+      saveAppPreferences();
+      render();
+    });
+
+    const reducirAnimacionesInput = document.getElementById("reducirAnimaciones");
+    reducirAnimacionesInput?.addEventListener("change", (event) => {
+      state.configuracion.reducirAnimaciones = event.target.checked;
+      saveAppPreferences();
+      render();
+    });
+
+    const mostrarCentavosInput = document.getElementById("mostrarCentavos");
+    mostrarCentavosInput?.addEventListener("change", (event) => {
+      state.configuracion.mostrarCentavos = event.target.checked;
+      saveAppPreferences();
       render();
     });
 
     const autenticacionInput = document.getElementById("autenticacionDos");
     autenticacionInput?.addEventListener("change", (event) => {
       state.configuracion.autenticacionDos = event.target.checked;
+      saveAppPreferences();
       render();
     });
 
     const guardarBtn = document.getElementById("guardarConfiguracionBtn");
     guardarBtn?.addEventListener("click", () => {
-      showAppNotification("Cambios guardados", "success");
+      saveAppPreferences();
+      showAppNotification("Preferencias guardadas", "success");
     });
 
     const cerrarTodasBtn = document.getElementById("cerrarTodasSesionesBtn");
@@ -3421,6 +3555,82 @@ function saveThemePreference(isDark) {
   localStorage.setItem(THEME_STORAGE_KEY, isDark ? "dark" : "light");
 }
 
+function loadAppPreferences() {
+  const fallbackThemeMode = loadThemePreference() ? "dark" : "light";
+  const rawPreferences = localStorage.getItem(APP_PREFERENCES_STORAGE_KEY);
+
+  const fallback = {
+    moneda: normalizeCurrency(state.configuracion.moneda),
+    idioma: String(state.configuracion.idioma || "es"),
+    tema: fallbackThemeMode,
+    tamanioFuente: normalizeFontSizeMode(state.configuracion.tamanioFuente),
+    densidad: normalizeDensityMode(state.configuracion.densidad),
+    reducirAnimaciones: Boolean(state.configuracion.reducirAnimaciones),
+    mostrarCentavos: Boolean(state.configuracion.mostrarCentavos),
+    autenticacionDos: Boolean(state.configuracion.autenticacionDos),
+  };
+
+  if (!rawPreferences) {
+    return fallback;
+  }
+
+  try {
+    const parsedPreferences = JSON.parse(rawPreferences);
+
+    return {
+      moneda: normalizeCurrency(parsedPreferences.moneda || fallback.moneda),
+      idioma: ["es", "en", "pt"].includes(parsedPreferences.idioma)
+        ? parsedPreferences.idioma
+        : fallback.idioma,
+      tema: normalizeThemeMode(parsedPreferences.tema || fallback.tema),
+      tamanioFuente: normalizeFontSizeMode(
+        parsedPreferences.tamanioFuente || fallback.tamanioFuente,
+      ),
+      densidad: normalizeDensityMode(parsedPreferences.densidad || fallback.densidad),
+      reducirAnimaciones: Boolean(parsedPreferences.reducirAnimaciones),
+      mostrarCentavos: Boolean(parsedPreferences.mostrarCentavos),
+      autenticacionDos: Boolean(parsedPreferences.autenticacionDos),
+    };
+  } catch {
+    return fallback;
+  }
+}
+
+function saveAppPreferences() {
+  const themeMode = normalizeThemeMode(state.configuracion.tema);
+
+  localStorage.setItem(
+    APP_PREFERENCES_STORAGE_KEY,
+    JSON.stringify({
+      moneda: normalizeCurrency(state.configuracion.moneda),
+      idioma: state.configuracion.idioma,
+      tema: themeMode,
+      tamanioFuente: normalizeFontSizeMode(state.configuracion.tamanioFuente),
+      densidad: normalizeDensityMode(state.configuracion.densidad),
+      reducirAnimaciones: Boolean(state.configuracion.reducirAnimaciones),
+      mostrarCentavos: Boolean(state.configuracion.mostrarCentavos),
+      autenticacionDos: Boolean(state.configuracion.autenticacionDos),
+    }),
+  );
+
+  if (themeMode === "dark" || themeMode === "light") {
+    saveThemePreference(themeMode === "dark");
+  }
+}
+
+function applyAccessibilityPreferences() {
+  const fontSizeMode = normalizeFontSizeMode(state.configuracion.tamanioFuente);
+  const densityMode = normalizeDensityMode(state.configuracion.densidad);
+
+  document.body.classList.remove("app-font-sm", "app-font-md", "app-font-lg");
+  document.body.classList.add(`app-font-${fontSizeMode}`);
+  document.body.classList.toggle("app-density-compact", densityMode === "compact");
+  document.body.classList.toggle(
+    "app-reduced-motion",
+    Boolean(state.configuracion.reducirAnimaciones),
+  );
+}
+
 function isFixedDarkRoute(pathname) {
   return pathname === "/" ||
     pathname === "/faqs" ||
@@ -3436,7 +3646,17 @@ function resolveThemeForPath(pathname) {
     return true;
   }
 
-  return state.configuracion.temaOscuro;
+  const themeMode = normalizeThemeMode(state.configuracion.tema);
+
+  if (themeMode === "dark") {
+    return true;
+  }
+
+  if (themeMode === "light") {
+    return false;
+  }
+
+  return window.matchMedia("(prefers-color-scheme: dark)").matches;
 }
 
 function render() {
@@ -3453,7 +3673,10 @@ function render() {
   //   return;
   // }
 
-  applyTheme(resolveThemeForPath(pathname));
+  const isDarkTheme = resolveThemeForPath(pathname);
+  state.configuracion.temaOscuro = isDarkTheme;
+  applyTheme(isDarkTheme);
+  applyAccessibilityPreferences();
 
   // Limpiar backdrops de Bootstrap en caso de navegación rápida desde menús desplegables
   document.body.style.overflow = '';
@@ -3472,8 +3695,24 @@ function render() {
 }
 
 attachGlobalNavigation();
-state.configuracion.temaOscuro = loadThemePreference();
-applyTheme(resolveThemeForPath(window.location.pathname));
+Object.assign(state.configuracion, loadAppPreferences());
+state.configuracion.temaOscuro = resolveThemeForPath(window.location.pathname);
+applyTheme(state.configuracion.temaOscuro);
+applyAccessibilityPreferences();
+
+const systemThemeMedia = window.matchMedia("(prefers-color-scheme: dark)");
+const handleSystemThemeChange = () => {
+  if (normalizeThemeMode(state.configuracion.tema) === "system") {
+    render();
+  }
+};
+
+if (typeof systemThemeMedia.addEventListener === "function") {
+  systemThemeMedia.addEventListener("change", handleSystemThemeChange);
+} else if (typeof systemThemeMedia.addListener === "function") {
+  systemThemeMedia.addListener(handleSystemThemeChange);
+}
+
 loadCurrentUser().finally(() => {
   render();
 });
