@@ -23,6 +23,7 @@ import { renderMisGastosPage as renderMisGastosPageView } from "./pages/MisGasto
 import { renderReportesPage as renderReportesPageView } from "./pages/ReportesPage";
 import { renderRecomendacionesPage as renderRecomendacionesPageView } from "./pages/RecomendacionesPage";
 import { renderEditarPerfilPage as renderEditarPerfilPageView } from "./pages/EditarPerfilPage";
+import { renderPreferenciaNotificacionesPageView } from "./pages/PreferenciaNotificacionesPage";
 import { renderLandingPage as renderLandingPageView } from "./pages/LandingPage";
 import { renderFaqPage as renderFaqPageView } from "./pages/FaqPage";
 import { renderSobreNosotrosPage as renderSobreNosotrosPageView } from "./pages/SobreNosotrosPage";
@@ -49,6 +50,8 @@ const DEFAULT_PROFILE_IMAGE = "/assets/img/user-avatar-default.svg";
 const PASSWORD_POLICY_MESSAGE =
   "La contraseña debe tener al menos 8 caracteres e incluir mayúscula, minúscula, número y carácter especial";
 const REGISTRO_EXITOSO_REDIRECT_SECONDS = 5;
+const APP_NOTIFICATION_CONTAINER_ID = "app-notification-stack";
+const APP_CONFIRM_DIALOG_ID = "app-confirm-dialog";
 
 let registroExitosoRedirectTimeoutId = null;
 let registroExitosoCountdownIntervalId = null;
@@ -398,6 +401,10 @@ const state = {
       categoria: "Todas",
       periodo: "2026-04",
     },
+    ui: {
+      editingExpenseId: null,
+      deletingExpenseId: null,
+    },
     recomendaciones: [
       {
         id: "r-1",
@@ -612,15 +619,11 @@ const state = {
     ],
   },
   notificaciones: {
-    gastosAltos: true,
-    presupuestoExcedido: true,
-    recordatorioAhorros: true,
-    ofertasEspeciales: false,
-    reporteMensual: true,
-    alertasSeguridad: true,
-    email: true,
-    push: true,
-    sms: false,
+    resumenSemanal: true,
+    alertaPago: true,
+    alertaPresupuesto: true,
+    movimientosGrandes: true,
+    recomendacionesIA: true,
   },
 };
 
@@ -655,16 +658,16 @@ const MONTH_LABELS_LONG = [
 ];
 
 const CATEGORY_COLORS = {
-  Supermercado: "#82cd34",
-  Transporte: "#38bdf8",
-  Entretenimiento: "#f59e0b",
+  Supermercado: "#38bdf8",
+  Transporte: "#0ea5e9",
+  Entretenimiento: "#2563eb",
   Salud: "#ef4444",
-  Restaurantes: "#f97316",
-  Servicios: "#6366f1",
+  Restaurantes: "#0284c7",
+  Servicios: "#1d4ed8",
   Otros: "#64748b",
 };
 
-const ADVISOR_AVATAR_COLORS = ["#65a30d", "#0ea5e9", "#ef4444", "#f59e0b"];
+const ADVISOR_AVATAR_COLORS = ["#2563eb", "#0ea5e9", "#1d4ed8", "#0284c7"];
 
 const monthlyExpensesDetalle = [
   { mes: "Abril", monto: 9800 },
@@ -1460,7 +1463,7 @@ function getBrandTarget(pathname) {
     return "/dashboard";
   }
 
-  if (pathname === "/dashboard/asesor") {
+  if (pathname.startsWith("/dashboard/asesor")) {
     return "/dashboard";
   }
 
@@ -1555,6 +1558,13 @@ function renderCargarGastoPage() {
 }
 
 function renderMisGastosPage() {
+  const editingExpense = state.finanzas.gastos.find(
+    (expense) => expense.id === state.finanzas.ui.editingExpenseId,
+  ) || null;
+  const deletingExpense = state.finanzas.gastos.find(
+    (expense) => expense.id === state.finanzas.ui.deletingExpenseId,
+  ) || null;
+
   return renderMisGastosPageView({
     profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
     profileName: state.perfil.nombre || "Usuario",
@@ -1565,6 +1575,8 @@ function renderMisGastosPage() {
     categoryOptions: getMisGastosCategoryOptions(),
     periodOptions: getMisGastosPeriodOptions(),
     gastos: getFilteredExpenses(),
+    editingExpense,
+    deletingExpense,
     formatMoney,
   });
 }
@@ -1609,28 +1621,55 @@ function renderReportesPage() {
   });
 }
 
-function renderRecomendacionesPage() {
+function renderRecomendacionesPage({
+  activePath = "/dashboard/recomendaciones",
+  pageTitle = "Recomendaciones",
+  pageSubtitle = "Inbox financiero con alertas y sugerencias priorizadas",
+  isAsesor = false,
+} = {}) {
   return renderRecomendacionesPageView({
     profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
     profileName: state.perfil.nombre || "Usuario",
-    activePath: "/dashboard/recomendaciones",
-    pageTitle: "Recomendaciones",
-    pageSubtitle: "Inbox financiero con alertas y sugerencias priorizadas",
+    activePath,
+    pageTitle,
+    pageSubtitle,
     recomendaciones: state.finanzas.recomendaciones,
+    isAsesor,
   });
 }
 
-function renderDashboardAsesorPage() {
+function renderDashboardAsesorPage({
+  activePath = "/dashboard/asesor",
+  pageTitle = "Dashboard asesor",
+  pageSubtitle = "Vista global de clientes con indicadores de riesgo",
+} = {}) {
   return renderDashboardAsesorPageView({
     profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
     profileName: state.perfil.nombre || "Usuario",
-    activePath: "/dashboard/asesor",
-    pageTitle: "Panel asesor",
-    pageSubtitle: "Vista global de clientes con indicadores de riesgo",
+    activePath,
+    pageTitle,
+    pageSubtitle,
     metrics: getAdvisorPanelMetrics(),
     users: buildAdvisorUsers(),
     search: state.asesor.busqueda,
     formatMoney,
+  });
+}
+
+function renderAsesorRecomendacionesPage() {
+  return renderRecomendacionesPage({
+    activePath: "/dashboard/asesor/recomendaciones",
+    pageTitle: "Generar recomendaciones",
+    pageSubtitle: "Crea y prioriza sugerencias financieras para tus clientes",
+    isAsesor: true,
+  });
+}
+
+function renderPanelAsesorPage() {
+  return renderDashboardAsesorPage({
+    activePath: "/dashboard/asesor/panel",
+    pageTitle: "Panel asesor",
+    pageSubtitle: "Panel operativo para seguimiento y accion por cliente",
   });
 }
 
@@ -1657,165 +1696,25 @@ function renderDetalleClientePage(pathname) {
 function renderEditarPerfilPage() {
   return renderEditarPerfilPageView({
     state,
-    escapeHtml,
-    encabezadoInterno,
     profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
     profileName: state.perfil.nombre || "Usuario",
-    currentRole: getCurrentRoleLabel(),
-    brandTarget: getBrandTarget(window.location.pathname),
   });
 }
 
 function renderConfiguracionCuentaPage() {
   return renderConfiguracionCuentaPageView({
     state,
-    escapeHtml,
-    encabezadoInterno,
     profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
     profileName: state.perfil.nombre || "Usuario",
-    currentRole: getCurrentRoleLabel(),
-    brandTarget: getBrandTarget(window.location.pathname),
   });
 }
 
-function renderNotificationToggleItem({
-  id,
-  checked,
-  title,
-  description = "",
-  disabled = false,
-  className = "mb-3",
-}) {
-  return `
-    <div class="form-check form-switch ${className}">
-      <input class="form-check-input" type="checkbox" id="${id}" ${checked ? "checked" : ""} ${disabled ? "disabled" : ""}>
-      <label class="form-check-label" for="${id}">
-        <strong>${escapeHtml(title)}</strong>
-        ${description ? `<br><small class="text-muted">${escapeHtml(description)}</small>` : ""}
-      </label>
-    </div>
-  `;
-}
-
 function renderPreferenciaNotificacionesPage() {
-  const pref = state.notificaciones;
-
-  return `
-    <div class="container py-4">
-      ${encabezadoInterno({
-        pageTitle: "Notificaciones",
-        profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
-        profileName: state.perfil.nombre || "Usuario",
-        currentRole: getCurrentRoleLabel(),
-        isAsesor: false,
-        brandTarget: getBrandTarget(window.location.pathname),
-      })}
-
-      <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body">
-          <h5 class="card-title mb-3">Notificaciones de Gastos</h5>
-
-          <div class="alert alert-info small mb-4" role="alert">Recibe alertas sobre tus gastos y presupuesto</div>
-
-          ${renderNotificationToggleItem({
-            id: "gastosAltos",
-            checked: pref.gastosAltos,
-            title: "Gastos Inusualmente Altos",
-            description:
-              "Notificacion cuando registres un gasto mayor a tu promedio",
-          })}
-
-          <hr>
-
-          ${renderNotificationToggleItem({
-            id: "presupuestoExcedido",
-            checked: pref.presupuestoExcedido,
-            title: "Presupuesto Excedido",
-            description:
-              "Alerta cuando te acerques o excedas tu presupuesto mensual",
-          })}
-
-          <hr>
-
-          ${renderNotificationToggleItem({
-            id: "recordatorioAhorros",
-            checked: pref.recordatorioAhorros,
-            title: "Recordatorio de Ahorros",
-            description: "Recordatorios semanales para cumplir metas de ahorro",
-          })}
-        </div>
-      </div>
-
-      <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body">
-          <h5 class="card-title mb-3">Otras Notificaciones</h5>
-
-          ${renderNotificationToggleItem({
-            id: "ofertasEspeciales",
-            checked: pref.ofertasEspeciales,
-            title: "Ofertas y Promociones",
-            description:
-              "Recibe informacion sobre nuevas funciones y ofertas especiales",
-          })}
-
-          <hr>
-
-          ${renderNotificationToggleItem({
-            id: "reporteMensual",
-            checked: pref.reporteMensual,
-            title: "Reporte Mensual",
-            description: "Resumen de tus gastos e ingresos al final de mes",
-          })}
-
-          <hr>
-
-          ${renderNotificationToggleItem({
-            id: "alertasSeguridad",
-            checked: pref.alertasSeguridad,
-            title: "Alertas de Seguridad",
-            description:
-              "Notificaciones sobre cambios en tu cuenta (siempre activas)",
-            disabled: true,
-            className: "",
-          })}
-        </div>
-      </div>
-
-      <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body">
-          <h5 class="card-title mb-3">Canales de Notificacion</h5>
-          <p class="text-muted small mb-3">Elige como prefieres recibir notificaciones</p>
-
-          ${renderNotificationToggleItem({
-            id: "email",
-            checked: pref.email,
-            title: "Correo Electronico",
-            className: "mb-3",
-          })}
-
-          ${renderNotificationToggleItem({
-            id: "push",
-            checked: pref.push,
-            title: "Notificaciones Push",
-            className: "mb-3",
-          })}
-
-          ${renderNotificationToggleItem({
-            id: "sms",
-            checked: pref.sms,
-            title: "SMS",
-            description: "Puede aplicarse costo adicional segun tu plan",
-            className: "",
-          })}
-        </div>
-      </div>
-
-      <div class="d-flex gap-2">
-        <button class="btn btn-primary" id="guardarPreferenciasBtn">Guardar Preferencias</button>
-        <button class="btn btn-outline-secondary" data-action="back">Cancelar</button>
-      </div>
-    </div>
-  `;
+  return renderPreferenciaNotificacionesPageView({
+    state,
+    profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
+    profileName: state.perfil.nombre || "Usuario",
+  });
 }
 
 function buildRouteView(pathname) {
@@ -1873,6 +1772,18 @@ function buildRouteView(pathname) {
     });
   }
 
+  if (pathname === "/dashboard/asesor/recomendaciones") {
+    return renderDashboardLayout(renderAsesorRecomendacionesPage(), {
+      showScrollTop: false,
+    });
+  }
+
+  if (pathname === "/dashboard/asesor/panel") {
+    return renderDashboardLayout(renderPanelAsesorPage(), {
+      showScrollTop: false,
+    });
+  }
+
   if (pathname.startsWith("/cliente/")) {
     if (!resolveDetalleCliente(pathname)) {
       return null;
@@ -1906,8 +1817,159 @@ function hasAuthenticatedSession() {
   return Boolean(getAccessToken() && state.currentUser?.id);
 }
 
+function ensureAppNotificationContainer() {
+  let container = document.getElementById(APP_NOTIFICATION_CONTAINER_ID);
+
+  if (!container) {
+    container = document.createElement("div");
+    container.id = APP_NOTIFICATION_CONTAINER_ID;
+    container.className = "app-notification-stack";
+    container.setAttribute("aria-live", "polite");
+    container.setAttribute("aria-atomic", "true");
+    document.body.append(container);
+  }
+
+  return container;
+}
+
+function showAppNotification(message, type = "info", durationMs = 3400) {
+  const text = String(message || "").trim();
+  if (!text) {
+    return;
+  }
+
+  const variant = ["info", "success", "error", "warning"].includes(type)
+    ? type
+    : "info";
+  const container = ensureAppNotificationContainer();
+
+  while (container.childElementCount >= 4) {
+    container.firstElementChild?.remove();
+  }
+
+  const toast = document.createElement("div");
+  toast.className = `app-notification app-notification-${variant}`;
+  toast.setAttribute("role", variant === "error" ? "alert" : "status");
+  toast.textContent = text;
+  container.append(toast);
+
+  window.requestAnimationFrame(() => {
+    toast.classList.add("is-visible");
+  });
+
+  let dismissed = false;
+  const dismiss = () => {
+    if (dismissed) {
+      return;
+    }
+
+    dismissed = true;
+    toast.classList.remove("is-visible");
+    toast.classList.add("is-leaving");
+
+    window.setTimeout(() => {
+      toast.remove();
+    }, 220);
+  };
+
+  const timeoutId = window.setTimeout(dismiss, durationMs);
+
+  toast.addEventListener("click", () => {
+    window.clearTimeout(timeoutId);
+    dismiss();
+  });
+}
+
+function showAppConfirm({
+  title = "Confirmar accion",
+  message,
+  confirmText = "Confirmar",
+  cancelText = "Cancelar",
+  danger = false,
+} = {}) {
+  return new Promise((resolve) => {
+    const existing = document.getElementById(APP_CONFIRM_DIALOG_ID);
+    existing?.remove();
+
+    const root = document.createElement("div");
+    root.id = APP_CONFIRM_DIALOG_ID;
+    root.className = "app-confirm-root";
+
+    const backdrop = document.createElement("button");
+    backdrop.type = "button";
+    backdrop.className = "app-confirm-backdrop";
+    backdrop.setAttribute("aria-label", "Cerrar confirmacion");
+
+    const dialog = document.createElement("section");
+    dialog.className = `app-confirm-dialog${danger ? " app-confirm-danger" : ""}`;
+    dialog.setAttribute("role", "dialog");
+    dialog.setAttribute("aria-modal", "true");
+    dialog.setAttribute("aria-label", title);
+
+    const heading = document.createElement("h3");
+    heading.className = "app-confirm-title";
+    heading.textContent = title;
+
+    const body = document.createElement("p");
+    body.className = "app-confirm-message";
+    body.textContent = message || "Confirma para continuar.";
+
+    const actions = document.createElement("div");
+    actions.className = "app-confirm-actions";
+
+    const cancelBtn = document.createElement("button");
+    cancelBtn.type = "button";
+    cancelBtn.className = "app-confirm-btn app-confirm-btn-secondary";
+    cancelBtn.textContent = cancelText;
+
+    const confirmBtn = document.createElement("button");
+    confirmBtn.type = "button";
+    confirmBtn.className = danger
+      ? "app-confirm-btn app-confirm-btn-danger"
+      : "app-confirm-btn app-confirm-btn-primary";
+    confirmBtn.textContent = confirmText;
+
+    actions.append(cancelBtn, confirmBtn);
+    dialog.append(heading, body, actions);
+    root.append(backdrop, dialog);
+    document.body.append(root);
+
+    window.requestAnimationFrame(() => {
+      root.classList.add("is-open");
+      cancelBtn.focus();
+    });
+
+    let settled = false;
+    const finalize = (result) => {
+      if (settled) {
+        return;
+      }
+
+      settled = true;
+      root.classList.remove("is-open");
+      document.removeEventListener("keydown", onKeyDown);
+
+      window.setTimeout(() => {
+        root.remove();
+        resolve(result);
+      }, 180);
+    };
+
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") {
+        finalize(false);
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    backdrop.addEventListener("click", () => finalize(false));
+    cancelBtn.addEventListener("click", () => finalize(false));
+    confirmBtn.addEventListener("click", () => finalize(true));
+  });
+}
+
 function attachGlobalNavigation() {
-  document.addEventListener("click", (event) => {
+  document.addEventListener("click", async (event) => {
     const link = event.target.closest("a[data-link]");
     if (link) {
       const href = link.getAttribute("href");
@@ -2019,75 +2081,95 @@ function attachGlobalNavigation() {
       return;
     }
 
-    if (action === "delete-expense") {
+    if (action === "open-edit-expense") {
       event.preventDefault();
       const expenseId = actionButton.getAttribute("data-expense-id");
       if (!expenseId) {
         return;
       }
 
-      const shouldDelete = window.confirm("Quieres eliminar este gasto?");
-      if (!shouldDelete) {
+      state.finanzas.ui.editingExpenseId = expenseId;
+      state.finanzas.ui.deletingExpenseId = null;
+      render();
+      return;
+    }
+
+    if (action === "close-edit-expense-modal") {
+      event.preventDefault();
+      state.finanzas.ui.editingExpenseId = null;
+      render();
+      return;
+    }
+
+    if (action === "save-edit-expense") {
+      event.preventDefault();
+      const expenseId = actionButton.getAttribute("data-expense-id");
+      if (!expenseId) {
+        return;
+      }
+
+      const comercio =
+        document.getElementById("editExpenseComercio")?.value?.trim() || "";
+      const categoria =
+        document.getElementById("editExpenseCategoria")?.value || "";
+      const fecha = document.getElementById("editExpenseFecha")?.value || "";
+      const monto = document.getElementById("editExpenseMonto")?.value || "";
+      const descripcion =
+        document.getElementById("editExpenseDescripcion")?.value?.trim() || "";
+
+      const updated = updateExpenseRecord(expenseId, {
+        comercio,
+        categoria,
+        fecha,
+        monto,
+        descripcion,
+      });
+
+      if (!updated) {
+        showAppNotification(
+          "No se pudo actualizar el gasto. Revisa los campos.",
+          "error",
+        );
+        return;
+      }
+
+      state.finanzas.ui.editingExpenseId = null;
+      render();
+      return;
+    }
+
+    if (action === "open-delete-expense") {
+      event.preventDefault();
+      const expenseId = actionButton.getAttribute("data-expense-id");
+      if (!expenseId) {
+        return;
+      }
+
+      state.finanzas.ui.deletingExpenseId = expenseId;
+      state.finanzas.ui.editingExpenseId = null;
+      render();
+      return;
+    }
+
+    if (action === "close-delete-expense-modal") {
+      event.preventDefault();
+      state.finanzas.ui.deletingExpenseId = null;
+      render();
+      return;
+    }
+
+    if (action === "confirm-delete-expense") {
+      event.preventDefault();
+      const expenseId = actionButton.getAttribute("data-expense-id");
+      if (!expenseId) {
         return;
       }
 
       if (deleteExpenseRecord(expenseId)) {
+        state.finanzas.ui.deletingExpenseId = null;
+        state.finanzas.ui.editingExpenseId = null;
         render();
       }
-      return;
-    }
-
-    if (action === "edit-expense") {
-      event.preventDefault();
-      const expenseId = actionButton.getAttribute("data-expense-id");
-      if (!expenseId) {
-        return;
-      }
-
-      const expense = state.finanzas.gastos.find((item) => item.id === expenseId);
-      if (!expense) {
-        return;
-      }
-
-      const comercio = window.prompt("Comercio", expense.comercio);
-      if (comercio === null) {
-        return;
-      }
-
-      const fecha = window.prompt("Fecha (YYYY-MM-DD)", expense.fecha);
-      if (fecha === null) {
-        return;
-      }
-
-      const monto = window.prompt("Monto", String(expense.monto));
-      if (monto === null) {
-        return;
-      }
-
-      const categoria = window.prompt("Categoria", expense.categoria);
-      if (categoria === null) {
-        return;
-      }
-
-      const descripcion = window.prompt(
-        "Descripcion (opcional)",
-        expense.descripcion || "",
-      );
-
-      const updated = updateExpenseRecord(expenseId, {
-        comercio: comercio.trim(),
-        fecha: fecha.trim(),
-        monto: monto.trim(),
-        categoria: categoria.trim(),
-        descripcion: descripcion === null ? expense.descripcion || "" : descripcion.trim(),
-      });
-
-      if (!updated) {
-        window.alert("No se pudo actualizar el gasto. Verifica los campos.");
-        return;
-      }
-
-      render();
       return;
     }
 
@@ -2149,16 +2231,29 @@ function attachGlobalNavigation() {
     }
 
     if (action === "desvincular-cliente") {
+      event.preventDefault();
       const clienteId = actionButton.getAttribute("data-cliente-id");
-      if (
-        clienteId &&
-        window.confirm("Estas seguro de desvincular a este cliente?")
-      ) {
-        state.asesor.clientes = state.asesor.clientes.filter(
-          (cliente) => cliente.id !== clienteId,
-        );
-        render();
+      if (!clienteId) {
+        return;
       }
+
+      const shouldUnlink = await showAppConfirm({
+        title: "Desvincular cliente",
+        message: "Esta accion quitara al cliente de tu panel de asesor.",
+        confirmText: "Desvincular",
+        cancelText: "Cancelar",
+        danger: true,
+      });
+
+      if (!shouldUnlink) {
+        return;
+      }
+
+      state.asesor.clientes = state.asesor.clientes.filter(
+        (cliente) => cliente.id !== clienteId,
+      );
+      showAppNotification("Cliente desvinculado", "success");
+      render();
       return;
     }
 
@@ -2168,7 +2263,7 @@ function attachGlobalNavigation() {
         state.configuracion.sesiones = state.configuracion.sesiones.filter(
           (sesion) => sesion.id !== sesionId,
         );
-        window.alert("Sesion cerrada");
+        showAppNotification("Sesion cerrada", "success");
         render();
       }
     }
@@ -2523,7 +2618,10 @@ function attachFormHandlers(pathname) {
       state.finanzas.cargar.aiForm = payload;
 
       if (!addExpenseRecord(payload)) {
-        window.alert("No se pudo guardar el gasto. Revisa los datos.");
+        showAppNotification(
+          "No se pudo guardar el gasto. Revisa los datos.",
+          "error",
+        );
         return;
       }
 
@@ -2549,7 +2647,10 @@ function attachFormHandlers(pathname) {
       state.finanzas.cargar.manualForm = payload;
 
       if (!addExpenseRecord(payload)) {
-        window.alert("No se pudo guardar el gasto. Revisa los datos.");
+        showAppNotification(
+          "No se pudo guardar el gasto. Revisa los datos.",
+          "error",
+        );
         return;
       }
 
@@ -2771,7 +2872,7 @@ function attachFormHandlers(pathname) {
     });
   }
 
-  if (pathname === "/dashboard/asesor") {
+  if (pathname === "/dashboard/asesor" || pathname === "/dashboard/asesor/panel") {
     const busquedaInput = document.getElementById("advisorSearchInput");
     busquedaInput?.addEventListener("input", (event) => {
       state.asesor.busqueda = event.target.value;
@@ -2823,7 +2924,10 @@ function attachFormHandlers(pathname) {
       const submitBtn = perfilForm.querySelector('button[type="submit"]');
 
       if (!state.currentUser?.id) {
-        window.alert("No se pudo identificar el usuario autenticado");
+        showAppNotification(
+          "No se pudo identificar el usuario autenticado",
+          "error",
+        );
         return;
       }
 
@@ -2844,10 +2948,13 @@ function attachFormHandlers(pathname) {
 
         const updatedUser = await response.json();
         syncProfileFromUser(updatedUser);
-        window.alert("Perfil actualizado correctamente");
+        showAppNotification("Perfil actualizado correctamente", "success");
         render();
       } catch (error) {
-        window.alert(error.message);
+        showAppNotification(
+          error?.message || "No se pudo actualizar el perfil",
+          "error",
+        );
       } finally {
         if (submitBtn) {
           submitBtn.disabled = false;
@@ -2892,11 +2999,11 @@ function attachFormHandlers(pathname) {
       state.perfil.passwordData = { actual, nueva, confirmar };
 
       if (nueva !== confirmar) {
-        window.alert("Las contrasenas no coinciden");
+        showAppNotification("Las contrasenas no coinciden", "error");
         return;
       }
 
-      window.alert("Contrasena actualizada correctamente");
+      showAppNotification("Contrasena actualizada correctamente", "success");
       state.perfil.passwordData = { actual: "", nueva: "", confirmar: "" };
       render();
     });
@@ -2933,15 +3040,14 @@ function attachFormHandlers(pathname) {
     });
 
     const autenticacionInput = document.getElementById("autenticacionDos");
-    autenticacionInput?.addEventListener("change", () => {
-      state.configuracion.autenticacionDos =
-        !state.configuracion.autenticacionDos;
+    autenticacionInput?.addEventListener("change", (event) => {
+      state.configuracion.autenticacionDos = event.target.checked;
       render();
     });
 
     const guardarBtn = document.getElementById("guardarConfiguracionBtn");
     guardarBtn?.addEventListener("click", () => {
-      window.alert("Cambios guardados");
+      showAppNotification("Cambios guardados", "success");
     });
 
     const cerrarTodasBtn = document.getElementById("cerrarTodasSesionesBtn");
@@ -2949,34 +3055,34 @@ function attachFormHandlers(pathname) {
       if (state.configuracion.sesiones.length > 0) {
         state.configuracion.sesiones = [state.configuracion.sesiones[0]];
       }
-      window.alert("Todas las sesiones excepto esta han sido cerradas");
+      showAppNotification(
+        "Todas las sesiones excepto esta han sido cerradas",
+        "success",
+      );
       render();
     });
   }
 
   if (pathname === "/perfil/notificaciones") {
     const toggleKeys = [
-      "gastosAltos",
-      "presupuestoExcedido",
-      "recordatorioAhorros",
-      "ofertasEspeciales",
-      "reporteMensual",
-      "email",
-      "push",
-      "sms",
+      "resumenSemanal",
+      "alertaPago",
+      "alertaPresupuesto",
+      "movimientosGrandes",
+      "recomendacionesIA",
     ];
 
     toggleKeys.forEach((key) => {
       const input = document.getElementById(key);
-      input?.addEventListener("change", () => {
-        state.notificaciones[key] = !state.notificaciones[key];
+      input?.addEventListener("change", (event) => {
+        state.notificaciones[key] = event.target.checked;
         render();
       });
     });
 
     const guardarBtn = document.getElementById("guardarPreferenciasBtn");
     guardarBtn?.addEventListener("click", () => {
-      window.alert("Preferencias actualizadas correctamente");
+      showAppNotification("Preferencias actualizadas correctamente", "success");
     });
   }
 }
@@ -3118,13 +3224,13 @@ function buildBarChart(canvasId, dataPoints) {
           borderSkipped: false,
           backgroundColor: dataPoints.map((_, index) =>
             index === highlightIndex
-              ? "rgba(130, 205, 52, 0.95)"
-              : "rgba(130, 205, 52, 0.38)",
+              ? "rgba(37, 99, 235, 0.95)"
+              : "rgba(56, 189, 248, 0.38)",
           ),
           hoverBackgroundColor: dataPoints.map((_, index) =>
             index === highlightIndex
-              ? "rgba(130, 205, 52, 1)"
-              : "rgba(130, 205, 52, 0.55)",
+              ? "rgba(30, 64, 175, 1)"
+              : "rgba(56, 189, 248, 0.55)",
           ),
           maxBarThickness: 42,
         },

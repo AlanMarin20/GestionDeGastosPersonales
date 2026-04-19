@@ -1,91 +1,83 @@
+import { renderDashboardAppLayout } from "../components/dashboard/dashboardAppLayout";
+
+function escapeHtml(text) {
+  return String(text)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
 export function renderEditarPerfilPage({
   state,
-  escapeHtml,
-  encabezadoInterno,
   profileImage,
   profileName,
-  currentRole,
-  brandTarget,
 }) {
   const perfil = state.perfil;
 
-  return `
-    ${encabezadoInterno({
-      pageTitle: '',
-      profileImage,
-      profileName,
-      currentRole,
-      isAsesor: false,
-      brandTarget,
-    })}
-
-    <div class="container py-4">
-      <div class="row">
-        <div class="col-12 col-lg-4 mb-4">
-          <div class="card border-0 shadow-sm h-100" style="border-radius: 15px;">
-            <div class="card-body p-4 text-center d-flex flex-column align-items-center justify-content-center">
-              <div class="position-relative mb-4">
-                <img src="${escapeHtml(perfil.imagePreview)}" alt="Perfil" class="rounded-circle border border-4 border-white shadow" style="width:150px;height:150px;object-fit:cover">
-                <label for="imageInput" class="position-absolute bottom-0 end-0 btn btn-primary rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
-                  <i class="lni lni-camera text-white"></i>
-                </label>
-                <input type="file" id="imageInput" class="d-none" accept="image/*">
-              </div>
-              <h5 class="fw-bold mb-1 text-dark">${escapeHtml(perfil.nombre)}</h5>
-              <p class="text-muted mb-3">${escapeHtml(perfil.email)}</p>
-              <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill fw-semibold">Cuenta Activa</span>
-            </div>
+  const content = `
+    <div class="gd-grid-2">
+      <article class="gd-card">
+        <div class="d-flex flex-column align-items-center text-center gap-2">
+          <div class="position-relative">
+            <img src="${escapeHtml(perfil.imagePreview || profileImage)}" alt="Foto de perfil" class="rounded-circle" style="width: 124px; height: 124px; object-fit: cover; border: 2px solid rgba(59, 130, 246, 0.35);">
+            <label for="imageInput" class="gd-action-btn position-absolute" style="right: -2px; bottom: 2px; height: 28px;">Foto</label>
+            <input type="file" id="imageInput" class="d-none" accept="image/*">
           </div>
+          <h2 class="gd-card-title" style="font-size: 1rem;">${escapeHtml(perfil.nombre || profileName)}</h2>
+          <p class="gd-muted mb-0">${escapeHtml(perfil.email)}</p>
+          <span class="gd-pill gd-pill-transporte">Cuenta activa</span>
         </div>
+      </article>
 
-        <div class="col-12 col-lg-8">
-          <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
-            <div class="card-body p-4 p-md-5">
-              <h5 class="fw-bold mb-4 text-dark border-bottom pb-3">Información Personal</h5>
-              <form id="perfilForm">
-                <div class="row">
-                  <div class="col-12 mb-3">
-                    <label for="nombre" class="form-label fw-semibold text-muted small text-uppercase" style="letter-spacing: 0.5px;">Nombre Completo</label>
-                    <input type="text" class="form-control form-control-lg bg-light border-0" id="nombre" name="nombre" value="${escapeHtml(perfil.nombre)}" style="border-radius: 8px; font-size: 16px;">
-                  </div>
-                  <div class="col-12 mb-4">
-                    <label for="email" class="form-label fw-semibold text-muted small text-uppercase" style="letter-spacing: 0.5px;">Correo Electrónico</label>
-                    <input type="email" class="form-control form-control-lg bg-light border-0" id="email" name="email" value="${escapeHtml(perfil.email)}" style="border-radius: 8px; font-size: 16px;">
-                  </div>
-                </div>
-                <div class="d-flex justify-content-end">
-                  <button type="submit" class="btn btn-primary fw-bold px-4 py-2" style="border-radius: 8px;">Guardar Cambios</button>
-                </div>
-              </form>
-            </div>
+      <article class="gd-card">
+        <h2 class="gd-card-title mb-3">Informacion personal</h2>
+        <form id="perfilForm" class="gd-form-grid">
+          <div class="gd-form-full">
+            <label class="gd-form-label" for="nombre">Nombre completo</label>
+            <input id="nombre" name="nombre" class="gd-form-input" value="${escapeHtml(perfil.nombre)}" required>
           </div>
-
-          <div class="card border-0 shadow-sm" style="border-radius: 15px;">
-            <div class="card-body p-4 p-md-5">
-              <h5 class="fw-bold mb-4 text-dark border-bottom pb-3">Seguridad de la Cuenta</h5>
-              <form id="passwordForm">
-                <div class="mb-3">
-                  <label for="actual" class="form-label fw-semibold text-muted small text-uppercase" style="letter-spacing: 0.5px;">Contraseña Actual</label>
-                  <input type="password" class="form-control form-control-lg bg-light border-0" id="actual" name="actual" value="${escapeHtml(perfil.passwordData.actual)}" style="border-radius: 8px; font-size: 16px;">
-                </div>
-                <div class="row">
-                  <div class="col-md-6 mb-3">
-                    <label for="nueva" class="form-label fw-semibold text-muted small text-uppercase" style="letter-spacing: 0.5px;">Nueva Contraseña</label>
-                    <input type="password" class="form-control form-control-lg bg-light border-0" id="nueva" name="nueva" value="${escapeHtml(perfil.passwordData.nueva)}" style="border-radius: 8px; font-size: 16px;">
-                  </div>
-                  <div class="col-md-6 mb-4">
-                    <label for="confirmar" class="form-label fw-semibold text-muted small text-uppercase" style="letter-spacing: 0.5px;">Confirmar Contraseña</label>
-                    <input type="password" class="form-control form-control-lg bg-light border-0" id="confirmar" name="confirmar" value="${escapeHtml(perfil.passwordData.confirmar)}" style="border-radius: 8px; font-size: 16px;">
-                  </div>
-                </div>
-                <div class="d-flex justify-content-end">
-                  <button type="submit" class="btn btn-dark fw-bold px-4 py-2" style="border-radius: 8px;">Actualizar Contraseña</button>
-                </div>
-              </form>
-            </div>
+          <div class="gd-form-full">
+            <label class="gd-form-label" for="email">Correo electronico</label>
+            <input id="email" name="email" type="email" class="gd-form-input" value="${escapeHtml(perfil.email)}" required>
           </div>
-        </div>
-      </div>
+          <div class="gd-form-full d-flex justify-content-end mt-1">
+            <button type="submit" class="gd-btn-primary">Guardar cambios</button>
+          </div>
+        </form>
+      </article>
     </div>
+
+    <article class="gd-card">
+      <h2 class="gd-card-title mb-3">Seguridad de la cuenta</h2>
+      <form id="passwordForm" class="gd-form-grid">
+        <div class="gd-form-full">
+          <label class="gd-form-label" for="actual">Contrasena actual</label>
+          <input id="actual" name="actual" type="password" class="gd-form-input" value="${escapeHtml(perfil.passwordData.actual)}">
+        </div>
+        <div>
+          <label class="gd-form-label" for="nueva">Nueva contrasena</label>
+          <input id="nueva" name="nueva" type="password" class="gd-form-input" value="${escapeHtml(perfil.passwordData.nueva)}">
+        </div>
+        <div>
+          <label class="gd-form-label" for="confirmar">Confirmar contrasena</label>
+          <input id="confirmar" name="confirmar" type="password" class="gd-form-input" value="${escapeHtml(perfil.passwordData.confirmar)}">
+        </div>
+        <div class="gd-form-full d-flex justify-content-end mt-1">
+          <button type="submit" class="gd-btn-primary">Actualizar contrasena</button>
+        </div>
+      </form>
+    </article>
   `;
+
+  return renderDashboardAppLayout({
+    activePath: "/perfil/editar",
+    pageTitle: "Editar perfil",
+    pageSubtitle: "Actualiza tu informacion personal y seguridad",
+    content,
+    profileImage,
+    profileName,
+    notificationCount: state.finanzas?.recomendaciones?.length || 0,
+  });
 }

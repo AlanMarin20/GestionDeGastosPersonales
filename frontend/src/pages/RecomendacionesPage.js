@@ -23,6 +23,7 @@ export function renderRecomendacionesPage({
   pageTitle,
   pageSubtitle,
   recomendaciones,
+  isAsesor = false,
 }) {
   const content = `
     ${recomendaciones
@@ -55,6 +56,7 @@ export function renderRecomendacionesPage({
     content,
     profileImage,
     profileName,
+    isAsesor,
     notificationCount: recomendaciones.length,
   });
 }

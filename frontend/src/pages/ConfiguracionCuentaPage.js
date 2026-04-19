@@ -1,130 +1,123 @@
+import { renderDashboardAppLayout } from "../components/dashboard/dashboardAppLayout";
+
+function escapeHtml(text) {
+  return String(text)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
 export function renderConfiguracionCuentaPage({
   state,
-  escapeHtml,
-  encabezadoInterno,
   profileImage,
   profileName,
-  currentRole,
-  brandTarget,
 }) {
   const config = state.configuracion;
 
-  return `
-    ${encabezadoInterno({
-      pageTitle: '',
-      profileImage,
-      profileName,
-      currentRole,
-      isAsesor: false,
-      brandTarget,
-    })}
-
-    <div class="container py-4">
-      <div class="row">
-        <div class="col-12 col-lg-6 mb-4">
-          <div class="card border-0 shadow-sm h-100" style="border-radius: 15px;">
-            <div class="card-body p-4 p-md-5">
-              <h5 class="fw-bold mb-4 text-dark border-bottom pb-3">Configuración de la App</h5>
-
-              <div class="mb-3">
-                <label for="moneda" class="form-label fw-semibold text-muted small text-uppercase" style="letter-spacing: 0.5px;">Moneda Principal</label>
-                <select class="form-select form-select-lg bg-light border-0" id="moneda" name="moneda" style="border-radius: 8px; font-size: 16px;">
-                  <option value="USD" ${config.moneda === 'USD' ? 'selected' : ''}>Dolar USD</option>
-                  <option value="ARS" ${config.moneda === 'ARS' ? 'selected' : ''}>Peso Argentino</option>
-                  <option value="EUR" ${config.moneda === 'EUR' ? 'selected' : ''}>Euro</option>
-                </select>
-              </div>
-
-              <div class="mb-4">
-                <label for="idioma" class="form-label fw-semibold text-muted small text-uppercase" style="letter-spacing: 0.5px;">Idioma</label>
-                <select class="form-select form-select-lg bg-light border-0" id="idioma" name="idioma" style="border-radius: 8px; font-size: 16px;">
-                  <option value="es" ${config.idioma === 'es' ? 'selected' : ''}>Espanol</option>
-                  <option value="en" ${config.idioma === 'en' ? 'selected' : ''}>English</option>
-                  <option value="pt" ${config.idioma === 'pt' ? 'selected' : ''}>Portugues</option>
-                </select>
-              </div>
-
-              <div class="form-check form-switch mb-4 d-flex align-items-center gap-2">
-                <input class="form-check-input mt-0" type="checkbox" id="temaOscuro" ${config.temaOscuro ? 'checked' : ''} style="width: 40px; height: 20px; cursor: pointer;">
-                <label class="form-check-label fw-semibold text-dark" for="temaOscuro" style="cursor: pointer;">Modo Oscuro</label>
-              </div>
-
-              <div class="d-flex justify-content-start">
-                <button class="btn btn-primary fw-bold px-4 py-2" style="border-radius: 8px;" id="guardarConfiguracionBtn">Guardar Configuración</button>
-              </div>
+  const content = `
+    <div class="gd-grid-2">
+      <article class="gd-card">
+        <h2 class="gd-card-title mb-3">Preferencias de la app</h2>
+        <div class="gd-form-grid">
+          <div>
+            <label class="gd-form-label" for="moneda">Moneda principal</label>
+            <select id="moneda" name="moneda" class="gd-form-select">
+              <option value="USD" ${config.moneda === "USD" ? "selected" : ""}>Dolar USD</option>
+              <option value="ARS" ${config.moneda === "ARS" ? "selected" : ""}>Peso argentino</option>
+              <option value="EUR" ${config.moneda === "EUR" ? "selected" : ""}>Euro</option>
+            </select>
+          </div>
+          <div>
+            <label class="gd-form-label" for="idioma">Idioma</label>
+            <select id="idioma" name="idioma" class="gd-form-select">
+              <option value="es" ${config.idioma === "es" ? "selected" : ""}>Espanol</option>
+              <option value="en" ${config.idioma === "en" ? "selected" : ""}>English</option>
+              <option value="pt" ${config.idioma === "pt" ? "selected" : ""}>Portugues</option>
+            </select>
+          </div>
+          <div class="gd-form-full d-flex align-items-center justify-content-between border rounded-3 px-3 py-2" style="border-color: var(--gd-border) !important;">
+            <div>
+              <p class="gd-card-title mb-0" style="font-size: 0.75rem;">Modo oscuro</p>
+              <small class="gd-muted">Activa el tema oscuro para paneles internos.</small>
             </div>
+            <input class="form-check-input mt-0" type="checkbox" id="temaOscuro" ${config.temaOscuro ? "checked" : ""}>
+          </div>
+          <div class="gd-form-full d-flex justify-content-end mt-1">
+            <button type="button" class="gd-btn-primary" id="guardarConfiguracionBtn">Guardar configuracion</button>
           </div>
         </div>
+      </article>
 
-        <div class="col-12 col-lg-6 mb-4">
-          <div class="card border-0 shadow-sm h-100" style="border-radius: 15px;">
-            <div class="card-body p-4 p-md-5">
-              <h5 class="fw-bold mb-4 text-dark border-bottom pb-3">Seguridad de la App</h5>
-
-              <div class="form-check form-switch mb-4 d-flex align-items-start gap-2">
-                <input class="form-check-input mt-1" type="checkbox" id="autenticacionDos" ${config.autenticacionDos ? 'checked' : ''} style="width: 40px; height: 20px; cursor: pointer;">
-                <div>
-                  <label class="form-check-label fw-semibold text-dark" for="autenticacionDos" style="cursor: pointer;">Autenticación en Dos Pasos</label>
-                  <small class="d-block text-muted">Agrega una capa extra de seguridad a tu cuenta.</small>
-                </div>
-              </div>
-
-              <div class="alert bg-success bg-opacity-10 border-0 text-success d-flex align-items-center gap-3 p-3 mb-4" style="border-radius: 8px;">
-                <i class="lni lni-shield fs-4"></i>
-                <div>
-                  <strong class="d-block">Estado de Seguridad</strong>
-                  <small>Tu cuenta está protegida actualmente.</small>
-                </div>
-              </div>
-              <button class="btn btn-outline-dark fw-bold px-4 py-2 w-100" style="border-radius: 8px;">Ver Actividad Reciente</button>
-            </div>
+      <article class="gd-card">
+        <h2 class="gd-card-title mb-3">Seguridad</h2>
+        <div class="d-flex align-items-center justify-content-between border rounded-3 px-3 py-2 mb-3" style="border-color: var(--gd-border) !important;">
+          <div>
+            <p class="gd-card-title mb-0" style="font-size: 0.75rem;">Autenticacion en dos pasos</p>
+            <small class="gd-muted">Agrega una verificacion extra al iniciar sesion.</small>
           </div>
+          <input class="form-check-input mt-0" type="checkbox" id="autenticacionDos" ${config.autenticacionDos ? "checked" : ""}>
         </div>
-      </div>
 
-      <div class="card border-0 shadow-sm" style="border-radius: 15px;">
-        <div class="card-body p-4 p-md-5">
-          <h5 class="fw-bold mb-1 text-dark">Sesiones Activas</h5>
-          <p class="text-muted small mb-3">Gestiona todos los dispositivos donde has iniciado sesion</p>
-
-          <div class="table-responsive rounded-3 border">
-            <table class="table table-hover mb-0 align-middle">
-              <thead class="table-light">
-                <tr>
-                  <th>Dispositivo</th>
-                  <th>Ubicacion</th>
-                  <th>Ultima actividad</th>
-                  <th>Accion</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${config.sesiones
-                  .map(
-                    (sesion) => `
-                      <tr>
-                        <td class="py-3 px-3"><strong>${escapeHtml(sesion.dispositivo)}</strong></td>
-                        <td class="py-3 text-muted">${escapeHtml(sesion.ubicacion)}</td>
-                        <td class="py-3 text-muted">${escapeHtml(sesion.fecha)}</td>
-                        <td class="py-3 text-end pe-3">
-                          ${
-                            sesion.fecha === 'Hoy'
-                              ? '<span class="badge bg-success">Actual</span>'
-                              : `<button class="btn btn-sm btn-outline-danger" data-action="cerrar-sesion" data-sesion-id="${sesion.id}">Cerrar</button>`
-                          }
-                        </td>
-                      </tr>
-                    `,
-                  )
-                  .join('')}
-              </tbody>
-            </table>
-          </div>
-
-          <div class="mt-4">
-            <button class="btn btn-outline-danger fw-bold px-4 py-2" style="border-radius: 8px;" id="cerrarTodasSesionesBtn">Cerrar otras sesiones</button>
-          </div>
+        <div class="rounded-3 p-3" style="background: rgba(30, 64, 175, 0.12); border: 1px solid rgba(59, 130, 246, 0.35);">
+          <p class="gd-card-title mb-1" style="font-size: 0.75rem;">Estado de seguridad</p>
+          <small class="gd-muted">Tu cuenta tiene las protecciones activas correctamente.</small>
         </div>
-      </div>
+      </article>
     </div>
+
+    <article class="gd-card">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 mb-3">
+        <div>
+          <h2 class="gd-card-title mb-1">Sesiones activas</h2>
+          <p class="gd-muted mb-0">Gestiona los dispositivos que tienen acceso a tu cuenta.</p>
+        </div>
+        <button type="button" class="gd-btn-secondary" id="cerrarTodasSesionesBtn">Cerrar otras sesiones</button>
+      </div>
+
+      <div class="table-responsive">
+        <table class="gd-table">
+          <thead>
+            <tr>
+              <th>Dispositivo</th>
+              <th>Ubicacion</th>
+              <th>Ultima actividad</th>
+              <th class="gd-right">Accion</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${config.sesiones
+              .map(
+                (sesion) => `
+                  <tr>
+                    <td>${escapeHtml(sesion.dispositivo)}</td>
+                    <td class="gd-muted">${escapeHtml(sesion.ubicacion)}</td>
+                    <td class="gd-muted">${escapeHtml(sesion.fecha)}</td>
+                    <td class="gd-right">
+                      ${
+                        sesion.fecha === "Hoy"
+                          ? '<span class="gd-pill gd-pill-transporte">Actual</span>'
+                          : `<button type="button" class="gd-action-btn danger" data-action="cerrar-sesion" data-sesion-id="${escapeHtml(sesion.id)}">Cerrar</button>`
+                      }
+                    </td>
+                  </tr>
+                `,
+              )
+              .join("")}
+          </tbody>
+        </table>
+      </div>
+    </article>
   `;
+
+  return renderDashboardAppLayout({
+    activePath: "/perfil/configuracion",
+    pageTitle: "Configuracion de cuenta",
+    pageSubtitle: "Preferencias, seguridad y control de sesiones",
+    content,
+    profileImage,
+    profileName,
+    notificationCount: state.finanzas?.recomendaciones?.length || 0,
+  });
 }

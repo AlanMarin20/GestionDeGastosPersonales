@@ -33,6 +33,8 @@ export function renderMisGastosPage({
   categoryOptions,
   periodOptions,
   gastos,
+  editingExpense,
+  deletingExpense,
   formatMoney,
 }) {
   const content = `
@@ -112,11 +114,11 @@ export function renderMisGastosPage({
                           <td class="gd-right">${escapeHtml(formatMoney(gasto.monto))}</td>
                           <td class="gd-right">
                             <span class="gd-action-cell">
-                              <button type="button" class="gd-icon-btn" data-action="edit-expense" data-expense-id="${escapeHtml(gasto.id)}" aria-label="Editar gasto">
-                                <i class="lni lni-pencil"></i>
+                              <button type="button" class="gd-action-btn" data-action="open-edit-expense" data-expense-id="${escapeHtml(gasto.id)}" aria-label="Editar gasto">
+                                Editar
                               </button>
-                              <button type="button" class="gd-icon-btn danger" data-action="delete-expense" data-expense-id="${escapeHtml(gasto.id)}" aria-label="Eliminar gasto">
-                                <i class="lni lni-trash-can"></i>
+                              <button type="button" class="gd-action-btn danger" data-action="open-delete-expense" data-expense-id="${escapeHtml(gasto.id)}" aria-label="Eliminar gasto">
+                                Eliminar
                               </button>
                             </span>
                           </td>
@@ -129,6 +131,73 @@ export function renderMisGastosPage({
         </table>
       </div>
     </div>
+
+    ${
+      editingExpense
+        ? `
+          <div class="gd-modal-backdrop" data-action="close-edit-expense-modal"></div>
+          <section class="gd-modal" role="dialog" aria-modal="true" aria-label="Editar gasto">
+            <div class="gd-modal-card">
+              <h3 class="gd-modal-title">Editar gasto</h3>
+              <p class="gd-modal-sub">Actualiza comercio, categoria, fecha y monto.</p>
+
+              <div class="gd-form-grid">
+                <div>
+                  <label class="gd-form-label" for="editExpenseComercio">Comercio</label>
+                  <input id="editExpenseComercio" class="gd-form-input" value="${escapeHtml(editingExpense.comercio)}">
+                </div>
+                <div>
+                  <label class="gd-form-label" for="editExpenseCategoria">Categoria</label>
+                  <select id="editExpenseCategoria" class="gd-form-select">
+                    ${categoryOptions
+                      .map(
+                        (category) =>
+                          `<option value="${escapeHtml(category)}" ${editingExpense.categoria === category ? "selected" : ""}>${escapeHtml(category)}</option>`,
+                      )
+                      .join("")}
+                  </select>
+                </div>
+                <div>
+                  <label class="gd-form-label" for="editExpenseFecha">Fecha</label>
+                  <input id="editExpenseFecha" type="date" class="gd-form-input" value="${escapeHtml(editingExpense.fecha)}">
+                </div>
+                <div>
+                  <label class="gd-form-label" for="editExpenseMonto">Monto</label>
+                  <input id="editExpenseMonto" type="number" min="0" step="0.01" class="gd-form-input" value="${escapeHtml(String(editingExpense.monto))}">
+                </div>
+                <div class="gd-form-full">
+                  <label class="gd-form-label" for="editExpenseDescripcion">Descripcion</label>
+                  <input id="editExpenseDescripcion" class="gd-form-input" value="${escapeHtml(editingExpense.descripcion || "")}">
+                </div>
+              </div>
+
+              <div class="gd-modal-actions">
+                <button type="button" class="gd-btn-secondary" data-action="close-edit-expense-modal">Cancelar</button>
+                <button type="button" class="gd-btn-primary" data-action="save-edit-expense" data-expense-id="${escapeHtml(editingExpense.id)}">Guardar cambios</button>
+              </div>
+            </div>
+          </section>
+        `
+        : ""
+    }
+
+    ${
+      deletingExpense
+        ? `
+          <div class="gd-modal-backdrop" data-action="close-delete-expense-modal"></div>
+          <section class="gd-modal" role="dialog" aria-modal="true" aria-label="Eliminar gasto">
+            <div class="gd-modal-card">
+              <h3 class="gd-modal-title">Eliminar gasto</h3>
+              <p class="gd-modal-sub">Esta accion eliminara el gasto de ${escapeHtml(deletingExpense.comercio)} por ${escapeHtml(formatMoney(deletingExpense.monto))}.</p>
+              <div class="gd-modal-actions">
+                <button type="button" class="gd-btn-secondary" data-action="close-delete-expense-modal">Cancelar</button>
+                <button type="button" class="gd-btn-danger" data-action="confirm-delete-expense" data-expense-id="${escapeHtml(deletingExpense.id)}">Eliminar</button>
+              </div>
+            </div>
+          </section>
+        `
+        : ""
+    }
   `;
 
   return renderDashboardAppLayout({

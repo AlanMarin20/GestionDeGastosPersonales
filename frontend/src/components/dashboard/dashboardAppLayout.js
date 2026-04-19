@@ -1,3 +1,24 @@
+const ASESOR_NAV_SECTION = {
+  section: "Asesor",
+  items: [
+    {
+      href: "/dashboard/asesor",
+      label: "Dashboard asesor",
+      icon: "lni lni-grid-alt",
+    },
+    {
+      href: "/dashboard/asesor/recomendaciones",
+      label: "Generar recomendaciones",
+      icon: "lni lni-bulb",
+    },
+    {
+      href: "/dashboard/asesor/panel",
+      label: "Panel asesor",
+      icon: "lni lni-users",
+    },
+  ],
+};
+
 const USER_NAV_ITEMS = [
   {
     section: "Principal",
@@ -30,20 +51,11 @@ const USER_NAV_ITEMS = [
       },
     ],
   },
+  ASESOR_NAV_SECTION,
 ];
 
 const ADVISOR_NAV_ITEMS = [
   ...USER_NAV_ITEMS,
-  {
-    section: "Asesoria",
-    items: [
-      {
-        href: "/dashboard/asesor",
-        label: "Panel asesor",
-        icon: "lni lni-users",
-      },
-    ],
-  },
 ];
 
 function escapeHtml(text) {
