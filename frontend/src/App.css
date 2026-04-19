@@ -237,6 +237,13 @@
   letter-spacing: 0.2px;
 }
 
+.auth-error-alert-email-format {
+  border: 1px solid rgba(251, 191, 36, 0.95) !important;
+  background: linear-gradient(135deg, rgba(120, 53, 15, 0.66) 0%, rgba(180, 83, 9, 0.3) 100%) !important;
+  color: #fef3c7 !important;
+  box-shadow: 0 10px 24px rgba(120, 53, 15, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
 .auth-input-error,
 .auth-input-error:focus {
   border-color: #ef4444 !important;
@@ -853,6 +860,12 @@ body.theme-dark .auth-error-alert {
   border-color: rgba(248, 113, 113, 0.95) !important;
   background: linear-gradient(135deg, rgba(127, 29, 29, 0.72) 0%, rgba(185, 28, 28, 0.38) 100%) !important;
   color: #fee2e2 !important;
+}
+
+body.theme-dark .auth-error-alert-email-format {
+  border-color: rgba(252, 211, 77, 0.95) !important;
+  background: linear-gradient(135deg, rgba(120, 53, 15, 0.76) 0%, rgba(180, 83, 9, 0.45) 100%) !important;
+  color: #fef3c7 !important;
 }
 
 /*

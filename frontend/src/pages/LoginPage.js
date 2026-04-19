@@ -44,7 +44,7 @@ export function renderLoginPage({ encabezadoExterno, botonIniciarCrearCuenta }) 
                     <p>Ingresa a tu cuenta para gestionar tus gastos.</p>
                   </div>
 
-                  <form id="loginForm">
+                  <form id="loginForm" novalidate>
                     <div id="loginError" class="alert alert-danger auth-error-alert d-none small p-2 text-center" role="alert"></div>
                     
                     <div class="mb-4">
@@ -68,7 +68,7 @@ export function renderLoginPage({ encabezadoExterno, botonIniciarCrearCuenta }) 
                   <div class="text-center">
                     <p class="text-muted mb-0">
                       ¿No tienes cuenta? <a href="/registro" data-link class="text-primary fw-bold text-decoration-none">Registrate aqui</a><br>
-                      o
+                      
                     </p>
                   </div>
 

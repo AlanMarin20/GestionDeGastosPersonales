@@ -46,7 +46,7 @@ export function renderRegistroPage({ encabezadoExterno, botonIniciarCrearCuenta 
                     <p>Comienza a tomar el control de tus finanzas hoy mismo.</p>
                   </div>
 
-                  <form id="registroForm">
+                  <form id="registroForm" novalidate>
                     <div id="registroError" class="alert alert-danger auth-error-alert d-none small p-2 text-center" role="alert"></div>
                     
                     <div class="mb-3">

@@ -952,9 +952,17 @@ function attachFormHandlers(pathname) {
       });
     };
 
-    const setAuthError = (message, fieldsToHighlight = []) => {
+    const setAuthError = (
+      message,
+      fieldsToHighlight = [],
+      variant = "default",
+    ) => {
       if (errorDiv) {
         errorDiv.textContent = message;
+        errorDiv.classList.remove("auth-error-alert-email-format");
+        if (variant === "email-format") {
+          errorDiv.classList.add("auth-error-alert-email-format");
+        }
         errorDiv.classList.remove("d-none");
       }
 
@@ -967,6 +975,7 @@ function attachFormHandlers(pathname) {
     const clearAuthError = () => {
       if (errorDiv) {
         errorDiv.classList.add("d-none");
+        errorDiv.classList.remove("auth-error-alert-email-format");
       }
       removeFieldErrorState();
     };
@@ -998,11 +1007,26 @@ function attachFormHandlers(pathname) {
     loginForm?.addEventListener("submit", async (event) => {
       event.preventDefault();
 
-      const email = emailInput?.value;
-      const password = passwordInput?.value;
+      const email = emailInput?.value?.trim() ?? "";
+      const password = passwordInput?.value ?? "";
       const submitBtn = loginForm.querySelector('button[type="submit"]');
 
       clearAuthError();
+
+      if (!email || !password) {
+        setAuthError("Completa correo y contraseña", [emailInput, passwordInput]);
+        return;
+      }
+
+      if (!email.includes("@")) {
+        setAuthError(
+          "El correo debe incluir '@' para ser válido",
+          [emailInput],
+          "email-format",
+        );
+        return;
+      }
+
       if (submitBtn) submitBtn.disabled = true;
 
       try {
@@ -1045,14 +1069,22 @@ function attachFormHandlers(pathname) {
     // const appleButton = document.getElementById("registerAppleBtn");
 
     const removeFieldErrorState = () => {
-      [emailInput, passwordInput, confirmPasswordInput].forEach((field) => {
+      [nombreInput, emailInput, passwordInput, confirmPasswordInput].forEach((field) => {
         field?.classList.remove("auth-input-error");
       });
     };
 
-    const setAuthError = (message, fieldsToHighlight = []) => {
+    const setAuthError = (
+      message,
+      fieldsToHighlight = [],
+      variant = "default",
+    ) => {
       if (errorDiv) {
         errorDiv.textContent = message;
+        errorDiv.classList.remove("auth-error-alert-email-format");
+        if (variant === "email-format") {
+          errorDiv.classList.add("auth-error-alert-email-format");
+        }
         errorDiv.classList.remove("d-none");
       }
 
@@ -1065,6 +1097,7 @@ function attachFormHandlers(pathname) {
     const clearAuthError = () => {
       if (errorDiv) {
         errorDiv.classList.add("d-none");
+        errorDiv.classList.remove("auth-error-alert-email-format");
       }
       removeFieldErrorState();
     };
@@ -1090,13 +1123,32 @@ function attachFormHandlers(pathname) {
     registroForm?.addEventListener("submit", async (event) => {
       event.preventDefault();
 
-      const nombre = nombreInput?.value;
-      const email = emailInput?.value;
-      const password = passwordInput?.value;
-      const confirmPassword = confirmPasswordInput?.value;
+      const nombre = nombreInput?.value?.trim() ?? "";
+      const email = emailInput?.value?.trim() ?? "";
+      const password = passwordInput?.value ?? "";
+      const confirmPassword = confirmPasswordInput?.value ?? "";
       const submitBtn = registroForm.querySelector('button[type="submit"]');
 
       clearAuthError();
+
+      if (!nombre || !email || !password || !confirmPassword) {
+        setAuthError("Completa todos los campos obligatorios", [
+          nombreInput,
+          emailInput,
+          passwordInput,
+          confirmPasswordInput,
+        ]);
+        return;
+      }
+
+      if (!email.includes("@")) {
+        setAuthError(
+          "El correo debe incluir '@' para ser válido",
+          [emailInput],
+          "email-format",
+        );
+        return;
+      }
 
       if (password !== confirmPassword) {
         setAuthError("Las contraseñas no coinciden", [
@@ -1117,7 +1169,13 @@ function attachFormHandlers(pathname) {
 
         if (!response.ok) {
           const errData = await response.json().catch(() => ({}));
-          throw new Error(errData.message || "Error al registrar el usuario");
+          const message = Array.isArray(errData.message)
+            ? errData.message[0]
+            : errData.message;
+          const fallbackMessage = response.status === 409
+            ? "El email ya está en uso"
+            : "Error al registrar el usuario";
+          throw new Error(message || fallbackMessage);
         }
 
         window.alert("¡Registro exitoso! Ahora puedes iniciar sesión.");
