@@ -27,6 +27,13 @@ import { RolesGuard } from './auth/roles.guard';
         DATABASE_URL: Joi.string().uri().required(),
         JWT_SECRET: Joi.string().min(16).required(),
         ANTHROPIC_API_KEY: Joi.string().allow('').optional(),
+        FRONTEND_URL: Joi.string().uri().optional(),
+        GOOGLE_CLIENT_ID: Joi.string().allow('').optional(),
+        GOOGLE_CLIENT_SECRET: Joi.string().allow('').optional(),
+        GOOGLE_REDIRECT_URI: Joi.string().uri().optional(),
+        APPLE_CLIENT_ID: Joi.string().allow('').optional(),
+        APPLE_CLIENT_SECRET: Joi.string().allow('').optional(),
+        APPLE_REDIRECT_URI: Joi.string().uri().optional(),
         PORT: Joi.number().default(3000),
         DB_SSL: Joi.boolean().truthy('true').falsy('false').default(false),
         DB_SYNCHRONIZE: Joi.boolean()
