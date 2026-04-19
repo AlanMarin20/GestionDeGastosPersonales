@@ -1,297 +1,134 @@
-import {
-  graficoGastos,
-  graficoTorta,
-  contenedorRecomendaciones,
-  listaUltimosGastos,
-  tarjetaAhorro,
-  tarjetaValor,
-  botonRegistrarGastos,
-} from '../components/common/reusablePageComponents';
+import { renderDashboardAppLayout } from "../components/dashboard/dashboardAppLayout";
+
+function escapeHtml(text) {
+  return String(text)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function normalizeCategoryClass(category) {
+  const map = {
+    supermercado: "supermercado",
+    transporte: "transporte",
+    entretenimiento: "entretenimiento",
+    salud: "salud",
+    restaurantes: "restaurantes",
+    servicios: "servicios",
+    otros: "otros",
+  };
+
+  return map[String(category || "").toLowerCase()] || "otros";
+}
 
 export function renderDashboardPage({
-  state,
-  formatCurrency,
-  escapeHtml,
-  encabezadoInterno,
   profileImage,
   profileName,
-  currentRole,
-  isAsesor,
-  brandTarget,
+  activePath,
+  pageTitle,
+  pageSubtitle,
+  metrics,
+  categories,
+  recentExpenses,
+  formatMoney,
 }) {
-  const dashboard = state.dashboard;
-  const totalAhorros = dashboard.ahorros.reduce((sum, ahorro) => sum + ahorro.monto, 0);
-  const ahorroDestino = dashboard.ahorros.find((item) => item.id === dashboard.ahorroDestinoId) || null;
+  const content = `
+    <section class="gd-metrics">
+      ${metrics
+        .map(
+          (metric) => `
+            <article class="gd-metric-card">
+              <p class="gd-metric-label">${escapeHtml(metric.label)}</p>
+              <p class="gd-metric-value">${escapeHtml(metric.value)}</p>
+              <span class="gd-metric-delta ${metric.trend === "down" ? "gd-delta-down" : "gd-delta-up"}">
+                ${escapeHtml(metric.delta)}
+              </span>
+            </article>
+          `,
+        )
+        .join("")}
+    </section>
 
-  const ahorroCards = dashboard.ahorros
-    .map((ahorro) => tarjetaAhorro({ ahorro, formatCurrency }))
-    .join('');
-
-  const modalBackdrop =
-    dashboard.modals.ingreso || dashboard.modals.ahorro || dashboard.modals.destino
-      ? '<div class="modal-backdrop fade show"></div>'
-      : '';
-
-  return `
-    ${encabezadoInterno({
-      pageTitle: '',
-      profileImage,
-      profileName,
-      currentRole,
-      isAsesor,
-      brandTarget,
-      transparent: true,
-    })}
-
-    <!-- ======== Seccion 1: Resumen, gasto y recomendaciones ======== -->
-    <section class="mb-4">
-      <div class="row g-3 align-items-start">
-        <!-- Columna izquierda: tarjetas + recomendaciones debajo -->
-        <div class="col-12 col-lg-6 d-flex flex-column gap-3">
-          <!-- Subseccion 1a: Saldo actual, presupuesto disponible, gastos del mes y pozo ahorrado -->
-          <div class="row g-2">
-            <div class="col-12 col-lg-6 d-flex flex-column gap-1">
-              ${tarjetaValor({ title: 'Saldo Actual', value: formatCurrency(dashboard.saldoActual), color: 'primary', icon: 'lni-wallet', hasButton: true, buttonAction: 'open-ingreso-modal' })}
-              ${tarjetaValor({ title: 'Presupuesto Total Disponible', value: formatCurrency(totalAhorros), color: 'success', icon: 'lni-coin' })}
-            </div>
-
-            <div class="col-12 col-lg-6 d-flex flex-column gap-1">
-              ${tarjetaValor({ title: 'Gastos del Mes', value: '$14,350.75', color: 'danger', icon: 'lni-stats-down' })}
-              ${tarjetaValor({ title: 'Pozo Ahorrado', value: formatCurrency(totalAhorros), color: 'info', icon: 'lni-pie-chart' })}
-            </div>
-          </div>
-
-          <!-- Subseccion 1c: Recomendaciones -->
-          ${contenedorRecomendaciones({
-            recommendations: [
-              { fecha: 'Sugerencia IA:', texto: 'Reducir gastos de comida un 15%' },
-              { fecha: 'Asesor:', texto: 'Tu presupuesto de salida es muy alto' },
-              { fecha: 'Asesor:', texto: 'Tu presupuesto de vivienda esta dentro del limite' },
-            ],
-            maxHeight: '145px',
-          })}
+    <section class="gd-grid-3">
+      <article class="gd-card">
+        <header class="gd-card-header">
+          <h2 class="gd-card-title">Gastos por mes</h2>
+          <button type="button" class="gd-card-action" data-nav="/dashboard/reportes">ver reportes</button>
+        </header>
+        <div class="gd-chart-wrap gd-chart-wrap-monthly">
+          <canvas id="dashboardMonthlyBarChart" aria-label="Gastos por mes" role="img"></canvas>
         </div>
+      </article>
 
-        <!-- Subseccion 1b: Añadir nuevo gasto -->
-        <div class="col-12 col-lg-6">
-          <article class="card border-0 shadow-sm h-100" style="border-radius: 15px;">
-            <div class="card-body" style="padding: 18px; min-height: 280px;">
-              <h2 class="h5 mb-2">Anadir Nuevo Gasto</h2>
-              <form id="nuevoGastoForm">
-                <div class="mb-2">
-                  <label for="descripcion" class="form-label small fw-500">Descripcion</label>
-                  <input type="text" class="form-control form-control-sm" id="descripcion" name="descripcion" placeholder="Ej: Almuerzo" value="${escapeHtml(dashboard.formData.descripcion)}">
-                </div>
-                <div class="mb-2">
-                  <label for="monto" class="form-label small fw-500">Monto ($)</label>
-                  <input type="number" class="form-control form-control-sm" id="monto" name="monto" placeholder="0.00" step="0.01" value="${escapeHtml(dashboard.formData.monto)}">
-                </div>
-                <div class="mb-2">
-                  <label for="categoria" class="form-label small fw-500">Categoria</label>
-                  <select class="form-select form-select-sm" id="categoria" name="categoria">
-                    ${['Comida', 'Vivienda', 'Transporte', 'Ocio', 'Otros']
-                      .map(
-                        (cat) =>
-                          `<option value="${cat}" ${dashboard.formData.categoria === cat ? 'selected' : ''}>${cat}</option>`,
-                      )
-                      .join('')}
-                  </select>
-                </div>
-                ${botonRegistrarGastos({
-                  id: 'registrar-gasto-btn',
-                  text: 'Registrar Gasto',
-                  type: 'submit',
-                  className: 'btn btn-primary btn-sm w-100',
-                })}
-                ${botonRegistrarGastos({
-                  text: 'Registrar Gasto con imagen',
-                  className: 'btn btn-outline-primary btn-sm w-100 mt-2',
-                  iconClass: 'lni lni-camera',
-                })}
-              </form>
-            </div>
-          </article>
+      <article class="gd-card">
+        <header class="gd-card-header">
+          <h2 class="gd-card-title">Por categoria</h2>
+        </header>
+        <div class="gd-chart-wrap gd-chart-wrap-donut">
+          <canvas id="dashboardCategoryDonutChart" aria-label="Distribucion por categoria" role="img"></canvas>
         </div>
-      </div>
-    </section>
-
-    <!-- ======== Fila 1b: Graficos Estirados ======== -->
-    <section class="row g-3 g-md-4 mb-4">
-      <div class="col-12 col-lg-8">
-        ${
-          graficoGastos({
-            title: 'Gastos de los Ultimos 12 Meses',
-            canvasId: 'dashboardLineChart',
-            ariaLabel: 'Ultimos 12 meses',
-            height: '280px'
-          })
-        }
-      </div>
-      <div class="col-12 col-lg-4">
-        ${
-          graficoTorta({
-            title: 'Distribucion de Gastos',
-            canvasId: 'dashboardPieChart',
-            ariaLabel: 'Categorias de gastos',
-          })
-        }
-      </div>
-    </section>
-
-    <!-- ======== Fila 2: Listas y Movimientos Recientes ======== -->
-    <section class="row g-3 g-md-4 mb-4">
-      <div class="col-12">
-        ${
-          listaUltimosGastos({
-            title: 'Ultimos Gastos',
-            expenses: dashboard.gastos,
-            showAll: dashboard.showAllRecentExpenses,
-            toggleAction: 'toggle-dashboard-expenses',
-            formatCurrency,
-          })
-        }
-      </div>
-    </section>
-
-    <!-- ======== Fila 3: Panel Horizontal de Ahorros ======== -->
-    <section class="row g-3 g-md-4">
-      <div class="col-12">
-        <article class="card border-0 shadow-sm" style="border-radius: 15px;">
-          <div class="card-body p-4">
-            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
-              <div class="d-flex align-items-center gap-3">
-                <h2 class="h5 mb-0 fw-bold text-dark">Ahorros</h2>
-                <div style="min-width: 240px; max-width: 280px;">
-                  ${tarjetaValor({ title: 'Pozo Ahorrado', value: formatCurrency(totalAhorros), color: 'info', icon: 'lni-pie-chart' })}
+        <div class="gd-donut-legend">
+          ${categories
+            .map(
+              (category) => `
+                <div class="gd-donut-row">
+                  <span class="gd-donut-dot" style="background: ${escapeHtml(category.color)}"></span>
+                  <span class="gd-donut-label">${escapeHtml(category.label)}</span>
+                  <span class="gd-donut-value">${escapeHtml(category.share)}</span>
                 </div>
-              </div>
-              <button type="button" class="btn btn-outline-primary btn-sm fw-bold" style="border-radius: 8px;" data-action="open-ahorro-modal">+ Crear ahorro</button>
-            </div>
-            <div class="row g-2">${ahorroCards}</div>
-          </div>
-        </article>
-      </div>
+              `,
+            )
+            .join("")}
+        </div>
+      </article>
     </section>
 
-    ${
-      dashboard.modals.ingreso
-        ? `
-          <div class="modal d-block" tabindex="-1" role="dialog" aria-modal="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-              <div class="modal-content">
-                <form id="ingresoForm">
-                  <div class="modal-header">
-                    <h2 class="modal-title h5 mb-0">Nuevo ingreso</h2>
-                    <button type="button" class="btn-close" aria-label="Cerrar" data-action="close-ingreso-modal"></button>
-                  </div>
-                  <div class="modal-body">
-                    <div class="mb-3">
-                      <label for="ingresoMonto" class="form-label">Monto</label>
-                      <input type="number" id="ingresoMonto" name="monto" class="form-control" min="0" step="0.01" value="${escapeHtml(dashboard.ingresoForm.monto)}" required>
-                    </div>
-                    <div class="mb-3">
-                      <label for="ingresoConcepto" class="form-label">Concepto</label>
-                      <input type="text" id="ingresoConcepto" name="concepto" class="form-control" placeholder="Ej: Pago quincenal" value="${escapeHtml(dashboard.ingresoForm.concepto)}" required>
-                    </div>
-                    <div>
-                      <label for="ingresoOrigen" class="form-label">Origen</label>
-                      <select id="ingresoOrigen" name="origen" class="form-select">
-                        ${['Sueldo', 'Freelance', 'Prestamo', 'Venta', 'Otro']
-                          .map(
-                            (origen) =>
-                              `<option value="${origen}" ${dashboard.ingresoForm.origen === origen ? 'selected' : ''}>${origen}</option>`,
-                          )
-                          .join('')}
-                      </select>
-                    </div>
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-action="close-ingreso-modal">Cancelar</button>
-                    <button type="submit" class="btn btn-success">Registrar ingreso</button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-        `
-        : ''
-    }
+    <article class="gd-card">
+      <header class="gd-card-header">
+        <h2 class="gd-card-title">Ultimos gastos</h2>
+        <button type="button" class="gd-card-action" data-nav="/dashboard/gastos">ver todo</button>
+      </header>
 
-    ${
-      dashboard.modals.ahorro
-        ? `
-          <div class="modal d-block" tabindex="-1" role="dialog" aria-modal="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-              <div class="modal-content">
-                <form id="nuevoAhorroForm">
-                  <div class="modal-header">
-                    <h2 class="modal-title h5 mb-0">Crear ahorro</h2>
-                    <button type="button" class="btn-close" aria-label="Cerrar" data-action="close-ahorro-modal"></button>
-                  </div>
-                  <div class="modal-body">
-                    <div class="mb-3">
-                      <label for="nuevoAhorroNombre" class="form-label">Nombre del ahorro</label>
-                      <input type="text" id="nuevoAhorroNombre" name="nombre" class="form-control" placeholder="Ej: Fondo de viaje" value="${escapeHtml(dashboard.nuevoAhorroForm.nombre)}" required>
-                    </div>
-                    <div class="mb-3">
-                      <label for="nuevoAhorroMonto" class="form-label">Monto inicial</label>
-                      <input type="number" id="nuevoAhorroMonto" name="montoInicial" class="form-control" min="0" step="0.01" value="${escapeHtml(dashboard.nuevoAhorroForm.montoInicial)}">
-                    </div>
-                    <div>
-                      <label for="nuevoAhorroMeta" class="form-label">Meta (opcional)</label>
-                      <input type="number" id="nuevoAhorroMeta" name="meta" class="form-control" min="0" step="0.01" value="${escapeHtml(dashboard.nuevoAhorroForm.meta)}">
-                    </div>
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-action="close-ahorro-modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Guardar ahorro</button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-        `
-        : ''
-    }
-
-    ${
-      dashboard.modals.destino && ahorroDestino
-        ? `
-          <div class="modal d-block" tabindex="-1" role="dialog" aria-modal="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-              <div class="modal-content">
-                <form id="destinoForm">
-                  <div class="modal-header">
-                    <h2 class="modal-title h5 mb-0">Destinar fondos a ${escapeHtml(ahorroDestino.nombre)}</h2>
-                    <button type="button" class="btn-close" aria-label="Cerrar" data-action="close-destino-modal"></button>
-                  </div>
-                  <div class="modal-body">
-                    <p class="small text-muted mb-2">Saldo disponible: ${formatCurrency(dashboard.saldoActual)}</p>
-                    <label for="destinoMonto" class="form-label">Monto a transferir</label>
-                    <input
-                      type="number"
-                      id="destinoMonto"
-                      name="monto"
-                      class="form-control"
-                      min="0"
-                      max="${dashboard.saldoActual}"
-                      step="0.01"
-                      value="${escapeHtml(dashboard.destinoForm.monto)}"
-                      required
-                    >
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-action="close-destino-modal">Cancelar</button>
-                    <button type="submit" class="btn btn-success">Destinar fondos</button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-        `
-        : ''
-    }
-
-    ${modalBackdrop}
+      <div class="gd-table-wrap">
+        <table class="gd-table">
+          <thead>
+            <tr>
+              <th>Comercio</th>
+              <th>Categoria</th>
+              <th>Fecha</th>
+              <th class="gd-right">Monto</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${recentExpenses
+              .map(
+                (expense) => `
+                  <tr>
+                    <td>${escapeHtml(expense.comercio)}</td>
+                    <td>
+                      <span class="gd-pill gd-pill-${normalizeCategoryClass(expense.categoria)}">${escapeHtml(expense.categoria)}</span>
+                    </td>
+                    <td class="gd-muted">${escapeHtml(expense.fechaCorta)}</td>
+                    <td class="gd-right">${escapeHtml(formatMoney(expense.monto))}</td>
+                  </tr>
+                `,
+              )
+              .join("")}
+          </tbody>
+        </table>
+      </div>
+    </article>
   `;
+
+  return renderDashboardAppLayout({
+    activePath,
+    pageTitle,
+    pageSubtitle,
+    content,
+    profileImage,
+    profileName,
+    notificationCount: 3,
+  });
 }

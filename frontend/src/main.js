@@ -1,5 +1,5 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import * as bootstrap from "bootstrap";
+import "bootstrap";
 import Chart from "chart.js/auto";
 import {
   encabezadoExterno,
@@ -9,7 +9,6 @@ import {
   botonScrollTop,
   descripcionLanding,
   imagenesLanding,
-  tarjetaValor,
   tarjetaLandingPage,
 } from "./components/common/reusablePageComponents";
 import { renderConfiguracionCuentaPage as renderConfiguracionCuentaPageView } from "./pages/ConfiguracionCuentaPage";
@@ -19,6 +18,10 @@ import {
 } from "./pages/DetalleClientePage";
 import { renderDashboardAsesorPage as renderDashboardAsesorPageView } from "./pages/DashboardAsesorPage";
 import { renderDashboardPage as renderDashboardPageView } from "./pages/DashboardPage";
+import { renderCargarGastoPage as renderCargarGastoPageView } from "./pages/CargarGastoPage";
+import { renderMisGastosPage as renderMisGastosPageView } from "./pages/MisGastosPage";
+import { renderReportesPage as renderReportesPageView } from "./pages/ReportesPage";
+import { renderRecomendacionesPage as renderRecomendacionesPageView } from "./pages/RecomendacionesPage";
 import { renderEditarPerfilPage as renderEditarPerfilPageView } from "./pages/EditarPerfilPage";
 import { renderLandingPage as renderLandingPageView } from "./pages/LandingPage";
 import { renderFaqPage as renderFaqPageView } from "./pages/FaqPage";
@@ -33,6 +36,7 @@ import { renderRegistroExitosoPage as renderRegistroExitosoPageView } from "./pa
 import "./index.css";
 import "./App.css";
 import "./components/dashboard/dashboard-widgets.css";
+import "./components/dashboard/gestion-dashboard.css";
 
 const appRoot = document.getElementById("root");
 
@@ -106,31 +110,370 @@ const state = {
       destino: false,
     },
   },
+  finanzas: {
+    currentPeriod: "2026-04",
+    monthlyIncome: 320000,
+    monthlySavingsGoal: 172800,
+    ticketGoalByPeriod: {
+      "2026-04": 34,
+    },
+    gastos: [
+      {
+        id: "g-1",
+        comercio: "Disco Supermaxi",
+        categoria: "Supermercado",
+        descripcion: "Compras semanales",
+        fecha: "2026-04-18",
+        monto: 42480,
+      },
+      {
+        id: "g-2",
+        comercio: "SUBE recarga",
+        categoria: "Transporte",
+        descripcion: "Recarga semanal",
+        fecha: "2026-04-17",
+        monto: 6200,
+      },
+      {
+        id: "g-3",
+        comercio: "Netflix",
+        categoria: "Entretenimiento",
+        descripcion: "Suscripcion mensual",
+        fecha: "2026-04-16",
+        monto: 8999,
+      },
+      {
+        id: "g-4",
+        comercio: "YPF",
+        categoria: "Transporte",
+        descripcion: "Combustible",
+        fecha: "2026-04-15",
+        monto: 38750,
+      },
+      {
+        id: "g-5",
+        comercio: "Farmacity",
+        categoria: "Salud",
+        descripcion: "Medicamentos",
+        fecha: "2026-04-14",
+        monto: 10340,
+      },
+      {
+        id: "g-6",
+        comercio: "McDonalds",
+        categoria: "Restaurantes",
+        descripcion: "Almuerzo",
+        fecha: "2026-04-13",
+        monto: 7800,
+      },
+      {
+        id: "g-7",
+        comercio: "Alquiler temporal",
+        categoria: "Servicios",
+        descripcion: "Ajuste mensual",
+        fecha: "2026-04-03",
+        monto: 33000,
+      },
+      {
+        id: "g-8",
+        comercio: "Carrefour",
+        categoria: "Supermercado",
+        descripcion: "Compra quincenal",
+        fecha: "2026-03-25",
+        monto: 63240,
+      },
+      {
+        id: "g-9",
+        comercio: "YPF",
+        categoria: "Transporte",
+        descripcion: "Combustible",
+        fecha: "2026-03-12",
+        monto: 9800,
+      },
+      {
+        id: "g-10",
+        comercio: "Cablevision",
+        categoria: "Servicios",
+        descripcion: "Internet y cable",
+        fecha: "2026-03-08",
+        monto: 16200,
+      },
+      {
+        id: "g-11",
+        comercio: "Cinepolis",
+        categoria: "Entretenimiento",
+        descripcion: "Entradas",
+        fecha: "2026-03-05",
+        monto: 8600,
+      },
+      {
+        id: "g-12",
+        comercio: "Sushi Club",
+        categoria: "Restaurantes",
+        descripcion: "Cena fin de semana",
+        fecha: "2026-03-02",
+        monto: 10900,
+      },
+      {
+        id: "g-13",
+        comercio: "Coto",
+        categoria: "Supermercado",
+        descripcion: "Compra mensual",
+        fecha: "2026-02-20",
+        monto: 54800,
+      },
+      {
+        id: "g-14",
+        comercio: "SUBE recarga",
+        categoria: "Transporte",
+        descripcion: "Recarga mensual",
+        fecha: "2026-02-11",
+        monto: 4500,
+      },
+      {
+        id: "g-15",
+        comercio: "YPF",
+        categoria: "Transporte",
+        descripcion: "Combustible",
+        fecha: "2026-02-04",
+        monto: 6200,
+      },
+      {
+        id: "g-16",
+        comercio: "Spotify",
+        categoria: "Entretenimiento",
+        descripcion: "Plan familiar",
+        fecha: "2026-02-03",
+        monto: 3200,
+      },
+      {
+        id: "g-17",
+        comercio: "AySA",
+        categoria: "Servicios",
+        descripcion: "Factura de agua",
+        fecha: "2026-02-01",
+        monto: 8700,
+      },
+      {
+        id: "g-18",
+        comercio: "Coto",
+        categoria: "Supermercado",
+        descripcion: "Compra mensual",
+        fecha: "2026-01-21",
+        monto: 51200,
+      },
+      {
+        id: "g-19",
+        comercio: "Personal",
+        categoria: "Servicios",
+        descripcion: "Plan movil",
+        fecha: "2026-01-11",
+        monto: 11800,
+      },
+      {
+        id: "g-20",
+        comercio: "YPF",
+        categoria: "Transporte",
+        descripcion: "Combustible",
+        fecha: "2026-01-08",
+        monto: 6300,
+      },
+      {
+        id: "g-21",
+        comercio: "Burger House",
+        categoria: "Restaurantes",
+        descripcion: "Cena",
+        fecha: "2026-01-05",
+        monto: 9800,
+      },
+      {
+        id: "g-22",
+        comercio: "Cinepolis",
+        categoria: "Entretenimiento",
+        descripcion: "Estreno",
+        fecha: "2026-01-03",
+        monto: 7400,
+      },
+      {
+        id: "g-23",
+        comercio: "Coto",
+        categoria: "Supermercado",
+        descripcion: "Compra mensual",
+        fecha: "2025-12-18",
+        monto: 46800,
+      },
+      {
+        id: "g-24",
+        comercio: "SUBE recarga",
+        categoria: "Transporte",
+        descripcion: "Recarga mensual",
+        fecha: "2025-12-17",
+        monto: 4200,
+      },
+      {
+        id: "g-25",
+        comercio: "YPF",
+        categoria: "Transporte",
+        descripcion: "Combustible",
+        fecha: "2025-12-10",
+        monto: 6100,
+      },
+      {
+        id: "g-26",
+        comercio: "Medifarma",
+        categoria: "Salud",
+        descripcion: "Consulta y medicamentos",
+        fecha: "2025-12-06",
+        monto: 8300,
+      },
+      {
+        id: "g-27",
+        comercio: "Fibertel",
+        categoria: "Servicios",
+        descripcion: "Internet",
+        fecha: "2025-12-04",
+        monto: 9800,
+      },
+      {
+        id: "g-28",
+        comercio: "Coto",
+        categoria: "Supermercado",
+        descripcion: "Compra mensual",
+        fecha: "2025-11-18",
+        monto: 42000,
+      },
+      {
+        id: "g-29",
+        comercio: "Spotify",
+        categoria: "Entretenimiento",
+        descripcion: "Plan premium",
+        fecha: "2025-11-11",
+        monto: 1999,
+      },
+      {
+        id: "g-30",
+        comercio: "YPF",
+        categoria: "Transporte",
+        descripcion: "Combustible",
+        fecha: "2025-11-07",
+        monto: 5800,
+      },
+      {
+        id: "g-31",
+        comercio: "Edenor",
+        categoria: "Servicios",
+        descripcion: "Factura de luz",
+        fecha: "2025-11-03",
+        monto: 12200,
+      },
+      {
+        id: "g-32",
+        comercio: "Cinepolis",
+        categoria: "Entretenimiento",
+        descripcion: "Entradas",
+        fecha: "2025-11-01",
+        monto: 6100,
+      },
+    ],
+    cargar: {
+      activeTab: "ticket",
+      ticketFileName: "",
+      aiForm: {
+        comercio: "Disco Supermaxi",
+        fecha: "2026-04-18",
+        monto: "42480",
+        categoria: "Supermercado",
+        descripcion: "Compras semanales",
+      },
+      manualForm: {
+        comercio: "",
+        fecha: "2026-04-19",
+        monto: "",
+        categoria: "",
+        descripcion: "",
+      },
+    },
+    filtros: {
+      search: "",
+      categoria: "Todas",
+      periodo: "2026-04",
+    },
+    recomendaciones: [
+      {
+        id: "r-1",
+        severity: "danger",
+        title: "Gasto excesivo en combustible",
+        type: "ALERTA",
+        body: "Tu gasto en combustible este mes fue 3.2x mayor que tu promedio historico. Revisa si hubo un viaje extraordinario o una ineficiencia de consumo.",
+        date: "18 abr 2026",
+        category: "Transporte",
+      },
+      {
+        id: "r-2",
+        severity: "warning",
+        title: "Entretenimiento cerca del limite",
+        type: "ADVERTENCIA",
+        body: "Ya consumiste el 82% del presupuesto mensual de entretenimiento en la primera quincena.",
+        date: "17 abr 2026",
+        category: "Entretenimiento",
+      },
+      {
+        id: "r-3",
+        severity: "good",
+        title: "Excelente control en salud",
+        type: "POSITIVO",
+        body: "Tus gastos de salud se mantienen estables por tercer mes consecutivo y dentro del presupuesto estimado.",
+        date: "General",
+        category: "Salud",
+      },
+      {
+        id: "r-4",
+        severity: "info",
+        title: "Sugerencia de ahorro",
+        type: "IA",
+        body: "Si reduces un 10% tus gastos en restaurantes, podrias ahorrar alrededor de 4800 por mes adicional.",
+        date: "Generado por IA",
+        category: "Habitos",
+      },
+    ],
+  },
   asesor: {
     clientes: [
       {
         id: "1",
-        nombre: "Juan Perez",
-        gastosMes: 14350.75,
+        nombre: "Martin Garcia",
+        gastosMes: 147200,
         ahorros: 2500,
-        presupuesto: 15000,
-        estado: "alerta",
+        presupuesto: 200000,
+        estado: "normal",
+        tickets: 34,
       },
       {
         id: "2",
-        nombre: "Maria Garcia",
-        gastosMes: 8920.5,
+        nombre: "Ana Lopez",
+        gastosMes: 89400,
         ahorros: 5200,
-        presupuesto: 10000,
+        presupuesto: 180000,
         estado: "bueno",
+        tickets: 21,
       },
       {
         id: "3",
-        nombre: "Carlos Lopez",
-        gastosMes: 12000,
+        nombre: "Carlos Perez",
+        gastosMes: 312800,
         ahorros: 1800,
-        presupuesto: 12500,
-        estado: "normal",
+        presupuesto: 260000,
+        estado: "alerta",
+        tickets: 58,
+      },
+      {
+        id: "4",
+        nombre: "Lucia Ramirez",
+        gastosMes: 104100,
+        ahorros: 4100,
+        presupuesto: 190000,
+        estado: "bueno",
+        tickets: 29,
       },
     ],
     busqueda: "",
@@ -281,20 +624,47 @@ const state = {
   },
 };
 
-const monthlyExpensesDashboard = [
-  { mes: "Abr", monto: 8700 },
-  { mes: "May", monto: 9050 },
-  { mes: "Jun", monto: 9800 },
-  { mes: "Jul", monto: 10200 },
-  { mes: "Ago", monto: 10850 },
-  { mes: "Sep", monto: 11100 },
-  { mes: "Oct", monto: 9200 },
-  { mes: "Nov", monto: 10150 },
-  { mes: "Dic", monto: 11300 },
-  { mes: "Ene", monto: 12850 },
-  { mes: "Feb", monto: 11900 },
-  { mes: "Mar", monto: 14350.75 },
+const MONTH_LABELS_SHORT = [
+  "Ene",
+  "Feb",
+  "Mar",
+  "Abr",
+  "May",
+  "Jun",
+  "Jul",
+  "Ago",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dic",
 ];
+
+const MONTH_LABELS_LONG = [
+  "Enero",
+  "Febrero",
+  "Marzo",
+  "Abril",
+  "Mayo",
+  "Junio",
+  "Julio",
+  "Agosto",
+  "Septiembre",
+  "Octubre",
+  "Noviembre",
+  "Diciembre",
+];
+
+const CATEGORY_COLORS = {
+  Supermercado: "#82cd34",
+  Transporte: "#38bdf8",
+  Entretenimiento: "#f59e0b",
+  Salud: "#ef4444",
+  Restaurantes: "#f97316",
+  Servicios: "#6366f1",
+  Otros: "#64748b",
+};
+
+const ADVISOR_AVATAR_COLORS = ["#65a30d", "#0ea5e9", "#ef4444", "#f59e0b"];
 
 const monthlyExpensesDetalle = [
   { mes: "Abril", monto: 9800 },
@@ -350,6 +720,541 @@ function getCurrentDateShort() {
     day: "numeric",
     month: "short",
   });
+}
+
+const moneyFormatter = new Intl.NumberFormat("es-AR", {
+  maximumFractionDigits: 0,
+  minimumFractionDigits: 0,
+});
+
+function formatMoney(value) {
+  return `$${moneyFormatter.format(Number(value) || 0)}`;
+}
+
+function getMonthKeyFromDate(dateIso) {
+  if (!dateIso || typeof dateIso !== "string") {
+    return "";
+  }
+
+  const [year = "", month = ""] = dateIso.split("-");
+  if (year.length !== 4 || month.length !== 2) {
+    return "";
+  }
+
+  return `${year}-${month}`;
+}
+
+function parseMonthKey(monthKey) {
+  const [yearString = "0", monthString = "0"] = String(monthKey).split("-");
+  const year = Number.parseInt(yearString, 10);
+  const month = Number.parseInt(monthString, 10);
+
+  return {
+    year: Number.isNaN(year) ? 0 : year,
+    month: Number.isNaN(month) ? 0 : month,
+  };
+}
+
+function compareMonthKeys(a, b) {
+  const left = parseMonthKey(a);
+  const right = parseMonthKey(b);
+
+  if (left.year !== right.year) {
+    return left.year - right.year;
+  }
+
+  return left.month - right.month;
+}
+
+function formatMonthLabelShort(monthKey) {
+  const { month } = parseMonthKey(monthKey);
+  if (month < 1 || month > 12) {
+    return monthKey;
+  }
+
+  return MONTH_LABELS_SHORT[month - 1];
+}
+
+function formatMonthLabelLong(monthKey) {
+  const { year, month } = parseMonthKey(monthKey);
+  if (month < 1 || month > 12) {
+    return monthKey;
+  }
+
+  return `${MONTH_LABELS_LONG[month - 1]} ${year}`;
+}
+
+function formatIsoDateShort(dateIso) {
+  if (!dateIso) {
+    return "-";
+  }
+
+  const date = new Date(`${dateIso}T00:00:00`);
+  if (Number.isNaN(date.getTime())) {
+    return dateIso;
+  }
+
+  return date.toLocaleDateString("es-ES", {
+    day: "numeric",
+    month: "short",
+  });
+}
+
+function getFinanzasCurrentPeriod() {
+  return state.finanzas.currentPeriod;
+}
+
+function getFinanzasAllMonthKeys() {
+  const monthSet = new Set();
+
+  state.finanzas.gastos.forEach((expense) => {
+    const monthKey = getMonthKeyFromDate(expense.fecha);
+    if (monthKey) {
+      monthSet.add(monthKey);
+    }
+  });
+
+  if (!monthSet.has(state.finanzas.currentPeriod)) {
+    monthSet.add(state.finanzas.currentPeriod);
+  }
+
+  return [...monthSet].sort(compareMonthKeys);
+}
+
+function getFinanzasMonthTotal(periodKey) {
+  return state.finanzas.gastos
+    .filter((expense) => getMonthKeyFromDate(expense.fecha) === periodKey)
+    .reduce((sum, expense) => sum + Number(expense.monto || 0), 0);
+}
+
+function getFinanzasExpensesForPeriod(periodKey) {
+  return state.finanzas.gastos.filter(
+    (expense) => getMonthKeyFromDate(expense.fecha) === periodKey,
+  );
+}
+
+function getDashboardMonthlySeries() {
+  const monthKeys = getFinanzasAllMonthKeys();
+  const recentMonthKeys = monthKeys.slice(-6);
+
+  return recentMonthKeys.map((monthKey) => ({
+    key: monthKey,
+    label: formatMonthLabelShort(monthKey),
+    total: getFinanzasMonthTotal(monthKey),
+  }));
+}
+
+function getDashboardCategorySummary(periodKey = getFinanzasCurrentPeriod()) {
+  const totals = new Map();
+  const expenses = getFinanzasExpensesForPeriod(periodKey);
+
+  expenses.forEach((expense) => {
+    const category = expense.categoria || "Otros";
+    totals.set(category, (totals.get(category) || 0) + Number(expense.monto || 0));
+  });
+
+  const overall = [...totals.values()].reduce((sum, value) => sum + value, 0);
+  const ranked = [...totals.entries()]
+    .map(([label, total]) => ({ label, total }))
+    .sort((a, b) => b.total - a.total);
+
+  const top = ranked.slice(0, 4);
+  const restTotal = ranked.slice(4).reduce((sum, item) => sum + item.total, 0);
+
+  if (restTotal > 0) {
+    top.push({ label: "Otros", total: restTotal });
+  }
+
+  if (top.length === 0) {
+    top.push({ label: "Otros", total: 1 });
+  }
+
+  return top.map((item) => {
+    const shareNumber = overall > 0 ? Math.round((item.total / overall) * 100) : 0;
+    return {
+      label: item.label,
+      total: item.total,
+      share: `${shareNumber}%`,
+      color: CATEGORY_COLORS[item.label] || CATEGORY_COLORS.Otros,
+    };
+  });
+}
+
+function getDashboardMetrics() {
+  const currentPeriod = getFinanzasCurrentPeriod();
+  const monthlyExpense = getFinanzasMonthTotal(currentPeriod);
+  const income = state.finanzas.monthlyIncome;
+  const savings = income - monthlyExpense;
+
+  const monthKeys = getFinanzasAllMonthKeys();
+  const currentIndex = monthKeys.indexOf(currentPeriod);
+  const previousPeriod = currentIndex > 0 ? monthKeys[currentIndex - 1] : "";
+  const previousMonthExpense = previousPeriod
+    ? getFinanzasMonthTotal(previousPeriod)
+    : 0;
+
+  const expenseDelta = previousMonthExpense > 0
+    ? ((monthlyExpense - previousMonthExpense) / previousMonthExpense) * 100
+    : 0;
+
+  const savingsDelta = state.finanzas.monthlySavingsGoal > 0
+    ? ((savings - state.finanzas.monthlySavingsGoal) / state.finanzas.monthlySavingsGoal) * 100
+    : 0;
+
+  const expenseCount = getFinanzasExpensesForPeriod(currentPeriod).length;
+  const ticketCount =
+    state.finanzas.ticketGoalByPeriod[currentPeriod] ?? expenseCount;
+
+  return [
+    {
+      label: "Gasto mensual",
+      value: formatMoney(monthlyExpense),
+      delta: `${expenseDelta >= 0 ? "subio" : "bajo"} ${Math.abs(expenseDelta).toFixed(1)}% vs mes anterior`,
+      trend: expenseDelta <= 0 ? "up" : "down",
+    },
+    {
+      label: "Ingreso neto",
+      value: formatMoney(income),
+      delta: "subio 3.0% este mes",
+      trend: "up",
+    },
+    {
+      label: "Ahorro acumulado",
+      value: formatMoney(Math.max(savings, 0)),
+      delta: `${savingsDelta >= 0 ? "sobre" : "bajo"} objetivo ${Math.abs(savingsDelta).toFixed(1)}%`,
+      trend: savingsDelta >= 0 ? "up" : "down",
+    },
+    {
+      label: "Tickets cargados",
+      value: String(ticketCount),
+      delta: `registrados ${expenseCount} en ${formatMonthLabelShort(currentPeriod)}`,
+      trend: "up",
+    },
+  ];
+}
+
+function getDashboardRecentExpenses(limit = 5, periodKey = getFinanzasCurrentPeriod()) {
+  return getFinanzasExpensesForPeriod(periodKey)
+    .slice()
+    .sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime())
+    .slice(0, limit)
+    .map((expense) => ({
+      ...expense,
+      fechaCorta: formatIsoDateShort(expense.fecha),
+    }));
+}
+
+function getMisGastosCategoryOptions() {
+  const categorySet = new Set();
+
+  state.finanzas.gastos.forEach((expense) => {
+    if (expense.categoria) {
+      categorySet.add(expense.categoria);
+    }
+  });
+
+  return [...categorySet].sort((a, b) => a.localeCompare(b));
+}
+
+function getMisGastosPeriodOptions() {
+  return getFinanzasAllMonthKeys()
+    .slice()
+    .sort((a, b) => compareMonthKeys(b, a))
+    .map((monthKey) => ({
+      value: monthKey,
+      label: formatMonthLabelLong(monthKey),
+    }));
+}
+
+function getFilteredExpenses() {
+  const { search, categoria, periodo } = state.finanzas.filtros;
+  const normalizedSearch = search.trim().toLowerCase();
+
+  return state.finanzas.gastos
+    .filter((expense) => {
+      if (periodo !== "todos" && getMonthKeyFromDate(expense.fecha) !== periodo) {
+        return false;
+      }
+
+      if (categoria !== "Todas" && expense.categoria !== categoria) {
+        return false;
+      }
+
+      if (normalizedSearch && !expense.comercio.toLowerCase().includes(normalizedSearch)) {
+        return false;
+      }
+
+      return true;
+    })
+    .slice()
+    .sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime())
+    .map((expense) => ({
+      ...expense,
+      fechaCorta: formatIsoDateShort(expense.fecha),
+    }));
+}
+
+function getReportEvolutionRows() {
+  const series = getDashboardMonthlySeries();
+  const maxValue = series.reduce((max, item) => Math.max(max, item.total), 0);
+
+  return series.map((item) => ({
+    label: item.label,
+    amount: formatMoney(item.total),
+    width: maxValue > 0 ? Math.max((item.total / maxValue) * 100, 8) : 8,
+  }));
+}
+
+function getMerchantRankingRows(limit = 5) {
+  const totals = new Map();
+  const currentPeriod = getFinanzasCurrentPeriod();
+
+  getFinanzasExpensesForPeriod(currentPeriod).forEach((expense) => {
+    totals.set(expense.comercio, (totals.get(expense.comercio) || 0) + Number(expense.monto || 0));
+  });
+
+  const ranking = [...totals.entries()]
+    .map(([label, total]) => ({ label, total }))
+    .sort((a, b) => b.total - a.total)
+    .slice(0, limit);
+
+  const maxValue = ranking.reduce((max, item) => Math.max(max, item.total), 0);
+
+  return ranking.map((item) => ({
+    label: item.label,
+    amount: formatMoney(item.total),
+    width: maxValue > 0 ? Math.max((item.total / maxValue) * 100, 8) : 8,
+  }));
+}
+
+function getUnusualSpendingMessages() {
+  const currentPeriod = getFinanzasCurrentPeriod();
+  const currentExpenses = getFinanzasExpensesForPeriod(currentPeriod);
+  const previousExpenses = state.finanzas.gastos.filter(
+    (expense) => getMonthKeyFromDate(expense.fecha) !== currentPeriod,
+  );
+
+  const unusual = [];
+
+  currentExpenses.forEach((expense) => {
+    const historical = previousExpenses.filter(
+      (item) => item.categoria === expense.categoria,
+    );
+
+    if (historical.length === 0) {
+      return;
+    }
+
+    const historicalAverage =
+      historical.reduce((sum, item) => sum + Number(item.monto || 0), 0) /
+      historical.length;
+
+    if (historicalAverage <= 0) {
+      return;
+    }
+
+    const ratio = Number(expense.monto || 0) / historicalAverage;
+    if (ratio >= 1.8) {
+      unusual.push({
+        commerce: expense.comercio,
+        amount: Number(expense.monto || 0),
+        ratio,
+        average: historicalAverage,
+        date: formatIsoDateShort(expense.fecha),
+      });
+    }
+  });
+
+  unusual.sort((a, b) => b.ratio - a.ratio);
+
+  return unusual.slice(0, 2).map((item) =>
+    `${item.commerce} · ${formatMoney(item.amount)} el ${item.date} — ${item.ratio.toFixed(1)}x mayor a tu promedio de ${formatMoney(item.average)}`,
+  );
+}
+
+function getInitials(name) {
+  const words = String(name)
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+
+  if (words.length === 0) {
+    return "US";
+  }
+
+  if (words.length === 1) {
+    return words[0].slice(0, 2).toUpperCase();
+  }
+
+  return `${words[0][0]}${words[1][0]}`.toUpperCase();
+}
+
+function buildAdvisorUsers() {
+  const search = state.asesor.busqueda.trim().toLowerCase();
+
+  return state.asesor.clientes
+    .filter((client) => client.nombre.toLowerCase().includes(search))
+    .map((client, index) => {
+      const ratio = client.presupuesto > 0
+        ? (client.gastosMes / client.presupuesto) * 100
+        : 0;
+      const risk = ratio >= 95 ? "high" : ratio >= 65 ? "medium" : "low";
+
+      return {
+        id: client.id,
+        name: client.nombre,
+        monthlySpend: client.gastosMes,
+        tickets: client.tickets || 0,
+        progress: Math.min(ratio, 100),
+        risk,
+        initials: getInitials(client.nombre),
+        avatarColor: ADVISOR_AVATAR_COLORS[index % ADVISOR_AVATAR_COLORS.length],
+      };
+    });
+}
+
+function getAdvisorPanelMetrics() {
+  const clients = state.asesor.clientes;
+  const totalSpend = clients.reduce(
+    (sum, client) => sum + Number(client.gastosMes || 0),
+    0,
+  );
+  const alerts = clients.filter(
+    (client) => client.presupuesto > 0 && (client.gastosMes / client.presupuesto) * 100 >= 95,
+  ).length;
+
+  return [
+    {
+      label: "Usuarios activos",
+      value: String(clients.length),
+      delta: `sumaste ${Math.max(clients.length - 20, 0)} este mes`,
+      trend: "up",
+    },
+    {
+      label: "Gasto total plataforma",
+      value: formatMoney(totalSpend),
+      delta: "subio 11% vs mes anterior",
+      trend: "up",
+    },
+    {
+      label: "Alertas pendientes",
+      value: String(alerts),
+      delta: alerts > 0 ? `${alerts} sin revisar` : "sin alertas activas",
+      trend: alerts > 0 ? "down" : "up",
+    },
+  ];
+}
+
+function csvEscape(value) {
+  const stringValue = String(value ?? "");
+
+  if (/[",\n]/.test(stringValue)) {
+    return `"${stringValue.replaceAll('"', '""')}"`;
+  }
+
+  return stringValue;
+}
+
+function exportFilteredExpensesAsCsv() {
+  const filteredExpenses = getFilteredExpenses();
+  const rows = [
+    ["Comercio", "Categoria", "Descripcion", "Fecha", "Monto"],
+    ...filteredExpenses.map((expense) => [
+      expense.comercio,
+      expense.categoria,
+      expense.descripcion || "",
+      expense.fecha,
+      Number(expense.monto || 0),
+    ]),
+  ];
+
+  const csv = rows.map((row) => row.map(csvEscape).join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = window.URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `gastos_${getFinanzasCurrentPeriod()}.csv`;
+  document.body.append(link);
+  link.click();
+  link.remove();
+
+  window.URL.revokeObjectURL(url);
+}
+
+function addExpenseRecord({ comercio, fecha, monto, categoria, descripcion }) {
+  const numericAmount = Number.parseFloat(String(monto));
+
+  if (!comercio || !fecha || Number.isNaN(numericAmount) || numericAmount <= 0 || !categoria) {
+    return false;
+  }
+
+  const monthKey = getMonthKeyFromDate(fecha);
+  const id = `g-${Date.now()}`;
+
+  state.finanzas.gastos = [
+    {
+      id,
+      comercio,
+      fecha,
+      monto: numericAmount,
+      categoria,
+      descripcion,
+    },
+    ...state.finanzas.gastos,
+  ];
+
+  if (monthKey) {
+    state.finanzas.currentPeriod = monthKey;
+
+    if (state.finanzas.ticketGoalByPeriod[monthKey] !== undefined) {
+      state.finanzas.ticketGoalByPeriod[monthKey] += 1;
+    }
+  }
+
+  return true;
+}
+
+function updateExpenseRecord(expenseId, updates) {
+  const previousExpense = state.finanzas.gastos.find((item) => item.id === expenseId);
+  if (!previousExpense) {
+    return false;
+  }
+
+  const nextAmount = Number.parseFloat(String(updates.monto));
+  if (
+    !updates.comercio ||
+    !updates.fecha ||
+    Number.isNaN(nextAmount) ||
+    nextAmount <= 0 ||
+    !updates.categoria
+  ) {
+    return false;
+  }
+
+  state.finanzas.gastos = state.finanzas.gastos.map((expense) =>
+    expense.id === expenseId
+      ? {
+          ...expense,
+          comercio: updates.comercio,
+          fecha: updates.fecha,
+          monto: nextAmount,
+          categoria: updates.categoria,
+          descripcion: updates.descripcion || "",
+        }
+      : expense,
+  );
+
+  return true;
+}
+
+function deleteExpenseRecord(expenseId) {
+  const previousLength = state.finanzas.gastos.length;
+  state.finanzas.gastos = state.finanzas.gastos.filter(
+    (expense) => expense.id !== expenseId,
+  );
+
+  return state.finanzas.gastos.length !== previousLength;
 }
 
 function escapeHtml(text) {
@@ -422,7 +1327,7 @@ async function loadCurrentUser() {
     const user = await response.json();
     syncProfileFromUser(user);
     return user;
-  } catch (error) {
+  } catch {
     state.currentUser = null;
     state.profileLoaded = true;
     return null;
@@ -542,7 +1447,7 @@ function getCurrentRoleLabel(pathname = window.location.pathname) {
   return cambioRol(pathname);
 }
 
-function getAdvisorClientHref(pathname) {
+function getAdvisorClientHref() {
   return "/dashboard/asesor";
 }
 
@@ -620,34 +1525,112 @@ function renderRegistroExitosoPage() {
 }
 
 function renderDashboardPage() {
-  const currentRole = getCurrentRoleLabel();
-  const brandTarget = getBrandTarget("/dashboard");
+  const currentPeriod = getFinanzasCurrentPeriod();
 
   return renderDashboardPageView({
-    state,
-    formatCurrency,
-    escapeHtml,
-    encabezadoInterno,
     profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
     profileName: state.perfil.nombre || "Usuario",
-    currentRole,
-    isAsesor: false,
-    brandTarget,
+    activePath: "/dashboard",
+    pageTitle: "Dashboard",
+    pageSubtitle: `Resumen financiero · ${formatMonthLabelLong(currentPeriod)}`,
+    metrics: getDashboardMetrics(),
+    categories: getDashboardCategorySummary(currentPeriod),
+    recentExpenses: getDashboardRecentExpenses(5, currentPeriod),
+    formatMoney,
+  });
+}
+
+function renderCargarGastoPage() {
+  return renderCargarGastoPageView({
+    profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
+    profileName: state.perfil.nombre || "Usuario",
+    activePath: "/dashboard/cargar",
+    pageTitle: "Cargar gasto",
+    pageSubtitle: "Registra un gasto manual o mediante ticket con IA",
+    activeTab: state.finanzas.cargar.activeTab,
+    ticketFileName: state.finanzas.cargar.ticketFileName,
+    aiForm: state.finanzas.cargar.aiForm,
+    manualForm: state.finanzas.cargar.manualForm,
+  });
+}
+
+function renderMisGastosPage() {
+  return renderMisGastosPageView({
+    profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
+    profileName: state.perfil.nombre || "Usuario",
+    activePath: "/dashboard/gastos",
+    pageTitle: "Mis gastos",
+    pageSubtitle: "Listado completo con filtros y exportacion a CSV",
+    filters: state.finanzas.filtros,
+    categoryOptions: getMisGastosCategoryOptions(),
+    periodOptions: getMisGastosPeriodOptions(),
+    gastos: getFilteredExpenses(),
+    formatMoney,
+  });
+}
+
+function renderReportesPage() {
+  const monthlySeries = getDashboardMonthlySeries();
+  const averageMonthlyExpense = monthlySeries.length > 0
+    ? monthlySeries.reduce((sum, item) => sum + item.total, 0) / monthlySeries.length
+    : 0;
+  const categories = getDashboardCategorySummary(getFinanzasCurrentPeriod());
+  const merchantRanking = getMerchantRankingRows();
+
+  return renderReportesPageView({
+    profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
+    profileName: state.perfil.nombre || "Usuario",
+    activePath: "/dashboard/reportes",
+    pageTitle: "Reportes",
+    pageSubtitle: "Analisis de consumo y deteccion de gastos inusuales",
+    metrics: [
+      {
+        label: "Promedio mensual",
+        value: formatMoney(averageMonthlyExpense),
+        delta: "ultimos 6 meses",
+        trend: "up",
+      },
+      {
+        label: "Categoria principal",
+        value: categories[0]?.label || "Sin datos",
+        delta: categories[0] ? `${categories[0].share} del total` : "sin movimiento",
+        trend: "up",
+      },
+      {
+        label: "Comercio top",
+        value: merchantRanking[0]?.label || "Sin datos",
+        delta: merchantRanking[0]?.amount || "sin consumo",
+        trend: "up",
+      },
+    ],
+    evolutionRows: getReportEvolutionRows(),
+    merchantRows: merchantRanking,
+    unusualSpending: getUnusualSpendingMessages(),
+  });
+}
+
+function renderRecomendacionesPage() {
+  return renderRecomendacionesPageView({
+    profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
+    profileName: state.perfil.nombre || "Usuario",
+    activePath: "/dashboard/recomendaciones",
+    pageTitle: "Recomendaciones",
+    pageSubtitle: "Inbox financiero con alertas y sugerencias priorizadas",
+    recomendaciones: state.finanzas.recomendaciones,
   });
 }
 
 function renderDashboardAsesorPage() {
-  const pathname = window.location.pathname;
   return renderDashboardAsesorPageView({
-    state,
-    escapeHtml,
-    formatCurrency,
-    encabezadoInterno,
-    tarjetaValor,
     profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
     profileName: state.perfil.nombre || "Usuario",
-    currentRole: getCurrentRoleLabel(),
-    brandTarget: getBrandTarget(pathname),
+    activePath: "/dashboard/asesor",
+    pageTitle: "Panel asesor",
+    pageSubtitle: "Vista global de clientes con indicadores de riesgo",
+    metrics: getAdvisorPanelMetrics(),
+    users: buildAdvisorUsers(),
+    search: state.asesor.busqueda,
+    formatMoney,
   });
 }
 
@@ -868,6 +1851,22 @@ function buildRouteView(pathname) {
     return renderDashboardLayout(renderDashboardPage());
   }
 
+  if (pathname === "/dashboard/cargar") {
+    return renderDashboardLayout(renderCargarGastoPage());
+  }
+
+  if (pathname === "/dashboard/gastos") {
+    return renderDashboardLayout(renderMisGastosPage());
+  }
+
+  if (pathname === "/dashboard/reportes") {
+    return renderDashboardLayout(renderReportesPage());
+  }
+
+  if (pathname === "/dashboard/recomendaciones") {
+    return renderDashboardLayout(renderRecomendacionesPage());
+  }
+
   if (pathname === "/dashboard/asesor") {
     return renderDashboardLayout(renderDashboardAsesorPage(), {
       showScrollTop: false,
@@ -898,7 +1897,7 @@ function buildRouteView(pathname) {
 
 function isProtectedRoute(pathname) {
   return pathname === "/dashboard" ||
-    pathname === "/dashboard/asesor" ||
+    pathname.startsWith("/dashboard/") ||
     pathname.startsWith("/cliente/") ||
     pathname.startsWith("/perfil/");
 }
@@ -1001,6 +2000,94 @@ function attachGlobalNavigation() {
       state.currentUser = null;
       state.profileLoaded = true;
       navigate("/login", true);
+      return;
+    }
+
+    if (action === "switch-cargar-tab") {
+      event.preventDefault();
+      const nextTab = actionButton.getAttribute("data-tab");
+      if (nextTab === "ticket" || nextTab === "manual") {
+        state.finanzas.cargar.activeTab = nextTab;
+        render();
+      }
+      return;
+    }
+
+    if (action === "export-expenses-csv") {
+      event.preventDefault();
+      exportFilteredExpensesAsCsv();
+      return;
+    }
+
+    if (action === "delete-expense") {
+      event.preventDefault();
+      const expenseId = actionButton.getAttribute("data-expense-id");
+      if (!expenseId) {
+        return;
+      }
+
+      const shouldDelete = window.confirm("Quieres eliminar este gasto?");
+      if (!shouldDelete) {
+        return;
+      }
+
+      if (deleteExpenseRecord(expenseId)) {
+        render();
+      }
+      return;
+    }
+
+    if (action === "edit-expense") {
+      event.preventDefault();
+      const expenseId = actionButton.getAttribute("data-expense-id");
+      if (!expenseId) {
+        return;
+      }
+
+      const expense = state.finanzas.gastos.find((item) => item.id === expenseId);
+      if (!expense) {
+        return;
+      }
+
+      const comercio = window.prompt("Comercio", expense.comercio);
+      if (comercio === null) {
+        return;
+      }
+
+      const fecha = window.prompt("Fecha (YYYY-MM-DD)", expense.fecha);
+      if (fecha === null) {
+        return;
+      }
+
+      const monto = window.prompt("Monto", String(expense.monto));
+      if (monto === null) {
+        return;
+      }
+
+      const categoria = window.prompt("Categoria", expense.categoria);
+      if (categoria === null) {
+        return;
+      }
+
+      const descripcion = window.prompt(
+        "Descripcion (opcional)",
+        expense.descripcion || "",
+      );
+
+      const updated = updateExpenseRecord(expenseId, {
+        comercio: comercio.trim(),
+        fecha: fecha.trim(),
+        monto: monto.trim(),
+        categoria: categoria.trim(),
+        descripcion: descripcion === null ? expense.descripcion || "" : descripcion.trim(),
+      });
+
+      if (!updated) {
+        window.alert("No se pudo actualizar el gasto. Verifica los campos.");
+        return;
+      }
+
+      render();
       return;
     }
 
@@ -1399,6 +2486,110 @@ function attachFormHandlers(pathname) {
     }, REGISTRO_EXITOSO_REDIRECT_SECONDS * 1000);
   }
 
+  if (pathname === "/dashboard/cargar") {
+    const ticketUploadInput = document.getElementById("ticketUploadInput");
+    const ticketAiForm = document.getElementById("ticketAiForm");
+    const manualExpenseForm = document.getElementById("manualExpenseForm");
+
+    ticketUploadInput?.addEventListener("change", (event) => {
+      const file = event.target.files?.[0];
+      if (!file) {
+        return;
+      }
+
+      state.finanzas.cargar.ticketFileName = file.name;
+      state.finanzas.cargar.aiForm = {
+        comercio: "Disco Supermaxi",
+        fecha: "2026-04-18",
+        monto: "42480",
+        categoria: "Supermercado",
+        descripcion: "Compras semanales",
+      };
+      render();
+    });
+
+    ticketAiForm?.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const formData = new FormData(ticketAiForm);
+
+      const payload = {
+        comercio: (formData.get("comercio") || "").toString().trim(),
+        fecha: (formData.get("fecha") || "").toString(),
+        monto: (formData.get("monto") || "").toString(),
+        categoria: (formData.get("categoria") || "").toString(),
+        descripcion: (formData.get("descripcion") || "").toString().trim(),
+      };
+
+      state.finanzas.cargar.aiForm = payload;
+
+      if (!addExpenseRecord(payload)) {
+        window.alert("No se pudo guardar el gasto. Revisa los datos.");
+        return;
+      }
+
+      const periodKey = getMonthKeyFromDate(payload.fecha);
+      state.finanzas.filtros.periodo = periodKey || "todos";
+      state.finanzas.filtros.search = "";
+      state.finanzas.filtros.categoria = "Todas";
+      navigate("/dashboard/gastos");
+    });
+
+    manualExpenseForm?.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const formData = new FormData(manualExpenseForm);
+
+      const payload = {
+        comercio: (formData.get("comercio") || "").toString().trim(),
+        fecha: (formData.get("fecha") || "").toString(),
+        monto: (formData.get("monto") || "").toString(),
+        categoria: (formData.get("categoria") || "").toString(),
+        descripcion: (formData.get("descripcion") || "").toString().trim(),
+      };
+
+      state.finanzas.cargar.manualForm = payload;
+
+      if (!addExpenseRecord(payload)) {
+        window.alert("No se pudo guardar el gasto. Revisa los datos.");
+        return;
+      }
+
+      state.finanzas.cargar.manualForm = {
+        comercio: "",
+        fecha: payload.fecha,
+        monto: "",
+        categoria: "",
+        descripcion: "",
+      };
+
+      const periodKey = getMonthKeyFromDate(payload.fecha);
+      state.finanzas.filtros.periodo = periodKey || "todos";
+      state.finanzas.filtros.search = "";
+      state.finanzas.filtros.categoria = "Todas";
+      navigate("/dashboard/gastos");
+    });
+  }
+
+  if (pathname === "/dashboard/gastos") {
+    const searchInput = document.getElementById("expenseSearchInput");
+    const categoryFilter = document.getElementById("expenseCategoryFilter");
+    const periodFilter = document.getElementById("expensePeriodFilter");
+
+    searchInput?.addEventListener("input", (event) => {
+      state.finanzas.filtros.search = event.target.value;
+      render();
+    });
+
+    categoryFilter?.addEventListener("change", (event) => {
+      state.finanzas.filtros.categoria = event.target.value;
+      render();
+    });
+
+    periodFilter?.addEventListener("change", (event) => {
+      state.finanzas.filtros.periodo = event.target.value;
+      render();
+    });
+  }
+
   if (pathname === "/dashboard") {
     const dashboard = state.dashboard;
 
@@ -1581,65 +2772,10 @@ function attachFormHandlers(pathname) {
   }
 
   if (pathname === "/dashboard/asesor") {
-    const busquedaInput = document.getElementById("busquedaCliente");
+    const busquedaInput = document.getElementById("advisorSearchInput");
     busquedaInput?.addEventListener("input", (event) => {
       state.asesor.busqueda = event.target.value;
       render();
-    });
-
-    const agregarClienteForm = document.getElementById("agregarClienteForm");
-    agregarClienteForm?.addEventListener("submit", (event) => {
-      event.preventDefault();
-
-      const nombre = (
-        document.getElementById("nombreCliente")?.value ?? ""
-      ).trim();
-      const presupuestoStr =
-        document.getElementById("presupuestoCliente")?.value ?? "";
-      const presupuesto = Number.parseFloat(presupuestoStr);
-
-      state.asesor.nuevoCliente = {
-        nombre,
-        presupuesto: presupuestoStr,
-      };
-
-      if (!nombre || Number.isNaN(presupuesto)) {
-        return;
-      }
-
-      state.asesor.clientes = [
-        ...state.asesor.clientes,
-        {
-          id: Date.now().toString(),
-          nombre,
-          gastosMes: 0,
-          ahorros: 0,
-          presupuesto,
-          estado: "normal",
-        },
-      ];
-
-      state.asesor.nuevoCliente = { nombre: "", presupuesto: "" };
-
-      const modalElement = document.getElementById("agregarClienteModal");
-      const modalInstance =
-        bootstrap.Modal.getInstance(modalElement) ??
-        new bootstrap.Modal(modalElement);
-      modalInstance.hide();
-
-      render();
-    });
-
-    const nombreClienteInput = document.getElementById("nombreCliente");
-    const presupuestoClienteInput =
-      document.getElementById("presupuestoCliente");
-
-    nombreClienteInput?.addEventListener("input", (event) => {
-      state.asesor.nuevoCliente.nombre = event.target.value;
-    });
-
-    presupuestoClienteInput?.addEventListener("input", (event) => {
-      state.asesor.nuevoCliente.presupuesto = event.target.value;
     });
   }
 
@@ -1845,14 +2981,19 @@ function attachFormHandlers(pathname) {
   }
 }
 
-function buildPieChart(canvasId, labels, values, centerPercentage = 0) {
+function buildPieChart(
+  canvasId,
+  labels,
+  values,
+  centerPercentage = 0,
+  colors = [],
+) {
   const canvas = document.getElementById(canvasId);
   if (!canvas) {
     return;
   }
 
   const isDark = state.configuracion.temaOscuro;
-  const legendColor = isDark ? "#cbd5e1" : "#334155";
   const tooltipBackground = isDark
     ? "rgba(15, 23, 42, 0.95)"
     : "rgba(255, 255, 255, 0.9)";
@@ -1899,13 +3040,15 @@ function buildPieChart(canvasId, labels, values, centerPercentage = 0) {
       datasets: [
         {
           data: values,
-          backgroundColor: [
-            "rgba(13, 110, 253, 0.85)", // Azul
-            "rgba(25, 135, 84, 0.85)",  // Verde
-            "rgba(220, 53, 69, 0.85)",  // Rojo
-            "rgba(255, 193, 7, 0.85)",  // Amarillo
-            "rgba(13, 202, 240, 0.85)", // Celeste
-          ],
+          backgroundColor: colors.length > 0
+            ? colors
+            : [
+                "rgba(13, 110, 253, 0.85)",
+                "rgba(25, 135, 84, 0.85)",
+                "rgba(220, 53, 69, 0.85)",
+                "rgba(255, 193, 7, 0.85)",
+                "rgba(13, 202, 240, 0.85)",
+              ],
           borderColor: datasetBorder,
           borderWidth: 3,
           hoverOffset: 8,
@@ -1919,15 +3062,7 @@ function buildPieChart(canvasId, labels, values, centerPercentage = 0) {
       cutout: '80%',
       layout: { padding: 10 },
       plugins: {
-        legend: { 
-          position: "right", 
-          labels: {
-            usePointStyle: true,
-            padding: 15,
-            color: legendColor,
-            font: { family: "'Inter', sans-serif", size: 13 },
-          },
-        },
+        legend: { display: false },
         tooltip: {
           backgroundColor: tooltipBackground,
           titleColor: tooltipTitle,
@@ -1947,6 +3082,90 @@ function buildPieChart(canvasId, labels, values, centerPercentage = 0) {
             },
           },
         }
+      },
+    },
+  });
+
+  chartInstances.push(instance);
+}
+
+function buildBarChart(canvasId, dataPoints) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) {
+    return;
+  }
+
+  const isDark = state.configuracion.temaOscuro;
+  const axisTextColor = isDark ? "#cbd5e1" : "#334155";
+  const gridColor = isDark ? "rgba(148, 163, 184, 0.18)" : "#e2e8f0";
+  const tooltipBackground = isDark
+    ? "rgba(15, 23, 42, 0.95)"
+    : "rgba(255, 255, 255, 0.95)";
+  const tooltipTitle = isDark ? "#f8fafc" : "#1e293b";
+  const tooltipBody = isDark ? "#cbd5e1" : "#334155";
+  const tooltipBorder = isDark ? "#334155" : "#e2e8f0";
+
+  const highlightIndex = dataPoints.length - 1;
+
+  const instance = new Chart(canvas, {
+    type: "bar",
+    data: {
+      labels: dataPoints.map((item) => item.label),
+      datasets: [
+        {
+          data: dataPoints.map((item) => item.total),
+          borderRadius: 10,
+          borderSkipped: false,
+          backgroundColor: dataPoints.map((_, index) =>
+            index === highlightIndex
+              ? "rgba(130, 205, 52, 0.95)"
+              : "rgba(130, 205, 52, 0.38)",
+          ),
+          hoverBackgroundColor: dataPoints.map((_, index) =>
+            index === highlightIndex
+              ? "rgba(130, 205, 52, 1)"
+              : "rgba(130, 205, 52, 0.55)",
+          ),
+          maxBarThickness: 42,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: tooltipBackground,
+          titleColor: tooltipTitle,
+          bodyColor: tooltipBody,
+          borderColor: tooltipBorder,
+          borderWidth: 1,
+          callbacks: {
+            label(context) {
+              return ` ${formatMoney(context.raw)}`;
+            },
+          },
+        },
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: {
+            color: axisTextColor,
+            font: { family: "'Inter', sans-serif", size: 11 },
+          },
+        },
+        y: {
+          beginAtZero: true,
+          grid: { color: gridColor },
+          ticks: {
+            color: axisTextColor,
+            callback(value) {
+              return formatMoney(value);
+            },
+          },
+        },
       },
     },
   });
@@ -2038,22 +3257,21 @@ function initCharts(pathname) {
   chartInstances = [];
 
   if (pathname === "/dashboard") {
-    const gastosMensuales = 14350.75;
-    const pozoAhorrado = state.dashboard.ahorros.reduce(
-      (sum, ahorro) => sum + ahorro.monto,
-      0,
-    );
-    const referenciaTotal = gastosMensuales + pozoAhorrado;
-    const porcentajeGastado =
-      referenciaTotal > 0 ? (gastosMensuales / referenciaTotal) * 100 : 0;
+    const currentPeriod = getFinanzasCurrentPeriod();
+    const monthlySeries = getDashboardMonthlySeries();
+    const categorySeries = getDashboardCategorySummary(currentPeriod);
+    const monthlyExpense = getFinanzasMonthTotal(currentPeriod);
+    const income = state.finanzas.monthlyIncome;
+    const spentPercentage = income > 0 ? (monthlyExpense / income) * 100 : 0;
 
+    buildBarChart("dashboardMonthlyBarChart", monthlySeries);
     buildPieChart(
-      "dashboardPieChart",
-      ["Comida", "Vivienda", "Transporte", "Ocio", "Otros"],
-      [35, 25, 15, 10, 15],
-      porcentajeGastado,
+      "dashboardCategoryDonutChart",
+      categorySeries.map((item) => item.label),
+      categorySeries.map((item) => item.total),
+      spentPercentage,
+      categorySeries.map((item) => item.color),
     );
-    buildLineChart("dashboardLineChart", monthlyExpensesDashboard);
   }
 
   if (pathname.startsWith("/cliente/")) {

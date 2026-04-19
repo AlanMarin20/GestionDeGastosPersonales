@@ -1,0 +1,185 @@
+const USER_NAV_ITEMS = [
+  {
+    section: "Principal",
+    items: [
+      { href: "/dashboard", label: "Dashboard", icon: "lni lni-grid-alt" },
+      {
+        href: "/dashboard/cargar",
+        label: "Cargar gasto",
+        icon: "lni lni-upload",
+      },
+      {
+        href: "/dashboard/gastos",
+        label: "Mis gastos",
+        icon: "lni lni-list",
+      },
+      {
+        href: "/dashboard/reportes",
+        label: "Reportes",
+        icon: "lni lni-bar-chart",
+      },
+    ],
+  },
+  {
+    section: "Analisis",
+    items: [
+      {
+        href: "/dashboard/recomendaciones",
+        label: "Recomendaciones",
+        icon: "lni lni-bulb",
+      },
+    ],
+  },
+];
+
+const ADVISOR_NAV_ITEMS = [
+  ...USER_NAV_ITEMS,
+  {
+    section: "Asesoria",
+    items: [
+      {
+        href: "/dashboard/asesor",
+        label: "Panel asesor",
+        icon: "lni lni-users",
+      },
+    ],
+  },
+];
+
+function escapeHtml(text) {
+  return String(text)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function buildInitials(name) {
+  const words = String(name)
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+
+  if (words.length === 0) {
+    return "US";
+  }
+
+  if (words.length === 1) {
+    return words[0].slice(0, 2).toUpperCase();
+  }
+
+  return `${words[0][0]}${words[1][0]}`.toUpperCase();
+}
+
+function renderNavGroups({ activePath, isAsesor }) {
+  const navConfig = isAsesor ? ADVISOR_NAV_ITEMS : USER_NAV_ITEMS;
+
+  return navConfig
+    .map(
+      (group) => `
+        <div class="gd-nav-section">
+          <div class="gd-nav-label">${escapeHtml(group.section)}</div>
+          ${group.items
+            .map((item) => {
+              const isActive = activePath === item.href;
+              return `
+                <a href="${escapeHtml(item.href)}" data-link class="gd-nav-item ${isActive ? "active" : ""}">
+                  <i class="${escapeHtml(item.icon)} gd-nav-icon" aria-hidden="true"></i>
+                  <span>${escapeHtml(item.label)}</span>
+                </a>
+              `;
+            })
+            .join("")}
+        </div>
+      `,
+    )
+    .join("");
+}
+
+export function renderDashboardAppLayout({
+  activePath,
+  pageTitle,
+  pageSubtitle,
+  content,
+  profileImage,
+  profileName,
+  isAsesor = false,
+  notificationCount = 0,
+}) {
+  const initials = buildInitials(profileName);
+  const roleLabel = isAsesor ? "asesor" : "usuario";
+  const roleBadge = isAsesor ? "ASE" : "USR";
+  const primaryAction = isAsesor
+    ? {
+        label: "Vista usuario",
+        path: "/dashboard",
+        icon: "lni lni-user",
+      }
+    : {
+        label: "Nuevo gasto",
+        path: "/dashboard/cargar",
+        icon: "lni lni-plus",
+      };
+
+  return `
+    <div class="gd-shell">
+      <aside class="gd-sidebar">
+        <div class="gd-logo-wrap">
+          <a href="/dashboard" data-link class="gd-logo-link" aria-label="Ir al dashboard">
+            <span class="gd-logo-icon">FP</span>
+            <span class="gd-logo-text">FinanzasPro<span>gestion de gastos</span></span>
+          </a>
+        </div>
+
+        <nav class="gd-nav" aria-label="Navegacion del dashboard">
+          ${renderNavGroups({ activePath, isAsesor })}
+        </nav>
+
+        <div class="gd-user-chip-wrap">
+          <a href="/perfil/editar" data-link class="gd-user-chip" aria-label="Editar perfil">
+            <img
+              src="${escapeHtml(profileImage || "/assets/img/user-avatar-default.svg")}" 
+              alt="Avatar de ${escapeHtml(profileName)}"
+              class="gd-avatar-image"
+              onerror="this.style.display='none'; this.nextElementSibling.classList.remove('d-none');"
+            >
+            <span class="gd-avatar d-none" aria-hidden="true">${escapeHtml(initials)}</span>
+            <span class="gd-user-copy">
+              <span class="gd-user-name">${escapeHtml(profileName)}</span>
+              <span class="gd-user-role">${escapeHtml(roleLabel)}</span>
+            </span>
+            <span class="gd-role-badge">${escapeHtml(roleBadge)}</span>
+          </a>
+        </div>
+      </aside>
+
+      <section class="gd-main">
+        <header class="gd-topbar">
+          <div class="gd-topbar-copy">
+            <h1 class="gd-page-title">${escapeHtml(pageTitle)}</h1>
+            <p class="gd-page-subtitle">${escapeHtml(pageSubtitle)}</p>
+          </div>
+
+          <div class="gd-topbar-actions">
+            <button type="button" class="gd-top-btn" data-nav="/dashboard/recomendaciones">
+              <i class="lni lni-alarm" aria-hidden="true"></i>
+              <span>Alertas</span>
+              ${
+                notificationCount > 0
+                  ? `<span class="gd-alert-dot" aria-label="${notificationCount} alertas pendientes"></span>`
+                  : ""
+              }
+            </button>
+            <button type="button" class="gd-top-btn gd-top-btn-primary" data-nav="${escapeHtml(primaryAction.path)}">
+              <i class="${escapeHtml(primaryAction.icon)}" aria-hidden="true"></i>
+              <span>${escapeHtml(primaryAction.label)}</span>
+            </button>
+          </div>
+        </header>
+
+        <div class="gd-content">${content}</div>
+      </section>
+    </div>
+  `;
+}
