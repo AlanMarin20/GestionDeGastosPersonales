@@ -786,6 +786,17 @@ function buildRouteView(pathname) {
   return null;
 }
 
+function isProtectedRoute(pathname) {
+  return pathname === "/dashboard" ||
+    pathname === "/dashboard/asesor" ||
+    pathname.startsWith("/cliente/") ||
+    pathname.startsWith("/perfil/");
+}
+
+function hasAuthenticatedSession() {
+  return Boolean(getAccessToken() && state.currentUser?.id);
+}
+
 function attachGlobalNavigation() {
   document.addEventListener("click", (event) => {
     const link = event.target.closest("a[data-link]");
@@ -847,6 +858,15 @@ function attachGlobalNavigation() {
       if (target) {
         navigate(target);
       }
+      return;
+    }
+
+    if (action === "logout") {
+      event.preventDefault();
+      localStorage.removeItem(ACCESS_TOKEN_KEY);
+      state.currentUser = null;
+      state.profileLoaded = true;
+      navigate("/login", true);
       return;
     }
 
@@ -1909,6 +1929,11 @@ function resolveThemeForPath(pathname) {
 
 function render() {
   const pathname = window.location.pathname;
+
+  if (isProtectedRoute(pathname) && !hasAuthenticatedSession()) {
+    navigate("/login", true);
+    return;
+  }
 
   // OAuth de terceros deshabilitado temporalmente.
   // if (pathname === OAUTH_CALLBACK_PATH) {

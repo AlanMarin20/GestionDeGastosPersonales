@@ -75,7 +75,7 @@ export function encabezadoInterno({
             <li><a class="dropdown-item py-2 fw-semibold text-dark" href="/perfil/configuracion" data-link><i class="lni lni-cog me-2"></i> Configuración</a></li>
             <li><a class="dropdown-item py-2 fw-semibold text-dark" href="/perfil/notificaciones" data-link><i class="lni lni-alarm me-2"></i> Notificaciones</a></li>
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item py-2 fw-bold text-danger" href="/login" data-link><i class="lni lni-exit me-2"></i> Cerrar Sesión</a></li>
+            <li><button type="button" class="dropdown-item py-2 fw-bold text-danger border-0 bg-transparent text-start" data-action="logout"><i class="lni lni-exit me-2"></i> Cerrar Sesión</button></li>
           </ul>
         </div>
       </div>
