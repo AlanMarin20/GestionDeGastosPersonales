@@ -36,7 +36,7 @@ export function encabezadoInterno({
             <img src="/assets/img/logo/iconoSfondo.png" alt="Icono FinanzasPro" class="fp-brand-icon-image">
           </span>
           <h4 class="mb-0 fw-bold text-dark fs-5 fp-brand-text-dark">FinanzasPro</h4>
-        </button>
+        <img src="/assets/img/logo/iconoSfondo.webp" alt="Icono FinanzasPro" class="fp-brand-icon-image">
         ${pageTitle
           ? `<span class="ms-sm-3 text-muted fw-semibold d-none d-md-block border-start ps-sm-3 border-2">${escapeHtml(pageTitle)}</span>`
           : ''}
@@ -113,7 +113,7 @@ export function encabezadoExterno({
               <nav class="navbar navbar-expand-lg d-flex justify-content-between py-3">
                 <a class="navbar-brand d-inline-flex align-items-center gap-2 fp-brand-link" href="/" data-link>
                   <span class="d-inline-flex align-items-center justify-content-center rounded-circle shadow-sm overflow-hidden flex-shrink-0 fp-brand-icon-shell">
-                    <img src="/assets/img/logo/iconoSfondo.png" alt="Icono FinanzasPro" class="fp-brand-icon-image">
+                          <img src="/assets/img/logo/iconoSfondo.webp" alt="Icono FinanzasPro" class="fp-brand-icon-image">
                   </span>
                   <span class="fw-bold text-white fs-5 fp-brand-text-light">FinanzasPro</span>
                 </a>
@@ -398,10 +398,18 @@ export function tarjetaLandingPage({
   description,
   iconClass = '',
   iconImageSrc = '',
+  iconImageFallbackSrc = '',
   iconAlt = '',
 } = {}) {
   const iconMarkup = iconImageSrc
-    ? `<img src="${escapeHtml(iconImageSrc)}" alt="${escapeHtml(iconAlt || title)}" class="fp-feature-card-icon-image" />`
+    ? iconImageFallbackSrc
+      ? `
+        <picture>
+          <source srcset="${escapeHtml(iconImageSrc)}" type="image/webp" />
+          <img src="${escapeHtml(iconImageFallbackSrc)}" alt="${escapeHtml(iconAlt || title)}" class="fp-feature-card-icon-image" />
+        </picture>
+      `
+      : `<img src="${escapeHtml(iconImageSrc)}" alt="${escapeHtml(iconAlt || title)}" class="fp-feature-card-icon-image" />`
     : `<i class="lni ${escapeHtml(iconClass)}"></i>`;
 
   return `
@@ -449,6 +457,7 @@ export function descripcionLanding({
 
 export function imagenesLanding({
   src,
+  fallbackSrc = '',
   alt,
   wrapperClass = 'hero-img wow fadeInUp d-flex align-items-center justify-content-center',
   delay = '.5s',
@@ -460,10 +469,19 @@ export function imagenesLanding({
   const delayAttr = delay ? ` data-wow-delay="${escapeHtml(delay)}"` : '';
   const styleAttr = wrapperStyle ? ` style="${escapeHtml(wrapperStyle)}"` : '';
   const imageStyleAttr = imageStyle ? ` style="${escapeHtml(imageStyle)}"` : '';
+  const hasFallbackSrc = Boolean(fallbackSrc);
+  const imageMarkup = hasFallbackSrc
+    ? `
+      <picture>
+        <source srcset="${escapeHtml(src)}" type="image/webp" />
+        <img src="${escapeHtml(fallbackSrc)}" alt="${escapeHtml(alt)}" class="${escapeHtml(imageClass)}"${imageStyleAttr} />
+      </picture>
+    `
+    : `<img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}" class="${escapeHtml(imageClass)}"${imageStyleAttr} />`;
 
   return `
     <div class="${escapeHtml(wrapperClass)}"${delayAttr}${styleAttr}>
-      <img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}" class="${escapeHtml(imageClass)}"${imageStyleAttr} />
+      ${imageMarkup}
       ${extraMarkup}
     </div>
   `;

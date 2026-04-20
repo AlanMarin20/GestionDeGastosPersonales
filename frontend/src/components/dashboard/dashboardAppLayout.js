@@ -140,7 +140,7 @@ export function renderDashboardAppLayout({
         <div class="gd-logo-wrap">
           <a href="/dashboard" data-link class="gd-logo-link" aria-label="Ir al dashboard">
             <span class="gd-logo-icon" aria-hidden="true">
-              <img src="/assets/img/logo/iconoSfondo.png" alt="">
+              <img src="/assets/img/logo/iconoSfondo.webp" alt="">
             </span>
             <span class="gd-logo-text">FinanzasPro<span>gestion de gastos</span></span>
           </a>

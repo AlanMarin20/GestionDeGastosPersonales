@@ -68,7 +68,8 @@ export function renderLandingPage({ encabezadoExterno, encabezadoAuthPublico, ta
           </div>
           <div class="col-lg-7">
             ${imagenesLanding({
-              src: '/assets/img/hero/genericaDashboardPage.png',
+              src: '/assets/img/hero/dashboard.webp',
+              fallbackSrc: '/assets/img/hero/dashboard.png',
               alt: 'Vista de dashboard de usuario',
               wrapperClass: 'hero-img wow fadeInUp d-flex align-items-center justify-content-center landing-hero-image-wrap',
               delay: '.5s',
@@ -89,7 +90,8 @@ export function renderLandingPage({ encabezadoExterno, encabezadoAuthPublico, ta
             'realizá cargas manuales detalladas mediante formularios ' +
             'dinámicos. Nos adaptamos a tu ritmo para que ningún gasto ' +
             'quede fuera de tu historial.',
-            iconImageSrc: '/assets/img/hero/landingRegistra.png',
+            iconImageSrc: '/assets/img/hero/landingRegistra.webp',
+            iconImageFallbackSrc: '/assets/img/hero/landingRegistra.png',
             iconAlt: 'Icono de registro',
           })}
           ${tarjetaLandingPage({
@@ -98,7 +100,8 @@ export function renderLandingPage({ encabezadoExterno, encabezadoAuthPublico, ta
             'categoría o período de tiempo a través de gráficos interactivos ' +
             'de torta y barras. Identificá patrones mensuales y mantené ' +
             'un seguimiento preciso de tus ingresos y ahorros en un solo lugar.',
-            iconImageSrc: '/assets/img/hero/landingAnaliza.png',
+            iconImageSrc: '/assets/img/hero/landingAnaliza.webp',
+            iconImageFallbackSrc: '/assets/img/hero/landingAnaliza.png',
             iconAlt: 'Icono de análisis',
           })}
           ${tarjetaLandingPage({
@@ -107,7 +110,8 @@ export function renderLandingPage({ encabezadoExterno, encabezadoAuthPublico, ta
             'presupuestos y objetivos de ahorro realistas. Recibí ' +
             'sugerencias personalizadas de tu asesor financiero para ' +
             'reducir gastos innecesarios y mejorar tu salud económica general.',
-            iconImageSrc: '/assets/img/hero/landingOptimiza.png',
+            iconImageSrc: '/assets/img/hero/landingOptimiza.webp',
+            iconImageFallbackSrc: '/assets/img/hero/landingOptimiza.png',
             iconAlt: 'Icono de optimización',
           })}
         </div>
@@ -119,7 +123,8 @@ export function renderLandingPage({ encabezadoExterno, encabezadoAuthPublico, ta
         <div class="row align-items-center">
           <div class="col-xl-6 col-lg-6">
             ${imagenesLanding({
-              src: '/assets/img/hero/genericaDetalleClientePage.png',
+              src: '/assets/img/hero/dashboard-asesor.webp',
+              fallbackSrc: '/assets/img/hero/dashboard-asesor.png',
               alt: 'Imagen descriptiva del uso como asesor',
               wrapperClass: 'about-img landing-about-img',
               imageClass: 'w-100 landing-about-image landing-media-rounded',
@@ -155,7 +160,7 @@ export function renderLandingPage({ encabezadoExterno, encabezadoAuthPublico, ta
               <div class="footer-widget">
                 <div class="logo mb-3">
                   <a href="/" data-link class="d-inline-flex align-items-center gap-2 text-decoration-none">
-                    <img src="/assets/img/logo/iconoSfondo.png" alt="FinanzasPro" class="landing-footer-brand-image" />
+                    <img src="/assets/img/logo/iconoSfondo.webp" alt="FinanzasPro" class="landing-footer-brand-image" />
                     <span class="fw-bold text-white fs-4 landing-footer-brand-text">FinanzasPro</span>
                   </a>
                 </div>
