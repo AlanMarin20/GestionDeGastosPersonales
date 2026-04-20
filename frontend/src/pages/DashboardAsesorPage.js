@@ -31,13 +31,13 @@ export function renderDashboardAsesorPage({
   formatMoney,
 }) {
   const content = `
-    <section class="gd-metrics" style="grid-template-columns: repeat(3, minmax(0, 1fr));">
+    <section class="gd-metrics gd-metrics-3">
       ${metrics
         .map(
           (metric) => `
             <article class="gd-metric-card">
               <p class="gd-metric-label">${escapeHtml(metric.label)}</p>
-              <p class="gd-metric-value" style="font-size: 1rem;">${escapeHtml(metric.value)}</p>
+              <p class="gd-metric-value gd-metric-value-compact">${escapeHtml(metric.value)}</p>
               <span class="gd-metric-delta ${metric.trend === "down" ? "gd-delta-down" : "gd-delta-up"}">${escapeHtml(metric.delta)}</span>
             </article>
           `,
@@ -67,7 +67,7 @@ export function renderDashboardAsesorPage({
 
                   return `
                     <article class="gd-user-row">
-                      <span class="gd-user-avatar" style="background: ${escapeHtml(user.avatarColor)};">${escapeHtml(user.initials)}</span>
+                      <span class="gd-user-avatar gd-user-avatar-dynamic" style="--gd-avatar-color: ${escapeHtml(user.avatarColor)};">${escapeHtml(user.initials)}</span>
                       <div class="gd-user-copy-main">
                         <div class="d-flex align-items-center justify-content-between gap-2">
                           <span class="gd-user-name">${escapeHtml(user.name)}</span>
@@ -77,7 +77,7 @@ export function renderDashboardAsesorPage({
                         </div>
                         <div class="gd-user-sub">${escapeHtml(formatMoney(user.monthlySpend))} este mes · ${escapeHtml(String(user.tickets))} tickets</div>
                         <div class="gd-mini-bar">
-                          <div class="gd-mini-bar-fill" style="width: ${Math.min(user.progress, 100)}%; background: ${escapeHtml(risk.barColor)};"></div>
+                          <div class="gd-mini-bar-fill gd-mini-bar-fill-dynamic" style="--gd-progress-width: ${Math.min(user.progress, 100)}%; --gd-progress-color: ${escapeHtml(risk.barColor)};"></div>
                         </div>
                       </div>
                       <span class="gd-risk-pill ${escapeHtml(risk.className)}">${escapeHtml(risk.label)}</span>

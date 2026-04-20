@@ -56,11 +56,11 @@ export function renderEditarPerfilPage({
       <article class="gd-card gd-profile-overview">
         <div class="d-flex flex-column align-items-center text-center gap-2 mb-3">
           <div class="position-relative">
-            <img src="${escapeHtml(perfil.imagePreview || profileImage)}" alt="Foto de perfil" class="rounded-circle" style="width: 124px; height: 124px; object-fit: cover; border: 2px solid rgba(59, 130, 246, 0.35);">
-            <label for="imageInput" class="gd-action-btn position-absolute" style="right: -2px; bottom: 2px; height: 28px;">Foto</label>
+            <img src="${escapeHtml(perfil.imagePreview || profileImage)}" alt="Foto de perfil" class="rounded-circle gd-profile-photo">
+            <label for="imageInput" class="gd-action-btn position-absolute gd-profile-photo-label">Foto</label>
             <input type="file" id="imageInput" class="d-none" accept="image/*">
           </div>
-          <h2 class="gd-card-title" style="font-size: 1rem;">${escapeHtml(perfil.nombre || profileName)}</h2>
+          <h2 class="gd-card-title gd-card-title-md">${escapeHtml(perfil.nombre || profileName)}</h2>
           <p class="gd-muted mb-0">${escapeHtml(perfil.email)}</p>
           <div class="gd-profile-meta">
             <span class="gd-pill gd-pill-transporte">Cuenta activa</span>
@@ -71,10 +71,10 @@ export function renderEditarPerfilPage({
         <div class="gd-profile-progress">
           <div class="d-flex justify-content-between align-items-center gap-2">
             <span class="gd-muted">Perfil completado</span>
-            <strong class="gd-card-title" style="font-size: 0.76rem;">${profileCompletion}%</strong>
+            <strong class="gd-card-title gd-card-title-sm">${profileCompletion}%</strong>
           </div>
           <div class="gd-mini-bar mt-2">
-            <div class="gd-mini-bar-fill" style="width: ${profileCompletion}%; background: linear-gradient(90deg, rgba(37, 99, 235, 0.9), rgba(56, 189, 248, 0.9));"></div>
+            <div class="gd-mini-bar-fill gd-mini-bar-fill-profile" style="width: ${profileCompletion}%;"></div>
           </div>
         </div>
 
@@ -137,7 +137,7 @@ export function renderEditarPerfilPage({
               <span class="gd-risk-pill ${escapeHtml(passwordStrength.className)}">${escapeHtml(passwordStrength.label)}</span>
             </div>
             <div class="gd-mini-bar mt-2">
-              <div class="gd-mini-bar-fill" style="width: ${passwordStrength.width}%; background: linear-gradient(90deg, rgba(239, 68, 68, 0.85), rgba(56, 189, 248, 0.85));"></div>
+              <div class="gd-mini-bar-fill gd-mini-bar-fill-password" style="width: ${passwordStrength.width}%;"></div>
             </div>
           </div>
 

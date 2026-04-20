@@ -151,18 +151,40 @@ export function renderDashboardAppLayout({
         </nav>
 
         <div class="gd-user-chip-wrap">
-          <div class="gd-user-chip" aria-label="Perfil de usuario">
-            <img
-              src="${escapeHtml(profileImage || "/assets/img/user-avatar-default.svg")}" 
-              alt="Avatar de ${escapeHtml(profileName)}"
-              class="gd-avatar-image"
-              onerror="this.style.display='none'; this.nextElementSibling.classList.remove('d-none');"
+          <div class="gd-user-chip-menu">
+            <button
+              type="button"
+              class="gd-user-chip"
+              data-action="toggle-user-chip-menu"
+              aria-label="Abrir menu de cuenta"
+              aria-expanded="false"
+              aria-haspopup="true"
+              aria-controls="gd-user-chip-dropdown"
             >
-            <span class="gd-avatar d-none" aria-hidden="true">${escapeHtml(initials)}</span>
-            <span class="gd-user-copy">
-              <span class="gd-user-name">${escapeHtml(profileName)}</span>
-              <span class="gd-user-role">${escapeHtml(roleLabel)}</span>
-            </span>
+              <img
+                src="${escapeHtml(profileImage || "/assets/img/user-avatar-default.svg")}" 
+                alt="Avatar de ${escapeHtml(profileName)}"
+                class="gd-avatar-image"
+                data-image-error-mode="toggle-next"
+              >
+              <span class="gd-avatar d-none" aria-hidden="true">${escapeHtml(initials)}</span>
+              <span class="gd-user-copy">
+                <span class="gd-user-name">${escapeHtml(profileName)}</span>
+                <span class="gd-user-role">${escapeHtml(roleLabel)}</span>
+              </span>
+              <i class="lni lni-chevron-down gd-user-chip-caret" aria-hidden="true"></i>
+            </button>
+
+            <div id="gd-user-chip-dropdown" class="gd-user-chip-dropdown" role="menu" aria-label="Opciones de cuenta">
+              <button type="button" class="gd-user-chip-dropdown-item" data-action="switch-account" role="menuitem">
+                <i class="lni lni-users" aria-hidden="true"></i>
+                <span>Cambiar de cuenta</span>
+              </button>
+              <button type="button" class="gd-user-chip-dropdown-item gd-user-chip-dropdown-item-danger" data-action="logout" role="menuitem">
+                <i class="lni lni-exit" aria-hidden="true"></i>
+                <span>Cerrar sesion</span>
+              </button>
+            </div>
           </div>
         </div>
       </aside>

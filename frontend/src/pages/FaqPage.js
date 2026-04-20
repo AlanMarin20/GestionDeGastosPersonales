@@ -60,7 +60,6 @@ export function renderFaqPage({
 
       <div class="container flex-grow-1" style="padding-top: 120px; padding-bottom: 60px;">
         <div class="row g-4">
-          <!-- Contenido Principal -->
           <div class="col-12 col-lg-9 d-flex flex-column">
             <h1 class="fw-bold mb-4" style="color: var(--app-text-primary);">Portal de Preguntas Frecuentes</h1>
             
@@ -104,7 +103,6 @@ export function renderFaqPage({
             </div>
           </div>
 
-          <!-- Panel Lateral Derecho -->
           <div class="col-12 col-lg-3 d-flex flex-column gap-4">
             ${reclamosCard}
             ${categoriasCard}

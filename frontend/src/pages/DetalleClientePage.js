@@ -104,7 +104,7 @@ export function renderDetalleClientePage({
 
     <section class="row g-3 g-md-4 mb-4">
       <div class="col-12 col-lg-6">
-        <div class="card border-0 shadow-sm" style="height: 209px;">
+        <div class="card border-0 shadow-sm fp-card-rounded-lg gd-client-detail-fixed-card">
           <div class="card-body">
             <h5 class="card-title mb-3">Agregar Recomendacion</h5>
             <form id="agregarRecomendacionForm">
@@ -122,7 +122,7 @@ export function renderDetalleClientePage({
           title: 'Recomendaciones Enviadas',
           recommendations: detalle.recomendaciones,
           emptyText: 'No hay recomendaciones aun',
-          cardStyle: 'border-radius: 15px; height: 209px;',
+          cardClass: 'gd-client-detail-fixed-card',
           maxHeight: '210px',
         })}
       </div>

@@ -164,7 +164,7 @@ export function renderConfiguracionCuentaPage({
                   src="${escapeHtml(profileImage || "/assets/img/user-avatar-default.svg")}" 
                   alt="Avatar de ${escapeHtml(safeName)}"
                   class="gd-settings-avatar-image"
-                  onerror="this.style.display='none'; this.nextElementSibling.classList.remove('d-none');"
+                  data-image-error-mode="toggle-next"
                 >
                 <span class="gd-settings-avatar-fallback d-none" aria-hidden="true">${escapeHtml(initials)}</span>
               </div>
@@ -272,7 +272,7 @@ export function renderConfiguracionCuentaPage({
 
             <div class="gd-settings-toggle-row mt-3">
               <div>
-                <p class="gd-card-title mb-0" style="font-size: 0.75rem;">Autenticacion en dos pasos</p>
+                <p class="gd-card-title gd-card-title-xs mb-0">Autenticacion en dos pasos</p>
                 <small class="gd-muted">Agrega un segundo factor al iniciar sesion.</small>
               </div>
               <input class="form-check-input mt-0" type="checkbox" id="autenticacionDos" ${config.autenticacionDos ? "checked" : ""}>
@@ -348,10 +348,10 @@ export function renderConfiguracionCuentaPage({
                 .map(
                   (row) => `
                     <div class="gd-settings-budget-row">
-                      <span class="gd-settings-budget-dot" style="background: ${escapeHtml(row.color)};"></span>
+                      <span class="gd-settings-budget-dot" style="--gd-budget-color: ${escapeHtml(row.color)};"></span>
                       <span class="gd-settings-budget-cat">${escapeHtml(row.label)}</span>
                       <div class="gd-settings-budget-bar">
-                        <span style="width: ${Math.min(row.usage, 100)}%; background: ${escapeHtml(row.color)};"></span>
+                        <span class="gd-settings-budget-fill" style="--gd-budget-fill: ${Math.min(row.usage, 100)}%; --gd-budget-color: ${escapeHtml(row.color)};"></span>
                       </div>
                       <span class="gd-settings-budget-pct">${escapeHtml(String(row.usage))}%</span>
                       <div class="gd-settings-budget-input-wrap">
@@ -386,7 +386,7 @@ export function renderConfiguracionCuentaPage({
                 .map(
                   (category) => `
                     <div class="gd-settings-category-row">
-                      <span class="gd-settings-budget-dot" style="background: ${escapeHtml(category.color)};"></span>
+                      <span class="gd-settings-budget-dot" style="--gd-budget-color: ${escapeHtml(category.color)};"></span>
                       <span class="gd-settings-budget-cat">${escapeHtml(category.label)}</span>
                       <span class="gd-settings-category-pill">${escapeHtml(category.kind)}</span>
                     </div>
@@ -424,7 +424,7 @@ export function renderConfiguracionCuentaPage({
 
             <label class="gd-settings-toggle-row">
               <div>
-                <p class="gd-card-title mb-0" style="font-size: 0.75rem;">Gasto inusual detectado</p>
+                <p class="gd-card-title gd-card-title-xs mb-0">Gasto inusual detectado</p>
                 <small class="gd-muted">Cuando un gasto supere tu patron habitual.</small>
               </div>
               <input class="form-check-input mt-0" type="checkbox" checked>
@@ -432,7 +432,7 @@ export function renderConfiguracionCuentaPage({
 
             <label class="gd-settings-toggle-row">
               <div>
-                <p class="gd-card-title mb-0" style="font-size: 0.75rem;">Presupuesto al 80%</p>
+                <p class="gd-card-title gd-card-title-xs mb-0">Presupuesto al 80%</p>
                 <small class="gd-muted">Aviso al acercarte al limite mensual.</small>
               </div>
               <input class="form-check-input mt-0" type="checkbox" checked>
@@ -440,7 +440,7 @@ export function renderConfiguracionCuentaPage({
 
             <label class="gd-settings-toggle-row">
               <div>
-                <p class="gd-card-title mb-0" style="font-size: 0.75rem;">Recomendaciones del asesor</p>
+                <p class="gd-card-title gd-card-title-xs mb-0">Recomendaciones del asesor</p>
                 <small class="gd-muted">Notifica cada nuevo analisis publicado.</small>
               </div>
               <input class="form-check-input mt-0" type="checkbox" checked>
@@ -493,7 +493,7 @@ export function renderConfiguracionCuentaPage({
 
               <label class="gd-form-full gd-setting-row" for="mostrarCentavos">
                 <div>
-                  <p class="gd-card-title mb-0" style="font-size: 0.75rem;">Mostrar centavos</p>
+                  <p class="gd-card-title gd-card-title-xs mb-0">Mostrar centavos</p>
                   <small class="gd-muted">Visualiza montos con dos decimales en tablas y metricas.</small>
                 </div>
                 <input class="form-check-input mt-0" type="checkbox" id="mostrarCentavos" ${config.mostrarCentavos ? "checked" : ""}>
@@ -501,14 +501,14 @@ export function renderConfiguracionCuentaPage({
 
               <label class="gd-form-full gd-setting-row" for="reducirAnimaciones">
                 <div>
-                  <p class="gd-card-title mb-0" style="font-size: 0.75rem;">Reducir animaciones</p>
+                  <p class="gd-card-title gd-card-title-xs mb-0">Reducir animaciones</p>
                   <small class="gd-muted">Desactiva transiciones para una experiencia mas estable.</small>
                 </div>
                 <input class="form-check-input mt-0" type="checkbox" id="reducirAnimaciones" ${config.reducirAnimaciones ? "checked" : ""}>
               </label>
 
               <div class="gd-form-full gd-settings-preview">
-                <p class="gd-card-title mb-2" style="font-size: 0.75rem;">Vista previa</p>
+                <p class="gd-card-title gd-card-title-xs mb-2">Vista previa</p>
                 <div class="gd-settings-preview-list">
                   <div class="gd-settings-preview-item">
                     <span>Tema</span>
@@ -603,14 +603,14 @@ export function renderConfiguracionCuentaPage({
               <div class="gd-settings-budget-row">
                 <span class="gd-settings-budget-cat">Tickets subidos</span>
                 <div class="gd-settings-budget-bar">
-                  <span style="width: 68%;"></span>
+                  <span class="gd-settings-budget-fill" style="--gd-budget-fill: 68%;"></span>
                 </div>
                 <span class="gd-settings-budget-pct">34 / 50</span>
               </div>
               <div class="gd-settings-budget-row">
                 <span class="gd-settings-budget-cat">Exportaciones</span>
                 <div class="gd-settings-budget-bar">
-                  <span style="width: 20%;"></span>
+                  <span class="gd-settings-budget-fill" style="--gd-budget-fill: 20%;"></span>
                 </div>
                 <span class="gd-settings-budget-pct">2 / 10</span>
               </div>

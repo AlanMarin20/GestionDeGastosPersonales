@@ -13,25 +13,29 @@ export function encabezadoInterno({
 } = {}) {
   const roleLabel = isAsesor ? 'Asesor' : 'Usuario';
   const brandAction = brandTarget === 'scroll-top' ? 'brand-scroll-top' : 'brand-navigation';
-  const headerClasses = ['py-3', 'px-4', 'd-flex', 'justify-content-between', 'align-items-center', 'gap-3'];
+  const headerClasses = [
+    'py-3',
+    'px-4',
+    'd-flex',
+    'justify-content-between',
+    'align-items-center',
+    'gap-3',
+    'fp-internal-header',
+    transparent ? 'fp-internal-header-transparent' : '',
+  ].filter(Boolean);
 
   if (!transparent) {
     headerClasses.unshift('shadow-sm');
   }
 
-  const headerStyle = transparent
-    ? 'background-color: transparent; backdrop-filter: none; z-index: 999; min-height: 80px;'
-    : 'background-color: var(--app-header-bg, #eef2f6); z-index: 999; min-height: 80px;';
-
   return `
-    <!-- ======== Topbar start ======== -->
-    <header class="${escapeHtml(headerClasses.join(' '))}" style="${headerStyle}">
+    <header class="${escapeHtml(headerClasses.join(' '))}">
       <div class="d-flex align-items-center gap-3">
-        <button type="button" class="btn p-0 border-0 bg-transparent d-inline-flex align-items-center gap-2 d-none d-sm-inline-flex ms-1 text-decoration-none" data-action="${escapeHtml(brandAction)}" data-target="${escapeHtml(brandTarget)}" aria-label="Ir a FinanzasPro" style="cursor: pointer; line-height: 1; white-space: nowrap;">
-          <span class="d-inline-flex align-items-center justify-content-center rounded-circle shadow-sm overflow-hidden flex-shrink-0" style="width: 31px; height: 31px; background: transparent;">
-            <img src="/assets/img/logo/iconoSfondo.png" alt="Icono FinanzasPro" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+        <button type="button" class="btn p-0 border-0 bg-transparent d-inline-flex align-items-center gap-2 d-none d-sm-inline-flex ms-1 text-decoration-none fp-brand-trigger" data-action="${escapeHtml(brandAction)}" data-target="${escapeHtml(brandTarget)}" aria-label="Ir a FinanzasPro">
+          <span class="d-inline-flex align-items-center justify-content-center rounded-circle shadow-sm overflow-hidden flex-shrink-0 fp-brand-icon-shell">
+            <img src="/assets/img/logo/iconoSfondo.png" alt="Icono FinanzasPro" class="fp-brand-icon-image">
           </span>
-          <h4 class="mb-0 fw-bold text-dark fs-5" style="letter-spacing: -0.5px; line-height: 1; margin-top: 1px;">FinanzasPro</h4>
+          <h4 class="mb-0 fw-bold text-dark fs-5 fp-brand-text-dark">FinanzasPro</h4>
         </button>
         ${pageTitle
           ? `<span class="ms-sm-3 text-muted fw-semibold d-none d-md-block border-start ps-sm-3 border-2">${escapeHtml(pageTitle)}</span>`
@@ -40,10 +44,10 @@ export function encabezadoInterno({
 
       <div class="d-flex align-items-center gap-2 gap-md-3">
         <div class="dropdown">
-          <button class="btn btn-outline-primary btn-sm fw-semibold dropdown-toggle shadow-sm" type="button" id="roleSwitcher" data-bs-toggle="dropdown" aria-expanded="false" style="border-radius: 999px; min-width: 150px;">
+          <button class="btn btn-outline-primary btn-sm fw-semibold dropdown-toggle shadow-sm fp-role-switcher" type="button" id="roleSwitcher" data-bs-toggle="dropdown" aria-expanded="false">
             ${escapeHtml(roleLabel)}
           </button>
-          <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-3" aria-labelledby="roleSwitcher" style="border-radius: 12px; min-width: 210px;">
+          <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-3 fp-role-menu" aria-labelledby="roleSwitcher">
             <li>
               <a class="dropdown-item py-2 fw-semibold text-dark ${!isAsesor ? 'bg-primary bg-opacity-10 text-primary' : ''}" href="/dashboard" data-link>
                 <i class="lni lni-user me-2"></i> Usuario
@@ -59,15 +63,15 @@ export function encabezadoInterno({
 
         <div class="dropdown">
           <a href="#" class="d-block text-decoration-none" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Abrir menú de usuario">
-            <img src="${escapeHtml(profileImage)}" class="rounded-circle border border-2 border-primary shadow-sm" alt="Perfil" style="width: 45px; height: 45px; object-fit: cover; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+            <img src="${escapeHtml(profileImage)}" class="rounded-circle border border-2 border-primary shadow-sm fp-profile-avatar" alt="Perfil">
           </a>
-          <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-3" aria-labelledby="dropdownUser" style="border-radius: 12px; min-width: 250px;">
+          <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-3 fp-user-menu" aria-labelledby="dropdownUser">
             <li class="px-3 py-2 border-bottom mb-1">
               <div class="d-flex align-items-center gap-3">
-                <img src="${escapeHtml(profileImage)}" class="rounded-circle" alt="Perfil" style="width: 40px; height: 40px; object-fit: cover;">
+                <img src="${escapeHtml(profileImage)}" class="rounded-circle fp-user-menu-avatar" alt="Perfil">
                 <div>
-                  <p class="mb-0 fw-bold text-dark lh-sm" style="font-size: 15px;">${escapeHtml(profileName)}</p>
-                  <small class="text-muted fw-semibold" style="font-size: 12px;">${escapeHtml(currentRole)}</small>
+                  <p class="mb-0 fw-bold text-dark lh-sm fp-user-menu-name">${escapeHtml(profileName)}</p>
+                  <small class="text-muted fw-semibold fp-user-menu-role">${escapeHtml(currentRole)}</small>
                 </div>
               </div>
             </li>
@@ -81,7 +85,6 @@ export function encabezadoInterno({
         </div>
       </div>
     </header>
-    <!-- ======== Topbar end ======== -->
   `;
 }
 
@@ -92,23 +95,27 @@ export function encabezadoExterno({
   withLightBackground = false,
   rightMarkup = '',
 } = {}) {
-  const headerStyle = withLightBackground
-    ? 'z-index: 999; background-color: var(--app-header-overlay, rgba(226, 232, 240, 0.95)); backdrop-filter: blur(4px);'
-    : 'z-index: 999;';
+  const headerClasses = [
+    'header',
+    'position-relative',
+    'fp-external-header',
+    withLightBackground ? 'fp-external-header-light' : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   return `
-    <!-- ======== header start ======== -->
-    <header class="header position-relative" style="${headerStyle}">
+    <header class="${escapeHtml(headerClasses)}">
       <div class="navbar-area">
         <div class="container">
           <div class="row align-items-center">
             <div class="col-lg-12">
               <nav class="navbar navbar-expand-lg d-flex justify-content-between py-3">
-                <a class="navbar-brand d-inline-flex align-items-center gap-2" href="/" data-link style="line-height: 1; white-space: nowrap;">
-                  <span class="d-inline-flex align-items-center justify-content-center rounded-circle shadow-sm overflow-hidden flex-shrink-0" style="width: 31px; height: 31px; background: transparent;">
-                    <img src="/assets/img/logo/iconoSfondo.png" alt="Icono FinanzasPro" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                <a class="navbar-brand d-inline-flex align-items-center gap-2 fp-brand-link" href="/" data-link>
+                  <span class="d-inline-flex align-items-center justify-content-center rounded-circle shadow-sm overflow-hidden flex-shrink-0 fp-brand-icon-shell">
+                    <img src="/assets/img/logo/iconoSfondo.png" alt="Icono FinanzasPro" class="fp-brand-icon-image">
                   </span>
-                  <span class="fw-bold text-white fs-5" style="letter-spacing: -0.4px; line-height: 1; margin-top: 1px;">FinanzasPro</span>
+                  <span class="fw-bold text-white fs-5 fp-brand-text-light">FinanzasPro</span>
                 </a>
                 ${rightMarkup || botonEncabezadoExterno({
                   href: rightHref,
@@ -122,7 +129,6 @@ export function encabezadoExterno({
         </div>
       </div>
     </header>
-    <!-- ======== header end ======== -->
   `;
 }
 
@@ -141,11 +147,10 @@ export function encabezadoAuthPublico({
     .map((item) => {
       const isActive = item.href === activeRoute;
       const linkClasses = isActive
-        ? 'text-white text-decoration-none fw-bold'
+        ? 'text-white text-decoration-none fw-bold landing-nav-link-active'
         : 'text-white text-decoration-none nav-link-hover';
-      const styleAttr = isActive ? ' style="opacity: 1;"' : '';
 
-      return `<a href="${escapeHtml(item.href)}" data-link class="${escapeHtml(linkClasses)}"${styleAttr}>${escapeHtml(item.label)}</a>`;
+      return `<a href="${escapeHtml(item.href)}" data-link class="${escapeHtml(linkClasses)}">${escapeHtml(item.label)}</a>`;
     })
     .join('');
 
@@ -200,18 +205,103 @@ export function encabezadoAuthPublico({
   `;
 }
 
+export function fondoDecorativoAuth() {
+  return `
+    <div class="fp-auth-orb fp-auth-orb-primary" aria-hidden="true"></div>
+    <div class="fp-auth-orb fp-auth-orb-success" aria-hidden="true"></div>
+  `;
+}
+
+export function renderAuthPublicPage({
+  encabezadoExterno,
+  fondoDecorativoAuth,
+  heading,
+  description,
+  formId,
+  errorId,
+  formFieldsMarkup = '',
+  submitButtonMarkup = '',
+  footerMarkup = '',
+  footerClass = 'text-center',
+} = {}) {
+  return `
+    <div class="login-page min-vh-100 position-relative overflow-hidden fp-auth-page-shell">
+      ${fondoDecorativoAuth()}
+
+      ${encabezadoExterno({ rightHref: '/', rightText: 'Volver al Inicio', rightClass: 'landing-access-btn', withLightBackground: true })}
+
+      <section class="login-section pt-150 pb-120 position-relative fp-auth-content-section">
+        <div class="container">
+          <div class="row justify-content-center">
+            <div class="col-12 col-md-8 col-lg-5">
+              <div class="card border-0 shadow-lg fp-auth-card">
+                <div class="card-body p-5">
+                  <div class="section-title text-center mb-30">
+                    <h3 class="mb-15">${escapeHtml(heading)}</h3>
+                    <p>${escapeHtml(description)}</p>
+                  </div>
+
+                  <form id="${escapeHtml(formId)}" novalidate>
+                    <div id="${escapeHtml(errorId)}" class="alert alert-danger auth-error-alert d-none small p-2 text-center" role="alert"></div>
+                    ${formFieldsMarkup}
+                    ${submitButtonMarkup}
+                  </form>
+
+                  <div class="${escapeHtml(footerClass)}">
+                    ${footerMarkup}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  `;
+}
+
+export function campoAuthInput({
+  id,
+  label,
+  type = 'text',
+  placeholder = '',
+  wrapperClass = 'mb-3',
+  required = true,
+  labelClass = 'form-label fw-bold',
+  inputClass = 'form-control form-control-lg fp-auth-input',
+  inputStyle = '',
+} = {}) {
+  const requiredAttr = required ? ' required' : '';
+  const inputStyleAttr = inputStyle ? ` style="${escapeHtml(inputStyle)}"` : '';
+  const inputMarkup = `
+    <label for="${escapeHtml(id)}" class="${escapeHtml(labelClass)}">${escapeHtml(label)}</label>
+    <input type="${escapeHtml(type)}" class="${escapeHtml(inputClass)}" id="${escapeHtml(id)}" placeholder="${escapeHtml(placeholder)}"${requiredAttr}${inputStyleAttr}>
+  `;
+
+  if (wrapperClass === null) {
+    return inputMarkup;
+  }
+
+  const wrapperAttr = wrapperClass
+    ? ` class="${escapeHtml(wrapperClass)}"`
+    : '';
+
+  return `<div${wrapperAttr}>${inputMarkup}</div>`;
+}
+
 export function tarjetaPublicaBase({
   bodyMarkup = '',
   cardClass = '',
-  cardStyle = 'border-radius: 15px;',
+  cardStyle = '',
   bodyClass = 'card-body p-4',
 } = {}) {
-  const cardClasses = ['card', 'border-0', 'shadow-sm', cardClass]
+  const cardClasses = ['card', 'border-0', 'shadow-sm', 'fp-card-rounded-lg', cardClass]
     .filter(Boolean)
     .join(' ');
+  const cardStyleAttr = cardStyle ? ` style="${escapeHtml(cardStyle)}"` : '';
 
   return `
-    <div class="${escapeHtml(cardClasses)}" style="${escapeHtml(cardStyle)}">
+    <div class="${escapeHtml(cardClasses)}"${cardStyleAttr}>
       <div class="${escapeHtml(bodyClass)}">
         ${bodyMarkup}
       </div>
@@ -223,10 +313,10 @@ export function tarjetaPublicaConTitulo({
   title,
   contentMarkup = '',
   titleTag = 'h6',
-  titleClass = 'fw-bold mb-3 border-bottom pb-2',
-  titleStyle = 'border-color: var(--app-border-color) !important;',
+  titleClass = 'fw-bold mb-3 border-bottom pb-2 fp-card-title-divider',
+  titleStyle = '',
   cardClass = '',
-  cardStyle = 'border-radius: 15px;',
+  cardStyle = '',
   bodyClass = 'card-body p-4',
 } = {}) {
   const safeTitle = String(title || '').trim();
@@ -235,13 +325,14 @@ export function tarjetaPublicaConTitulo({
   const safeTitleTag = allowedTitleTags.has(normalizedTag)
     ? normalizedTag
     : 'h6';
+  const titleStyleAttr = titleStyle ? ` style="${escapeHtml(titleStyle)}"` : '';
 
   return tarjetaPublicaBase({
     cardClass,
     cardStyle,
     bodyClass,
     bodyMarkup: `
-      <${safeTitleTag} class="${escapeHtml(titleClass)}" style="${escapeHtml(titleStyle)}">${escapeHtml(safeTitle)}</${safeTitleTag}>
+        <${safeTitleTag} class="${escapeHtml(titleClass)}"${titleStyleAttr}>${escapeHtml(safeTitle)}</${safeTitleTag}>
       ${contentMarkup}
     `,
   });
@@ -285,19 +376,20 @@ export function botonEncabezadoExterno({
 export function botonIniciarCrearCuenta({
   text,
   type = 'button',
-  className = 'main-btn btn-hover w-100 mb-4',
-  style = 'border-radius: 8px;',
+  className = 'main-btn btn-hover w-100 mb-4 fp-auth-primary-btn',
+  style = '',
   iconHtml = '',
   id = '',
 } = {}) {
   const idAttr = id ? ` id="${escapeHtml(id)}"` : '';
+  const styleAttr = style ? ` style="${escapeHtml(style)}"` : '';
   const iconMarkup = iconHtml ? `<span class="d-inline-flex align-items-center">${iconHtml}</span>` : '';
   const textMarkup = `<span>${escapeHtml(text)}</span>`;
   const content = iconHtml
     ? `<span class="d-flex align-items-center justify-content-center gap-3">${iconMarkup}${textMarkup}</span>`
     : textMarkup;
 
-  return `<button type="${escapeHtml(type)}" class="${escapeHtml(className)}" style="${escapeHtml(style)}"${idAttr}>${content}</button>`;
+  return `<button type="${escapeHtml(type)}" class="${escapeHtml(className)}"${styleAttr}${idAttr}>${content}</button>`;
 }
 
 // tiene foto, titulo y descripcion
@@ -309,7 +401,7 @@ export function tarjetaLandingPage({
   iconAlt = '',
 } = {}) {
   const iconMarkup = iconImageSrc
-    ? `<img src="${escapeHtml(iconImageSrc)}" alt="${escapeHtml(iconAlt || title)}" style="width: 100%; height: 100%; object-fit: cover; object-position: center; display: block;" />`
+    ? `<img src="${escapeHtml(iconImageSrc)}" alt="${escapeHtml(iconAlt || title)}" class="fp-feature-card-icon-image" />`
     : `<i class="lni ${escapeHtml(iconClass)}"></i>`;
 
   return `
@@ -436,22 +528,21 @@ export function tarjetaValor({
     : ((color === 'warning' || color === 'info') ? 'text-dark opacity-75' : 'text-white-50');
   const buttonHTML = hasButton
     ? botonMasAccion({
-        className: 'btn btn-light btn-sm fw-bold shadow-sm border-0',
+        className: 'btn btn-light btn-sm fw-bold shadow-sm border-0 fp-circle-action-btn fp-circle-action-btn-kpi',
         dataAttributes: { action: buttonAction, id: buttonId },
         ariaLabel: `Accion para ${title}`,
         title: `Accion para ${title}`,
-        style: 'position: absolute; right: 8px; top: 50%; transform: translateY(-50%); border-radius: 50%; width: 24px; height: 24px; padding: 0; display: flex; align-items: center; justify-content: center; z-index: 2; color: #0d6efd; font-size: 16px; line-height: 1;',
       })
     : '';
 
   return `
-    <article class="card border-0 shadow-sm kpi-value-card kpi-${escapeHtml(color)} ${cardClasses}" style="border-radius: 15px; min-height: 90px;">
+    <article class="card border-0 shadow-sm kpi-value-card kpi-${escapeHtml(color)} fp-card-rounded-lg fp-kpi-card ${cardClasses}">
       <div class="card-body p-3 position-relative overflow-hidden d-flex flex-column justify-content-center">
-        <div class="position-absolute opacity-25" style="top: -5px; right: -5px; font-size: 60px; transform: rotate(-10deg);">
+        <div class="position-absolute opacity-25 fp-kpi-card-icon">
           <i class="lni ${escapeHtml(icon)}"></i>
         </div>
-        <p class="mb-1 fw-semibold ${mutedColor}" style="z-index: 1; position: relative; font-size: 13px;">${escapeHtml(title)}</p>
-        <h2 class="mb-0 fw-bold ${textColor}" style="z-index: 1; position: relative; font-size: 16px;">${escapeHtml(value)}</h2>
+        <p class="mb-1 fw-semibold ${mutedColor} fp-kpi-card-label">${escapeHtml(title)}</p>
+        <h2 class="mb-0 fw-bold ${textColor} fp-kpi-card-value">${escapeHtml(value)}</h2>
         ${buttonHTML}
       </div>
     </article>
@@ -462,15 +553,16 @@ export function botonMasAccion({
   dataAttributes = {},
   ariaLabel = 'Agregar',
   title = 'Agregar',
-  className = 'btn btn-primary btn-sm fw-bold shadow-sm',
-  style = 'border-radius: 50%; width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center; color: #ffffff; font-size: 18px; line-height: 1;',
+  className = 'btn btn-primary btn-sm fw-bold shadow-sm fp-circle-action-btn',
+  style = '',
 } = {}) {
   const dataAttrs = Object.entries(dataAttributes)
     .filter(([, value]) => value !== undefined && value !== null && value !== '')
     .map(([key, value]) => ` data-${escapeHtml(key)}="${escapeHtml(String(value))}"`)
     .join('');
+  const styleAttr = style ? ` style="${escapeHtml(style)}"` : '';
 
-  return `<button type="button" class="${escapeHtml(className)}" style="${escapeHtml(style)}" aria-label="${escapeHtml(ariaLabel)}" title="${escapeHtml(title)}"${dataAttrs}><span style="display:block; line-height:1; transform: translateY(-1px);">+</span></button>`;
+  return `<button type="button" class="${escapeHtml(className)}"${styleAttr} aria-label="${escapeHtml(ariaLabel)}" title="${escapeHtml(title)}"${dataAttrs}><span class="fp-circle-action-btn-plus">+</span></button>`;
 }
 
 export function botonRegistrarGastos({
@@ -490,18 +582,17 @@ export function tarjetaAhorro({ ahorro, formatCurrency }) {
 
   return `
     <div class="col-12 col-lg-4">
-      <div class="p-4 bg-white border shadow-sm" style="border-radius: 12px; border-color: rgba(13, 110, 253, 0.24) !important; box-shadow: 0 10px 22px rgba(13, 110, 253, 0.12) !important; transition: transform 0.2s, box-shadow 0.2s;">
+      <div class="p-4 bg-white border shadow-sm fp-savings-card">
         <div class="d-flex justify-content-between align-items-start mb-3">
           <div>
             <h3 class="h6 fw-bold mb-1 text-dark">${escapeHtml(ahorro.nombre)}</h3>
-            <span class="badge bg-primary bg-opacity-10 text-primary px-2 py-1" style="border-radius: 6px;">${formatCurrency(ahorro.monto)}</span>
+            <span class="badge bg-primary bg-opacity-10 text-primary px-2 py-1 fp-savings-amount-badge">${formatCurrency(ahorro.monto)}</span>
           </div>
           ${botonMasAccion({
-            className: 'btn btn-primary btn-sm fw-bold shadow-sm border-0',
+            className: 'btn btn-primary btn-sm fw-bold shadow-sm border-0 fp-circle-action-btn',
             dataAttributes: { action: 'open-destino-modal', 'ahorro-id': ahorro.id },
             ariaLabel: `Destinar fondos a ${ahorro.nombre}`,
             title: 'Destinar fondos desde Saldo Actual',
-            style: 'border-radius: 50%; width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center; color: #ffffff; font-size: 18px; line-height: 1;',
           })}
         </div>
         ${
@@ -509,11 +600,11 @@ export function tarjetaAhorro({ ahorro, formatCurrency }) {
             ? `
               <div>
                 <div class="d-flex justify-content-between mb-1">
-                  <small class="text-muted fw-semibold" style="font-size: 12px;">Progreso</small>
-                  <small class="text-muted fw-semibold" style="font-size: 12px;">Meta: ${formatCurrency(ahorro.meta)}</small>
+                  <small class="text-muted fw-semibold fp-savings-progress-label">Progreso</small>
+                  <small class="text-muted fw-semibold fp-savings-progress-label">Meta: ${formatCurrency(ahorro.meta)}</small>
                 </div>
-                <div class="progress" style="height: 8px; border-radius: 4px; background-color: #e2e8f0;">
-                  <div class="progress-bar bg-success" role="progressbar" style="width: ${progress}%; border-radius: 4px;"></div>
+                <div class="progress fp-savings-progress">
+                  <div class="progress-bar bg-success fp-savings-progress-bar" role="progressbar" style="width: ${progress}%;"></div>
                 </div>
               </div>
             `
@@ -526,10 +617,10 @@ export function tarjetaAhorro({ ahorro, formatCurrency }) {
 
 export function graficoTorta({ title, canvasId, ariaLabel, height = '250px' }) {
   return `
-    <article class="card border-0 shadow-sm h-100" style="border-radius: 15px;">
+    <article class="card border-0 shadow-sm h-100 fp-card-rounded-lg">
       <div class="card-body p-4 d-flex flex-column">
         <h2 class="h5 mb-4 fw-bold text-dark">${escapeHtml(title)}</h2>
-        <div class="flex-grow-1 position-relative" style="min-height:${escapeHtml(height)}; width: 100%;">
+        <div class="flex-grow-1 position-relative fp-chart-canvas-wrap" style="min-height:${escapeHtml(height)};">
           <canvas id="${escapeHtml(canvasId)}" aria-label="${escapeHtml(ariaLabel)}" role="img"></canvas>
         </div>
       </div>
@@ -539,10 +630,10 @@ export function graficoTorta({ title, canvasId, ariaLabel, height = '250px' }) {
 
 export function graficoGastos({ title, canvasId, ariaLabel, height = '300px' }) {
   return `
-    <article class="card border-0 shadow-sm h-100" style="border-radius: 15px;">
+    <article class="card border-0 shadow-sm h-100 fp-card-rounded-lg">
       <div class="card-body p-4 d-flex flex-column">
         <h2 class="h5 mb-4 fw-bold text-dark">${escapeHtml(title)}</h2>
-        <div class="flex-grow-1 position-relative" style="min-height:${escapeHtml(height)}; width: 100%;">
+        <div class="flex-grow-1 position-relative fp-chart-canvas-wrap" style="min-height:${escapeHtml(height)};">
           <canvas id="${escapeHtml(canvasId)}" aria-label="${escapeHtml(ariaLabel)}" role="img"></canvas>
         </div>
       </div>
@@ -557,10 +648,11 @@ export function contenedorRecomendaciones({
   maxHeight = '',
   padding = '16px',
   titleIcon = 'bi bi-lightbulb',
-  cardStyle = 'border-radius: 15px;',
+  cardClass = '',
+  cardStyle = '',
   bodyStyle = '',
-  titleClass = 'mb-0',
-  titleStyle = 'font-size: 16px; margin-bottom: 8px !important;',
+  titleClass = 'mb-0 fp-recommendation-title',
+  titleStyle = '',
   itemsWrapperClass = 'd-flex flex-column gap-2',
   itemRenderer = null,
 } = {}) {
@@ -569,17 +661,19 @@ export function contenedorRecomendaciones({
   const scrollStyle = hasScrollableArea
     ? `max-height: ${escapeHtml(maxHeight)}; overflow-y: auto; padding-right: 12px;`
     : '';
+  const cardStyleAttr = cardStyle ? ` style="${escapeHtml(cardStyle)}"` : '';
+  const titleStyleAttr = titleStyle ? ` style="${escapeHtml(titleStyle)}"` : '';
 
   const renderItem = itemRenderer ?? ((item, index) => `
-    <div class="alert ${index % 2 === 0 ? 'alert-info' : 'alert-warning'} alert-sm mb-0" style="padding: 8px 16px;" role="alert">
-      <small style="font-size: 14px;"><strong>${escapeHtml(item.fecha)}:</strong> ${escapeHtml(item.texto)}</small>
+    <div class="alert ${index % 2 === 0 ? 'alert-info' : 'alert-warning'} alert-sm mb-0 fp-recommendation-item" role="alert">
+      <small class="fp-recommendation-item-text"><strong>${escapeHtml(item.fecha)}:</strong> ${escapeHtml(item.texto)}</small>
     </div>
   `);
 
   return `
-    <article class="card border-0 shadow-sm" style="${escapeHtml(cardStyle)}">
+    <article class="card border-0 shadow-sm fp-card-rounded-lg ${escapeHtml(cardClass)}"${cardStyleAttr}>
       <div class="card-body" style="padding: ${escapeHtml(padding)};${bodyStyle ? ` ${escapeHtml(bodyStyle)}` : ''}${scrollStyle ? ` ${scrollStyle}` : ''}">
-        <h2 class="${escapeHtml(titleClass)}" style="${escapeHtml(titleStyle)}"><i class="${escapeHtml(titleIcon)} me-2"></i>${escapeHtml(title)}</h2>
+        <h2 class="${escapeHtml(titleClass)}"${titleStyleAttr}><i class="${escapeHtml(titleIcon)} me-2"></i>${escapeHtml(title)}</h2>
         <div class="${escapeHtml(itemsWrapperClass)}">
           ${
             items.length === 0
@@ -610,7 +704,7 @@ export function listaUltimosGastos({ title, expenses, showAll, toggleAction, for
   };
 
   return `
-    <article class="card border-0 shadow-sm" style="border-radius: 15px;">
+    <article class="card border-0 shadow-sm fp-card-rounded-lg">
       <div class="card-body p-4">
         <h2 class="h5 mb-4 fw-bold text-dark">${title}</h2>
         <div class="d-flex flex-column gap-3">
@@ -619,10 +713,9 @@ export function listaUltimosGastos({ title, expenses, showAll, toggleAction, for
             : displayExpenses.map(expense => {
                 const config = categoryConfig[expense.categoria] || categoryConfig['Otros'];
                 return `
-                  <div class="d-flex align-items-center justify-content-between p-2 rounded-3" style="transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#f8f9fa'" onmouseout="this.style.backgroundColor='transparent'">
+                  <div class="d-flex align-items-center justify-content-between p-2 rounded-3 fp-expense-row">
                     <div class="d-flex align-items-center gap-3">
-                      <!-- Ícono dinámico -->
-                      <div class="d-flex align-items-center justify-content-center rounded-circle ${config.bg} bg-opacity-10 ${config.color}" style="width: 45px; height: 45px;">
+                      <div class="d-flex align-items-center justify-content-center rounded-circle ${config.bg} bg-opacity-10 ${config.color} fp-expense-row-category-icon">
                         <i class="lni ${config.icon} fs-5"></i>
                       </div>
                       <div>

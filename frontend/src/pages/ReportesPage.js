@@ -13,13 +13,13 @@ export function renderReportesPage({
   unusualSpending,
 }) {
   const content = `
-    <div class="gd-metrics" style="grid-template-columns: repeat(3, minmax(0, 1fr));">
+    <div class="gd-metrics gd-metrics-3">
       ${metrics
         .map(
           (metric) => `
             <article class="gd-metric-card">
               <p class="gd-metric-label">${escapeHtml(metric.label)}</p>
-              <p class="gd-metric-value" style="font-size: 1rem;">${escapeHtml(metric.value)}</p>
+              <p class="gd-metric-value gd-metric-value-compact">${escapeHtml(metric.value)}</p>
               <span class="gd-metric-delta ${metric.trend === "down" ? "gd-delta-down" : "gd-delta-up"}">
                 ${escapeHtml(metric.delta)}
               </span>
@@ -40,7 +40,7 @@ export function renderReportesPage({
               <div class="gd-sparkline-row">
                 <span class="gd-spark-label">${escapeHtml(row.label)}</span>
                 <span class="gd-spark-bar-wrap">
-                  <span class="gd-spark-bar" style="width: ${row.width}%;"></span>
+                  <span class="gd-spark-bar gd-spark-bar-dynamic" style="--gd-spark-width: ${row.width}%;"></span>
                 </span>
                 <span class="gd-spark-val">${escapeHtml(row.amount)}</span>
               </div>
@@ -59,7 +59,7 @@ export function renderReportesPage({
               <div class="gd-sparkline-row">
                 <span class="gd-spark-label">${escapeHtml(row.label)}</span>
                 <span class="gd-spark-bar-wrap">
-                  <span class="gd-spark-bar" style="width: ${row.width}%;"></span>
+                  <span class="gd-spark-bar gd-spark-bar-dynamic" style="--gd-spark-width: ${row.width}%;"></span>
                 </span>
                 <span class="gd-spark-val">${escapeHtml(row.amount)}</span>
               </div>

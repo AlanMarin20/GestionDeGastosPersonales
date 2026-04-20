@@ -47,9 +47,9 @@ export function renderPreferenciaNotificacionesPageView({
         ${toggles
           .map(
             (item) => `
-              <label class="d-flex align-items-start justify-content-between gap-3 border rounded-3 px-3 py-2" style="border-color: var(--gd-border) !important; cursor: pointer;">
+              <label class="gd-settings-toggle-row gd-settings-toggle-row-start gd-notification-toggle-row">
                 <div>
-                  <p class="gd-card-title mb-0" style="font-size: 0.75rem;">${item.label}</p>
+                  <p class="gd-card-title gd-card-title-xs mb-0">${item.label}</p>
                   <small class="gd-muted">${item.description}</small>
                 </div>
                 <input class="form-check-input mt-1" type="checkbox" id="${item.id}" ${state.notificaciones[item.id] ? "checked" : ""}>

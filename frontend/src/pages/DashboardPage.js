@@ -1,5 +1,5 @@
 import { renderDashboardAppLayout } from "../components/dashboard/dashboardAppLayout";
-import { normalizeCategoryClass } from "../utils/category";
+import { renderExpenseTable } from "../components/dashboard/dashboardExpenseTable";
 import { escapeHtml } from "../utils/sanitize";
 
 export function renderDashboardPage({
@@ -53,7 +53,7 @@ export function renderDashboardPage({
             .map(
               (category) => `
                 <div class="gd-donut-row">
-                  <span class="gd-donut-dot" style="background: ${escapeHtml(category.color)}"></span>
+                  <span class="gd-donut-dot gd-donut-dot-dynamic" style="--gd-dot-color: ${escapeHtml(category.color)}"></span>
                   <span class="gd-donut-label">${escapeHtml(category.label)}</span>
                   <span class="gd-donut-value">${escapeHtml(category.share)}</span>
                 </div>
@@ -70,34 +70,10 @@ export function renderDashboardPage({
         <button type="button" class="gd-card-action" data-nav="/dashboard/gastos">ver todo</button>
       </header>
 
-      <div class="gd-table-wrap">
-        <table class="gd-table">
-          <thead>
-            <tr>
-              <th>Comercio</th>
-              <th>Categoria</th>
-              <th>Fecha</th>
-              <th class="gd-right">Monto</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${recentExpenses
-              .map(
-                (expense) => `
-                  <tr>
-                    <td>${escapeHtml(expense.comercio)}</td>
-                    <td>
-                      <span class="gd-pill gd-pill-${normalizeCategoryClass(expense.categoria)}">${escapeHtml(expense.categoria)}</span>
-                    </td>
-                    <td class="gd-muted">${escapeHtml(expense.fechaCorta)}</td>
-                    <td class="gd-right">${escapeHtml(formatMoney(expense.monto))}</td>
-                  </tr>
-                `,
-              )
-              .join("")}
-          </tbody>
-        </table>
-      </div>
+      ${renderExpenseTable({
+        expenses: recentExpenses,
+        formatMoney,
+      })}
     </article>
   `;
 

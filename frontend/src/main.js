@@ -6,9 +6,12 @@ import {
   encabezadoExterno,
   encabezadoInterno,
   botonIniciarCrearCuenta,
+  campoAuthInput,
   botonScrollTop,
   descripcionLanding,
+  fondoDecorativoAuth,
   imagenesLanding,
+  renderAuthPublicPage,
   tarjetaLandingPage,
   tarjetaPublicaBase,
   tarjetaPublicaConTitulo,
@@ -58,6 +61,7 @@ const APP_CONFIRM_DIALOG_ID = "app-confirm-dialog";
 const THEME_MODES = new Set(["light", "dark", "system"]);
 const FONT_SIZE_MODES = new Set(["sm", "md", "lg"]);
 const DENSITY_MODES = new Set(["comfortable", "compact"]);
+let hasGlobalImageErrorHandler = false;
 
 const CURRENCY_CONFIG = {
   USD: {
@@ -1378,6 +1382,7 @@ async function loadCurrentUser() {
 
 function navigate(path, replace = false) {
   closeLandingMobileMenu();
+  closeDashboardDropdowns();
 
   if (replace) {
     history.replaceState({}, "", path);
@@ -1512,10 +1517,7 @@ function getBrandTarget(pathname) {
 function renderDashboardLayout(content, { showScrollTop = true } = {}) {
   return `
     <div class="d-flex min-vh-100 overflow-hidden" style="background-color: var(--app-surface-bg);">
-      <!-- ======== Main Content Wrapper ======== -->
       <div class="flex-grow-1 d-flex flex-column h-100 overflow-y-auto w-100">
-
-        <!-- ======== Page Content ======== -->
         <main class="container-fluid py-4 px-3 px-md-4 flex-grow-1">
           ${content}
         </main>
@@ -1567,15 +1569,30 @@ function renderFaqDetail(pathname) {
 }
 
 function renderLoginPage() {
-  return renderLoginPageView({ encabezadoExterno, botonIniciarCrearCuenta });
+  return renderLoginPageView({
+    encabezadoExterno,
+    botonIniciarCrearCuenta,
+    campoAuthInput,
+    fondoDecorativoAuth,
+    renderAuthPublicPage,
+  });
 }
 
 function renderRegistroPage() {
-  return renderRegistroPageView({ encabezadoExterno, botonIniciarCrearCuenta });
+  return renderRegistroPageView({
+    encabezadoExterno,
+    botonIniciarCrearCuenta,
+    campoAuthInput,
+    fondoDecorativoAuth,
+    renderAuthPublicPage,
+  });
 }
 
 function renderRegistroExitosoPage() {
-  return renderRegistroExitosoPageView({ encabezadoExterno });
+  return renderRegistroExitosoPageView({
+    encabezadoExterno,
+    fondoDecorativoAuth,
+  });
 }
 
 function renderDashboardPage() {
@@ -2011,22 +2028,59 @@ function showAppConfirm({
   });
 }
 
-function closeDashboardNotificationsMenu() {
-  document.querySelectorAll(".gd-top-notifications.is-open").forEach((menu) => {
-    menu.classList.remove("is-open");
-    const trigger = menu.querySelector("[data-action='toggle-notifications-menu']");
-    trigger?.setAttribute("aria-expanded", "false");
+const DASHBOARD_DROPDOWN_CONFIG = Object.freeze([
+  Object.freeze({
+    containerSelector: ".gd-top-notifications",
+    triggerAction: "toggle-notifications-menu",
+  }),
+  Object.freeze({
+    containerSelector: ".gd-user-chip-menu",
+    triggerAction: "toggle-user-chip-menu",
+  }),
+]);
+
+const DASHBOARD_DROPDOWN_CONFIG_BY_ACTION = Object.freeze(
+  DASHBOARD_DROPDOWN_CONFIG.reduce((configByAction, config) => {
+    configByAction[config.triggerAction] = config;
+    return configByAction;
+  }, {}),
+);
+
+function closeDashboardDropdown(config) {
+  if (!config) {
+    return;
+  }
+
+  document
+    .querySelectorAll(`${config.containerSelector}.is-open`)
+    .forEach((menu) => {
+      menu.classList.remove("is-open");
+      const trigger = menu.querySelector(
+        `[data-action='${config.triggerAction}']`,
+      );
+      trigger?.setAttribute("aria-expanded", "false");
+    });
+}
+
+function closeDashboardDropdowns() {
+  DASHBOARD_DROPDOWN_CONFIG.forEach((config) => {
+    closeDashboardDropdown(config);
   });
 }
 
-function toggleDashboardNotificationsMenu(trigger) {
-  const menu = trigger?.closest(".gd-top-notifications");
+function toggleDashboardDropdown(trigger, action) {
+  const config = DASHBOARD_DROPDOWN_CONFIG_BY_ACTION[action];
+  if (!config) {
+    return;
+  }
+
+  const menu = trigger?.closest(config.containerSelector);
   if (!menu) {
     return;
   }
 
   const shouldOpen = !menu.classList.contains("is-open");
-  closeDashboardNotificationsMenu();
+  closeDashboardDropdowns();
 
   if (shouldOpen) {
     menu.classList.add("is-open");
@@ -2034,132 +2088,85 @@ function toggleDashboardNotificationsMenu(trigger) {
   }
 }
 
+function toggleDashboardNotificationsMenu(trigger) {
+  toggleDashboardDropdown(trigger, "toggle-notifications-menu");
+}
+
+function toggleDashboardUserChipMenu(trigger) {
+  toggleDashboardDropdown(trigger, "toggle-user-chip-menu");
+}
+
+function clearSessionAndRedirectToLogin() {
+  localStorage.removeItem(ACCESS_TOKEN_KEY);
+  state.currentUser = null;
+  state.profileLoaded = true;
+  closeDashboardDropdowns();
+  navigate("/login", true);
+}
+
 function attachGlobalNavigation() {
-  document.addEventListener("click", async (event) => {
-    const link = event.target.closest("a[data-link]");
-    if (link) {
-      const href = link.getAttribute("href");
-      if (!href) {
-        return;
-      }
-      closeDashboardNotificationsMenu();
-      closeLandingMobileMenu();
-      event.preventDefault();
-      navigate(href);
-      return;
-    }
-
-    const navButton = event.target.closest("[data-nav]");
-    if (navButton) {
-      const path = navButton.getAttribute("data-nav");
-      if (path) {
-        event.preventDefault();
-        closeDashboardNotificationsMenu();
-        navigate(path);
-      }
-      return;
-    }
-
-    const actionButton = event.target.closest("[data-action]");
-    if (!actionButton) {
-      const { menu, menuContainer } = getLandingMobileMenuElements();
-      const clickedInsideTriggerGroup = menuContainer
-        ? menuContainer.contains(event.target)
-        : false;
-      const clickedInsideMenu = menu
-        ? menu.contains(event.target)
-        : false;
-
-      if (menu && !menu.hidden && !clickedInsideTriggerGroup && !clickedInsideMenu) {
-        closeLandingMobileMenu();
-      }
-
-      if (!event.target.closest(".gd-top-notifications")) {
-        closeDashboardNotificationsMenu();
-      }
-      return;
-    }
-
-    const action = actionButton.getAttribute("data-action");
-
-    if (action === "toggle-landing-mobile-menu") {
+  const actionHandlers = {
+    "toggle-landing-mobile-menu": ({ event }) => {
       event.preventDefault();
       toggleLandingMobileMenu();
-      return;
-    }
-
-    if (action === "toggle-notifications-menu") {
+    },
+    "toggle-notifications-menu": ({ event, actionButton }) => {
       event.preventDefault();
       toggleDashboardNotificationsMenu(actionButton);
-      return;
-    }
-
-    if (action === "close-landing-mobile-menu") {
+    },
+    "toggle-user-chip-menu": ({ event, actionButton }) => {
+      event.preventDefault();
+      toggleDashboardUserChipMenu(actionButton);
+    },
+    "close-landing-mobile-menu": ({ event }) => {
       event.preventDefault();
       closeLandingMobileMenu({ restoreFocus: true });
-      return;
-    }
-
-    if (action === "back") {
+    },
+    back: ({ event }) => {
       event.preventDefault();
       navigateBack();
-      return;
-    }
-
-    if (action === "back-to-asesor") {
+    },
+    "back-to-asesor": ({ event }) => {
       event.preventDefault();
       navigate("/dashboard/asesor");
-      return;
-    }
-
-    if (action === "scroll-top-page") {
+    },
+    "scroll-top-page": ({ event }) => {
       event.preventDefault();
       window.scrollTo({ top: 0, behavior: "smooth" });
-      return;
-    }
-
-    if (action === "brand-scroll-top") {
+    },
+    "brand-scroll-top": ({ event }) => {
       event.preventDefault();
       window.scrollTo({ top: 0, behavior: "smooth" });
-      return;
-    }
-
-    if (action === "brand-navigation") {
+    },
+    "brand-navigation": ({ event, actionButton }) => {
       event.preventDefault();
       const target = actionButton.getAttribute("data-target");
 
       if (target) {
         navigate(target);
       }
-      return;
-    }
-
-    if (action === "logout") {
+    },
+    logout: ({ event }) => {
       event.preventDefault();
-      localStorage.removeItem(ACCESS_TOKEN_KEY);
-      state.currentUser = null;
-      state.profileLoaded = true;
-      navigate("/login", true);
-      return;
-    }
-
-    if (action === "switch-cargar-tab") {
+      clearSessionAndRedirectToLogin();
+    },
+    "switch-account": ({ event }) => {
+      event.preventDefault();
+      clearSessionAndRedirectToLogin();
+    },
+    "switch-cargar-tab": ({ event, actionButton }) => {
       event.preventDefault();
       const nextTab = actionButton.getAttribute("data-tab");
       if (nextTab === "ticket" || nextTab === "manual") {
         state.finanzas.cargar.activeTab = nextTab;
         render();
       }
-      return;
-    }
-
-    if (action === "export-expenses-csv") {
+    },
+    "export-expenses-csv": ({ event }) => {
       event.preventDefault();
       exportFilteredExpensesAsCsv();
-      return;
-    }
-
-    if (action === "open-edit-expense") {
+    },
+    "open-edit-expense": ({ event, actionButton }) => {
       event.preventDefault();
       const expenseId = actionButton.getAttribute("data-expense-id");
       if (!expenseId) {
@@ -2169,17 +2176,13 @@ function attachGlobalNavigation() {
       state.finanzas.ui.editingExpenseId = expenseId;
       state.finanzas.ui.deletingExpenseId = null;
       render();
-      return;
-    }
-
-    if (action === "close-edit-expense-modal") {
+    },
+    "close-edit-expense-modal": ({ event }) => {
       event.preventDefault();
       state.finanzas.ui.editingExpenseId = null;
       render();
-      return;
-    }
-
-    if (action === "save-edit-expense") {
+    },
+    "save-edit-expense": ({ event, actionButton }) => {
       event.preventDefault();
       const expenseId = actionButton.getAttribute("data-expense-id");
       if (!expenseId) {
@@ -2213,10 +2216,8 @@ function attachGlobalNavigation() {
 
       state.finanzas.ui.editingExpenseId = null;
       render();
-      return;
-    }
-
-    if (action === "open-delete-expense") {
+    },
+    "open-delete-expense": ({ event, actionButton }) => {
       event.preventDefault();
       const expenseId = actionButton.getAttribute("data-expense-id");
       if (!expenseId) {
@@ -2226,17 +2227,13 @@ function attachGlobalNavigation() {
       state.finanzas.ui.deletingExpenseId = expenseId;
       state.finanzas.ui.editingExpenseId = null;
       render();
-      return;
-    }
-
-    if (action === "close-delete-expense-modal") {
+    },
+    "close-delete-expense-modal": ({ event }) => {
       event.preventDefault();
       state.finanzas.ui.deletingExpenseId = null;
       render();
-      return;
-    }
-
-    if (action === "confirm-delete-expense") {
+    },
+    "confirm-delete-expense": ({ event, actionButton }) => {
       event.preventDefault();
       const expenseId = actionButton.getAttribute("data-expense-id");
       if (!expenseId) {
@@ -2248,48 +2245,34 @@ function attachGlobalNavigation() {
         state.finanzas.ui.editingExpenseId = null;
         render();
       }
-      return;
-    }
-
-    if (action === "toggle-dashboard-expenses") {
+    },
+    "toggle-dashboard-expenses": ({ actionButton }) => {
       state.dashboard.showAllRecentExpenses =
         actionButton.getAttribute("data-value") === "show";
       render();
-      return;
-    }
-
-    if (action === "toggle-detalle-expenses") {
+    },
+    "toggle-detalle-expenses": ({ actionButton }) => {
       state.detalleCliente.showAllRecentExpenses =
         actionButton.getAttribute("data-value") === "show";
       render();
-      return;
-    }
-
-    if (action === "open-ingreso-modal") {
+    },
+    "open-ingreso-modal": () => {
       state.dashboard.modals.ingreso = true;
       render();
-      return;
-    }
-
-    if (action === "close-ingreso-modal") {
+    },
+    "close-ingreso-modal": () => {
       state.dashboard.modals.ingreso = false;
       render();
-      return;
-    }
-
-    if (action === "open-ahorro-modal") {
+    },
+    "open-ahorro-modal": () => {
       state.dashboard.modals.ahorro = true;
       render();
-      return;
-    }
-
-    if (action === "close-ahorro-modal") {
+    },
+    "close-ahorro-modal": () => {
       state.dashboard.modals.ahorro = false;
       render();
-      return;
-    }
-
-    if (action === "open-destino-modal") {
+    },
+    "open-destino-modal": ({ actionButton }) => {
       const ahorroId = actionButton.getAttribute("data-ahorro-id");
       if (!ahorroId) {
         return;
@@ -2298,17 +2281,13 @@ function attachGlobalNavigation() {
       state.dashboard.destinoForm.monto = "";
       state.dashboard.modals.destino = true;
       render();
-      return;
-    }
-
-    if (action === "close-destino-modal") {
+    },
+    "close-destino-modal": () => {
       state.dashboard.modals.destino = false;
       state.dashboard.ahorroDestinoId = null;
       render();
-      return;
-    }
-
-    if (action === "desvincular-cliente") {
+    },
+    "desvincular-cliente": async ({ event, actionButton }) => {
       event.preventDefault();
       const clienteId = actionButton.getAttribute("data-cliente-id");
       if (!clienteId) {
@@ -2332,10 +2311,8 @@ function attachGlobalNavigation() {
       );
       showAppNotification("Cliente desvinculado", "success");
       render();
-      return;
-    }
-
-    if (action === "cerrar-sesion") {
+    },
+    "cerrar-sesion": ({ actionButton }) => {
       const sesionId = Number(actionButton.getAttribute("data-sesion-id"));
       if (!Number.isNaN(sesionId)) {
         state.configuracion.sesiones = state.configuracion.sesiones.filter(
@@ -2344,13 +2321,68 @@ function attachGlobalNavigation() {
         showAppNotification("Sesion cerrada", "success");
         render();
       }
+    },
+  };
+
+  document.addEventListener("click", async (event) => {
+    const link = event.target.closest("a[data-link]");
+    if (link) {
+      const href = link.getAttribute("href");
+      if (!href) {
+        return;
+      }
+      closeDashboardDropdowns();
+      closeLandingMobileMenu();
+      event.preventDefault();
+      navigate(href);
+      return;
+    }
+
+    const navButton = event.target.closest("[data-nav]");
+    if (navButton) {
+      const path = navButton.getAttribute("data-nav");
+      if (path) {
+        event.preventDefault();
+        closeDashboardDropdowns();
+        navigate(path);
+      }
+      return;
+    }
+
+    const actionButton = event.target.closest("[data-action]");
+    if (!actionButton) {
+      const { menu, menuContainer } = getLandingMobileMenuElements();
+      const clickedInsideTriggerGroup = menuContainer
+        ? menuContainer.contains(event.target)
+        : false;
+      const clickedInsideMenu = menu
+        ? menu.contains(event.target)
+        : false;
+
+      if (menu && !menu.hidden && !clickedInsideTriggerGroup && !clickedInsideMenu) {
+        closeLandingMobileMenu();
+      }
+
+      DASHBOARD_DROPDOWN_CONFIG.forEach((config) => {
+        if (!event.target.closest(config.containerSelector)) {
+          closeDashboardDropdown(config);
+        }
+      });
+      return;
+    }
+
+    const action = actionButton.getAttribute("data-action") || "";
+    const actionHandler = actionHandlers[action];
+
+    if (actionHandler) {
+      await actionHandler({ event, actionButton });
     }
   });
 
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
       closeLandingMobileMenu({ restoreFocus: true });
-      closeDashboardNotificationsMenu();
+      closeDashboardDropdowns();
     }
   });
 
@@ -2359,12 +2391,12 @@ function attachGlobalNavigation() {
       closeLandingMobileMenu();
     }
 
-    closeDashboardNotificationsMenu();
+    closeDashboardDropdowns();
   });
 
   window.addEventListener("popstate", () => {
     closeLandingMobileMenu();
-    closeDashboardNotificationsMenu();
+    closeDashboardDropdowns();
     render();
   });
 }
@@ -2379,7 +2411,6 @@ function attachFormHandlers(pathname) {
     const emailInput = document.getElementById("email");
     const passwordInput = document.getElementById("contrasena");
     const errorDiv = document.getElementById("loginError");
-    // OAuth social temporalmente deshabilitado.
 
     const removeFieldErrorState = () => {
       [emailInput, passwordInput].forEach((field) => {
@@ -2481,7 +2512,6 @@ function attachFormHandlers(pathname) {
     const passwordInput = document.getElementById("contrasena");
     const confirmPasswordInput = document.getElementById("confirmarContrasena");
     const errorDiv = document.getElementById("registroError");
-    // OAuth social temporalmente deshabilitado.
 
     const removeFieldErrorState = () => {
       [nombreInput, emailInput, passwordInput, confirmPasswordInput].forEach((field) => {
@@ -3674,6 +3704,40 @@ function resolveThemeForPath(pathname) {
   return window.matchMedia("(prefers-color-scheme: dark)").matches;
 }
 
+function handleGlobalImageError(event) {
+  const target = event.target;
+  if (!(target instanceof HTMLImageElement)) {
+    return;
+  }
+
+  const fallbackSrc = target.getAttribute("data-fallback-src");
+  if (fallbackSrc && target.dataset.fallbackApplied !== "true") {
+    const currentSrc = target.getAttribute("src") || "";
+    if (currentSrc !== fallbackSrc) {
+      target.dataset.fallbackApplied = "true";
+      target.src = fallbackSrc;
+      return;
+    }
+  }
+
+  if (target.getAttribute("data-image-error-mode") === "toggle-next") {
+    target.classList.add("d-none");
+    const nextElement = target.nextElementSibling;
+    if (nextElement instanceof HTMLElement) {
+      nextElement.classList.remove("d-none");
+    }
+  }
+}
+
+function installGlobalImageErrorHandler() {
+  if (hasGlobalImageErrorHandler) {
+    return;
+  }
+
+  document.addEventListener("error", handleGlobalImageError, true);
+  hasGlobalImageErrorHandler = true;
+}
+
 function render() {
   const pathname = window.location.pathname;
 
@@ -3704,6 +3768,7 @@ function render() {
 }
 
 attachGlobalNavigation();
+installGlobalImageErrorHandler();
 Object.assign(state.configuracion, loadAppPreferences());
 state.configuracion.temaOscuro = resolveThemeForPath(window.location.pathname);
 applyTheme(state.configuracion.temaOscuro);

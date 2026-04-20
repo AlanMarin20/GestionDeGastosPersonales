@@ -469,7 +469,7 @@ export function renderFaqDetailPage({
         </a>
         <span class="badge rounded-pill text-bg-primary">${article.category} · ${article.readTime}</span>
       </div>
-      <h1 class="fw-bold mb-3" style="color: var(--app-text-primary);">${article.title}</h1>
+      <h1 class="fw-bold mb-3 fp-public-title">${article.title}</h1>
       <p class="text-muted mb-0">${article.intro}</p>
     `,
   });
@@ -481,7 +481,7 @@ export function renderFaqDetailPage({
         .map(
           (section) => `
             <div class="mb-4">
-              <h5 class="fw-bold mb-2" style="color: var(--app-text-primary);">${section.heading}</h5>
+              <h5 class="fw-bold mb-2 fp-public-subtitle">${section.heading}</h5>
               <p class="text-muted mb-0">${section.text}</p>
             </div>
           `,
@@ -529,7 +529,7 @@ export function renderFaqDetailPage({
   });
 
   return `
-    <div class="min-vh-100 d-flex flex-column public-page-shell public-faq-detail-page" style="background-color: var(--app-surface-bg);">
+    <div class="min-vh-100 d-flex flex-column public-page-shell public-faq-detail-page fp-public-surface">
       ${encabezadoExterno({
         rightHref: "/login",
         rightText: "Iniciar sesión",
@@ -537,7 +537,7 @@ export function renderFaqDetailPage({
         rightMarkup: headerAuthMarkup,
       })}
 
-      <div class="container flex-grow-1" style="padding-top: 120px; padding-bottom: 60px;">
+      <div class="container flex-grow-1 fp-public-main-container">
         <div class="row g-4">
           <div class="col-12 col-lg-9 d-flex flex-column gap-4">
             ${articleIntroCard}

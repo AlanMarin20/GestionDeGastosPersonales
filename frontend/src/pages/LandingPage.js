@@ -36,17 +36,16 @@ export function renderLandingPage({ encabezadoExterno, encabezadoAuthPublico, ta
           <span aria-hidden="true">×</span>
         </button>
       </div>
-      <a href="/" data-link class="landing-mobile-menu-link landing-mobile-menu-item" style="--landing-menu-item-index: 0;">Inicio</a>
-      <a href="/faqs" data-link class="landing-mobile-menu-link landing-mobile-menu-item" style="--landing-menu-item-index: 1;">FAQ's</a>
-      <a href="/sobre-nosotros" data-link class="landing-mobile-menu-link landing-mobile-menu-item" style="--landing-menu-item-index: 2;">Sobre nosotros</a>
-      <span class="landing-mobile-menu-divider landing-mobile-menu-item" style="--landing-menu-item-index: 3;" aria-hidden="true"></span>
-      <a href="/login" data-link class="landing-mobile-menu-link landing-mobile-menu-link-auth landing-mobile-menu-item" style="--landing-menu-item-index: 4;">Iniciar sesión</a>
-      <a href="/registro" data-link class="landing-mobile-menu-link landing-mobile-menu-link-auth landing-mobile-menu-item" style="--landing-menu-item-index: 5;">Registrarse</a>
+      <a href="/" data-link class="landing-mobile-menu-link landing-mobile-menu-item landing-mobile-menu-item-step-0">Inicio</a>
+      <a href="/faqs" data-link class="landing-mobile-menu-link landing-mobile-menu-item landing-mobile-menu-item-step-1">FAQ's</a>
+      <a href="/sobre-nosotros" data-link class="landing-mobile-menu-link landing-mobile-menu-item landing-mobile-menu-item-step-2">Sobre nosotros</a>
+      <span class="landing-mobile-menu-divider landing-mobile-menu-item landing-mobile-menu-item-step-3" aria-hidden="true"></span>
+      <a href="/login" data-link class="landing-mobile-menu-link landing-mobile-menu-link-auth landing-mobile-menu-item landing-mobile-menu-item-step-4">Iniciar sesión</a>
+      <a href="/registro" data-link class="landing-mobile-menu-link landing-mobile-menu-link-auth landing-mobile-menu-item landing-mobile-menu-item-step-5">Registrarse</a>
     </nav>
 
     <div class="landing-page-content-shell">
 
-    <!-- ======== hero-section start ======== -->
     <section id="home" class="hero-section custom-landing-hero">
       <div class="container">
         <div class="row align-items-center position-relative landing-hero-row">
@@ -71,19 +70,15 @@ export function renderLandingPage({ encabezadoExterno, encabezadoAuthPublico, ta
             ${imagenesLanding({
               src: '/assets/img/hero/genericaDashboardPage.png',
               alt: 'Vista de dashboard de usuario',
-              wrapperClass: 'hero-img wow fadeInUp d-flex align-items-center justify-content-center',
+              wrapperClass: 'hero-img wow fadeInUp d-flex align-items-center justify-content-center landing-hero-image-wrap',
               delay: '.5s',
-              wrapperStyle: 'min-height: 440px;',
-              imageClass: 'landing-hero-image',
-              imageStyle: 'border-radius: 30px;',
+              imageClass: 'landing-hero-image landing-media-rounded',
             })}
           </div>
         </div>
       </div>
     </section>
-    <!-- ======== hero-section end ======== -->
 
-    <!-- ======== feature-section start ======== -->
     <section id="features" class="feature-section pt-120 custom-landing-features">
       <div class="container">
         <div class="row justify-content-center">
@@ -118,9 +113,7 @@ export function renderLandingPage({ encabezadoExterno, encabezadoAuthPublico, ta
         </div>
       </div>
     </section>
-    <!-- ======== feature-section end ======== -->
 
-    <!-- ======== about-section start ======== -->
     <section id="about" class="about-section pt-150 custom-landing-about">
       <div class="container">
         <div class="row align-items-center">
@@ -129,8 +122,7 @@ export function renderLandingPage({ encabezadoExterno, encabezadoAuthPublico, ta
               src: '/assets/img/hero/genericaDetalleClientePage.png',
               alt: 'Imagen descriptiva del uso como asesor',
               wrapperClass: 'about-img landing-about-img',
-              imageClass: 'w-100 landing-about-image',
-              imageStyle: 'border-radius: 30px;',
+              imageClass: 'w-100 landing-about-image landing-media-rounded',
             })}
           </div>
           <div class="col-xl-6 col-lg-6">
@@ -154,9 +146,7 @@ export function renderLandingPage({ encabezadoExterno, encabezadoAuthPublico, ta
         </div>
       </div>
     </section>
-    <!-- ======== about-section end ======== -->
 
-    <!-- ======== footer start ======== -->
     <footer class="footer">
       <div class="container">
         <div class="widget-wrapper">
@@ -165,8 +155,8 @@ export function renderLandingPage({ encabezadoExterno, encabezadoAuthPublico, ta
               <div class="footer-widget">
                 <div class="logo mb-3">
                   <a href="/" data-link class="d-inline-flex align-items-center gap-2 text-decoration-none">
-                    <img src="/assets/img/logo/iconoSfondo.png" alt="FinanzasPro" style="width: 38px; height: 38px; object-fit: cover; border-radius: 50%;" />
-                    <span class="fw-bold text-white fs-4" style="letter-spacing: -0.4px;">FinanzasPro</span>
+                    <img src="/assets/img/logo/iconoSfondo.png" alt="FinanzasPro" class="landing-footer-brand-image" />
+                    <span class="fw-bold text-white fs-4 landing-footer-brand-text">FinanzasPro</span>
                   </a>
                 </div>
                 <nav class="landing-footer-links mb-3" aria-label="Enlaces de navegación pública">
@@ -185,7 +175,6 @@ export function renderLandingPage({ encabezadoExterno, encabezadoAuthPublico, ta
         </div>
       </div>
     </footer>
-    <!-- ======== footer end ======== -->
 
     </div>
 
