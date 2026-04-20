@@ -1,38 +1,8 @@
-export function renderLandingPage({ encabezadoExterno, botonEncabezadoExterno, tarjetaLandingPage, descripcionLanding, imagenesLanding, botonScrollTop }) {
-  const headerAuthMarkup = `
-    <div class="landing-auth-group d-flex align-items-center gap-2 gap-md-3">
-      <div class="landing-nav-links d-none d-lg-flex align-items-center gap-4 pe-2">
-        <a href="/" data-link class="text-white text-decoration-none fw-bold" style="opacity: 1;">Inicio</a>
-        <a href="/faqs" data-link class="text-white text-decoration-none nav-link-hover">FAQ's</a>
-        <a href="/sobre-nosotros" data-link class="text-white text-decoration-none nav-link-hover">Sobre nosotros</a>
-      </div>
-      <span class="landing-auth-copy">Hace valer más tu dinero</span>
-      ${botonEncabezadoExterno({
-        href: '/login',
-        text: 'Iniciar sesión',
-        className: 'landing-access-btn landing-login-btn',
-        sizeClass: 'btn-sm',
-      })}
-      ${botonEncabezadoExterno({
-        href: '/registro',
-        text: 'Registrarse',
-        className: 'landing-access-btn landing-register-btn',
-        sizeClass: 'btn-sm',
-      })}
-      <button
-        type="button"
-        class="landing-mobile-menu-toggle d-lg-none"
-        data-action="toggle-landing-mobile-menu"
-        aria-expanded="false"
-        aria-controls="landing-mobile-navigation"
-        aria-label="Abrir menú de navegación"
-      >
-        <span class="landing-mobile-menu-toggle-line" aria-hidden="true"></span>
-        <span class="landing-mobile-menu-toggle-line" aria-hidden="true"></span>
-        <span class="landing-mobile-menu-toggle-line" aria-hidden="true"></span>
-      </button>
-    </div>
-  `;
+export function renderLandingPage({ encabezadoExterno, encabezadoAuthPublico, tarjetaLandingPage, descripcionLanding, imagenesLanding, botonScrollTop }) {
+  const headerAuthMarkup = encabezadoAuthPublico({
+    activeRoute: '/',
+    includeMobileToggle: true,
+  });
 
   return `
     ${encabezadoExterno({

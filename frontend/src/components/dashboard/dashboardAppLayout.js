@@ -1,3 +1,5 @@
+import { escapeHtml } from "../../utils/sanitize";
+
 const ASESOR_NAV_SECTION = {
   section: "Asesor",
   items: [
@@ -46,21 +48,22 @@ const USER_NAV_ITEMS = [
       },
     ],
   },
+  {
+    section: "Cuenta",
+    items: [
+      {
+        href: "/perfil/configuracion",
+        label: "Configuracion",
+        icon: "lni lni-cog",
+      },
+    ],
+  },
   ASESOR_NAV_SECTION,
 ];
 
 const ADVISOR_NAV_ITEMS = [
   ...USER_NAV_ITEMS,
 ];
-
-function escapeHtml(text) {
-  return String(text)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
-}
 
 function buildInitials(name) {
   const words = String(name)
@@ -116,7 +119,6 @@ export function renderDashboardAppLayout({
 }) {
   const initials = buildInitials(profileName);
   const roleLabel = isAsesor ? "asesor" : "usuario";
-  const roleBadge = isAsesor ? "ASE" : "USR";
   const notificationsRoute = isAsesor
     ? "/dashboard/asesor/recomendaciones"
     : "/dashboard/recomendaciones";
@@ -137,7 +139,9 @@ export function renderDashboardAppLayout({
       <aside class="gd-sidebar">
         <div class="gd-logo-wrap">
           <a href="/dashboard" data-link class="gd-logo-link" aria-label="Ir al dashboard">
-            <span class="gd-logo-icon">FP</span>
+            <span class="gd-logo-icon" aria-hidden="true">
+              <img src="/assets/img/logo/iconoSfondo.png" alt="">
+            </span>
             <span class="gd-logo-text">FinanzasPro<span>gestion de gastos</span></span>
           </a>
         </div>
@@ -147,7 +151,7 @@ export function renderDashboardAppLayout({
         </nav>
 
         <div class="gd-user-chip-wrap">
-          <a href="/perfil/editar" data-link class="gd-user-chip" aria-label="Editar perfil">
+          <div class="gd-user-chip" aria-label="Perfil de usuario">
             <img
               src="${escapeHtml(profileImage || "/assets/img/user-avatar-default.svg")}" 
               alt="Avatar de ${escapeHtml(profileName)}"
@@ -159,8 +163,7 @@ export function renderDashboardAppLayout({
               <span class="gd-user-name">${escapeHtml(profileName)}</span>
               <span class="gd-user-role">${escapeHtml(roleLabel)}</span>
             </span>
-            <span class="gd-role-badge">${escapeHtml(roleBadge)}</span>
-          </a>
+          </div>
         </div>
       </aside>
 

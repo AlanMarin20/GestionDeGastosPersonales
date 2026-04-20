@@ -2,14 +2,16 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap";
 import Chart from "chart.js/auto";
 import {
+  encabezadoAuthPublico,
   encabezadoExterno,
   encabezadoInterno,
-  botonEncabezadoExterno,
   botonIniciarCrearCuenta,
   botonScrollTop,
   descripcionLanding,
   imagenesLanding,
   tarjetaLandingPage,
+  tarjetaPublicaBase,
+  tarjetaPublicaConTitulo,
 } from "./components/common/reusablePageComponents";
 import { renderConfiguracionCuentaPage as renderConfiguracionCuentaPageView } from "./pages/ConfiguracionCuentaPage";
 import {
@@ -34,6 +36,7 @@ import {
 import { renderLoginPage as renderLoginPageView } from "./pages/LoginPage";
 import { renderRegistroPage as renderRegistroPageView } from "./pages/RegistroPage";
 import { renderRegistroExitosoPage as renderRegistroExitosoPageView } from "./pages/RegistroExitosoPage";
+import { escapeHtml } from "./utils/sanitize";
 import "./index.css";
 import "./App.css";
 import "./components/dashboard/dashboard-widgets.css";
@@ -46,7 +49,6 @@ const ACCESS_TOKEN_KEY = "access_token";
 const THEME_STORAGE_KEY = "theme_preference";
 const APP_PREFERENCES_STORAGE_KEY = "app_preferences";
 // OAuth de terceros deshabilitado temporalmente.
-// const OAUTH_CALLBACK_PATH = "/auth/callback";
 const DEFAULT_PROFILE_IMAGE = "/assets/img/user-avatar-default.svg";
 const PASSWORD_POLICY_MESSAGE =
   "La contraseña debe tener al menos 8 caracteres e incluir mayúscula, minúscula, número y carácter especial";
@@ -735,28 +737,6 @@ function isStrongPassword(password) {
   );
 }
 
-/*
-function startSocialAuth(provider) {
-  window.location.assign(`${API_BASE_URL}/api/auth/${provider}`);
-}
-
-function processOAuthCallback() {
-  const params = new URLSearchParams(window.location.search);
-  const accessToken = params.get("access_token");
-  const errorMessage = params.get("error");
-
-  if (accessToken) {
-    localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
-    navigate("/dashboard", true);
-    return;
-  }
-
-  const nextError =
-    errorMessage || "No se pudo completar la autenticación social";
-  navigate(`/login?authError=${encodeURIComponent(nextError)}`, true);
-}
-*/
-
 function getCurrentDateShort() {
   return new Date().toLocaleDateString("es-ES", {
     day: "numeric",
@@ -1328,15 +1308,6 @@ function deleteExpenseRecord(expenseId) {
   return state.finanzas.gastos.length !== previousLength;
 }
 
-function escapeHtml(text) {
-  return String(text)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
-}
-
 function getAccessToken() {
   return localStorage.getItem(ACCESS_TOKEN_KEY);
 }
@@ -1557,15 +1528,25 @@ function renderDashboardLayout(content, { showScrollTop = true } = {}) {
 }
 
 function renderLandingPage() {
-  return renderLandingPageView({ encabezadoExterno, botonEncabezadoExterno, tarjetaLandingPage, descripcionLanding, imagenesLanding, botonScrollTop });
+  return renderLandingPageView({ encabezadoExterno, encabezadoAuthPublico, tarjetaLandingPage, descripcionLanding, imagenesLanding, botonScrollTop });
 }
 
 function renderFaqPage() {
-  return renderFaqPageView({ encabezadoExterno, botonEncabezadoExterno, botonScrollTop });
+  return renderFaqPageView({
+    encabezadoExterno,
+    encabezadoAuthPublico,
+    tarjetaPublicaConTitulo,
+    botonScrollTop,
+  });
 }
 
 function renderSobreNosotrosPage() {
-  return renderSobreNosotrosPageView({ encabezadoExterno, botonEncabezadoExterno, botonScrollTop });
+  return renderSobreNosotrosPageView({
+    encabezadoExterno,
+    encabezadoAuthPublico,
+    tarjetaPublicaBase,
+    botonScrollTop,
+  });
 }
 
 function renderFaqDetail(pathname) {
@@ -1577,7 +1558,9 @@ function renderFaqDetail(pathname) {
 
   return renderFaqDetailPageView({
     encabezadoExterno,
-    botonEncabezadoExterno,
+    encabezadoAuthPublico,
+    tarjetaPublicaBase,
+    tarjetaPublicaConTitulo,
     botonScrollTop,
     article,
   });
@@ -2397,8 +2380,6 @@ function attachFormHandlers(pathname) {
     const passwordInput = document.getElementById("contrasena");
     const errorDiv = document.getElementById("loginError");
     // OAuth social temporalmente deshabilitado.
-    // const googleButton = document.getElementById("loginGoogleBtn");
-    // const appleButton = document.getElementById("loginAppleBtn");
 
     const removeFieldErrorState = () => {
       [emailInput, passwordInput].forEach((field) => {
@@ -2439,24 +2420,6 @@ function attachFormHandlers(pathname) {
         field.classList.remove("auth-input-error");
       });
     });
-
-    /*
-    const authErrorFromQuery = new URLSearchParams(window.location.search).get(
-      "authError",
-    );
-    if (authErrorFromQuery) {
-      setAuthError(authErrorFromQuery, [emailInput, passwordInput]);
-      history.replaceState({}, "", "/login");
-    }
-
-    googleButton?.addEventListener("click", () => {
-      startSocialAuth("google");
-    });
-
-    appleButton?.addEventListener("click", () => {
-      startSocialAuth("apple");
-    });
-    */
 
     loginForm?.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -2519,8 +2482,6 @@ function attachFormHandlers(pathname) {
     const confirmPasswordInput = document.getElementById("confirmarContrasena");
     const errorDiv = document.getElementById("registroError");
     // OAuth social temporalmente deshabilitado.
-    // const googleButton = document.getElementById("registerGoogleBtn");
-    // const appleButton = document.getElementById("registerAppleBtn");
 
     const removeFieldErrorState = () => {
       [nombreInput, emailInput, passwordInput, confirmPasswordInput].forEach((field) => {
@@ -2563,16 +2524,6 @@ function attachFormHandlers(pathname) {
         });
       },
     );
-
-    /*
-    googleButton?.addEventListener("click", () => {
-      startSocialAuth("google");
-    });
-
-    appleButton?.addEventListener("click", () => {
-      startSocialAuth("apple");
-    });
-    */
 
     registroForm?.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -3120,6 +3071,70 @@ function attachFormHandlers(pathname) {
   }
 
   if (pathname === "/perfil/configuracion") {
+    const sectionButtons = Array.from(
+      document.querySelectorAll("[data-config-section-target]"),
+    );
+    const sectionPanels = Array.from(
+      document.querySelectorAll("[data-config-section]"),
+    );
+    const availableSections = new Set(
+      sectionPanels
+        .map((panel) => panel.getAttribute("data-config-section"))
+        .filter(Boolean),
+    );
+
+    const readSectionFromHash = () => {
+      const hashValue = String(window.location.hash || "");
+      if (!hashValue.startsWith("#config-")) {
+        return "perfil";
+      }
+
+      const target = hashValue.slice("#config-".length);
+      return availableSections.has(target) ? target : "perfil";
+    };
+
+    const setConfigSection = (sectionId, { syncHash = true } = {}) => {
+      const targetSection = availableSections.has(sectionId)
+        ? sectionId
+        : "perfil";
+
+      sectionButtons.forEach((button) => {
+        const buttonTarget = button.getAttribute("data-config-section-target");
+        const isActive = buttonTarget === targetSection;
+        button.classList.toggle("active", isActive);
+        button.setAttribute("aria-selected", isActive ? "true" : "false");
+      });
+
+      sectionPanels.forEach((panel) => {
+        const panelSection = panel.getAttribute("data-config-section");
+        const isActive = panelSection === targetSection;
+        panel.classList.toggle("active", isActive);
+        panel.hidden = !isActive;
+      });
+
+      if (syncHash) {
+        const hash = `#config-${targetSection}`;
+        window.history.replaceState(
+          window.history.state,
+          "",
+          `${window.location.pathname}${window.location.search}${hash}`,
+        );
+      }
+    };
+
+    if (sectionButtons.length > 0 && sectionPanels.length > 0) {
+      setConfigSection(readSectionFromHash(), { syncHash: false });
+
+      sectionButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          const targetSection = button.getAttribute("data-config-section-target");
+          if (targetSection) {
+            setConfigSection(targetSection);
+          }
+        });
+      });
+    }
+
     const monedaSelect = document.getElementById("moneda");
     monedaSelect?.addEventListener("change", (event) => {
       state.configuracion.moneda = normalizeCurrency(event.target.value);
@@ -3666,12 +3681,6 @@ function render() {
     navigate("/login", true);
     return;
   }
-
-  // OAuth de terceros deshabilitado temporalmente.
-  // if (pathname === OAUTH_CALLBACK_PATH) {
-  //   processOAuthCallback();
-  //   return;
-  // }
 
   const isDarkTheme = resolveThemeForPath(pathname);
   state.configuracion.temaOscuro = isDarkTheme;

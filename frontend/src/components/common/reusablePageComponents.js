@@ -1,3 +1,5 @@
+import { escapeHtml } from "../../utils/sanitize";
+
 export function encabezadoInterno({
   pageTitle = '',
   profileImage = '/assets/img/user-avatar-default.svg',
@@ -72,7 +74,6 @@ export function encabezadoInterno({
             <li><a class="dropdown-item py-2 fw-semibold text-dark" href="/dashboard" data-link><i class="lni lni-grid-alt me-2"></i> Mi Dasboard</a></li>
             ${showAdvisorClientLink ? `<li><a class="dropdown-item py-2 fw-semibold text-dark" href="${escapeHtml(advisorClientHref)}" data-link><i class="lni lni-users me-2"></i> Ver otro cliente</a></li>` : ''}
             <li><a class="dropdown-item py-2 fw-semibold text-dark" href="/perfil/editar" data-link><i class="lni lni-user me-2"></i> Editar perfil</a></li>
-            <li><a class="dropdown-item py-2 fw-semibold text-dark" href="/perfil/configuracion" data-link><i class="lni lni-cog me-2"></i> Configuración</a></li>
             <li><a class="dropdown-item py-2 fw-semibold text-dark" href="/perfil/notificaciones" data-link><i class="lni lni-alarm me-2"></i> Notificaciones</a></li>
             <li><hr class="dropdown-divider"></li>
             <li><button type="button" class="dropdown-item py-2 fw-bold text-danger border-0 bg-transparent text-start" data-action="logout"><i class="lni lni-exit me-2"></i> Cerrar Sesión</button></li>
@@ -123,6 +124,127 @@ export function encabezadoExterno({
     </header>
     <!-- ======== header end ======== -->
   `;
+}
+
+export function encabezadoAuthPublico({
+  activeRoute = '/',
+  includeFaqClass = false,
+  includeMobileToggle = false,
+} = {}) {
+  const navItems = [
+    { href: '/', label: 'Inicio' },
+    { href: '/faqs', label: "FAQ's" },
+    { href: '/sobre-nosotros', label: 'Sobre nosotros' },
+  ];
+
+  const navLinksMarkup = navItems
+    .map((item) => {
+      const isActive = item.href === activeRoute;
+      const linkClasses = isActive
+        ? 'text-white text-decoration-none fw-bold'
+        : 'text-white text-decoration-none nav-link-hover';
+      const styleAttr = isActive ? ' style="opacity: 1;"' : '';
+
+      return `<a href="${escapeHtml(item.href)}" data-link class="${escapeHtml(linkClasses)}"${styleAttr}>${escapeHtml(item.label)}</a>`;
+    })
+    .join('');
+
+  const groupClasses = [
+    'landing-auth-group',
+    includeFaqClass ? 'faq-auth-group' : '',
+    'd-flex',
+    'align-items-center',
+    'gap-2',
+    'gap-md-3',
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  const mobileToggleMarkup = includeMobileToggle
+    ? `
+      <button
+        type="button"
+        class="landing-mobile-menu-toggle d-lg-none"
+        data-action="toggle-landing-mobile-menu"
+        aria-expanded="false"
+        aria-controls="landing-mobile-navigation"
+        aria-label="Abrir menú de navegación"
+      >
+        <span class="landing-mobile-menu-toggle-line" aria-hidden="true"></span>
+        <span class="landing-mobile-menu-toggle-line" aria-hidden="true"></span>
+        <span class="landing-mobile-menu-toggle-line" aria-hidden="true"></span>
+      </button>
+    `
+    : '';
+
+  return `
+    <div class="${escapeHtml(groupClasses)}">
+      <div class="landing-nav-links d-none d-lg-flex align-items-center gap-4 pe-2">
+        ${navLinksMarkup}
+      </div>
+      <span class="landing-auth-copy">Hace valer más tu dinero</span>
+      ${botonEncabezadoExterno({
+        href: '/login',
+        text: 'Iniciar sesión',
+        className: 'landing-access-btn landing-login-btn',
+        sizeClass: 'btn-sm',
+      })}
+      ${botonEncabezadoExterno({
+        href: '/registro',
+        text: 'Registrarse',
+        className: 'landing-access-btn landing-register-btn',
+        sizeClass: 'btn-sm',
+      })}
+      ${mobileToggleMarkup}
+    </div>
+  `;
+}
+
+export function tarjetaPublicaBase({
+  bodyMarkup = '',
+  cardClass = '',
+  cardStyle = 'border-radius: 15px;',
+  bodyClass = 'card-body p-4',
+} = {}) {
+  const cardClasses = ['card', 'border-0', 'shadow-sm', cardClass]
+    .filter(Boolean)
+    .join(' ');
+
+  return `
+    <div class="${escapeHtml(cardClasses)}" style="${escapeHtml(cardStyle)}">
+      <div class="${escapeHtml(bodyClass)}">
+        ${bodyMarkup}
+      </div>
+    </div>
+  `;
+}
+
+export function tarjetaPublicaConTitulo({
+  title,
+  contentMarkup = '',
+  titleTag = 'h6',
+  titleClass = 'fw-bold mb-3 border-bottom pb-2',
+  titleStyle = 'border-color: var(--app-border-color) !important;',
+  cardClass = '',
+  cardStyle = 'border-radius: 15px;',
+  bodyClass = 'card-body p-4',
+} = {}) {
+  const safeTitle = String(title || '').trim();
+  const normalizedTag = String(titleTag || 'h6').toLowerCase();
+  const allowedTitleTags = new Set(['h2', 'h3', 'h4', 'h5', 'h6', 'p']);
+  const safeTitleTag = allowedTitleTags.has(normalizedTag)
+    ? normalizedTag
+    : 'h6';
+
+  return tarjetaPublicaBase({
+    cardClass,
+    cardStyle,
+    bodyClass,
+    bodyMarkup: `
+      <${safeTitleTag} class="${escapeHtml(titleClass)}" style="${escapeHtml(titleStyle)}">${escapeHtml(safeTitle)}</${safeTitleTag}>
+      ${contentMarkup}
+    `,
+  });
 }
 
 export function botonScrollTop() {
@@ -532,11 +654,3 @@ export function listaUltimosGastos({ title, expenses, showAll, toggleAction, for
 }
 
 
-function escapeHtml(text) {
-  return String(text)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
-}

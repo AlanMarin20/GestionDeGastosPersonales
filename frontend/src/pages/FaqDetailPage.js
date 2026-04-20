@@ -449,32 +449,84 @@ export function resolveFaqArticle(pathname) {
 
 export function renderFaqDetailPage({
   encabezadoExterno,
-  botonEncabezadoExterno,
+  encabezadoAuthPublico,
+  tarjetaPublicaBase,
+  tarjetaPublicaConTitulo,
   botonScrollTop,
   article,
 }) {
-  const headerAuthMarkup = `
-    <div class="landing-auth-group faq-auth-group d-flex align-items-center gap-2 gap-md-3">
-      <div class="landing-nav-links d-none d-lg-flex align-items-center gap-4 pe-2">
-        <a href="/" data-link class="text-white text-decoration-none nav-link-hover">Inicio</a>
-        <a href="/faqs" data-link class="text-white text-decoration-none fw-bold" style="opacity: 1;">FAQ's</a>
-        <a href="/sobre-nosotros" data-link class="text-white text-decoration-none nav-link-hover">Sobre nosotros</a>
+  const headerAuthMarkup = encabezadoAuthPublico({
+    activeRoute: '/faqs',
+    includeFaqClass: true,
+  });
+
+  const articleIntroCard = tarjetaPublicaBase({
+    bodyClass: 'card-body p-4 p-md-5',
+    bodyMarkup: `
+      <div class="d-flex flex-column align-items-start gap-2 mb-3">
+        <a href="/faqs" data-link class="text-decoration-none faq-link small fw-semibold d-inline-flex align-items-center mb-0">
+          <i class="lni lni-arrow-left me-2"></i>Volver al portal de FAQ
+        </a>
+        <span class="badge rounded-pill text-bg-primary">${article.category} · ${article.readTime}</span>
       </div>
-      <span class="landing-auth-copy">Hace valer más tu dinero</span>
-      ${botonEncabezadoExterno({
-        href: "/login",
-        text: "Iniciar sesión",
-        className: "landing-access-btn landing-login-btn",
-        sizeClass: "btn-sm",
-      })}
-      ${botonEncabezadoExterno({
-        href: "/registro",
-        text: "Registrarse",
-        className: "landing-access-btn landing-register-btn",
-        sizeClass: "btn-sm",
-      })}
-    </div>
-  `;
+      <h1 class="fw-bold mb-3" style="color: var(--app-text-primary);">${article.title}</h1>
+      <p class="text-muted mb-0">${article.intro}</p>
+    `,
+  });
+
+  const articleSectionsCard = tarjetaPublicaBase({
+    bodyClass: 'card-body p-4 p-md-5',
+    bodyMarkup: `
+      ${article.sections
+        .map(
+          (section) => `
+            <div class="mb-4">
+              <h5 class="fw-bold mb-2" style="color: var(--app-text-primary);">${section.heading}</h5>
+              <p class="text-muted mb-0">${section.text}</p>
+            </div>
+          `,
+        )
+        .join('')}
+    `,
+  });
+
+  const tipsCard = tarjetaPublicaConTitulo({
+    title: 'Recomendaciones rápidas',
+    bodyClass: 'card-body p-4 p-md-5',
+    contentMarkup: `
+      <ul class="list-unstyled mb-0">
+        ${article.tips
+          .map(
+            (tip) => `
+              <li class="mb-2 d-flex align-items-start gap-2 text-muted">
+                <i class="lni lni-checkmark-circle text-success mt-1"></i>
+                <span>${tip}</span>
+              </li>
+            `,
+          )
+          .join('')}
+      </ul>
+    `,
+  });
+
+  const faqNavigationCard = tarjetaPublicaConTitulo({
+    title: 'Navegación FAQ',
+    contentMarkup: `
+      <ul class="list-unstyled mb-0">
+        <li class="mb-2"><a href="/faqs" data-link class="text-decoration-none text-muted faq-link">Portal principal</a></li>
+        <li class="mb-0"><a href="/login" data-link class="text-decoration-none text-muted faq-link">Mis reclamos</a></li>
+      </ul>
+    `,
+  });
+
+  const relatedArticlesCard = tarjetaPublicaConTitulo({
+    title: 'Artículos relacionados',
+    contentMarkup: `
+      <ul class="list-unstyled mb-0">
+        ${renderArticleLinks(article.related)}
+      </ul>
+    `,
+  });
 
   return `
     <div class="min-vh-100 d-flex flex-column public-page-shell public-faq-detail-page" style="background-color: var(--app-surface-bg);">
@@ -488,72 +540,14 @@ export function renderFaqDetailPage({
       <div class="container flex-grow-1" style="padding-top: 120px; padding-bottom: 60px;">
         <div class="row g-4">
           <div class="col-12 col-lg-9 d-flex flex-column gap-4">
-            <div class="card border-0 shadow-sm" style="border-radius: 15px;">
-              <div class="card-body p-4 p-md-5">
-                <div class="d-flex flex-column align-items-start gap-2 mb-3">
-                  <a href="/faqs" data-link class="text-decoration-none faq-link small fw-semibold d-inline-flex align-items-center mb-0">
-                    <i class="lni lni-arrow-left me-2"></i>Volver al portal de FAQ
-                  </a>
-                  <span class="badge rounded-pill text-bg-primary">${article.category} · ${article.readTime}</span>
-                </div>
-                <h1 class="fw-bold mb-3" style="color: var(--app-text-primary);">${article.title}</h1>
-                <p class="text-muted mb-0">${article.intro}</p>
-              </div>
-            </div>
-
-            <div class="card border-0 shadow-sm" style="border-radius: 15px;">
-              <div class="card-body p-4 p-md-5">
-                ${article.sections
-                  .map(
-                    (section) => `
-                      <div class="mb-4">
-                        <h5 class="fw-bold mb-2" style="color: var(--app-text-primary);">${section.heading}</h5>
-                        <p class="text-muted mb-0">${section.text}</p>
-                      </div>
-                    `,
-                  )
-                  .join("")}
-              </div>
-            </div>
-
-            <div class="card border-0 shadow-sm" style="border-radius: 15px;">
-              <div class="card-body p-4 p-md-5">
-                <h6 class="fw-bold mb-3 border-bottom pb-2" style="border-color: var(--app-border-color) !important;">Recomendaciones rápidas</h6>
-                <ul class="list-unstyled mb-0">
-                  ${article.tips
-                    .map(
-                      (tip) => `
-                        <li class="mb-2 d-flex align-items-start gap-2 text-muted">
-                          <i class="lni lni-checkmark-circle text-success mt-1"></i>
-                          <span>${tip}</span>
-                        </li>
-                      `,
-                    )
-                    .join("")}
-                </ul>
-              </div>
-            </div>
+            ${articleIntroCard}
+            ${articleSectionsCard}
+            ${tipsCard}
           </div>
 
           <div class="col-12 col-lg-3 d-flex flex-column gap-4">
-            <div class="card border-0 shadow-sm" style="border-radius: 15px;">
-              <div class="card-body p-4">
-                <h6 class="fw-bold mb-3 border-bottom pb-2" style="border-color: var(--app-border-color) !important;">Navegación FAQ</h6>
-                <ul class="list-unstyled mb-0">
-                  <li class="mb-2"><a href="/faqs" data-link class="text-decoration-none text-muted faq-link">Portal principal</a></li>
-                  <li class="mb-0"><a href="/login" data-link class="text-decoration-none text-muted faq-link">Mis reclamos</a></li>
-                </ul>
-              </div>
-            </div>
-
-            <div class="card border-0 shadow-sm" style="border-radius: 15px;">
-              <div class="card-body p-4">
-                <h6 class="fw-bold mb-3 border-bottom pb-2" style="border-color: var(--app-border-color) !important;">Artículos relacionados</h6>
-                <ul class="list-unstyled mb-0">
-                  ${renderArticleLinks(article.related)}
-                </ul>
-              </div>
-            </div>
+            ${faqNavigationCard}
+            ${relatedArticlesCard}
           </div>
         </div>
       </div>

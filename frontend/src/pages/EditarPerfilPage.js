@@ -1,13 +1,5 @@
 import { renderDashboardAppLayout } from "../components/dashboard/dashboardAppLayout";
-
-function escapeHtml(text) {
-  return String(text)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
-}
+import { escapeHtml } from "../utils/sanitize";
 
 function getProfileCompletion(perfil) {
   const checkpoints = [
@@ -179,7 +171,6 @@ export function renderEditarPerfilPage({
         </div>
 
         <div class="d-flex flex-column gap-2">
-          <a href="/perfil/configuracion" data-link class="gd-link-btn">Ir a configuracion de cuenta</a>
           <a href="/perfil/notificaciones" data-link class="gd-link-btn">Ajustar notificaciones</a>
         </div>
       </article>

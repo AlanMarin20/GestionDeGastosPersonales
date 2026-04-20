@@ -1,27 +1,6 @@
 import { renderDashboardAppLayout } from "../components/dashboard/dashboardAppLayout";
-
-function escapeHtml(text) {
-  return String(text)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
-}
-
-function normalizeCategoryClass(category) {
-  const map = {
-    supermercado: "supermercado",
-    transporte: "transporte",
-    entretenimiento: "entretenimiento",
-    salud: "salud",
-    restaurantes: "restaurantes",
-    servicios: "servicios",
-    otros: "otros",
-  };
-
-  return map[String(category || "").toLowerCase()] || "otros";
-}
+import { normalizeCategoryClass } from "../utils/category";
+import { escapeHtml } from "../utils/sanitize";
 
 export function renderDashboardPage({
   profileImage,

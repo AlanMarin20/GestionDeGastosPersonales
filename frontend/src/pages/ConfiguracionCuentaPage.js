@@ -1,12 +1,95 @@
 import { renderDashboardAppLayout } from "../components/dashboard/dashboardAppLayout";
+import { escapeHtml } from "../utils/sanitize";
 
-function escapeHtml(text) {
-  return String(text)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
+const SETTINGS_NAV_GROUPS = [
+  {
+    label: "Cuenta",
+    items: [
+      { id: "perfil", label: "Mi perfil", icon: "lni lni-user" },
+      { id: "seguridad", label: "Seguridad", icon: "lni lni-lock-alt" },
+      { id: "sesiones", label: "Sesiones", icon: "lni lni-tab" },
+    ],
+  },
+  {
+    label: "Finanzas",
+    items: [
+      { id: "presupuestos", label: "Presupuestos", icon: "lni lni-wallet" },
+      { id: "categorias", label: "Categorias", icon: "lni lni-tag" },
+    ],
+  },
+  {
+    label: "Preferencias",
+    items: [
+      { id: "notificaciones", label: "Notificaciones", icon: "lni lni-alarm" },
+      { id: "apariencia", label: "Apariencia", icon: "lni lni-night" },
+      { id: "datos", label: "Mis datos", icon: "lni lni-database" },
+    ],
+  },
+  {
+    label: "Plan",
+    items: [
+      { id: "plan", label: "Plan actual", icon: "lni lni-rocket" },
+      { id: "danger", label: "Zona peligrosa", icon: "lni lni-warning" },
+    ],
+  },
+];
+
+const SETTINGS_SECTION_IDS = SETTINGS_NAV_GROUPS.reduce((ids, group) => {
+  group.items.forEach((item) => {
+    ids.push(item.id);
+  });
+  return ids;
+}, []);
+
+const DEFAULT_SETTINGS_SECTION = "perfil";
+
+function resolveActiveSettingsSection() {
+  if (typeof window === "undefined") {
+    return DEFAULT_SETTINGS_SECTION;
+  }
+
+  const hashValue = String(window.location.hash || "");
+  const parsed = hashValue.startsWith("#config-")
+    ? hashValue.slice("#config-".length)
+    : "";
+
+  return SETTINGS_SECTION_IDS.includes(parsed)
+    ? parsed
+    : DEFAULT_SETTINGS_SECTION;
+}
+
+function renderSettingsNav(activeSection, alertsCount = 0) {
+  return SETTINGS_NAV_GROUPS.map((group) => {
+    const items = group.items
+      .map((item) => {
+        const isActive = item.id === activeSection;
+        const badge = item.id === "notificaciones" && alertsCount > 0
+          ? `<span class="gd-settings-nav-badge">${escapeHtml(String(alertsCount))}</span>`
+          : "";
+
+        return `
+          <button
+            type="button"
+            class="gd-settings-nav-item ${isActive ? "active" : ""}"
+            data-config-section-target="${escapeHtml(item.id)}"
+            aria-controls="config-section-${escapeHtml(item.id)}"
+            aria-selected="${isActive ? "true" : "false"}"
+          >
+            <i class="${escapeHtml(item.icon)}" aria-hidden="true"></i>
+            <span>${escapeHtml(item.label)}</span>
+            ${badge}
+          </button>
+        `;
+      })
+      .join("");
+
+    return `
+      <div class="gd-settings-nav-group">
+        <p class="gd-settings-nav-label">${escapeHtml(group.label)}</p>
+        ${items}
+      </div>
+    `;
+  }).join("");
 }
 
 export function renderConfiguracionCuentaPage({
@@ -15,6 +98,37 @@ export function renderConfiguracionCuentaPage({
   profileName,
 }) {
   const config = state.configuracion;
+  const recomendacionesPendientes = state.finanzas?.recomendaciones?.length || 0;
+  const activeSection = resolveActiveSettingsSection();
+  const safeName = String(profileName || "Usuario").trim() || "Usuario";
+  const nameParts = safeName.split(/\s+/).filter(Boolean);
+  const firstName = nameParts[0] || "Usuario";
+  const lastName = nameParts.slice(1).join(" ");
+  const profileEmail = String(state.perfil?.email || "usuario@finanzaspro.app");
+  const roleValue = String(
+    state.currentUser?.role || state.currentUser?.rol || "",
+  ).toLowerCase();
+  const roleLabel = roleValue === "asesor" ? "asesor" : "usuario";
+  const initials = nameParts.length > 1
+    ? `${nameParts[0][0]}${nameParts[1][0]}`.toUpperCase()
+    : firstName.slice(0, 2).toUpperCase();
+
+  const budgetRows = [
+    { label: "Supermercado", usage: 82, color: "#38bdf8", amount: "60000" },
+    { label: "Transporte", usage: 55, color: "#0ea5e9", amount: "40000" },
+    { label: "Entretenimiento", usage: 95, color: "#ef4444", amount: "20000" },
+    { label: "Salud", usage: 40, color: "#2563eb", amount: "15000" },
+    { label: "Restaurantes", usage: 30, color: "#14b8a6", amount: "25000" },
+  ];
+
+  const customCategories = [
+    { label: "Supermercado", kind: "Sistema", color: "#38bdf8" },
+    { label: "Transporte", kind: "Sistema", color: "#0ea5e9" },
+    { label: "Vacaciones", kind: "Personal", color: "#8b5cf6" },
+    { label: "Trabajo", kind: "Personal", color: "#f59e0b" },
+    { label: "Hogar", kind: "Personal", color: "#ef4444" },
+  ];
+
   const themeLabel = {
     light: "Claro",
     dark: "Oscuro",
@@ -31,171 +145,525 @@ export function renderConfiguracionCuentaPage({
   }[config.densidad] || "Comoda";
 
   const content = `
-    <div class="gd-grid-2">
-      <article class="gd-card">
-        <h2 class="gd-card-title mb-1">Preferencias de la app</h2>
-        <p class="gd-muted mb-3">Ajusta moneda, tema y experiencia visual de tu panel.</p>
+    <section class="gd-settings-shell">
+      <aside class="gd-settings-nav" aria-label="Subsecciones de configuracion">
+        ${renderSettingsNav(activeSection, recomendacionesPendientes)}
+      </aside>
 
-        <div class="gd-form-grid">
-          <div>
-            <label class="gd-form-label" for="moneda">Moneda principal</label>
-            <select id="moneda" name="moneda" class="gd-form-select">
-              <option value="USD" ${config.moneda === "USD" ? "selected" : ""}>Dolar USD</option>
-              <option value="ARS" ${config.moneda === "ARS" ? "selected" : ""}>Peso argentino</option>
-              <option value="EUR" ${config.moneda === "EUR" ? "selected" : ""}>Euro</option>
-            </select>
-          </div>
-          <div>
-            <label class="gd-form-label" for="idioma">Idioma</label>
-            <select id="idioma" name="idioma" class="gd-form-select">
-              <option value="es" ${config.idioma === "es" ? "selected" : ""}>Espanol</option>
-              <option value="en" ${config.idioma === "en" ? "selected" : ""}>English</option>
-              <option value="pt" ${config.idioma === "pt" ? "selected" : ""}>Portugues</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="gd-form-label" for="temaModo">Tema</label>
-            <select id="temaModo" name="temaModo" class="gd-form-select">
-              <option value="system" ${config.tema === "system" ? "selected" : ""}>Sistema</option>
-              <option value="light" ${config.tema === "light" ? "selected" : ""}>Claro</option>
-              <option value="dark" ${config.tema === "dark" ? "selected" : ""}>Oscuro</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="gd-form-label" for="tamanioFuente">Tamano de fuente</label>
-            <select id="tamanioFuente" name="tamanioFuente" class="gd-form-select">
-              <option value="sm" ${config.tamanioFuente === "sm" ? "selected" : ""}>Pequeno</option>
-              <option value="md" ${config.tamanioFuente === "md" ? "selected" : ""}>Normal</option>
-              <option value="lg" ${config.tamanioFuente === "lg" ? "selected" : ""}>Grande</option>
-            </select>
-          </div>
-
-          <div class="gd-form-full gd-setting-row">
-            <div>
-              <p class="gd-card-title mb-0" style="font-size: 0.75rem;">Densidad visual</p>
-              <small class="gd-muted">Define cuanto espacio entre tarjetas y filas.</small>
-            </div>
-            <select id="densidad" name="densidad" class="gd-form-select gd-setting-select-inline">
-              <option value="comfortable" ${config.densidad === "comfortable" ? "selected" : ""}>Comoda</option>
-              <option value="compact" ${config.densidad === "compact" ? "selected" : ""}>Compacta</option>
-            </select>
-          </div>
-
-          <label class="gd-form-full gd-setting-row" for="mostrarCentavos">
-            <div>
-              <p class="gd-card-title mb-0" style="font-size: 0.75rem;">Mostrar centavos</p>
-              <small class="gd-muted">Visualiza montos con 2 decimales en tablas y metricas.</small>
-            </div>
-            <input class="form-check-input mt-0" type="checkbox" id="mostrarCentavos" ${config.mostrarCentavos ? "checked" : ""}>
-          </label>
-
-          <label class="gd-form-full gd-setting-row" for="reducirAnimaciones">
-            <div>
-              <p class="gd-card-title mb-0" style="font-size: 0.75rem;">Reducir animaciones</p>
-              <small class="gd-muted">Desactiva transiciones para una experiencia mas estable.</small>
-            </div>
-            <input class="form-check-input mt-0" type="checkbox" id="reducirAnimaciones" ${config.reducirAnimaciones ? "checked" : ""}>
-          </label>
-
-          <div class="gd-form-full gd-settings-preview">
-            <p class="gd-card-title mb-2" style="font-size: 0.75rem;">Vista previa de preferencias</p>
-            <div class="gd-settings-preview-list">
-              <div class="gd-settings-preview-item">
-                <span>Tema</span>
-                <strong>${escapeHtml(themeLabel)}</strong>
+      <div class="gd-settings-content">
+        <section
+          id="config-section-perfil"
+          class="gd-settings-panel ${activeSection === "perfil" ? "active" : ""}"
+          data-config-section="perfil"
+          ${activeSection === "perfil" ? "" : "hidden"}
+        >
+          <article class="gd-card">
+            <div class="gd-settings-profile-head">
+              <div class="gd-settings-avatar-wrap">
+                <img
+                  src="${escapeHtml(profileImage || "/assets/img/user-avatar-default.svg")}" 
+                  alt="Avatar de ${escapeHtml(safeName)}"
+                  class="gd-settings-avatar-image"
+                  onerror="this.style.display='none'; this.nextElementSibling.classList.remove('d-none');"
+                >
+                <span class="gd-settings-avatar-fallback d-none" aria-hidden="true">${escapeHtml(initials)}</span>
               </div>
-              <div class="gd-settings-preview-item">
-                <span>Fuente</span>
-                <strong>${escapeHtml(fontSizeLabel)}</strong>
-              </div>
-              <div class="gd-settings-preview-item">
-                <span>Densidad</span>
-                <strong>${escapeHtml(densityLabel)}</strong>
+
+              <div class="gd-settings-profile-copy">
+                <p class="gd-card-title">Mi perfil</p>
+                <p class="gd-settings-profile-name">${escapeHtml(safeName)}</p>
+                <p class="gd-muted mb-0">${escapeHtml(profileEmail)}</p>
+                <span class="gd-settings-role-pill">Tipo: ${escapeHtml(roleLabel)}</span>
               </div>
             </div>
-          </div>
 
-          <div class="gd-form-full d-flex justify-content-end mt-1">
-            <button type="button" class="gd-btn-primary" id="guardarConfiguracionBtn">Guardar configuracion</button>
-          </div>
-        </div>
-      </article>
+            <div class="gd-settings-stats">
+              <div class="gd-settings-stat-item">
+                <span class="gd-settings-stat-value">${escapeHtml(String(state.finanzas?.gastos?.length || 0))}</span>
+                <span class="gd-settings-stat-label">gastos cargados</span>
+              </div>
+              <div class="gd-settings-stat-item">
+                <span class="gd-settings-stat-value">${escapeHtml(String(state.configuracion?.sesiones?.length || 0))}</span>
+                <span class="gd-settings-stat-label">sesiones activas</span>
+              </div>
+              <div class="gd-settings-stat-item">
+                <span class="gd-settings-stat-value">74</span>
+                <span class="gd-settings-stat-label">score financiero</span>
+              </div>
+            </div>
 
-      <article class="gd-card">
-        <h2 class="gd-card-title mb-3">Seguridad</h2>
-        <div class="d-flex align-items-center justify-content-between border rounded-3 px-3 py-2 mb-3" style="border-color: var(--gd-border) !important;">
-          <div>
-            <p class="gd-card-title mb-0" style="font-size: 0.75rem;">Autenticacion en dos pasos</p>
-            <small class="gd-muted">Agrega una verificacion extra al iniciar sesion.</small>
-          </div>
-          <input class="form-check-input mt-0" type="checkbox" id="autenticacionDos" ${config.autenticacionDos ? "checked" : ""}>
-        </div>
+            <div class="gd-form-grid">
+              <div>
+                <label class="gd-form-label" for="configNombre">Nombre</label>
+                <input id="configNombre" class="gd-form-input" value="${escapeHtml(firstName)}">
+              </div>
+              <div>
+                <label class="gd-form-label" for="configApellido">Apellido</label>
+                <input id="configApellido" class="gd-form-input" value="${escapeHtml(lastName)}">
+              </div>
+              <div class="gd-form-full">
+                <label class="gd-form-label" for="configEmail">Email</label>
+                <input id="configEmail" class="gd-form-input" value="${escapeHtml(profileEmail)}">
+              </div>
+              <div>
+                <label class="gd-form-label" for="configMoneda">Moneda</label>
+                <select id="moneda" name="moneda" class="gd-form-select">
+                  <option value="USD" ${config.moneda === "USD" ? "selected" : ""}>Dolar USD</option>
+                  <option value="ARS" ${config.moneda === "ARS" ? "selected" : ""}>Peso argentino</option>
+                  <option value="EUR" ${config.moneda === "EUR" ? "selected" : ""}>Euro</option>
+                </select>
+              </div>
+              <div>
+                <label class="gd-form-label" for="configTelefono">Telefono</label>
+                <input id="configTelefono" class="gd-form-input" value="+54 9 11 4823-7741">
+              </div>
+            </div>
 
-        <div class="rounded-3 p-3" style="background: rgba(30, 64, 175, 0.12); border: 1px solid rgba(59, 130, 246, 0.35);">
-          <p class="gd-card-title mb-1" style="font-size: 0.75rem;">Estado de seguridad</p>
-          <small class="gd-muted">Tu cuenta tiene las protecciones activas correctamente.</small>
-        </div>
+            <div class="d-flex justify-content-end gap-2 mt-3">
+              <button type="button" class="gd-btn-secondary">Cancelar</button>
+              <button type="button" class="gd-btn-primary">Guardar cambios</button>
+            </div>
+          </article>
 
-        <div class="rounded-3 p-3 mt-3" style="background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.3);">
-          <p class="gd-card-title mb-1" style="font-size: 0.75rem;">Sugerencia</p>
-          <small class="gd-muted">Activa autenticacion en dos pasos y revisar sesiones cada semana reduce riesgos de acceso no autorizado.</small>
-        </div>
-      </article>
-    </div>
+          <article class="gd-card">
+            <h2 class="gd-card-title mb-1">Perfil financiero</h2>
+            <p class="gd-muted mb-3">Informacion usada para recomendaciones personalizadas del asesor.</p>
+            <div class="gd-form-grid">
+              <div>
+                <label class="gd-form-label" for="configIngreso">Ingreso mensual estimado</label>
+                <input id="configIngreso" type="number" class="gd-form-input" value="320000">
+              </div>
+              <div>
+                <label class="gd-form-label" for="configAhorro">Objetivo de ahorro mensual</label>
+                <input id="configAhorro" type="number" class="gd-form-input" value="80000">
+              </div>
+              <div class="gd-form-full">
+                <label class="gd-form-label" for="configPerfilGasto">Perfil de gasto IA</label>
+                <input id="configPerfilGasto" class="gd-form-input" value="Consumidor equilibrado" disabled>
+              </div>
+            </div>
+          </article>
+        </section>
 
-    <article class="gd-card">
-      <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 mb-3">
-        <div>
-          <h2 class="gd-card-title mb-1">Sesiones activas</h2>
-          <p class="gd-muted mb-0">Gestiona los dispositivos que tienen acceso a tu cuenta.</p>
-        </div>
-        <button type="button" class="gd-btn-secondary" id="cerrarTodasSesionesBtn">Cerrar otras sesiones</button>
+        <section
+          id="config-section-seguridad"
+          class="gd-settings-panel ${activeSection === "seguridad" ? "active" : ""}"
+          data-config-section="seguridad"
+          ${activeSection === "seguridad" ? "" : "hidden"}
+        >
+          <article class="gd-card">
+            <h2 class="gd-card-title mb-1">Contrasena y acceso</h2>
+            <p class="gd-muted mb-3">Actualiza tus credenciales y fortalece la seguridad de tu cuenta.</p>
+
+            <div class="gd-form-grid">
+              <div class="gd-form-full">
+                <label class="gd-form-label" for="passwordActual">Contrasena actual</label>
+                <input id="passwordActual" type="password" class="gd-form-input" placeholder="••••••••">
+              </div>
+              <div>
+                <label class="gd-form-label" for="passwordNueva">Nueva contrasena</label>
+                <input id="passwordNueva" type="password" class="gd-form-input" placeholder="••••••••">
+              </div>
+              <div>
+                <label class="gd-form-label" for="passwordConfirmar">Confirmar contrasena</label>
+                <input id="passwordConfirmar" type="password" class="gd-form-input" placeholder="••••••••">
+              </div>
+            </div>
+
+            <div class="gd-settings-toggle-row mt-3">
+              <div>
+                <p class="gd-card-title mb-0" style="font-size: 0.75rem;">Autenticacion en dos pasos</p>
+                <small class="gd-muted">Agrega un segundo factor al iniciar sesion.</small>
+              </div>
+              <input class="form-check-input mt-0" type="checkbox" id="autenticacionDos" ${config.autenticacionDos ? "checked" : ""}>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mt-3">
+              <button type="button" class="gd-btn-secondary">Cancelar</button>
+              <button type="button" class="gd-btn-primary">Actualizar seguridad</button>
+            </div>
+          </article>
+
+          <article class="gd-card">
+            <h2 class="gd-card-title mb-1">Buenas practicas recomendadas</h2>
+            <ul class="gd-policy-list mb-0">
+              <li>Usa contrasenas diferentes para cada servicio.</li>
+              <li>Activa autenticacion en dos pasos para reducir riesgo de acceso indebido.</li>
+              <li>Revisa sesiones activas semanalmente.</li>
+            </ul>
+          </article>
+        </section>
+
+        <section
+          id="config-section-sesiones"
+          class="gd-settings-panel ${activeSection === "sesiones" ? "active" : ""}"
+          data-config-section="sesiones"
+          ${activeSection === "sesiones" ? "" : "hidden"}
+        >
+          <article class="gd-card">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 mb-3">
+              <div>
+                <h2 class="gd-card-title mb-1">Sesiones activas</h2>
+                <p class="gd-muted mb-0">Gestiona los dispositivos que tienen acceso a tu cuenta.</p>
+              </div>
+              <button type="button" class="gd-btn-secondary" id="cerrarTodasSesionesBtn">Cerrar sesiones remotas</button>
+            </div>
+
+            <div class="gd-settings-session-list">
+              ${
+                config.sesiones.length === 0
+                  ? '<p class="gd-muted mb-0">No hay sesiones activas.</p>'
+                  : config.sesiones
+                      .map((sesion) => `
+                        <div class="gd-settings-session-row">
+                          <div>
+                            <p class="gd-settings-session-title">${escapeHtml(sesion.dispositivo)}</p>
+                            <p class="gd-settings-session-sub">${escapeHtml(sesion.ubicacion)} · ${escapeHtml(sesion.fecha)}</p>
+                          </div>
+                          ${
+                            sesion.fecha === "Hoy"
+                              ? '<span class="gd-pill gd-pill-transporte">Actual</span>'
+                              : `<button type="button" class="gd-action-btn danger" data-action="cerrar-sesion" data-sesion-id="${escapeHtml(sesion.id)}">Cerrar</button>`
+                          }
+                        </div>
+                      `)
+                      .join("")
+              }
+            </div>
+          </article>
+        </section>
+
+        <section
+          id="config-section-presupuestos"
+          class="gd-settings-panel ${activeSection === "presupuestos" ? "active" : ""}"
+          data-config-section="presupuestos"
+          ${activeSection === "presupuestos" ? "" : "hidden"}
+        >
+          <article class="gd-card">
+            <h2 class="gd-card-title mb-1">Presupuestos mensuales</h2>
+            <p class="gd-muted mb-3">Define limites por categoria y recibe alertas al acercarte al tope.</p>
+
+            <div class="gd-settings-budget-list">
+              ${budgetRows
+                .map(
+                  (row) => `
+                    <div class="gd-settings-budget-row">
+                      <span class="gd-settings-budget-dot" style="background: ${escapeHtml(row.color)};"></span>
+                      <span class="gd-settings-budget-cat">${escapeHtml(row.label)}</span>
+                      <div class="gd-settings-budget-bar">
+                        <span style="width: ${Math.min(row.usage, 100)}%; background: ${escapeHtml(row.color)};"></span>
+                      </div>
+                      <span class="gd-settings-budget-pct">${escapeHtml(String(row.usage))}%</span>
+                      <div class="gd-settings-budget-input-wrap">
+                        <span class="gd-muted">$</span>
+                        <input class="gd-form-input gd-settings-budget-input" value="${escapeHtml(row.amount)}">
+                      </div>
+                    </div>
+                  `,
+                )
+                .join("")}
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mt-3">
+              <button type="button" class="gd-btn-secondary">Restablecer</button>
+              <button type="button" class="gd-btn-primary">Guardar presupuestos</button>
+            </div>
+          </article>
+        </section>
+
+        <section
+          id="config-section-categorias"
+          class="gd-settings-panel ${activeSection === "categorias" ? "active" : ""}"
+          data-config-section="categorias"
+          ${activeSection === "categorias" ? "" : "hidden"}
+        >
+          <article class="gd-card">
+            <h2 class="gd-card-title mb-1">Categorias personalizadas</h2>
+            <p class="gd-muted mb-3">Crea etiquetas para clasificar mejor tus gastos.</p>
+
+            <div class="gd-settings-category-list">
+              ${customCategories
+                .map(
+                  (category) => `
+                    <div class="gd-settings-category-row">
+                      <span class="gd-settings-budget-dot" style="background: ${escapeHtml(category.color)};"></span>
+                      <span class="gd-settings-budget-cat">${escapeHtml(category.label)}</span>
+                      <span class="gd-settings-category-pill">${escapeHtml(category.kind)}</span>
+                    </div>
+                  `,
+                )
+                .join("")}
+            </div>
+
+            <div class="gd-form-grid mt-3">
+              <div>
+                <label class="gd-form-label" for="nuevaCategoria">Nombre de categoria</label>
+                <input id="nuevaCategoria" class="gd-form-input" placeholder="Ej: Mascotas">
+              </div>
+              <div>
+                <label class="gd-form-label" for="nuevoEmoji">Emoji</label>
+                <input id="nuevoEmoji" class="gd-form-input" placeholder="🐾">
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-end mt-3">
+              <button type="button" class="gd-btn-primary">Agregar categoria</button>
+            </div>
+          </article>
+        </section>
+
+        <section
+          id="config-section-notificaciones"
+          class="gd-settings-panel ${activeSection === "notificaciones" ? "active" : ""}"
+          data-config-section="notificaciones"
+          ${activeSection === "notificaciones" ? "" : "hidden"}
+        >
+          <article class="gd-card">
+            <h2 class="gd-card-title mb-1">Alertas de gastos</h2>
+            <p class="gd-muted mb-3">Decide cuando y como quieres recibir avisos.</p>
+
+            <label class="gd-settings-toggle-row">
+              <div>
+                <p class="gd-card-title mb-0" style="font-size: 0.75rem;">Gasto inusual detectado</p>
+                <small class="gd-muted">Cuando un gasto supere tu patron habitual.</small>
+              </div>
+              <input class="form-check-input mt-0" type="checkbox" checked>
+            </label>
+
+            <label class="gd-settings-toggle-row">
+              <div>
+                <p class="gd-card-title mb-0" style="font-size: 0.75rem;">Presupuesto al 80%</p>
+                <small class="gd-muted">Aviso al acercarte al limite mensual.</small>
+              </div>
+              <input class="form-check-input mt-0" type="checkbox" checked>
+            </label>
+
+            <label class="gd-settings-toggle-row">
+              <div>
+                <p class="gd-card-title mb-0" style="font-size: 0.75rem;">Recomendaciones del asesor</p>
+                <small class="gd-muted">Notifica cada nuevo analisis publicado.</small>
+              </div>
+              <input class="form-check-input mt-0" type="checkbox" checked>
+            </label>
+          </article>
+        </section>
+
+        <section
+          id="config-section-apariencia"
+          class="gd-settings-panel ${activeSection === "apariencia" ? "active" : ""}"
+          data-config-section="apariencia"
+          ${activeSection === "apariencia" ? "" : "hidden"}
+        >
+          <article class="gd-card">
+            <h2 class="gd-card-title mb-1">Apariencia y accesibilidad</h2>
+            <p class="gd-muted mb-3">Controla idioma, tema y densidad visual del dashboard.</p>
+
+            <div class="gd-form-grid">
+              <div>
+                <label class="gd-form-label" for="idioma">Idioma</label>
+                <select id="idioma" name="idioma" class="gd-form-select">
+                  <option value="es" ${config.idioma === "es" ? "selected" : ""}>Espanol</option>
+                  <option value="en" ${config.idioma === "en" ? "selected" : ""}>English</option>
+                  <option value="pt" ${config.idioma === "pt" ? "selected" : ""}>Portugues</option>
+                </select>
+              </div>
+              <div>
+                <label class="gd-form-label" for="temaModo">Tema</label>
+                <select id="temaModo" name="temaModo" class="gd-form-select">
+                  <option value="system" ${config.tema === "system" ? "selected" : ""}>Sistema</option>
+                  <option value="light" ${config.tema === "light" ? "selected" : ""}>Claro</option>
+                  <option value="dark" ${config.tema === "dark" ? "selected" : ""}>Oscuro</option>
+                </select>
+              </div>
+              <div>
+                <label class="gd-form-label" for="tamanioFuente">Tamano de fuente</label>
+                <select id="tamanioFuente" name="tamanioFuente" class="gd-form-select">
+                  <option value="sm" ${config.tamanioFuente === "sm" ? "selected" : ""}>Pequeno</option>
+                  <option value="md" ${config.tamanioFuente === "md" ? "selected" : ""}>Normal</option>
+                  <option value="lg" ${config.tamanioFuente === "lg" ? "selected" : ""}>Grande</option>
+                </select>
+              </div>
+              <div>
+                <label class="gd-form-label" for="densidad">Densidad</label>
+                <select id="densidad" name="densidad" class="gd-form-select">
+                  <option value="comfortable" ${config.densidad === "comfortable" ? "selected" : ""}>Comoda</option>
+                  <option value="compact" ${config.densidad === "compact" ? "selected" : ""}>Compacta</option>
+                </select>
+              </div>
+
+              <label class="gd-form-full gd-setting-row" for="mostrarCentavos">
+                <div>
+                  <p class="gd-card-title mb-0" style="font-size: 0.75rem;">Mostrar centavos</p>
+                  <small class="gd-muted">Visualiza montos con dos decimales en tablas y metricas.</small>
+                </div>
+                <input class="form-check-input mt-0" type="checkbox" id="mostrarCentavos" ${config.mostrarCentavos ? "checked" : ""}>
+              </label>
+
+              <label class="gd-form-full gd-setting-row" for="reducirAnimaciones">
+                <div>
+                  <p class="gd-card-title mb-0" style="font-size: 0.75rem;">Reducir animaciones</p>
+                  <small class="gd-muted">Desactiva transiciones para una experiencia mas estable.</small>
+                </div>
+                <input class="form-check-input mt-0" type="checkbox" id="reducirAnimaciones" ${config.reducirAnimaciones ? "checked" : ""}>
+              </label>
+
+              <div class="gd-form-full gd-settings-preview">
+                <p class="gd-card-title mb-2" style="font-size: 0.75rem;">Vista previa</p>
+                <div class="gd-settings-preview-list">
+                  <div class="gd-settings-preview-item">
+                    <span>Tema</span>
+                    <strong>${escapeHtml(themeLabel)}</strong>
+                  </div>
+                  <div class="gd-settings-preview-item">
+                    <span>Fuente</span>
+                    <strong>${escapeHtml(fontSizeLabel)}</strong>
+                  </div>
+                  <div class="gd-settings-preview-item">
+                    <span>Densidad</span>
+                    <strong>${escapeHtml(densityLabel)}</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-end mt-3">
+              <button type="button" class="gd-btn-primary" id="guardarConfiguracionBtn">Guardar configuracion</button>
+            </div>
+          </article>
+        </section>
+
+        <section
+          id="config-section-datos"
+          class="gd-settings-panel ${activeSection === "datos" ? "active" : ""}"
+          data-config-section="datos"
+          ${activeSection === "datos" ? "" : "hidden"}
+        >
+          <article class="gd-card">
+            <h2 class="gd-card-title mb-1">Exportar mis datos</h2>
+            <p class="gd-muted mb-3">Descarga informacion financiera y reportes de tu cuenta.</p>
+
+            <div class="gd-settings-export-list">
+              <div class="gd-settings-export-row">
+                <div>
+                  <p class="gd-settings-session-title">Historial de gastos</p>
+                  <p class="gd-settings-session-sub">Incluye monto, fecha, categoria y comercio.</p>
+                </div>
+                <div class="d-flex gap-2">
+                  <button type="button" class="gd-btn-secondary">CSV</button>
+                  <button type="button" class="gd-btn-secondary">Excel</button>
+                </div>
+              </div>
+
+              <div class="gd-settings-export-row">
+                <div>
+                  <p class="gd-settings-session-title">Reportes mensuales</p>
+                  <p class="gd-settings-session-sub">Resumen de los ultimos seis meses en PDF.</p>
+                </div>
+                <button type="button" class="gd-btn-secondary">PDF</button>
+              </div>
+
+              <div class="gd-settings-export-row">
+                <div>
+                  <p class="gd-settings-session-title">Exportacion completa</p>
+                  <p class="gd-settings-session-sub">Archivo JSON con estructura completa de tu cuenta.</p>
+                </div>
+                <button type="button" class="gd-btn-primary">Generar archivo</button>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section
+          id="config-section-plan"
+          class="gd-settings-panel ${activeSection === "plan" ? "active" : ""}"
+          data-config-section="plan"
+          ${activeSection === "plan" ? "" : "hidden"}
+        >
+          <article class="gd-card">
+            <h2 class="gd-card-title mb-1">Plan actual</h2>
+            <p class="gd-muted mb-3">Gestiona tu suscripcion y revisa consumo del periodo.</p>
+
+            <div class="gd-settings-plan-card current">
+              <div>
+                <p class="gd-settings-session-title">Plan gratuito</p>
+                <p class="gd-settings-session-sub">Hasta 50 tickets por mes y reportes basicos.</p>
+              </div>
+              <span class="gd-settings-category-pill">Actual</span>
+            </div>
+
+            <div class="gd-settings-plan-card">
+              <div>
+                <p class="gd-settings-session-title">Plan Pro</p>
+                <p class="gd-settings-session-sub">Tickets ilimitados, analisis IA avanzado y panel asesor.</p>
+              </div>
+              <button type="button" class="gd-btn-primary">Mejorar plan</button>
+            </div>
+
+            <div class="gd-settings-usage-list">
+              <div class="gd-settings-budget-row">
+                <span class="gd-settings-budget-cat">Tickets subidos</span>
+                <div class="gd-settings-budget-bar">
+                  <span style="width: 68%;"></span>
+                </div>
+                <span class="gd-settings-budget-pct">34 / 50</span>
+              </div>
+              <div class="gd-settings-budget-row">
+                <span class="gd-settings-budget-cat">Exportaciones</span>
+                <div class="gd-settings-budget-bar">
+                  <span style="width: 20%;"></span>
+                </div>
+                <span class="gd-settings-budget-pct">2 / 10</span>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section
+          id="config-section-danger"
+          class="gd-settings-panel ${activeSection === "danger" ? "active" : ""}"
+          data-config-section="danger"
+          ${activeSection === "danger" ? "" : "hidden"}
+        >
+          <article class="gd-card gd-settings-danger-card">
+            <h2 class="gd-card-title mb-1">Zona peligrosa</h2>
+            <p class="gd-muted mb-3">Estas acciones son irreversibles. Procede con precaucion.</p>
+
+            <div class="gd-settings-danger-row">
+              <div>
+                <p class="gd-settings-session-title">Cerrar todas las sesiones</p>
+                <p class="gd-settings-session-sub">Finaliza el acceso en todos los dispositivos remotos.</p>
+              </div>
+              <button type="button" class="gd-btn-danger">Cerrar sesiones</button>
+            </div>
+
+            <div class="gd-settings-danger-row">
+              <div>
+                <p class="gd-settings-session-title">Borrar historial de gastos</p>
+                <p class="gd-settings-session-sub">Elimina registros, reportes e imagenes de tickets.</p>
+              </div>
+              <button type="button" class="gd-btn-danger">Borrar historial</button>
+            </div>
+
+            <div class="gd-settings-danger-row">
+              <div>
+                <p class="gd-settings-session-title">Eliminar cuenta</p>
+                <p class="gd-settings-session-sub">Borra permanentemente todos tus datos.</p>
+              </div>
+              <button type="button" class="gd-btn-danger">Eliminar cuenta</button>
+            </div>
+          </article>
+        </section>
       </div>
-
-      <div class="table-responsive">
-        <table class="gd-table">
-          <thead>
-            <tr>
-              <th>Dispositivo</th>
-              <th>Ubicacion</th>
-              <th>Ultima actividad</th>
-              <th class="gd-right">Accion</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${config.sesiones
-              .map(
-                (sesion) => `
-                  <tr>
-                    <td>${escapeHtml(sesion.dispositivo)}</td>
-                    <td class="gd-muted">${escapeHtml(sesion.ubicacion)}</td>
-                    <td class="gd-muted">${escapeHtml(sesion.fecha)}</td>
-                    <td class="gd-right">
-                      ${
-                        sesion.fecha === "Hoy"
-                          ? '<span class="gd-pill gd-pill-transporte">Actual</span>'
-                          : `<button type="button" class="gd-action-btn danger" data-action="cerrar-sesion" data-sesion-id="${escapeHtml(sesion.id)}">Cerrar</button>`
-                      }
-                    </td>
-                  </tr>
-                `,
-              )
-              .join("")}
-          </tbody>
-        </table>
-      </div>
-    </article>
+    </section>
   `;
 
   return renderDashboardAppLayout({
     activePath: "/perfil/configuracion",
-    pageTitle: "Configuracion de cuenta",
-    pageSubtitle: "Preferencias, seguridad y control de sesiones",
+    pageTitle: "Configuracion",
+    pageSubtitle: "Administra tu perfil, seguridad y preferencias",
     content,
     profileImage,
     profileName,
-    notificationCount: state.finanzas?.recomendaciones?.length || 0,
+    notificationCount: recomendacionesPendientes,
   });
 }

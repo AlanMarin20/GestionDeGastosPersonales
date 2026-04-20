@@ -1,28 +1,5 @@
 export function renderLoginPage({ encabezadoExterno, botonIniciarCrearCuenta }) {
   // OAuth de terceros (Google/Apple) deshabilitado temporalmente.
-  const socialAuthButtons = "";
-
-  /*
-  const socialAuthButtons = `
-    ${botonIniciarCrearCuenta({
-      text: 'Iniciar con Google',
-      type: 'button',
-      className: 'btn btn-outline-dark google-auth-btn w-100 mb-2 fw-semibold',
-      style: 'border-radius: 10px; min-height: 46px; background-color: #fff; box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);',
-      id: 'loginGoogleBtn',
-      iconHtml: '<svg ...></svg>',
-    })}
-
-    ${botonIniciarCrearCuenta({
-      text: 'Iniciar con Apple',
-      type: 'button',
-      className: 'btn btn-outline-light apple-auth-btn w-100 mb-2 fw-semibold',
-      style: 'border-radius: 10px; min-height: 46px;',
-      id: 'loginAppleBtn',
-      iconHtml: '<svg ...></svg>',
-    })}
-  `;
-  */
 
   return `
     <div class="login-page min-vh-100 position-relative overflow-hidden" style="background-color: var(--app-surface-bg);">
@@ -71,8 +48,6 @@ export function renderLoginPage({ encabezadoExterno, botonIniciarCrearCuenta }) 
                       
                     </p>
                   </div>
-
-                  ${socialAuthButtons}
 
                   </div>
                 </div>

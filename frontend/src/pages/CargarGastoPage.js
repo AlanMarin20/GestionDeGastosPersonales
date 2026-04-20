@@ -1,4 +1,5 @@
 import { renderDashboardAppLayout } from "../components/dashboard/dashboardAppLayout";
+import { escapeHtml } from "../utils/sanitize";
 
 const CATEGORY_OPTIONS = [
   "Supermercado",
@@ -9,15 +10,6 @@ const CATEGORY_OPTIONS = [
   "Servicios",
   "Otros",
 ];
-
-function escapeHtml(text) {
-  return String(text)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
-}
 
 function renderCategoryOptions(selectedValue) {
   return CATEGORY_OPTIONS.map(

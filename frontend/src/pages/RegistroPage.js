@@ -1,30 +1,5 @@
 export function renderRegistroPage({ encabezadoExterno, botonIniciarCrearCuenta }) {
   // OAuth de terceros (Google/Apple) deshabilitado temporalmente.
-  const socialRegisterMarkup = "";
-
-  /*
-  const socialRegisterMarkup = `
-    <div class="text-center mb-4">
-      <p class="text-muted mb-3">o regístrate con</p>
-      ${botonIniciarCrearCuenta({
-        text: 'Registrarse con Google',
-        type: 'button',
-        className: 'btn btn-outline-dark google-auth-btn w-100 mb-2 fw-semibold',
-        style: 'border-radius: 10px; min-height: 46px; background-color: #fff; box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);',
-        id: 'registerGoogleBtn',
-        iconHtml: '<svg ...></svg>',
-      })}
-      ${botonIniciarCrearCuenta({
-        text: 'Registrarse con Apple',
-        type: 'button',
-        className: 'btn btn-outline-light apple-auth-btn w-100 fw-semibold',
-        style: 'border-radius: 10px; min-height: 46px;',
-        id: 'registerAppleBtn',
-        iconHtml: '<svg ...></svg>',
-      })}
-    </div>
-  `;
-  */
 
   return `
     <div class="login-page min-vh-100 position-relative overflow-hidden" style="background-color: var(--app-surface-bg);">
@@ -79,8 +54,6 @@ export function renderRegistroPage({ encabezadoExterno, botonIniciarCrearCuenta 
                     })}
                   </form>
 
-                  ${socialRegisterMarkup}
-                  
                   <div class="text-center mt-4">
                     <p class="text-muted mb-0">
                       ¿Ya tienes una cuenta?
