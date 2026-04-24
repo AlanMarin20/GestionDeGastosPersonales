@@ -90,6 +90,7 @@ export function renderLandingPage({ encabezadoExterno, encabezadoAuthPublico, ta
             'realizá cargas manuales detalladas mediante formularios ' +
             'dinámicos. Nos adaptamos a tu ritmo para que ningún gasto ' +
             'quede fuera de tu historial.',
+            descriptionClassName: 'fp-feature-card-description-match-selected',
             iconImageSrc: '/assets/img/hero/landingRegistra.webp',
             iconImageFallbackSrc: '/assets/img/hero/landingRegistra.png',
             iconAlt: 'Icono de registro',
@@ -100,6 +101,7 @@ export function renderLandingPage({ encabezadoExterno, encabezadoAuthPublico, ta
             'categoría o período de tiempo a través de gráficos interactivos ' +
             'de torta y barras. Identificá patrones mensuales y mantené ' +
             'un seguimiento preciso de tus ingresos y ahorros en un solo lugar.',
+            descriptionClassName: 'fp-feature-card-description-match-selected',
             iconImageSrc: '/assets/img/hero/landingAnaliza.webp',
             iconImageFallbackSrc: '/assets/img/hero/landingAnaliza.png',
             iconAlt: 'Icono de análisis',
@@ -110,6 +112,7 @@ export function renderLandingPage({ encabezadoExterno, encabezadoAuthPublico, ta
             'presupuestos y objetivos de ahorro realistas. Recibí ' +
             'sugerencias personalizadas de tu asesor financiero para ' +
             'reducir gastos innecesarios y mejorar tu salud económica general.',
+            descriptionClassName: 'fp-feature-card-description-match-selected',
             iconImageSrc: '/assets/img/hero/landingOptimiza.webp',
             iconImageFallbackSrc: '/assets/img/hero/landingOptimiza.png',
             iconAlt: 'Icono de optimización',

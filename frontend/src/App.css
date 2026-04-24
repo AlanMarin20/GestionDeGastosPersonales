@@ -773,6 +773,12 @@ body.landing-mobile-menu-open .landing-page-content-shell {
   background-color: var(--app-surface-bg) !important;
 }
 
+.footer {
+  margin: 0 !important;
+  border: 0 !important;
+  padding-top: 100px !important;
+}
+
 .custom-landing-hero,
 .footer {
   background-image: none !important;
@@ -948,11 +954,15 @@ body.landing-mobile-menu-open .landing-page-content-shell {
   display: flex;
 }
 
+.custom-landing-features .row {
+  align-items: stretch;
+}
+
 .custom-landing-features .single-feature {
   height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   padding: clamp(28px, 2.2vw, 40px) clamp(16px, 1.8vw, 28px);
   border: 1px solid rgba(148, 163, 184, 0.22) !important;
   border-radius: 24px;
@@ -974,11 +984,35 @@ body.landing-mobile-menu-open .landing-page-content-shell {
   background: radial-gradient(circle at 28% 22%, rgba(56, 189, 248, 0.28) 0%, rgba(30, 64, 175, 0.1) 100%);
 }
 
+.custom-landing-features .single-feature .icon,
+.custom-landing-features .fp-feature-card-icon {
+  width: 130px;
+  height: 130px;
+  margin: 0 auto 30px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.custom-landing-features .single-feature .icon picture,
+.custom-landing-features .fp-feature-card-icon picture {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
 .custom-landing-features .single-feature .content {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
+  align-items: center;
+  text-align: center;
   gap: 14px;
+  width: 100%;
+  flex: 1;
 }
 
 .custom-landing-features .single-feature .content h3,
@@ -989,6 +1023,41 @@ body.landing-mobile-menu-open .landing-page-content-shell {
 .custom-landing-features .single-feature .content h3,
 .custom-landing-features .single-feature .content p {
   color: var(--app-text-primary) !important;
+}
+
+.custom-landing-features .fp-feature-card-title {
+  min-height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  text-align: center;
+}
+
+.custom-landing-features .fp-feature-card-description {
+  width: 100%;
+  margin-bottom: 0;
+  font-size: 18px;
+  line-height: 28px;
+  min-height: 168px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  text-align: center;
+}
+
+.custom-landing-features .fp-feature-card-description-match-selected {
+  min-height: 196px;
+}
+
+@media (max-width: 991.98px) {
+  .custom-landing-features .fp-feature-card-description {
+    min-height: auto;
+  }
+
+  .custom-landing-features .fp-feature-card-description-match-selected {
+    min-height: auto;
+  }
 }
 
 .custom-landing-about::before {

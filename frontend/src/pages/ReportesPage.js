@@ -1,4 +1,5 @@
 import { renderDashboardAppLayout } from "../components/dashboard/dashboardAppLayout";
+import { tarjetaValor } from "../components/common/reusablePageComponents";
 import { escapeHtml } from "../utils/sanitize";
 
 export function renderReportesPage({
@@ -16,15 +17,13 @@ export function renderReportesPage({
     <div class="gd-metrics gd-metrics-3">
       ${metrics
         .map(
-          (metric) => `
-            <article class="gd-metric-card">
-              <p class="gd-metric-label">${escapeHtml(metric.label)}</p>
-              <p class="gd-metric-value gd-metric-value-compact">${escapeHtml(metric.value)}</p>
-              <span class="gd-metric-delta ${metric.trend === "down" ? "gd-delta-down" : "gd-delta-up"}">
-                ${escapeHtml(metric.delta)}
-              </span>
-            </article>
-          `,
+          (metric) => tarjetaValor({
+            title: metric.label,
+            value: metric.value,
+            delta: metric.delta,
+            trend: metric.trend,
+            layout: "dashboard-metric",
+          }),
         )
         .join("")}
     </div>

@@ -1,21 +1,16 @@
 import { renderDashboardAppLayout } from "../components/dashboard/dashboardAppLayout";
 import { escapeHtml } from "../utils/sanitize";
 
-const CATEGORY_OPTIONS = [
-  "Supermercado",
-  "Transporte",
-  "Entretenimiento",
-  "Salud",
-  "Restaurantes",
-  "Servicios",
-  "Otros",
-];
+const NEW_CATEGORY_VALUE = "__new_category__";
 
-function renderCategoryOptions(selectedValue) {
-  return CATEGORY_OPTIONS.map(
-    (category) =>
-      `<option value="${escapeHtml(category)}" ${selectedValue === category ? "selected" : ""}>${escapeHtml(category)}</option>`,
-  ).join("");
+function renderCategoryOptions(selectedValue, categoryOptions = []) {
+  return `${categoryOptions
+    .map(
+      (category) =>
+        `<option value="${escapeHtml(category)}" ${selectedValue === category ? "selected" : ""}>${escapeHtml(category)}</option>`,
+    )
+    .join("")}
+    <option value="${NEW_CATEGORY_VALUE}" ${selectedValue === NEW_CATEGORY_VALUE ? "selected" : ""}>Nueva categoria</option>`;
 }
 
 export function renderCargarGastoPage({
@@ -28,8 +23,11 @@ export function renderCargarGastoPage({
   ticketFileName,
   aiForm,
   manualForm,
+  categoryOptions = [],
 }) {
   const ticketTabActive = activeTab === "ticket";
+  const ticketCategoryIsNew = aiForm.categoria === NEW_CATEGORY_VALUE;
+  const manualCategoryIsNew = manualForm.categoria === NEW_CATEGORY_VALUE;
 
   const content = `
     <div class="gd-tabs" role="tablist" aria-label="Modo de carga">
@@ -86,8 +84,15 @@ export function renderCargarGastoPage({
                 <div>
                   <label class="gd-form-label" for="ticketCategoria">Categoria</label>
                   <select class="gd-form-select" id="ticketCategoria" name="categoria" required>
-                    ${renderCategoryOptions(aiForm.categoria)}
+                    ${renderCategoryOptions(aiForm.categoria, categoryOptions)}
                   </select>
+                </div>
+                <div class="gd-form-full ${ticketCategoryIsNew ? "" : "d-none"}" data-new-category-wrap="ticket">
+                  <label class="gd-form-label" for="ticketNuevaCategoria">Nombre de la nueva categoria</label>
+                  <div class="d-flex gap-2 flex-wrap">
+                    <input class="gd-form-input flex-grow-1" id="ticketNuevaCategoria" name="nuevaCategoria" value="" placeholder="Ej: Mascotas">
+                    <button type="button" class="gd-btn-primary" data-action="save-new-category" data-form="ticket">Guardar categoria</button>
+                  </div>
                 </div>
                 <div class="gd-form-full">
                   <label class="gd-form-label" for="ticketDescripcion">Descripcion</label>
@@ -118,8 +123,15 @@ export function renderCargarGastoPage({
                   <label class="gd-form-label" for="manualCategoria">Categoria</label>
                   <select class="gd-form-select" id="manualCategoria" name="categoria" required>
                     <option value="">Selecciona una categoria</option>
-                    ${renderCategoryOptions(manualForm.categoria)}
+                    ${renderCategoryOptions(manualForm.categoria, categoryOptions)}
                   </select>
+                </div>
+                <div class="gd-form-full ${manualCategoryIsNew ? "" : "d-none"}" data-new-category-wrap="manual">
+                  <label class="gd-form-label" for="manualNuevaCategoria">Nombre de la nueva categoria</label>
+                  <div class="d-flex gap-2 flex-wrap">
+                    <input class="gd-form-input flex-grow-1" id="manualNuevaCategoria" name="nuevaCategoria" value="" placeholder="Ej: Mascotas">
+                    <button type="button" class="gd-btn-primary" data-action="save-new-category" data-form="manual">Guardar categoria</button>
+                  </div>
                 </div>
                 <div class="gd-form-full">
                   <label class="gd-form-label" for="manualDescripcion">Descripcion</label>

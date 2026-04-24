@@ -529,6 +529,14 @@ body.theme-dark .gd-topbar {
   border: 1px solid var(--gd-border);
   border-radius: 13px;
   padding: 0.86rem;
+  position: relative;
+}
+
+.gd-metric-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
 }
 
 .gd-metric-label {
@@ -537,6 +545,88 @@ body.theme-dark .gd-topbar {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   margin-bottom: 0.42rem;
+}
+
+.gd-metric-link-btn {
+  border: 1px solid rgba(56, 189, 248, 0.36);
+  background: rgba(56, 189, 248, 0.12);
+  color: var(--gd-accent-2);
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0.24rem 0.52rem;
+}
+
+.gd-income-entry-menu {
+  position: relative;
+}
+
+.gd-metric-plus-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  background: rgba(56, 189, 248, 0.14);
+  color: var(--gd-accent-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  line-height: 1;
+  padding: 0;
+}
+
+.gd-income-entry-dropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.4rem);
+  width: min(92vw, 240px);
+  border-radius: 12px;
+  border: 1px solid var(--gd-border);
+  background: var(--gd-surface-strong);
+  box-shadow: 0 18px 30px rgba(15, 23, 42, 0.22);
+  padding: 0.58rem;
+  display: grid;
+  gap: 0.32rem;
+  opacity: 0;
+  transform: translateY(-6px);
+  pointer-events: none;
+  transition: opacity 0.14s ease, transform 0.14s ease;
+  z-index: 15;
+}
+
+.gd-income-entry-menu.is-open .gd-income-entry-dropdown {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.gd-income-entry-label {
+  color: var(--gd-muted);
+  font-size: 0.62rem;
+  font-weight: 700;
+  margin-top: 0.1rem;
+}
+
+.gd-income-entry-input {
+  border: 1px solid var(--gd-border);
+  border-radius: 8px;
+  background: var(--gd-surface);
+  color: var(--gd-text);
+  font-size: 0.72rem;
+  padding: 0.4rem 0.46rem;
+}
+
+.gd-income-entry-submit {
+  margin-top: 0.3rem;
+  border: 1px solid rgba(56, 189, 248, 0.42);
+  border-radius: 8px;
+  background: rgba(56, 189, 248, 0.16);
+  color: var(--gd-accent-2);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.38rem 0.46rem;
 }
 
 .gd-metric-value {
@@ -594,6 +684,46 @@ body.theme-dark .gd-topbar {
 
 .gd-card + .gd-card {
   margin-top: 0.72rem;
+}
+
+.gd-list {
+  display: grid;
+  gap: 0.56rem;
+}
+
+.gd-list-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.5rem;
+  align-items: start;
+  border: 1px solid var(--gd-border);
+  border-radius: 10px;
+  background: var(--gd-surface);
+  padding: 0.58rem 0.62rem;
+}
+
+.gd-list-item-title {
+  margin: 0;
+  color: var(--gd-text);
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.gd-list-item-sub {
+  margin: 0.14rem 0 0;
+  color: var(--gd-muted);
+  font-size: 0.67rem;
+}
+
+.gd-list-item-aside {
+  text-align: right;
+}
+
+.gd-list-item-amount {
+  margin: 0;
+  color: var(--gd-text);
+  font-size: 0.74rem;
+  font-weight: 700;
 }
 
 .gd-card-header {

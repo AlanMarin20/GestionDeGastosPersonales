@@ -400,6 +400,7 @@ export function tarjetaLandingPage({
   iconImageSrc = '',
   iconImageFallbackSrc = '',
   iconAlt = '',
+  descriptionClassName = '',
 } = {}) {
   const iconMarkup = iconImageSrc
     ? iconImageFallbackSrc
@@ -414,13 +415,13 @@ export function tarjetaLandingPage({
 
   return `
     <div class="col-lg-4 col-md-8 col-sm-10">
-      <div class="single-feature">
-        <div class="icon">
+      <div class="single-feature fp-feature-card">
+        <div class="icon fp-feature-card-icon">
           ${iconMarkup}
         </div>
-        <div class="content">
-          <h3>${escapeHtml(title)}</h3>
-          <p>
+        <div class="content fp-feature-card-content">
+          <h3 class="fp-feature-card-title">${escapeHtml(title)}</h3>
+          <p class="fp-feature-card-description ${escapeHtml(descriptionClassName)}">
             ${escapeHtml(description)}
           </p>
         </div>
@@ -490,6 +491,11 @@ export function imagenesLanding({
 export function tarjetaValor({
   title,
   value,
+  delta = '',
+  trend = 'up',
+  layout = 'kpi',
+  dashboardActionMarkup = '',
+  dashboardExtraMarkup = '',
   color = 'primary',
   icon = 'lni-bar-chart',
   variant = 'filled',
@@ -497,6 +503,24 @@ export function tarjetaValor({
   buttonAction = '',
   buttonId = '',
 } = {}) {
+  if (layout === 'dashboard-metric') {
+    const deltaClass = trend === 'down' ? 'gd-delta-down' : 'gd-delta-up';
+
+    return `
+      <article class="gd-metric-card">
+        <div class="gd-metric-head">
+          <p class="gd-metric-label">${escapeHtml(title)}</p>
+          ${dashboardActionMarkup}
+        </div>
+        <p class="gd-metric-value">${escapeHtml(value)}</p>
+        <span class="gd-metric-delta ${deltaClass}">
+          ${escapeHtml(delta)}
+        </span>
+        ${dashboardExtraMarkup}
+      </article>
+    `;
+  }
+
   const gradientClasses = {
     success: 'bg-success bg-gradient text-white',
     danger: 'bg-danger bg-gradient text-white',

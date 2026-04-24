@@ -23,6 +23,7 @@ import {
 } from "./pages/DetalleClientePage";
 import { renderDashboardAsesorPage as renderDashboardAsesorPageView } from "./pages/DashboardAsesorPage";
 import { renderDashboardPage as renderDashboardPageView } from "./pages/DashboardPage";
+import { renderDetalleAhorrosPage as renderDetalleAhorrosPageView } from "./pages/DetalleAhorrosPage";
 import { renderCargarGastoPage as renderCargarGastoPageView } from "./pages/CargarGastoPage";
 import { renderMisGastosPage as renderMisGastosPageView } from "./pages/MisGastosPage";
 import { renderReportesPage as renderReportesPageView } from "./pages/ReportesPage";
@@ -157,6 +158,15 @@ const state = {
     currentPeriod: "2026-04",
     monthlyIncome: 320000,
     monthlySavingsGoal: 172800,
+    categories: [
+      "Supermercado",
+      "Transporte",
+      "Entretenimiento",
+      "Salud",
+      "Restaurantes",
+      "Servicios",
+      "Otros",
+    ],
     ticketGoalByPeriod: {
       "2026-04": 34,
     },
@@ -960,32 +970,58 @@ function getDashboardMetrics() {
   const ticketCount =
     state.finanzas.ticketGoalByPeriod[currentPeriod] ?? expenseCount;
 
-  return [
+  const metricsSource = {
+    monthlyExpense,
+    income,
+    savings,
+    expenseDelta,
+    savingsDelta,
+    expenseCount,
+    ticketCount,
+    currentPeriod,
+  };
+
+  const metricDefinitions = [
     {
+      key: "monthly-expense",
       label: "Gasto mensual",
-      value: formatMoney(monthlyExpense),
-      delta: `${expenseDelta >= 0 ? "subio" : "bajo"} ${Math.abs(expenseDelta).toFixed(1)}% vs mes anterior`,
-      trend: expenseDelta <= 0 ? "up" : "down",
+      resolveValue: (source) => formatMoney(source.monthlyExpense),
+      resolveDelta: (source) =>
+        `${source.expenseDelta >= 0 ? "subio" : "bajo"} ${Math.abs(source.expenseDelta).toFixed(1)}% vs mes anterior`,
+      resolveTrend: (source) => (source.expenseDelta <= 0 ? "up" : "down"),
     },
     {
+      key: "net-income",
       label: "Ingreso neto",
-      value: formatMoney(income),
-      delta: "subio 3.0% este mes",
-      trend: "up",
+      resolveValue: (source) => formatMoney(source.income),
+      resolveDelta: () => "subio 3.0% este mes",
+      resolveTrend: () => "up",
     },
     {
+      key: "accumulated-savings",
       label: "Ahorro acumulado",
-      value: formatMoney(Math.max(savings, 0)),
-      delta: `${savingsDelta >= 0 ? "sobre" : "bajo"} objetivo ${Math.abs(savingsDelta).toFixed(1)}%`,
-      trend: savingsDelta >= 0 ? "up" : "down",
+      resolveValue: (source) => formatMoney(Math.max(source.savings, 0)),
+      resolveDelta: (source) =>
+        `${source.savingsDelta >= 0 ? "sobre" : "bajo"} objetivo ${Math.abs(source.savingsDelta).toFixed(1)}%`,
+      resolveTrend: (source) => (source.savingsDelta >= 0 ? "up" : "down"),
     },
     {
+      key: "tickets-loaded",
       label: "Tickets cargados",
-      value: String(ticketCount),
-      delta: `registrados ${expenseCount} en ${formatMonthLabelShort(currentPeriod)}`,
-      trend: "up",
+      resolveValue: (source) => String(source.ticketCount),
+      resolveDelta: (source) =>
+        `registrados ${source.expenseCount} en ${formatMonthLabelShort(source.currentPeriod)}`,
+      resolveTrend: () => "up",
     },
   ];
+
+  return metricDefinitions.map((definition) => ({
+    id: definition.key,
+    label: definition.label,
+    value: definition.resolveValue(metricsSource),
+    delta: definition.resolveDelta(metricsSource),
+    trend: definition.resolveTrend(metricsSource),
+  }));
 }
 
 function getDashboardRecentExpenses(limit = 5, periodKey = getFinanzasCurrentPeriod()) {
@@ -1000,7 +1036,7 @@ function getDashboardRecentExpenses(limit = 5, periodKey = getFinanzasCurrentPer
 }
 
 function getMisGastosCategoryOptions() {
-  const categorySet = new Set();
+  const categorySet = new Set(Array.isArray(state.finanzas.categories) ? state.finanzas.categories : []);
 
   state.finanzas.gastos.forEach((expense) => {
     if (expense.categoria) {
@@ -1125,6 +1161,29 @@ function getUnusualSpendingMessages() {
   return unusual.slice(0, 2).map((item) =>
     `${item.commerce} · ${formatMoney(item.amount)} el ${item.date} — ${item.ratio.toFixed(1)}x mayor a tu promedio de ${formatMoney(item.average)}`,
   );
+}
+
+function getReportMetrics({ averageMonthlyExpense, categories, merchantRanking }) {
+  return [
+    {
+      label: "Promedio mensual",
+      value: formatMoney(averageMonthlyExpense),
+      delta: "ultimos 6 meses",
+      trend: "up",
+    },
+    {
+      label: "Categoria principal",
+      value: categories[0]?.label || "Sin datos",
+      delta: categories[0] ? `${categories[0].share} del total` : "sin movimiento",
+      trend: "up",
+    },
+    {
+      label: "Comercio top",
+      value: merchantRanking[0]?.label || "Sin datos",
+      delta: merchantRanking[0]?.amount || "sin consumo",
+      trend: "up",
+    },
+  ];
 }
 
 function getInitials(name) {
@@ -1608,6 +1667,19 @@ function renderDashboardPage() {
     categories: getDashboardCategorySummary(currentPeriod),
     recentExpenses: getDashboardRecentExpenses(5, currentPeriod),
     formatMoney,
+    currentCurrency: normalizeCurrency(state.configuracion.moneda),
+  });
+}
+
+function renderDetalleAhorrosPage() {
+  return renderDetalleAhorrosPageView({
+    profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
+    profileName: state.perfil.nombre || "Usuario",
+    activePath: "/dashboard/ahorros",
+    pageTitle: "Detalle de ahorros",
+    pageSubtitle: "Resumen completo de objetivos y fondos acumulados",
+    ahorros: state.dashboard.ahorros,
+    formatMoney,
   });
 }
 
@@ -1622,6 +1694,7 @@ function renderCargarGastoPage() {
     ticketFileName: state.finanzas.cargar.ticketFileName,
     aiForm: state.finanzas.cargar.aiForm,
     manualForm: state.finanzas.cargar.manualForm,
+    categoryOptions: getMisGastosCategoryOptions(),
   });
 }
 
@@ -1656,6 +1729,11 @@ function renderReportesPage() {
     : 0;
   const categories = getDashboardCategorySummary(getFinanzasCurrentPeriod());
   const merchantRanking = getMerchantRankingRows();
+  const reportMetrics = getReportMetrics({
+    averageMonthlyExpense,
+    categories,
+    merchantRanking,
+  });
 
   return renderReportesPageView({
     profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
@@ -1663,26 +1741,7 @@ function renderReportesPage() {
     activePath: "/dashboard/reportes",
     pageTitle: "Reportes",
     pageSubtitle: "Analisis de consumo y deteccion de gastos inusuales",
-    metrics: [
-      {
-        label: "Promedio mensual",
-        value: formatMoney(averageMonthlyExpense),
-        delta: "ultimos 6 meses",
-        trend: "up",
-      },
-      {
-        label: "Categoria principal",
-        value: categories[0]?.label || "Sin datos",
-        delta: categories[0] ? `${categories[0].share} del total` : "sin movimiento",
-        trend: "up",
-      },
-      {
-        label: "Comercio top",
-        value: merchantRanking[0]?.label || "Sin datos",
-        delta: merchantRanking[0]?.amount || "sin consumo",
-        trend: "up",
-      },
-    ],
+    metrics: reportMetrics,
     evolutionRows: getReportEvolutionRows(),
     merchantRows: merchantRanking,
     unusualSpending: getUnusualSpendingMessages(),
@@ -1824,6 +1883,10 @@ function buildRouteView(pathname) {
 
   if (pathname === "/dashboard/recomendaciones") {
     return renderDashboardLayout(renderRecomendacionesPage());
+  }
+
+  if (pathname === "/dashboard/ahorros") {
+    return renderDashboardLayout(renderDetalleAhorrosPage());
   }
 
   if (pathname === "/dashboard/asesor") {
@@ -2037,6 +2100,10 @@ const DASHBOARD_DROPDOWN_CONFIG = Object.freeze([
     containerSelector: ".gd-user-chip-menu",
     triggerAction: "toggle-user-chip-menu",
   }),
+  Object.freeze({
+    containerSelector: ".gd-income-entry-menu",
+    triggerAction: "toggle-income-entry-menu",
+  }),
 ]);
 
 const DASHBOARD_DROPDOWN_CONFIG_BY_ACTION = Object.freeze(
@@ -2118,6 +2185,10 @@ function attachGlobalNavigation() {
       event.preventDefault();
       toggleDashboardUserChipMenu(actionButton);
     },
+    "toggle-income-entry-menu": ({ event, actionButton }) => {
+      event.preventDefault();
+      toggleDashboardDropdown(actionButton, "toggle-income-entry-menu");
+    },
     "close-landing-mobile-menu": ({ event }) => {
       event.preventDefault();
       closeLandingMobileMenu({ restoreFocus: true });
@@ -2161,6 +2232,54 @@ function attachGlobalNavigation() {
         state.finanzas.cargar.activeTab = nextTab;
         render();
       }
+    },
+    "save-new-category": ({ event, actionButton }) => {
+      event.preventDefault();
+
+      const formKey = actionButton.getAttribute("data-form");
+      if (formKey !== "ticket" && formKey !== "manual") {
+        return;
+      }
+
+      const inputId = formKey === "ticket" ? "ticketNuevaCategoria" : "manualNuevaCategoria";
+      const selectId = formKey === "ticket" ? "ticketCategoria" : "manualCategoria";
+      const input = document.getElementById(inputId);
+      const select = document.getElementById(selectId);
+      const newCategory = (input?.value || "").trim();
+
+      if (!newCategory) {
+        showAppNotification("Escribe el nombre de la nueva categoria", "warning");
+        return;
+      }
+
+      if (!Array.isArray(state.finanzas.categories)) {
+        state.finanzas.categories = [];
+      }
+
+      const exists = state.finanzas.categories.some(
+        (category) => category.toLowerCase() === newCategory.toLowerCase(),
+      );
+
+      if (!exists) {
+        state.finanzas.categories = [...state.finanzas.categories, newCategory].sort((a, b) => a.localeCompare(b));
+      }
+
+      if (formKey === "ticket") {
+        state.finanzas.cargar.aiForm.categoria = newCategory;
+      } else {
+        state.finanzas.cargar.manualForm.categoria = newCategory;
+      }
+
+      if (select) {
+        select.value = newCategory;
+      }
+
+      if (input) {
+        input.value = "";
+      }
+
+      showAppNotification("Categoria guardada correctamente", "success");
+      render();
     },
     "export-expenses-csv": ({ event }) => {
       event.preventDefault();
@@ -2285,6 +2404,47 @@ function attachGlobalNavigation() {
     "close-destino-modal": () => {
       state.dashboard.modals.destino = false;
       state.dashboard.ahorroDestinoId = null;
+      render();
+    },
+    "submit-income-entry": ({ event, actionButton }) => {
+      event.preventDefault();
+
+      const menu = actionButton.closest(".gd-income-entry-menu");
+      if (!menu) {
+        return;
+      }
+
+      const currencySelect = menu.querySelector("[data-income-field='currency']");
+      const amountInput = menu.querySelector("[data-income-field='amount']");
+      const detailInput = menu.querySelector("[data-income-field='detail']");
+
+      const currency = normalizeCurrency(currencySelect?.value || state.configuracion.moneda);
+      const amount = Number.parseFloat(amountInput?.value || "");
+      const detail = (detailInput?.value || "").trim();
+
+      if (Number.isNaN(amount) || amount <= 0 || !detail) {
+        showAppNotification("Completa moneda, monto y detalle para registrar el ingreso", "warning");
+        return;
+      }
+
+      state.finanzas.monthlyIncome += amount;
+      if (!Array.isArray(state.finanzas.incomeEntries)) {
+        state.finanzas.incomeEntries = [];
+      }
+
+      state.finanzas.incomeEntries = [
+        {
+          id: `inc-${Date.now()}`,
+          currency,
+          amount,
+          detail,
+          createdAt: new Date().toISOString(),
+        },
+        ...state.finanzas.incomeEntries,
+      ];
+
+      showAppNotification("Ingreso registrado correctamente", "success");
+      closeDashboardDropdowns();
       render();
     },
     "desvincular-cliente": async ({ event, actionButton }) => {
@@ -2665,6 +2825,33 @@ function attachFormHandlers(pathname) {
     const ticketUploadInput = document.getElementById("ticketUploadInput");
     const ticketAiForm = document.getElementById("ticketAiForm");
     const manualExpenseForm = document.getElementById("manualExpenseForm");
+    const ticketCategorySelect = document.getElementById("ticketCategoria");
+    const manualCategorySelect = document.getElementById("manualCategoria");
+
+    const syncNewCategoryVisibility = (formKey, value) => {
+      const wrap = document.querySelector(`[data-new-category-wrap='${formKey}']`);
+      if (!wrap) {
+        return;
+      }
+
+      const shouldShow = value === "__new_category__";
+      wrap.classList.toggle("d-none", !shouldShow);
+    };
+
+    syncNewCategoryVisibility("ticket", ticketCategorySelect?.value || "");
+    syncNewCategoryVisibility("manual", manualCategorySelect?.value || "");
+
+    ticketCategorySelect?.addEventListener("change", (event) => {
+      const value = event.target.value || "";
+      state.finanzas.cargar.aiForm.categoria = value;
+      syncNewCategoryVisibility("ticket", value);
+    });
+
+    manualCategorySelect?.addEventListener("change", (event) => {
+      const value = event.target.value || "";
+      state.finanzas.cargar.manualForm.categoria = value;
+      syncNewCategoryVisibility("manual", value);
+    });
 
     ticketUploadInput?.addEventListener("change", (event) => {
       const file = event.target.files?.[0];
