@@ -1,4 +1,5 @@
 import { renderDashboardAppLayout } from "../components/dashboard/dashboardAppLayout";
+import { tarjetaValor } from "../components/common/reusablePageComponents";
 import { escapeHtml } from "../utils/sanitize";
 
 const RISK_CONFIG = {
@@ -34,13 +35,14 @@ export function renderDashboardAsesorPage({
     <section class="gd-metrics gd-metrics-3">
       ${metrics
         .map(
-          (metric) => `
-            <article class="gd-metric-card">
-              <p class="gd-metric-label">${escapeHtml(metric.label)}</p>
-              <p class="gd-metric-value gd-metric-value-compact">${escapeHtml(metric.value)}</p>
-              <span class="gd-metric-delta ${metric.trend === "down" ? "gd-delta-down" : "gd-delta-up"}">${escapeHtml(metric.delta)}</span>
-            </article>
-          `,
+          (metric) => tarjetaValor({
+            title: metric.label,
+            value: metric.value,
+            delta: metric.delta,
+            trend: metric.trend,
+            layout: "dashboard-metric",
+            dashboardValueClass: "gd-metric-value-compact",
+          }),
         )
         .join("")}
     </section>
@@ -71,9 +73,7 @@ export function renderDashboardAsesorPage({
                       <div class="gd-user-copy-main">
                         <div class="d-flex align-items-center justify-content-between gap-2">
                           <span class="gd-user-name">${escapeHtml(user.name)}</span>
-                          <button type="button" class="gd-icon-btn" data-nav="/cliente/${escapeHtml(user.id)}" aria-label="Ver detalle del cliente">
-                            <i class="lni lni-arrow-right"></i>
-                          </button>
+                          <button type="button" class="gd-action-btn" data-nav="/cliente/${escapeHtml(encodeURIComponent(String(user.id)))}" aria-label="Ver detalle del cliente">Ver detalle</button>
                         </div>
                         <div class="gd-user-sub">${escapeHtml(formatMoney(user.monthlySpend))} este mes · ${escapeHtml(String(user.tickets))} tickets</div>
                         <div class="gd-mini-bar">

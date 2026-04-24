@@ -330,6 +330,8 @@ body.theme-dark .gd-nav-item.active {
 }
 
 .gd-topbar {
+  position: relative;
+  z-index: 24;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -365,6 +367,7 @@ body.theme-dark .gd-topbar {
 
 .gd-top-notifications {
   position: relative;
+  z-index: 26;
 }
 
 .gd-top-btn {
@@ -417,7 +420,7 @@ body.theme-dark .gd-topbar {
   pointer-events: none;
   transition: opacity 0.15s ease, transform 0.15s ease;
   overflow: hidden;
-  z-index: 10;
+  z-index: 40;
 }
 
 .gd-top-notifications.is-open .gd-notifications-menu {
@@ -1097,6 +1100,8 @@ body.theme-dark .gd-csv-btn {
   border: 1px solid var(--gd-border);
   background: transparent;
   color: var(--gd-muted);
+  text-decoration: none;
+  cursor: pointer;
   height: 30px;
   border-radius: 8px;
   display: inline-flex;
@@ -1242,6 +1247,22 @@ body.theme-dark .gd-csv-btn {
 
 .gd-spark-bar-dynamic {
   width: var(--gd-spark-width, 0%);
+}
+
+.gd-sparkline-row-evolution .gd-spark-label {
+  color: #0369a1;
+}
+
+body.theme-dark .gd-sparkline-row-evolution .gd-spark-label {
+  color: #7dd3fc;
+}
+
+.gd-spark-bar-wrap-evolution {
+  background: rgba(14, 165, 233, 0.22);
+}
+
+.gd-spark-bar-evolution {
+  background: linear-gradient(90deg, #0ea5e9 0%, #22c55e 100%);
 }
 
 .gd-spark-val {
@@ -1617,6 +1638,19 @@ body.theme-dark .gd-csv-btn {
 
 .gd-settings-profile-copy {
   min-width: 0;
+}
+
+.gd-settings-avatar-actions {
+  margin-left: auto;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.3rem;
+}
+
+.gd-settings-avatar-actions .gd-action-btn {
+  min-width: 122px;
+  justify-content: center;
 }
 
 .gd-settings-profile-name {
@@ -2118,6 +2152,11 @@ body.app-density-compact .gd-user-chip {
   .gd-settings-danger-row {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .gd-settings-avatar-actions {
+    margin-left: 0;
+    align-items: flex-start;
   }
 
   .gd-settings-stats {

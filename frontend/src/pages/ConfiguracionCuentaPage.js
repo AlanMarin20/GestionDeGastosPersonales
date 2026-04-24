@@ -175,6 +175,11 @@ export function renderConfiguracionCuentaPage({
                 <p class="gd-muted mb-0">${escapeHtml(profileEmail)}</p>
                 <span class="gd-settings-role-pill">Tipo: ${escapeHtml(roleLabel)}</span>
               </div>
+
+              <div class="gd-settings-avatar-actions">
+                <label for="configProfileImageInput" class="gd-action-btn">Cambiar foto</label>
+                <input id="configProfileImageInput" type="file" class="d-none" accept="image/*">
+              </div>
             </div>
 
             <div class="gd-settings-stats">

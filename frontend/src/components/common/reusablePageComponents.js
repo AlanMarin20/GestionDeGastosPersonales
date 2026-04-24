@@ -31,15 +31,21 @@ export function encabezadoInterno({
   return `
     <header class="${escapeHtml(headerClasses.join(' '))}">
       <div class="d-flex align-items-center gap-3">
+        ${showAdvisorClientLink
+          ? `<button type="button" class="btn btn-outline-secondary btn-sm fw-semibold d-inline-flex align-items-center gap-2" data-nav="${escapeHtml(advisorClientHref)}" aria-label="Volver al dashboard asesor">
+              <i class="lni lni-arrow-left" aria-hidden="true"></i>
+              <span class="d-none d-md-inline">Volver</span>
+            </button>`
+          : ''}
         <button type="button" class="btn p-0 border-0 bg-transparent d-inline-flex align-items-center gap-2 d-none d-sm-inline-flex ms-1 text-decoration-none fp-brand-trigger" data-action="${escapeHtml(brandAction)}" data-target="${escapeHtml(brandTarget)}" aria-label="Ir a FinanzasPro">
           <span class="d-inline-flex align-items-center justify-content-center rounded-circle shadow-sm overflow-hidden flex-shrink-0 fp-brand-icon-shell">
-            <img src="/assets/img/logo/iconoSfondo.png" alt="Icono FinanzasPro" class="fp-brand-icon-image">
+            <img src="/assets/img/logo/iconoSfondo.webp" alt="Icono FinanzasPro" class="fp-brand-icon-image">
           </span>
           <h4 class="mb-0 fw-bold text-dark fs-5 fp-brand-text-dark">FinanzasPro</h4>
-        <img src="/assets/img/logo/iconoSfondo.webp" alt="Icono FinanzasPro" class="fp-brand-icon-image">
-        ${pageTitle
-          ? `<span class="ms-sm-3 text-muted fw-semibold d-none d-md-block border-start ps-sm-3 border-2">${escapeHtml(pageTitle)}</span>`
-          : ''}
+          ${pageTitle
+            ? `<span class="ms-sm-3 text-muted fw-semibold d-none d-md-block border-start ps-sm-3 border-2">${escapeHtml(pageTitle)}</span>`
+            : ''}
+        </button>
       </div>
 
       <div class="d-flex align-items-center gap-2 gap-md-3">
@@ -495,6 +501,7 @@ export function tarjetaValor({
   trend = 'up',
   layout = 'kpi',
   dashboardActionMarkup = '',
+  dashboardValueClass = '',
   dashboardExtraMarkup = '',
   color = 'primary',
   icon = 'lni-bar-chart',
@@ -505,6 +512,9 @@ export function tarjetaValor({
 } = {}) {
   if (layout === 'dashboard-metric') {
     const deltaClass = trend === 'down' ? 'gd-delta-down' : 'gd-delta-up';
+    const metricValueClass = ['gd-metric-value', dashboardValueClass]
+      .filter(Boolean)
+      .join(' ');
 
     return `
       <article class="gd-metric-card">
@@ -512,7 +522,7 @@ export function tarjetaValor({
           <p class="gd-metric-label">${escapeHtml(title)}</p>
           ${dashboardActionMarkup}
         </div>
-        <p class="gd-metric-value">${escapeHtml(value)}</p>
+        <p class="${escapeHtml(metricValueClass)}">${escapeHtml(value)}</p>
         <span class="gd-metric-delta ${deltaClass}">
           ${escapeHtml(delta)}
         </span>

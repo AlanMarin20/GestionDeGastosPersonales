@@ -12,15 +12,41 @@ export function resolveDetalleCliente(pathname, state) {
     return null;
   }
 
-  const clienteId = match[1];
-  const clienteAsesor = state.asesor.clientes.find((item) => item.id === clienteId);
+  const encodedClienteId = match[1];
+  let clienteId = encodedClienteId;
+
+  try {
+    clienteId = decodeURIComponent(encodedClienteId);
+  } catch {
+    clienteId = encodedClienteId;
+  }
+
+  const clienteAsesor = state.asesor.clientes.find((item) => {
+    const itemId = item?.id ?? item?.userId ?? item?.usuarioId;
+    return String(itemId) === clienteId;
+  });
+
+  if (!clienteAsesor) {
+    return null;
+  }
+
+  const presupuestoValue = Number(clienteAsesor.presupuesto ?? clienteAsesor.budget ?? 0);
+  const gastadoMesValue = Number(clienteAsesor.gastosMes ?? clienteAsesor.monthlySpend ?? 0);
+
+  const presupuesto = Number.isFinite(presupuestoValue) && presupuestoValue >= 0
+    ? presupuestoValue
+    : 0;
+  const gastadoMes = Number.isFinite(gastadoMesValue) && gastadoMesValue >= 0
+    ? gastadoMesValue
+    : 0;
+  const saldoActual = Math.max(presupuesto - gastadoMes, 0);
 
   return {
     id: clienteId,
-    nombre: clienteAsesor?.nombre ?? 'Juan Perez',
-    presupuesto: clienteAsesor?.presupuesto ?? 15000,
-    saldoActual: 6149.25,
-    gastadoMes: clienteAsesor?.gastosMes ?? 14350.75,
+    nombre: String(clienteAsesor.nombre ?? clienteAsesor.name ?? 'Cliente'),
+    presupuesto,
+    saldoActual,
+    gastadoMes,
   };
 }
 
@@ -106,10 +132,10 @@ export function renderDetalleClientePage({
       <div class="col-12 col-lg-6">
         <div class="card border-0 shadow-sm fp-card-rounded-lg gd-client-detail-fixed-card">
           <div class="card-body">
-            <h5 class="card-title mb-3">Agregar Recomendacion</h5>
+            <h5 class="card-title mb-3">Agregar recomendacion para ${escapeHtml(cliente.nombre)}</h5>
             <form id="agregarRecomendacionForm">
               <div class="mb-3">
-                <textarea class="form-control" id="recomendacion" rows="3" placeholder="Escribe una recomendacion personalizada...">${escapeHtml(detalle.nuevaRecomendacion)}</textarea>
+                <textarea class="form-control" id="recomendacion" rows="3" placeholder="Escribe una recomendacion personalizada para este cliente...">${escapeHtml(detalle.nuevaRecomendacion)}</textarea>
               </div>
               <button type="submit" class="btn btn-primary w-100 btn-sm">Enviar Recomendacion</button>
             </form>

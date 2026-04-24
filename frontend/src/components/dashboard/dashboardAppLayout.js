@@ -8,11 +8,6 @@ const ASESOR_NAV_SECTION = {
       label: "Dashboard asesor",
       icon: "lni lni-grid-alt",
     },
-    {
-      href: "/dashboard/asesor/recomendaciones",
-      label: "Generar recomendaciones",
-      icon: "lni lni-bulb",
-    },
   ],
 };
 
@@ -120,7 +115,7 @@ export function renderDashboardAppLayout({
   const initials = buildInitials(profileName);
   const roleLabel = isAsesor ? "asesor" : "usuario";
   const notificationsRoute = isAsesor
-    ? "/dashboard/asesor/recomendaciones"
+    ? "/dashboard/asesor"
     : "/dashboard/recomendaciones";
   const primaryAction = isAsesor
     ? {
@@ -177,8 +172,8 @@ export function renderDashboardAppLayout({
 
             <div id="gd-user-chip-dropdown" class="gd-user-chip-dropdown" role="menu" aria-label="Opciones de cuenta">
               <button type="button" class="gd-user-chip-dropdown-item" data-action="switch-account" role="menuitem">
-                <i class="lni lni-users" aria-hidden="true"></i>
-                <span>Cambiar de cuenta</span>
+                <i class="lni lni-cog" aria-hidden="true"></i>
+                <span>Configuracion de cuenta</span>
               </button>
               <button type="button" class="gd-user-chip-dropdown-item gd-user-chip-dropdown-item-danger" data-action="logout" role="menuitem">
                 <i class="lni lni-exit" aria-hidden="true"></i>

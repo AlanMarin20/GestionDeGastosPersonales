@@ -29,7 +29,7 @@ export function renderDashboardPage({
     }
 
     if (metric.id === "accumulated-savings") {
-      return `<button type="button" class="gd-metric-link-btn" data-nav="/dashboard/ahorros">Ver mas...</button>`;
+      return `<button type="button" class="gd-metric-link-btn" data-nav="/dashboard/ahorros">Ver detalle</button>`;
     }
 
     if (metric.id === "net-income") {

@@ -36,10 +36,10 @@ export function renderReportesPage({
         ${evolutionRows
           .map(
             (row) => `
-              <div class="gd-sparkline-row">
+              <div class="gd-sparkline-row gd-sparkline-row-evolution">
                 <span class="gd-spark-label">${escapeHtml(row.label)}</span>
-                <span class="gd-spark-bar-wrap">
-                  <span class="gd-spark-bar gd-spark-bar-dynamic" style="--gd-spark-width: ${row.width}%;"></span>
+                <span class="gd-spark-bar-wrap gd-spark-bar-wrap-evolution">
+                  <span class="gd-spark-bar gd-spark-bar-dynamic gd-spark-bar-evolution" style="--gd-spark-width: ${row.width}%;"></span>
                 </span>
                 <span class="gd-spark-val">${escapeHtml(row.amount)}</span>
               </div>

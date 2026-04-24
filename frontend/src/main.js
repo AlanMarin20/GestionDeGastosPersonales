@@ -534,6 +534,7 @@ const state = {
       },
     ],
     busqueda: "",
+    clienteSeleccionadoId: null,
     nuevoCliente: {
       nombre: "",
       presupuesto: "",
@@ -992,7 +993,7 @@ function getDashboardMetrics() {
     },
     {
       key: "net-income",
-      label: "Ingreso neto",
+      label: "Ingreso",
       resolveValue: (source) => formatMoney(source.income),
       resolveDelta: () => "subio 3.0% este mes",
       resolveTrend: () => "up",
@@ -1259,6 +1260,51 @@ function getAdvisorPanelMetrics() {
   ];
 }
 
+function extractClientIdFromPath(pathname) {
+  const match = String(pathname || "").match(/^\/cliente\/([^/?#]+)/);
+  if (!match) {
+    return null;
+  }
+
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    return match[1];
+  }
+}
+
+function findAdvisorClientById(clientId) {
+  if (!clientId) {
+    return null;
+  }
+
+  return state.asesor.clientes.find((client) => {
+    const normalizedId = String(client?.id ?? client?.userId ?? client?.usuarioId ?? "");
+    return normalizedId === String(clientId);
+  }) || null;
+}
+
+function registerAdvisorClientSelection(pathname) {
+  const clientId = extractClientIdFromPath(pathname);
+  const client = findAdvisorClientById(clientId);
+  if (!client) {
+    return false;
+  }
+
+  state.asesor.clienteSeleccionadoId = String(clientId);
+  return true;
+}
+
+function isAdvisorClientDetailAuthorized(pathname) {
+  const clientId = extractClientIdFromPath(pathname);
+  if (!clientId || !findAdvisorClientById(clientId)) {
+    return false;
+  }
+
+  const selectedClientId = String(state.asesor.clienteSeleccionadoId || "");
+  return selectedClientId.length > 0 && selectedClientId === String(clientId);
+}
+
 function csvEscape(value) {
   const stringValue = String(value ?? "");
 
@@ -1325,6 +1371,35 @@ function addExpenseRecord({ comercio, fecha, monto, categoria, descripcion }) {
       state.finanzas.ticketGoalByPeriod[monthKey] += 1;
     }
   }
+
+  return true;
+}
+
+function addSavingsGoalRecord({ nombre, montoInicial, meta }) {
+  const trimmedName = String(nombre || "").trim();
+  const parsedInitialAmount = Number.parseFloat(String(montoInicial));
+  const parsedGoal = Number.parseFloat(String(meta));
+
+  if (!trimmedName) {
+    return false;
+  }
+
+  const safeInitialAmount = Number.isNaN(parsedInitialAmount)
+    ? 0
+    : Math.max(parsedInitialAmount, 0);
+  const safeGoal = Number.isNaN(parsedGoal) || parsedGoal <= 0
+    ? undefined
+    : parsedGoal;
+
+  state.dashboard.ahorros = [
+    {
+      id: Date.now().toString(),
+      nombre: trimmedName,
+      monto: safeInitialAmount,
+      meta: safeGoal,
+    },
+    ...state.dashboard.ahorros,
+  ];
 
   return true;
 }
@@ -1442,6 +1517,10 @@ async function loadCurrentUser() {
 function navigate(path, replace = false) {
   closeLandingMobileMenu();
   closeDashboardDropdowns();
+
+  if (!String(path).startsWith("/cliente/")) {
+    state.asesor.clienteSeleccionadoId = null;
+  }
 
   if (replace) {
     history.replaceState({}, "", path);
@@ -1563,7 +1642,7 @@ function getBrandTarget(pathname) {
   }
 
   if (pathname.startsWith("/cliente/")) {
-    return "/dashboard";
+    return "/dashboard/asesor";
   }
 
   if (pathname.startsWith("/dashboard/asesor")) {
@@ -1783,15 +1862,6 @@ function renderDashboardAsesorPage({
   });
 }
 
-function renderAsesorRecomendacionesPage() {
-  return renderRecomendacionesPage({
-    activePath: "/dashboard/asesor/recomendaciones",
-    pageTitle: "Generar recomendaciones",
-    pageSubtitle: "Crea y prioriza sugerencias financieras para tus clientes",
-    isAsesor: true,
-  });
-}
-
 function resolveDetalleCliente(pathname) {
   return resolveDetalleClienteView(pathname, state);
 }
@@ -1896,7 +1966,7 @@ function buildRouteView(pathname) {
   }
 
   if (pathname === "/dashboard/asesor/recomendaciones") {
-    return renderDashboardLayout(renderAsesorRecomendacionesPage(), {
+    return renderDashboardLayout(renderDashboardAsesorPage(), {
       showScrollTop: false,
     });
   }
@@ -1908,8 +1978,12 @@ function buildRouteView(pathname) {
   }
 
   if (pathname.startsWith("/cliente/")) {
-    if (!resolveDetalleCliente(pathname)) {
-      return null;
+    if (!resolveDetalleCliente(pathname) || !isAdvisorClientDetailAuthorized(pathname)) {
+      history.replaceState({}, "", "/dashboard/asesor");
+      state.asesor.clienteSeleccionadoId = null;
+      return renderDashboardLayout(renderDashboardAsesorPage(), {
+        showScrollTop: false,
+      });
     }
     return renderDashboardLayout(renderDetalleClientePage(pathname));
   }
@@ -2199,6 +2273,7 @@ function attachGlobalNavigation() {
     },
     "back-to-asesor": ({ event }) => {
       event.preventDefault();
+      state.asesor.clienteSeleccionadoId = null;
       navigate("/dashboard/asesor");
     },
     "scroll-top-page": ({ event }) => {
@@ -2223,7 +2298,8 @@ function attachGlobalNavigation() {
     },
     "switch-account": ({ event }) => {
       event.preventDefault();
-      clearSessionAndRedirectToLogin();
+      closeDashboardDropdowns();
+      navigate("/perfil/configuracion");
     },
     "switch-cargar-tab": ({ event, actionButton }) => {
       event.preventDefault();
@@ -2491,6 +2567,13 @@ function attachGlobalNavigation() {
       if (!href) {
         return;
       }
+
+      if (href.startsWith("/cliente/") && !registerAdvisorClientSelection(href)) {
+        event.preventDefault();
+        showAppNotification("No tienes permiso para abrir ese cliente", "warning");
+        return;
+      }
+
       closeDashboardDropdowns();
       closeLandingMobileMenu();
       event.preventDefault();
@@ -2502,6 +2585,12 @@ function attachGlobalNavigation() {
     if (navButton) {
       const path = navButton.getAttribute("data-nav");
       if (path) {
+        if (path.startsWith("/cliente/") && !registerAdvisorClientSelection(path)) {
+          event.preventDefault();
+          showAppNotification("No tienes permiso para abrir ese cliente", "warning");
+          return;
+        }
+
         event.preventDefault();
         closeDashboardDropdowns();
         navigate(path);
@@ -3068,22 +3157,15 @@ function attachFormHandlers(pathname) {
         meta: Number.isNaN(meta) ? "" : String(meta),
       };
 
-      if (!nombre) {
+      const wasAdded = addSavingsGoalRecord({ nombre, montoInicial, meta });
+      if (!wasAdded) {
+        showAppNotification("Completa al menos el nombre del ahorro", "warning");
         return;
       }
 
-      dashboard.ahorros = [
-        {
-          id: Date.now().toString(),
-          nombre,
-          monto: Number.isNaN(montoInicial) ? 0 : montoInicial,
-          meta: Number.isNaN(meta) || meta <= 0 ? undefined : meta,
-        },
-        ...dashboard.ahorros,
-      ];
-
       dashboard.nuevoAhorroForm = { nombre: "", montoInicial: "", meta: "" };
       dashboard.modals.ahorro = false;
+      showAppNotification("Ahorro creado correctamente", "success");
       render();
     });
 
@@ -3139,7 +3221,41 @@ function attachFormHandlers(pathname) {
     });
   }
 
-  if (pathname === "/dashboard/asesor" || pathname === "/dashboard/asesor/panel") {
+  if (pathname === "/dashboard/ahorros") {
+    const ahorroForm = document.getElementById("detalleAhorroForm");
+    ahorroForm?.addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const nombreInput = document.getElementById("detalleAhorroNombre");
+      const montoInput = document.getElementById("detalleAhorroMonto");
+      const metaInput = document.getElementById("detalleAhorroMeta");
+
+      const nombre = (nombreInput?.value || "").trim();
+      const montoInicial = Number.parseFloat(montoInput?.value || "");
+      const meta = Number.parseFloat(metaInput?.value || "");
+
+      const wasAdded = addSavingsGoalRecord({ nombre, montoInicial, meta });
+      if (!wasAdded) {
+        showAppNotification("Completa al menos el nombre del ahorro", "warning");
+        return;
+      }
+
+      state.dashboard.nuevoAhorroForm = {
+        nombre: "",
+        montoInicial: "",
+        meta: "",
+      };
+
+      showAppNotification("Nuevo ahorro agregado", "success");
+      render();
+    });
+  }
+
+  if (
+    pathname === "/dashboard/asesor" ||
+    pathname === "/dashboard/asesor/panel" ||
+    pathname === "/dashboard/asesor/recomendaciones"
+  ) {
     const busquedaInput = document.getElementById("advisorSearchInput");
     busquedaInput?.addEventListener("input", (event) => {
       state.asesor.busqueda = event.target.value;
@@ -3357,6 +3473,33 @@ function attachFormHandlers(pathname) {
       state.configuracion.moneda = normalizeCurrency(event.target.value);
       saveAppPreferences();
       render();
+    });
+
+    const configProfileImageInput = document.getElementById("configProfileImageInput");
+    configProfileImageInput?.addEventListener("change", (event) => {
+      const file = event.target.files?.[0];
+      if (!file) {
+        return;
+      }
+
+      if (file.type && !file.type.startsWith("image/")) {
+        showAppNotification("Selecciona un archivo de imagen valido", "warning");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        const preview = String(reader.result || "");
+        if (!preview) {
+          return;
+        }
+
+        state.perfil.imagePreview = preview;
+        state.perfil.imagen = preview;
+        showAppNotification("Foto de perfil actualizada", "success");
+        render();
+      };
+      reader.readAsDataURL(file);
     });
 
     const idiomaSelect = document.getElementById("idioma");
@@ -3661,6 +3804,10 @@ function buildLineChart(canvasId, months) {
   const tooltipBody = isDark ? "#cbd5e1" : "#666";
   const tooltipBorder = isDark ? "#334155" : "#e2e8f0";
   const pointBackgroundColor = isDark ? "#0f172a" : "#fff";
+  const lineColor = isDark ? "#22d3ee" : "#0284c7";
+  const lineAreaColor = isDark
+    ? "rgba(34, 211, 238, 0.2)"
+    : "rgba(2, 132, 199, 0.2)";
 
   const instance = new Chart(canvas, {
     type: "line",
@@ -3670,11 +3817,11 @@ function buildLineChart(canvasId, months) {
         {
           label: "Gasto Mensual",
           data: months.map((item) => item.monto),
-          borderColor: "#0d6efd",
-          backgroundColor: "rgba(13, 110, 253, 0.15)",
+          borderColor: lineColor,
+          backgroundColor: lineAreaColor,
           borderWidth: 3,
           pointBackgroundColor,
-          pointBorderColor: "#0d6efd",
+          pointBorderColor: lineColor,
           pointBorderWidth: 2,
           pointRadius: 4,
           pointHoverRadius: 6,
