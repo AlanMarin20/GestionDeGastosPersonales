@@ -87,3 +87,42 @@ export function renderExpenseTable({
     </div>
   `;
 }
+
+export function renderDashboardExpenseCard({
+  title = "Ultimos gastos",
+  actionHref = "",
+  actionText = "Ver todos los gastos",
+  actionClassName = "gd-card-action",
+  expenses = [],
+  formatMoney,
+  showDescription = false,
+  showActions = false,
+  emptyMessage = "No hay gastos recientes",
+  cardClass = "",
+  rowMapper = null,
+} = {}) {
+  const cardClasses = ["gd-card", cardClass].filter(Boolean).join(" ");
+  const actionMarkup = actionHref
+    ? `<a href="${escapeHtml(actionHref)}" data-link class="${escapeHtml(actionClassName)}">${escapeHtml(actionText)}</a>`
+    : "";
+  const tableExpenses = typeof rowMapper === "function"
+    ? expenses.map((expense) => rowMapper(expense))
+    : expenses;
+
+  return `
+    <article class="${escapeHtml(cardClasses)}">
+      <div class="gd-card-header">
+        <h2 class="gd-card-title">${escapeHtml(title)}</h2>
+        ${actionMarkup}
+      </div>
+
+      ${renderExpenseTable({
+        expenses: tableExpenses,
+        formatMoney,
+        showDescription,
+        showActions,
+        emptyMessage,
+      })}
+    </article>
+  `;
+}

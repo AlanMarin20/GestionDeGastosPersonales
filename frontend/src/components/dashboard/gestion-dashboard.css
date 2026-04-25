@@ -769,6 +769,25 @@ body.theme-dark .gd-topbar {
   color: var(--gd-accent-2);
 }
 
+.gd-chart-summary {
+  position: relative;
+  z-index: 1;
+}
+
+.gd-chart-summary-badge {
+  border: 1px solid rgba(56, 189, 248, 0.18);
+  background: rgba(56, 189, 248, 0.08);
+  color: var(--gd-text);
+  font-size: 0.62rem;
+  font-weight: 700;
+}
+
+body.theme-dark .gd-chart-summary-badge {
+  border-color: rgba(96, 165, 250, 0.22);
+  background: rgba(15, 23, 42, 0.92);
+  color: #e2e8f0;
+}
+
 .gd-chart-wrap {
   position: relative;
   width: 100%;

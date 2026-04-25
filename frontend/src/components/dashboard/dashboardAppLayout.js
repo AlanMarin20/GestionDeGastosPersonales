@@ -102,6 +102,38 @@ function renderNavGroups({ activePath, isAsesor }) {
     .join("");
 }
 
+function renderCustomNavGroups({ activePath, sidebarSections }) {
+  return sidebarSections
+    .map(
+      (group) => `
+        <div class="gd-nav-section">
+          <div class="gd-nav-label">${escapeHtml(group.section)}</div>
+          ${(group.items || [])
+            .map((item) => {
+              const isActive = activePath === item.href;
+              return `
+                <a href="${escapeHtml(item.href)}" data-link class="gd-nav-item ${isActive ? "active" : ""}">
+                  <i class="${escapeHtml(item.icon)} gd-nav-icon" aria-hidden="true"></i>
+                  <span>${escapeHtml(item.label)}</span>
+                </a>
+              `;
+            })
+            .join("")}
+        </div>
+      `,
+    )
+    .join("");
+}
+
+function resolveNavMarkup({ activePath, isAsesor, sidebarSections }) {
+  const hasCustomSections = Array.isArray(sidebarSections) && sidebarSections.length > 0;
+  if (hasCustomSections) {
+    return renderCustomNavGroups({ activePath, sidebarSections });
+  }
+
+  return renderNavGroups({ activePath, isAsesor });
+}
+
 export function renderDashboardAppLayout({
   activePath,
   pageTitle,
@@ -111,6 +143,7 @@ export function renderDashboardAppLayout({
   profileName,
   isAsesor = false,
   notificationCount = 0,
+  sidebarSections = null,
 }) {
   const initials = buildInitials(profileName);
   const roleLabel = isAsesor ? "asesor" : "usuario";
@@ -142,7 +175,7 @@ export function renderDashboardAppLayout({
         </div>
 
         <nav class="gd-nav" aria-label="Navegacion del dashboard">
-          ${renderNavGroups({ activePath, isAsesor })}
+          ${resolveNavMarkup({ activePath, isAsesor, sidebarSections })}
         </nav>
 
         <div class="gd-user-chip-wrap">

@@ -1,7 +1,10 @@
 import { renderDashboardAppLayout } from "../components/dashboard/dashboardAppLayout";
-import { renderExpenseTable } from "../components/dashboard/dashboardExpenseTable";
-import { tarjetaValor } from "../components/common/reusablePageComponents";
-import { escapeHtml } from "../utils/sanitize";
+import {
+  graficoGastos,
+  graficoTorta,
+  renderDashboardExpenseCard,
+  tarjetaValor,
+} from "../components/common/reusablePageComponents";
 
 export function renderDashboardPage({
   profileImage,
@@ -10,7 +13,6 @@ export function renderDashboardPage({
   pageTitle,
   pageSubtitle,
   metrics,
-  categories,
   recentExpenses,
   formatMoney,
   currentCurrency,
@@ -82,50 +84,31 @@ export function renderDashboardPage({
     </section>
 
     <section class="gd-grid-3">
-      <article class="gd-card">
-        <header class="gd-card-header">
-          <h2 class="gd-card-title">Gastos por mes</h2>
-          <button type="button" class="gd-card-action" data-nav="/dashboard/reportes">ver reportes</button>
-        </header>
-        <div class="gd-chart-wrap gd-chart-wrap-monthly">
-          <canvas id="dashboardMonthlyBarChart" aria-label="Gastos por mes" role="img"></canvas>
-        </div>
-      </article>
+      ${graficoGastos({
+        title: "Gastos por mes",
+        canvasId: "dashboardMonthlyBarChart",
+        ariaLabel: "Gastos por mes",
+        height: "220px",
+        dashboardStyle: true,
+        headerActionMarkup: `<button type="button" class="gd-card-action" data-nav="/dashboard/reportes">ver reportes</button>`,
+      })}
 
-      <article class="gd-card">
-        <header class="gd-card-header">
-          <h2 class="gd-card-title">Por categoria</h2>
-        </header>
-        <div class="gd-chart-wrap gd-chart-wrap-donut">
-          <canvas id="dashboardCategoryDonutChart" aria-label="Distribucion por categoria" role="img"></canvas>
-        </div>
-        <div class="gd-donut-legend">
-          ${categories
-            .map(
-              (category) => `
-                <div class="gd-donut-row">
-                  <span class="gd-donut-dot gd-donut-dot-dynamic" style="--gd-dot-color: ${escapeHtml(category.color)}"></span>
-                  <span class="gd-donut-label">${escapeHtml(category.label)}</span>
-                  <span class="gd-donut-value">${escapeHtml(category.share)}</span>
-                </div>
-              `,
-            )
-            .join("")}
-        </div>
-      </article>
+      ${graficoTorta({
+        title: "Por categoria",
+        canvasId: "dashboardCategoryDonutChart",
+        ariaLabel: "Distribucion por categoria",
+        height: "220px",
+        dashboardStyle: true,
+      })}
     </section>
 
-    <article class="gd-card">
-      <header class="gd-card-header">
-        <h2 class="gd-card-title">Ultimos gastos</h2>
-        <button type="button" class="gd-card-action" data-nav="/dashboard/gastos">ver todo</button>
-      </header>
-
-      ${renderExpenseTable({
-        expenses: recentExpenses,
-        formatMoney,
-      })}
-    </article>
+    ${renderDashboardExpenseCard({
+      title: "Ultimos gastos",
+      actionHref: "/dashboard/gastos",
+      actionText: "ver todo",
+      expenses: recentExpenses,
+      formatMoney,
+    })}
   `;
 
   return renderDashboardAppLayout({

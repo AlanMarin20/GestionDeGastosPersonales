@@ -1,3 +1,4 @@
+import { renderExpenseTable } from "../dashboard/dashboardExpenseTable";
 import { escapeHtml } from "../../utils/sanitize";
 
 export function encabezadoInterno({
@@ -667,12 +668,64 @@ export function tarjetaAhorro({ ahorro, formatCurrency }) {
   `;
 }
 
-export function graficoTorta({ title, canvasId, ariaLabel, height = '250px' }) {
+function renderChartCard({
+  title,
+  canvasId,
+  ariaLabel,
+  height,
+  dashboardStyle = false,
+  cardClass = '',
+  headerActionMarkup = '',
+  chartWrapClass = '',
+  chartWrapStyle = '',
+  summaryItems = [],
+}) {
+  const summaryMarkup = Array.isArray(summaryItems) && summaryItems.length > 0
+    ? `
+      <div class="gd-chart-summary d-flex flex-wrap gap-2 mt-3">
+        ${summaryItems.map((item) => {
+          const badgeClass = item?.badgeClass || 'gd-chart-summary-badge';
+          const label = item?.label ?? '';
+          const value = item?.value ?? '';
+          return `<span class="badge rounded-pill ${escapeHtml(badgeClass)}">${escapeHtml(label)}${value !== '' ? `: ${escapeHtml(String(value))}` : ''}</span>`;
+        }).join('')}
+      </div>
+    `
+    : '';
+
+  if (dashboardStyle) {
+    const cardClasses = ['gd-card', cardClass].filter(Boolean).join(' ');
+    const chartClasses = ['gd-chart-wrap', chartWrapClass].filter(Boolean).join(' ');
+    const extraWrapStyle = chartWrapStyle ? ` ${escapeHtml(chartWrapStyle)}` : '';
+
+    return `
+      <article class="${escapeHtml(cardClasses)}">
+        <header class="gd-card-header">
+          <h2 class="gd-card-title">${escapeHtml(title)}</h2>
+          ${headerActionMarkup}
+        </header>
+        ${summaryMarkup}
+        <div class="${escapeHtml(chartClasses)}" style="min-height: ${escapeHtml(height)};${extraWrapStyle}">
+          <canvas id="${escapeHtml(canvasId)}" aria-label="${escapeHtml(ariaLabel)}" role="img"></canvas>
+        </div>
+      </article>
+    `;
+  }
+
+  const cardClasses = ['card', 'border-0', 'shadow-sm', 'h-100', 'fp-card-rounded-lg', cardClass]
+    .filter(Boolean)
+    .join(' ');
+  const chartClasses = ['flex-grow-1', 'position-relative', 'fp-chart-canvas-wrap', chartWrapClass]
+    .filter(Boolean)
+    .join(' ');
+  const extraWrapStyle = chartWrapStyle ? ` ${escapeHtml(chartWrapStyle)}` : '';
+
   return `
-    <article class="card border-0 shadow-sm h-100 fp-card-rounded-lg">
+    <article class="${escapeHtml(cardClasses)}">
       <div class="card-body p-4 d-flex flex-column">
         <h2 class="h5 mb-4 fw-bold text-dark">${escapeHtml(title)}</h2>
-        <div class="flex-grow-1 position-relative fp-chart-canvas-wrap" style="min-height:${escapeHtml(height)};">
+        ${summaryMarkup}
+        <div class="${escapeHtml(chartClasses)}" style="min-height:${escapeHtml(height)};${extraWrapStyle}">
           <canvas id="${escapeHtml(canvasId)}" aria-label="${escapeHtml(ariaLabel)}" role="img"></canvas>
         </div>
       </div>
@@ -680,15 +733,93 @@ export function graficoTorta({ title, canvasId, ariaLabel, height = '250px' }) {
   `;
 }
 
-export function graficoGastos({ title, canvasId, ariaLabel, height = '300px' }) {
+export function graficoTorta({
+  title,
+  canvasId,
+  ariaLabel,
+  height = '250px',
+  dashboardStyle = false,
+  cardClass = '',
+  headerActionMarkup = '',
+  chartWrapClass = '',
+  chartWrapStyle = '',
+  summaryItems = [],
+} = {}) {
+  return renderChartCard({
+    title,
+    canvasId,
+    ariaLabel,
+    height,
+    dashboardStyle,
+    cardClass,
+    headerActionMarkup,
+    chartWrapClass,
+    chartWrapStyle,
+    summaryItems,
+  });
+}
+
+export function graficoGastos({
+  title,
+  canvasId,
+  ariaLabel,
+  height = '300px',
+  dashboardStyle = false,
+  cardClass = '',
+  headerActionMarkup = '',
+  chartWrapClass = '',
+  chartWrapStyle = '',
+  summaryItems = [],
+} = {}) {
+  return renderChartCard({
+    title,
+    canvasId,
+    ariaLabel,
+    height,
+    dashboardStyle,
+    cardClass,
+    headerActionMarkup,
+    chartWrapClass,
+    chartWrapStyle,
+    summaryItems,
+  });
+}
+
+export function renderDashboardExpenseCard({
+  title = 'Ultimos gastos',
+  actionHref = '',
+  actionText = 'Ver todos los gastos',
+  actionClassName = 'gd-card-action',
+  expenses = [],
+  formatMoney,
+  showDescription = false,
+  showActions = false,
+  emptyMessage = 'No hay gastos recientes',
+  cardClass = '',
+  rowMapper = null,
+} = {}) {
+  const cardClasses = ['gd-card', cardClass].filter(Boolean).join(' ');
+  const actionMarkup = actionHref
+    ? `<a href="${escapeHtml(actionHref)}" data-link class="${escapeHtml(actionClassName)}">${escapeHtml(actionText)}</a>`
+    : '';
+  const tableExpenses = typeof rowMapper === 'function'
+    ? expenses.map((expense) => rowMapper(expense))
+    : expenses;
+
   return `
-    <article class="card border-0 shadow-sm h-100 fp-card-rounded-lg">
-      <div class="card-body p-4 d-flex flex-column">
-        <h2 class="h5 mb-4 fw-bold text-dark">${escapeHtml(title)}</h2>
-        <div class="flex-grow-1 position-relative fp-chart-canvas-wrap" style="min-height:${escapeHtml(height)};">
-          <canvas id="${escapeHtml(canvasId)}" aria-label="${escapeHtml(ariaLabel)}" role="img"></canvas>
-        </div>
+    <article class="${escapeHtml(cardClasses)}">
+      <div class="gd-card-header">
+        <h2 class="gd-card-title">${escapeHtml(title)}</h2>
+        ${actionMarkup}
       </div>
+
+      ${renderExpenseTable({
+        expenses: tableExpenses,
+        formatMoney,
+        showDescription,
+        showActions,
+        emptyMessage,
+      })}
     </article>
   `;
 }

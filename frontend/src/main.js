@@ -726,18 +726,18 @@ const CATEGORY_COLORS = {
 const ADVISOR_AVATAR_COLORS = ["#2563eb", "#0ea5e9", "#1d4ed8", "#0284c7"];
 
 const monthlyExpensesDetalle = [
-  { mes: "Abril", monto: 9800 },
-  { mes: "Mayo", monto: 10150 },
-  { mes: "Junio", monto: 10600 },
-  { mes: "Julio", monto: 11000 },
-  { mes: "Agosto", monto: 10850 },
-  { mes: "Septiembre", monto: 11250 },
-  { mes: "Octubre", monto: 12000 },
-  { mes: "Noviembre", monto: 13500 },
-  { mes: "Diciembre", monto: 14350 },
-  { mes: "Enero", monto: 11200 },
-  { mes: "Febrero", monto: 12800 },
-  { mes: "Marzo", monto: 13000 },
+  { label: "Abr", total: 9800 },
+  { label: "May", total: 10150 },
+  { label: "Jun", total: 10600 },
+  { label: "Jul", total: 11000 },
+  { label: "Ago", total: 10850 },
+  { label: "Sep", total: 11250 },
+  { label: "Oct", total: 12000 },
+  { label: "Nov", total: 13500 },
+  { label: "Dic", total: 14350 },
+  { label: "Ene", total: 11200 },
+  { label: "Feb", total: 12800 },
+  { label: "Mar", total: 13000 },
 ];
 
 let chartInstances = [];
@@ -3712,7 +3712,7 @@ function buildBarChart(canvasId, dataPoints) {
 
   const isDark = state.configuracion.temaOscuro;
   const axisTextColor = isDark ? "#cbd5e1" : "#334155";
-  const gridColor = isDark ? "rgba(148, 163, 184, 0.18)" : "#e2e8f0";
+  const gridColor = isDark ? "rgba(148, 163, 184, 0.08)" : "#e2e8f0";
   const tooltipBackground = isDark
     ? "rgba(15, 23, 42, 0.95)"
     : "rgba(255, 255, 255, 0.95)";
@@ -3788,89 +3788,6 @@ function buildBarChart(canvasId, dataPoints) {
   chartInstances.push(instance);
 }
 
-function buildLineChart(canvasId, months) {
-  const canvas = document.getElementById(canvasId);
-  if (!canvas) {
-    return;
-  }
-
-  const isDark = state.configuracion.temaOscuro;
-  const axisTextColor = isDark ? "#cbd5e1" : "#334155";
-  const gridColor = isDark ? "#334155" : "#e2e8f0";
-  const tooltipBackground = isDark
-    ? "rgba(15, 23, 42, 0.95)"
-    : "rgba(255, 255, 255, 0.9)";
-  const tooltipTitle = isDark ? "#f8fafc" : "#333";
-  const tooltipBody = isDark ? "#cbd5e1" : "#666";
-  const tooltipBorder = isDark ? "#334155" : "#e2e8f0";
-  const pointBackgroundColor = isDark ? "#0f172a" : "#fff";
-  const lineColor = isDark ? "#22d3ee" : "#0284c7";
-  const lineAreaColor = isDark
-    ? "rgba(34, 211, 238, 0.2)"
-    : "rgba(2, 132, 199, 0.2)";
-
-  const instance = new Chart(canvas, {
-    type: "line",
-    data: {
-      labels: months.map((item) => item.mes),
-      datasets: [
-        {
-          label: "Gasto Mensual",
-          data: months.map((item) => item.monto),
-          borderColor: lineColor,
-          backgroundColor: lineAreaColor,
-          borderWidth: 3,
-          pointBackgroundColor,
-          pointBorderColor: lineColor,
-          pointBorderWidth: 2,
-          pointRadius: 4,
-          pointHoverRadius: 6,
-          tension: 0.4,
-          fill: true,
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: tooltipBackground,
-          titleColor: tooltipTitle,
-          bodyColor: tooltipBody,
-          borderColor: tooltipBorder,
-          borderWidth: 1,
-          padding: 10,
-          boxPadding: 4,
-          usePointStyle: true,
-        }
-      },
-      scales: {
-        x: {
-          grid: { display: false },
-          ticks: {
-            color: axisTextColor,
-            font: { family: "'Inter', sans-serif" },
-          }
-        },
-        y: {
-          beginAtZero: true,
-          border: { display: false },
-          grid: { color: gridColor, borderDash: [5, 5] },
-          ticks: {
-            color: axisTextColor,
-            font: { family: "'Inter', sans-serif" },
-            padding: 10,
-          }
-        },
-      },
-    },
-  });
-
-  chartInstances.push(instance);
-}
-
 function initCharts(pathname) {
   chartInstances.forEach((chart) => chart.destroy());
   chartInstances = [];
@@ -3893,19 +3810,19 @@ function initCharts(pathname) {
     );
   }
 
-  if (pathname.startsWith("/cliente/")) {
+  if (pathname.startsWith("/cliente/") && !pathname.endsWith("/gastos")) {
     const detalleCliente = resolveDetalleCliente(pathname);
     const presupuesto = Number(detalleCliente?.presupuesto || 0);
     const gastadoMes = Number(detalleCliente?.gastadoMes || 0);
     const porcentajeGastado = presupuesto > 0 ? (gastadoMes / presupuesto) * 100 : 0;
 
+    buildBarChart("detalleMonthlyBarChart", monthlyExpensesDetalle);
     buildPieChart(
       "detallePieChart",
       ["Comida", "Vivienda", "Transporte", "Salud", "Otros"],
       [35, 25, 15, 10, 15],
       porcentajeGastado,
     );
-    buildLineChart("detalleLineChart", monthlyExpensesDetalle);
   }
 }
 
