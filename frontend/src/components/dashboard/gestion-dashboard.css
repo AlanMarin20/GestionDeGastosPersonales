@@ -527,6 +527,10 @@ body.theme-dark .gd-topbar {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.gd-metrics-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .gd-metric-card {
   background: var(--gd-surface);
   border: 1px solid var(--gd-border);
@@ -655,13 +659,18 @@ body.theme-dark .gd-topbar {
 }
 
 .gd-delta-up {
-  background: rgba(56, 189, 248, 0.16);
+  background: #38bdf829;
   color: var(--gd-accent-2);
 }
 
 .gd-delta-down {
-  background: rgba(239, 68, 68, 0.14);
+  background: #ef444424;
   color: var(--gd-danger);
+}
+
+.gd-delta-warn {
+  background: #eab30838;
+  color: #ca8a04;
 }
 
 .gd-grid-3 {
@@ -687,6 +696,11 @@ body.theme-dark .gd-topbar {
 
 .gd-card + .gd-card {
   margin-top: 0.72rem;
+}
+
+.gd-grid-2 .gd-card + .gd-card,
+.gd-grid-3 .gd-card + .gd-card {
+  margin-top: 0;
 }
 
 .gd-list {
@@ -1444,23 +1458,56 @@ body.theme-dark .gd-sparkline-row-evolution .gd-spark-label {
   font-weight: 700;
 }
 
+.gd-risk-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.14rem;
+}
+
+.gd-risk-percent {
+  color: var(--gd-muted);
+  font-size: 0.62rem;
+  font-weight: 700;
+}
+
 .gd-risk-low {
-  color: #1d4ed8;
-  background: rgba(59, 130, 246, 0.16);
+  color: #16a34a;
+  background: #2bff0029;
 }
 
 .gd-risk-medium {
-  color: #c2410c;
-  background: rgba(249, 115, 22, 0.15);
+  color: #ca8a04;
+  background: #eab30838;
 }
 
 .gd-risk-high {
-  color: #b91c1c;
-  background: rgba(239, 68, 68, 0.15);
+  color: #dc2626;
+  background: #ef444426;
 }
 
 .gd-inline-search {
   max-width: 240px;
+}
+
+.gd-advisor-toolbar-control {
+  box-sizing: border-box;
+  width: 220px;
+  min-width: 220px;
+  height: 34px;
+  font-family: inherit;
+  font-size: 0.76rem;
+  line-height: 1;
+}
+
+.gd-advisor-toolbar .gd-action-btn.gd-advisor-toolbar-control {
+  white-space: nowrap;
+  padding: 0 0.8rem;
+}
+
+.gd-advisor-toolbar .gd-form-input.gd-advisor-toolbar-control {
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 .gd-empty {
@@ -1722,6 +1769,39 @@ body.theme-dark .gd-sparkline-row-evolution .gd-spark-label {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   margin-top: 0.1rem;
+}
+
+.gd-settings-stats .gd-metric-card {
+  background: var(--gd-surface-strong);
+  border: 1px solid var(--gd-border);
+  border-radius: 10px;
+  box-shadow: none;
+  min-height: auto;
+  padding: 0.5rem;
+  text-align: center;
+}
+
+.gd-settings-stats .gd-metric-head {
+  display: none;
+}
+
+.gd-settings-stats .gd-metric-label {
+  display: none;
+}
+
+.gd-settings-stats .gd-metric-value {
+  color: var(--gd-text);
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 0;
+}
+
+.gd-settings-stats .gd-settings-stat-label {
+  margin-top: 0.1rem;
+}
+
+.gd-settings-stats .gd-metric-delta {
+  display: none;
 }
 
 .gd-settings-toggle-row {
@@ -2083,6 +2163,10 @@ body.app-density-compact .gd-user-chip {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .gd-metrics-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .gd-grid-3,
   .gd-grid-2 {
     grid-template-columns: 1fr;
@@ -2134,6 +2218,10 @@ body.app-density-compact .gd-user-chip {
 
 @media (max-width: 767.98px) {
   .gd-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .gd-metrics-2 {
     grid-template-columns: 1fr;
   }
 

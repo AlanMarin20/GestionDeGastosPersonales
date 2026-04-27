@@ -1,4 +1,5 @@
 import { renderDashboardAppLayout } from "../components/dashboard/dashboardAppLayout";
+import { tarjetaValor } from "../components/common/reusablePageComponents";
 import { escapeHtml } from "../utils/sanitize";
 
 const SETTINGS_NAV_GROUPS = [
@@ -160,20 +161,21 @@ export function renderConfiguracionCuentaPage({
           <article class="gd-card">
             <div class="gd-settings-profile-head">
               <div class="gd-settings-avatar-wrap">
-                <img
-                  src="${escapeHtml(profileImage || "/assets/img/user-avatar-default.svg")}" 
-                  alt="Avatar de ${escapeHtml(safeName)}"
-                  class="gd-settings-avatar-image"
-                  data-image-error-mode="toggle-next"
-                >
-                <span class="gd-settings-avatar-fallback d-none" aria-hidden="true">${escapeHtml(initials)}</span>
+                <label for="configProfileImageInput" class="gd-settings-avatar-image-trigger" aria-label="Cambiar foto de perfil">
+                  <img
+                    src="${escapeHtml(profileImage || "/assets/img/user-avatar-default.svg")}" 
+                    alt="Avatar de ${escapeHtml(safeName)}"
+                    class="gd-settings-avatar-image"
+                    data-image-error-mode="toggle-next"
+                  >
+                  <span class="gd-settings-avatar-fallback d-none" aria-hidden="true">${escapeHtml(initials)}</span>
+                </label>
               </div>
 
               <div class="gd-settings-profile-copy">
                 <p class="gd-card-title">Mi perfil</p>
                 <p class="gd-settings-profile-name">${escapeHtml(safeName)}</p>
                 <p class="gd-muted mb-0">${escapeHtml(profileEmail)}</p>
-                <span class="gd-settings-role-pill">Tipo: ${escapeHtml(roleLabel)}</span>
               </div>
 
               <div class="gd-settings-avatar-actions">
@@ -182,19 +184,30 @@ export function renderConfiguracionCuentaPage({
               </div>
             </div>
 
-            <div class="gd-settings-stats">
-              <div class="gd-settings-stat-item">
-                <span class="gd-settings-stat-value">${escapeHtml(String(state.finanzas?.gastos?.length || 0))}</span>
-                <span class="gd-settings-stat-label">gastos cargados</span>
-              </div>
-              <div class="gd-settings-stat-item">
-                <span class="gd-settings-stat-value">${escapeHtml(String(state.configuracion?.sesiones?.length || 0))}</span>
-                <span class="gd-settings-stat-label">sesiones activas</span>
-              </div>
-              <div class="gd-settings-stat-item">
-                <span class="gd-settings-stat-value">74</span>
-                <span class="gd-settings-stat-label">score financiero</span>
-              </div>
+            <div class="gd-metrics gd-metrics-3 gd-settings-stats">
+              ${[
+                {
+                  title: "gastos cargados",
+                  value: String(state.finanzas?.gastos?.length || 0),
+                },
+                {
+                  title: "sesiones activas",
+                  value: String(state.configuracion?.sesiones?.length || 0),
+                },
+                {
+                  title: "score financiero",
+                  value: "74",
+                },
+              ]
+                .map((metric) => tarjetaValor({
+                  title: "",
+                  value: metric.value,
+                  delta: "",
+                  layout: "dashboard-metric",
+                  dashboardValueClass: "gd-settings-stat-value",
+                  dashboardExtraMarkup: `<span class="gd-settings-stat-label">${escapeHtml(metric.title)}</span>`,
+                }))
+                .join("")}
             </div>
 
             <div class="gd-form-grid">

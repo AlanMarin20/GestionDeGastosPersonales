@@ -499,7 +499,7 @@ const state = {
       {
         id: "1",
         nombre: "Martin Garcia",
-        gastosMes: 147200,
+        gastosMes: 180200,
         ahorros: 2500,
         presupuesto: 200000,
         estado: "normal",
@@ -537,7 +537,10 @@ const state = {
     clienteSeleccionadoId: null,
     nuevoCliente: {
       nombre: "",
-      presupuesto: "",
+      codigo: "",
+    },
+    modals: {
+      nuevoCliente: false,
     },
   },
   detalleCliente: {
@@ -1213,7 +1216,7 @@ function buildAdvisorUsers() {
       const ratio = client.presupuesto > 0
         ? (client.gastosMes / client.presupuesto) * 100
         : 0;
-      const risk = ratio >= 95 ? "high" : ratio >= 65 ? "medium" : "low";
+      const risk = ratio >= 95 ? "high" : ratio > 90 ? "medium" : "low";
 
       return {
         id: client.id,
@@ -1221,6 +1224,7 @@ function buildAdvisorUsers() {
         monthlySpend: client.gastosMes,
         tickets: client.tickets || 0,
         progress: Math.min(ratio, 100),
+        spentPercent: Math.min(Math.max(ratio, 0), 100),
         risk,
         initials: getInitials(client.nombre),
         avatarColor: ADVISOR_AVATAR_COLORS[index % ADVISOR_AVATAR_COLORS.length],
@@ -1228,34 +1232,85 @@ function buildAdvisorUsers() {
     });
 }
 
+function resetAdvisorNewClientForm() {
+  state.asesor.nuevoCliente = {
+    nombre: "",
+    codigo: "",
+  };
+}
+
+function openAdvisorNewClientModal() {
+  state.asesor.modals.nuevoCliente = true;
+}
+
+function closeAdvisorNewClientModal() {
+  state.asesor.modals.nuevoCliente = false;
+  resetAdvisorNewClientForm();
+}
+
+function updateAdvisorNewClientField(field, value) {
+  state.asesor.nuevoCliente = {
+    ...state.asesor.nuevoCliente,
+    [field]: value,
+  };
+}
+
+function addAdvisorClientRecord({ nombre, codigo }) {
+  if (!nombre || !codigo) {
+    return { ok: false, message: "Completa el nombre y el codigo del cliente" };
+  }
+
+  if (state.asesor.clientes.some((client) => String(client.id) === codigo)) {
+    return { ok: false, message: "Ya existe un cliente con ese codigo" };
+  }
+
+  state.asesor.clientes = [
+    {
+      id: codigo,
+      codigo,
+      nombre,
+      gastosMes: 0,
+      ahorros: 0,
+      presupuesto: 0,
+      estado: "normal",
+      tickets: 0,
+    },
+    ...state.asesor.clientes,
+  ];
+
+  return { ok: true };
+}
+
 function getAdvisorPanelMetrics() {
   const clients = state.asesor.clientes;
-  const totalSpend = clients.reduce(
-    (sum, client) => sum + Number(client.gastosMes || 0),
-    0,
-  );
-  const alerts = clients.filter(
+  const mediumRiskClients = clients.filter(
+    (client) =>
+      client.presupuesto > 0 &&
+      (client.gastosMes / client.presupuesto) * 100 > 90 &&
+      (client.gastosMes / client.presupuesto) * 100 <= 95,
+  ).length;
+  const highRiskClients = clients.filter(
     (client) => client.presupuesto > 0 && (client.gastosMes / client.presupuesto) * 100 >= 95,
   ).length;
 
   return [
     {
-      label: "Usuarios activos",
+      label: "Clientes Asignados",
       value: String(clients.length),
-      delta: `sumaste ${Math.max(clients.length - 20, 0)} este mes`,
+      delta: `${clients.length} en cartera`,
       trend: "up",
     },
     {
-      label: "Gasto total plataforma",
-      value: formatMoney(totalSpend),
-      delta: "subio 11% vs mes anterior",
-      trend: "up",
+      label: "Clientes en Riesgo Medio",
+      value: String(mediumRiskClients),
+      delta: "+ 90% del presupuesto",
+      trend: "warn",
     },
     {
-      label: "Alertas pendientes",
-      value: String(alerts),
-      delta: alerts > 0 ? `${alerts} sin revisar` : "sin alertas activas",
-      trend: alerts > 0 ? "down" : "up",
+      label: "Clientes en Riesgo Alto",
+      value: String(highRiskClients),
+      delta: "+ 95% del presupuesto",
+      trend: highRiskClients > 0 ? "down" : "up",
     },
   ];
 }
@@ -1789,7 +1844,7 @@ function renderMisGastosPage() {
     profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
     profileName: state.perfil.nombre || "Usuario",
     activePath: "/dashboard/gastos",
-    pageTitle: "Mis gastos",
+    pageTitle: "Mis movimientos",
     pageSubtitle: "Listado completo con filtros y exportacion a CSV",
     filters: state.finanzas.filtros,
     categoryOptions: getMisGastosCategoryOptions(),
@@ -1858,6 +1913,9 @@ function renderDashboardAsesorPage({
     metrics: getAdvisorPanelMetrics(),
     users: buildAdvisorUsers(),
     search: state.asesor.busqueda,
+    showAddClientModal: Boolean(state.asesor.modals.nuevoCliente),
+    newClientName: state.asesor.nuevoCliente.nombre,
+    newClientCode: state.asesor.nuevoCliente.codigo,
     formatMoney,
   });
 }
@@ -2482,6 +2540,16 @@ function attachGlobalNavigation() {
       state.dashboard.ahorroDestinoId = null;
       render();
     },
+    "open-add-client-modal": ({ event }) => {
+      event.preventDefault();
+      openAdvisorNewClientModal();
+      render();
+    },
+    "close-add-client-modal": ({ event }) => {
+      event.preventDefault();
+      closeAdvisorNewClientModal();
+      render();
+    },
     "submit-income-entry": ({ event, actionButton }) => {
       event.preventDefault();
 
@@ -2630,6 +2698,12 @@ function attachGlobalNavigation() {
 
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
+      if (state.asesor.modals.nuevoCliente) {
+        closeAdvisorNewClientModal();
+        render();
+        return;
+      }
+
       closeLandingMobileMenu({ restoreFocus: true });
       closeDashboardDropdowns();
     }
@@ -3256,10 +3330,39 @@ function attachFormHandlers(pathname) {
     pathname === "/dashboard/asesor/panel" ||
     pathname === "/dashboard/asesor/recomendaciones"
   ) {
+    const addClientForm = document.getElementById("addClientForm");
+    addClientForm?.addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const nombre = (document.getElementById("nuevoClienteNombre")?.value ?? "").trim();
+      const codigo = (document.getElementById("nuevoClienteCodigo")?.value ?? "").trim();
+
+      updateAdvisorNewClientField("nombre", nombre);
+      updateAdvisorNewClientField("codigo", codigo);
+
+      const result = addAdvisorClientRecord({ nombre, codigo });
+      if (!result.ok) {
+        showAppNotification(result.message, "warning");
+        return;
+      }
+
+      closeAdvisorNewClientModal();
+      showAppNotification("Cliente agregado correctamente", "success");
+      render();
+    });
+
     const busquedaInput = document.getElementById("advisorSearchInput");
     busquedaInput?.addEventListener("input", (event) => {
       state.asesor.busqueda = event.target.value;
       render();
+    });
+
+    ["nuevoClienteNombre", "nuevoClienteCodigo"].forEach((id) => {
+      const input = document.getElementById(id);
+      input?.addEventListener("input", () => {
+        updateAdvisorNewClientField("nombre", document.getElementById("nuevoClienteNombre")?.value ?? "");
+        updateAdvisorNewClientField("codigo", document.getElementById("nuevoClienteCodigo")?.value ?? "");
+      });
     });
   }
 
@@ -3366,6 +3469,7 @@ function attachFormHandlers(pathname) {
       const reader = new FileReader();
       reader.onload = () => {
         state.perfil.imagePreview = String(reader.result || "");
+        saveAppPreferences();
         render();
       };
       reader.readAsDataURL(file);
@@ -3496,6 +3600,7 @@ function attachFormHandlers(pathname) {
 
         state.perfil.imagePreview = preview;
         state.perfil.imagen = preview;
+        saveAppPreferences();
         showAppNotification("Foto de perfil actualizada", "success");
         render();
       };
@@ -3864,6 +3969,7 @@ function loadAppPreferences() {
     reducirAnimaciones: Boolean(state.configuracion.reducirAnimaciones),
     mostrarCentavos: Boolean(state.configuracion.mostrarCentavos),
     autenticacionDos: Boolean(state.configuracion.autenticacionDos),
+    imagePreview: String(state.perfil?.imagePreview || DEFAULT_PROFILE_IMAGE),
   };
 
   if (!rawPreferences) {
@@ -3886,6 +3992,7 @@ function loadAppPreferences() {
       reducirAnimaciones: Boolean(parsedPreferences.reducirAnimaciones),
       mostrarCentavos: Boolean(parsedPreferences.mostrarCentavos),
       autenticacionDos: Boolean(parsedPreferences.autenticacionDos),
+      imagePreview: String(parsedPreferences.imagePreview || fallback.imagePreview),
     };
   } catch {
     return fallback;
@@ -3906,6 +4013,7 @@ function saveAppPreferences() {
       reducirAnimaciones: Boolean(state.configuracion.reducirAnimaciones),
       mostrarCentavos: Boolean(state.configuracion.mostrarCentavos),
       autenticacionDos: Boolean(state.configuracion.autenticacionDos),
+      imagePreview: String(state.perfil?.imagePreview || DEFAULT_PROFILE_IMAGE),
     }),
   );
 
@@ -4006,6 +4114,10 @@ function render() {
   document.body.style.overflow = '';
   document.body.style.paddingRight = '';
 
+  // Guardar el estado del elemento enfocado
+  const focusedElementId = document.activeElement?.id;
+  const cursorPosition = document.activeElement?.selectionStart;
+
   const view = buildRouteView(pathname);
 
   if (!view) {
@@ -4016,11 +4128,24 @@ function render() {
   appRoot.innerHTML = view;
   attachFormHandlers(pathname);
   initCharts(pathname);
+
+  // Restaurar el focus y la posición del cursor
+  if (focusedElementId) {
+    const element = document.getElementById(focusedElementId);
+    if (element) {
+      element.focus();
+      if (typeof cursorPosition === 'number' && element.setSelectionRange) {
+        element.setSelectionRange(cursorPosition, cursorPosition);
+      }
+    }
+  }
 }
 
 attachGlobalNavigation();
 installGlobalImageErrorHandler();
-Object.assign(state.configuracion, loadAppPreferences());
+const persistedPreferences = loadAppPreferences();
+Object.assign(state.configuracion, persistedPreferences);
+state.perfil.imagePreview = persistedPreferences.imagePreview || state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE;
 state.configuracion.temaOscuro = resolveThemeForPath(window.location.pathname);
 applyTheme(state.configuracion.temaOscuro);
 applyAccessibilityPreferences();

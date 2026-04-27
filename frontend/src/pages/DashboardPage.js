@@ -103,7 +103,7 @@ export function renderDashboardPage({
     </section>
 
     ${renderDashboardExpenseCard({
-      title: "Ultimos gastos",
+      title: "Ultimos movimientos",
       actionHref: "/dashboard/gastos",
       actionText: "ver todo",
       expenses: recentExpenses,

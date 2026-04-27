@@ -125,7 +125,7 @@ export function renderMisGastosPage({
 
     <div class="gd-card">
       <div class="gd-card-header">
-        <h2 class="gd-card-title">Listado completo de gastos</h2>
+        <h2 class="gd-card-title">Listado completo de movimientos</h2>
         <span class="gd-muted gd-muted-sm">${gastos.length} registros</span>
       </div>
 

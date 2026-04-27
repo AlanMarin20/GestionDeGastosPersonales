@@ -23,7 +23,7 @@ const USER_NAV_ITEMS = [
       },
       {
         href: "/dashboard/gastos",
-        label: "Mis gastos",
+        label: "Mis movimientos",
         icon: "lni lni-list",
       },
       {
@@ -151,11 +151,7 @@ export function renderDashboardAppLayout({
     ? "/dashboard/asesor"
     : "/dashboard/recomendaciones";
   const primaryAction = isAsesor
-    ? {
-        label: "Vista usuario",
-        path: "/dashboard",
-        icon: "lni lni-user",
-      }
+    ? null
     : {
         label: "Nuevo gasto",
         path: "/dashboard/cargar",
@@ -259,10 +255,10 @@ export function renderDashboardAppLayout({
                 </div>
               </section>
             </div>
-            <button type="button" class="gd-top-btn gd-top-btn-primary" data-nav="${escapeHtml(primaryAction.path)}">
+            ${primaryAction ? `<button type="button" class="gd-top-btn gd-top-btn-primary" data-nav="${escapeHtml(primaryAction.path)}">
               <i class="${escapeHtml(primaryAction.icon)}" aria-hidden="true"></i>
               <span>${escapeHtml(primaryAction.label)}</span>
-            </button>
+            </button>` : ""}
           </div>
         </header>
 

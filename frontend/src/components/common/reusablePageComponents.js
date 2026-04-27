@@ -308,11 +308,11 @@ export function tarjetaPublicaBase({
   const cardStyleAttr = cardStyle ? ` style="${escapeHtml(cardStyle)}"` : '';
 
   return `
-    <div class="${escapeHtml(cardClasses)}"${cardStyleAttr}>
+    <article class="${escapeHtml(cardClasses)}"${cardStyleAttr}>
       <div class="${escapeHtml(bodyClass)}">
         ${bodyMarkup}
       </div>
-    </div>
+    </article>
   `;
 }
 
@@ -512,10 +512,19 @@ export function tarjetaValor({
   buttonId = '',
 } = {}) {
   if (layout === 'dashboard-metric') {
-    const deltaClass = trend === 'down' ? 'gd-delta-down' : 'gd-delta-up';
+    const deltaClass = trend === 'down'
+      ? 'gd-delta-down'
+      : trend === 'warn'
+        ? 'gd-delta-warn'
+        : 'gd-delta-up';
     const metricValueClass = ['gd-metric-value', dashboardValueClass]
       .filter(Boolean)
       .join(' ');
+    const deltaMarkup = delta
+      ? `<span class="gd-metric-delta ${deltaClass}">
+          ${escapeHtml(delta)}
+        </span>`
+      : '';
 
     return `
       <article class="gd-metric-card">
@@ -524,9 +533,7 @@ export function tarjetaValor({
           ${dashboardActionMarkup}
         </div>
         <p class="${escapeHtml(metricValueClass)}">${escapeHtml(value)}</p>
-        <span class="gd-metric-delta ${deltaClass}">
-          ${escapeHtml(delta)}
-        </span>
+        ${deltaMarkup}
         ${dashboardExtraMarkup}
       </article>
     `;
@@ -786,7 +793,7 @@ export function graficoGastos({
 }
 
 export function renderDashboardExpenseCard({
-  title = 'Ultimos gastos',
+  title = 'Ultimos movimientos',
   actionHref = '',
   actionText = 'Ver todos los gastos',
   actionClassName = 'gd-card-action',
@@ -796,9 +803,11 @@ export function renderDashboardExpenseCard({
   showActions = false,
   emptyMessage = 'No hay gastos recientes',
   cardClass = '',
+  cardStyle = '',
   rowMapper = null,
 } = {}) {
   const cardClasses = ['gd-card', cardClass].filter(Boolean).join(' ');
+  const cardStyleAttr = cardStyle ? ` style="${escapeHtml(cardStyle)}"` : '';
   const actionMarkup = actionHref
     ? `<a href="${escapeHtml(actionHref)}" data-link class="${escapeHtml(actionClassName)}">${escapeHtml(actionText)}</a>`
     : '';
@@ -807,7 +816,7 @@ export function renderDashboardExpenseCard({
     : expenses;
 
   return `
-    <article class="${escapeHtml(cardClasses)}">
+    <article class="${escapeHtml(cardClasses)}"${cardStyleAttr}>
       <div class="gd-card-header">
         <h2 class="gd-card-title">${escapeHtml(title)}</h2>
         ${actionMarkup}
@@ -854,7 +863,7 @@ export function contenedorRecomendaciones({
   `);
 
   return `
-    <article class="card border-0 shadow-sm fp-card-rounded-lg ${escapeHtml(cardClass)}"${cardStyleAttr}>
+    <article class="gd-card ${escapeHtml(cardClass)}"${cardStyleAttr}>
       <div class="card-body" style="padding: ${escapeHtml(padding)};${bodyStyle ? ` ${escapeHtml(bodyStyle)}` : ''}${scrollStyle ? ` ${scrollStyle}` : ''}">
         <h2 class="${escapeHtml(titleClass)}"${titleStyleAttr}><i class="${escapeHtml(titleIcon)} me-2"></i>${escapeHtml(title)}</h2>
         <div class="${escapeHtml(itemsWrapperClass)}">

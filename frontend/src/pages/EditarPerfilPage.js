@@ -56,7 +56,9 @@ export function renderEditarPerfilPage({
       <article class="gd-card gd-profile-overview">
         <div class="d-flex flex-column align-items-center text-center gap-2 mb-3">
           <div class="position-relative">
-            <img src="${escapeHtml(perfil.imagePreview || profileImage)}" alt="Foto de perfil" class="rounded-circle gd-profile-photo">
+            <label for="imageInput" class="gd-profile-photo-trigger" aria-label="Cambiar foto de perfil">
+              <img src="${escapeHtml(perfil.imagePreview || profileImage)}" alt="Foto de perfil" class="rounded-circle gd-profile-photo">
+            </label>
             <label for="imageInput" class="gd-action-btn position-absolute gd-profile-photo-label">Foto</label>
             <input type="file" id="imageInput" class="d-none" accept="image/*">
           </div>

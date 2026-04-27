@@ -89,7 +89,7 @@ export function renderExpenseTable({
 }
 
 export function renderDashboardExpenseCard({
-  title = "Ultimos gastos",
+  title = "Ultimos movimientos",
   actionHref = "",
   actionText = "Ver todos los gastos",
   actionClassName = "gd-card-action",

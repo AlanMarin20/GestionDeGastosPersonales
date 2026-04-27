@@ -34,12 +34,16 @@ export function resolveDetalleCliente(pathname, state) {
 
   const presupuestoValue = Number(clienteAsesor.presupuesto ?? clienteAsesor.budget ?? 0);
   const gastadoMesValue = Number(clienteAsesor.gastosMes ?? clienteAsesor.monthlySpend ?? 0);
+  const ahorrosValue = Number(clienteAsesor.ahorros ?? clienteAsesor.totalAhorro ?? clienteAsesor.savings ?? 0);
 
   const presupuesto = Number.isFinite(presupuestoValue) && presupuestoValue >= 0
     ? presupuestoValue
     : 0;
   const gastadoMes = Number.isFinite(gastadoMesValue) && gastadoMesValue >= 0
     ? gastadoMesValue
+    : 0;
+  const ahorros = Number.isFinite(ahorrosValue) && ahorrosValue >= 0
+    ? ahorrosValue
     : 0;
   const saldoActual = Math.max(presupuesto - gastadoMes, 0);
 
@@ -49,6 +53,7 @@ export function resolveDetalleCliente(pathname, state) {
     presupuesto,
     saldoActual,
     gastadoMes,
+    ahorros,
   };
 }
 
@@ -103,7 +108,7 @@ function buildDetalleClienteSidebarSections({ clienteId }) {
         },
         {
           href: gastosHref,
-          label: "Gastos cliente",
+          label: "Movimientos cliente",
           icon: "lni lni-list",
         },
       ],
@@ -114,44 +119,61 @@ function buildDetalleClienteSidebarSections({ clienteId }) {
 function renderDetalleClienteGastosPage({ cliente, detalle, formatCurrency, profileImage, profileName }) {
   const detalleHref = `/cliente/${encodeURIComponent(String(cliente.id))}`;
   const gastosHref = `${detalleHref}/gastos`;
+  const porcentajeGastado = cliente.presupuesto > 0
+    ? Math.min((cliente.gastadoMes / cliente.presupuesto) * 100, 100)
+    : 0;
 
   return renderDashboardAppLayout({
     activePath: gastosHref,
-    pageTitle: `Gastos de ${cliente.nombre}`,
-    pageSubtitle: "Listado completo de gastos del cliente",
+    pageTitle: `Movimientos de ${cliente.nombre}`,
+    pageSubtitle: "Listado completo de movimientos del cliente",
     content: `
-      <section class="gd-grid-2 mb-4">
-        <article class="gd-card">
-          <div class="gd-card-header">
-            <h2 class="gd-card-title">Resumen rapido</h2>
-            <a href="/cliente/${escapeHtml(encodeURIComponent(String(cliente.id)))}" data-link class="gd-card-action">Volver al detalle</a>
-          </div>
-
-          <div class="d-flex flex-column gap-2">
-            <div class="d-flex justify-content-between align-items-center">
-              <span class="gd-muted">Total de gastos</span>
-              <strong class="gd-card-title gd-card-title-sm">${escapeHtml(String(detalle.gastos.length))}</strong>
-            </div>
-            <div class="d-flex justify-content-between align-items-center">
-              <span class="gd-muted">Gasto del mes</span>
-              <strong class="gd-card-title gd-card-title-sm">${escapeHtml(formatCurrency(cliente.gastadoMes))}</strong>
-            </div>
-          </div>
-        </article>
-
-        <article class="gd-card">
-          <div class="gd-card-header">
-            <h2 class="gd-card-title">Vista de gastos</h2>
-          </div>
-          <p class="gd-muted mb-0">Esta pagina muestra todos los movimientos del cliente sin expandir el listado del detalle.</p>
-        </article>
+      <section class="gd-metrics gd-metrics-2 mb-4">
+        ${[
+          {
+            title: "Resumen rapido",
+            value: "",
+            delta: "",
+            dashboardActionMarkup: `<a href="/cliente/${escapeHtml(encodeURIComponent(String(cliente.id)))}" data-link class="gd-metric-link-btn">Volver al detalle</a>`,
+            dashboardExtraMarkup: `
+              <div class="d-flex flex-column gap-1 mt-2">
+                <div class="d-flex justify-content-between gap-2"><span class="gd-muted">Ingreso</span><strong>${escapeHtml(formatCurrency(cliente.presupuesto))}</strong></div>
+                <div class="d-flex justify-content-between gap-2"><span class="gd-muted">Egresos</span><strong>${escapeHtml(formatCurrency(cliente.gastadoMes))}</strong></div>
+                <div class="d-flex justify-content-between gap-2"><span class="gd-muted">Ahorros</span><strong>${escapeHtml(formatCurrency(cliente.ahorros))}</strong></div>
+              </div>
+            `,
+          },
+          {
+            title: "Gastado",
+            value: `${Math.round(porcentajeGastado)}%`,
+            delta: `Gastado ${formatCurrency(cliente.gastadoMes)} de ${formatCurrency(cliente.presupuesto)}`,
+            dashboardExtraMarkup: `
+              <div class="mt-2">
+                <div class="progress" style="height: 8px; border-radius: 999px; background: rgba(148, 163, 184, 0.18);">
+                  <div class="progress-bar bg-warning" role="progressbar" style="width: ${Math.min(porcentajeGastado, 100)}%; border-radius: 999px;" aria-valuenow="${Math.round(porcentajeGastado)}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+              </div>
+            `,
+            trend: porcentajeGastado >= 95 ? "down" : porcentajeGastado >= 65 ? "warn" : "up",
+          },
+        ]
+          .map((metric) => tarjetaValor({
+            title: metric.title,
+            value: metric.value,
+            delta: metric.delta,
+            trend: metric.trend,
+            layout: "dashboard-metric",
+            dashboardActionMarkup: metric.dashboardActionMarkup,
+            dashboardExtraMarkup: metric.dashboardExtraMarkup,
+          }))
+          .join("")}
       </section>
 
       ${renderDashboardExpenseCard({
-        title: "Todos los gastos",
+        title: "Todos los movimientos",
         expenses: detalle.gastos,
         formatMoney: formatCurrency,
-        emptyMessage: "Todavia no hay gastos registrados para este cliente.",
+        emptyMessage: "Todavia no hay movimientos registrados para este cliente.",
         rowMapper: mapGastoClienteToRow,
       })}
     `,
@@ -188,9 +210,6 @@ export function renderDetalleClientePage({
     });
   }
 
-  const porcentajeUsoPresupuesto = presupuestoDisponible > 0
-    ? Math.min((cliente.gastadoMes / presupuestoDisponible) * 100, 100)
-    : 0;
   const detalleHref = `/cliente/${encodeURIComponent(String(cliente.id))}`;
   const gastosHref = `${detalleHref}/gastos`;
 
@@ -223,11 +242,11 @@ export function renderDetalleClientePage({
             icon: "lni-coin",
           },
           {
-            title: "Uso del Presupuesto",
-            value: `${Math.round(porcentajeUsoPresupuesto)}%`,
-            delta: `Quedan ${formatCurrency(cliente.saldoActual)}`,
+            title: "Total Ahorrado",
+            value: formatCurrency(cliente.ahorros),
+            delta: "Ahorro acumulado",
             color: "info",
-            icon: "lni-pie-chart",
+            icon: "lni-wallet",
           },
         ]
           .map((metric) => tarjetaValor({
@@ -257,9 +276,11 @@ export function renderDetalleClientePage({
           height: "220px",
           dashboardStyle: true,
         })}
+      </section>
 
+      <section class="w-100">
         ${renderDashboardExpenseCard({
-          title: "Ultimos gastos",
+          title: "Ultimos movimientos",
           actionHref: gastosHref,
           actionText: "ver todo",
           expenses: detalle.gastos,
@@ -269,10 +290,10 @@ export function renderDetalleClientePage({
         })}
       </section>
 
-      <section id="recomendaciones-historicas" class="row g-3 g-md-4 mb-4">
+      <section id="recomendaciones-historicas" class="row g-2 g-md-2 mt-2 mb-2">
         <div class="col-12 col-lg-6">
-          <div class="card border-0 shadow-sm fp-card-rounded-lg gd-client-detail-fixed-card">
-            <div class="card-body">
+          <div class="gd-card gd-client-detail-fixed-card">
+            <div class="card-body p-0">
               <h5 class="card-title mb-3">Agregar recomendacion para ${escapeHtml(cliente.nombre)}</h5>
               <form id="agregarRecomendacionForm">
                 <div class="mb-3">
@@ -291,6 +312,7 @@ export function renderDetalleClientePage({
             emptyText: "No hay recomendaciones aun",
             cardClass: "gd-client-detail-fixed-card",
             maxHeight: "210px",
+            bodyStyle: "padding: 0;",
           })}
         </div>
       </section>
