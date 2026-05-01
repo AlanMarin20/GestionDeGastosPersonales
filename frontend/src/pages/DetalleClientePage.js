@@ -69,7 +69,7 @@ function mapGastoClienteToRow(gasto) {
 
 function buildDetalleClienteSidebarSections({ clienteId }) {
   const detalleHref = `/cliente/${encodeURIComponent(String(clienteId))}`;
-  const recomendacionesHref = `${detalleHref}#recomendaciones-historicas`;
+  const recomendacionesHref = `${detalleHref}/recomendaciones/historicas`;
   const gastosHref = `${detalleHref}/gastos`;
 
   return [
@@ -293,11 +293,22 @@ export function renderDetalleClientePage({
       <section id="recomendaciones-historicas" class="row g-2 g-md-2 mt-2 mb-2">
         <div class="col-12 col-lg-6">
           <div class="gd-card gd-client-detail-fixed-card">
-            <div class="card-body p-0">
-              <h5 class="card-title mb-3">Agregar recomendacion para ${escapeHtml(cliente.nombre)}</h5>
-              <form id="agregarRecomendacionForm">
-                <div class="mb-3">
-                  <textarea class="form-control" id="recomendacion" rows="3" placeholder="Escribe una recomendacion personalizada para este cliente...">${escapeHtml(detalle.nuevaRecomendacion)}</textarea>
+            <div class="card-body p-0 gd-client-recommend-form-body">
+              <h5 class="card-title mb-2">Agregar recomendacion para ${escapeHtml(cliente.nombre)}</h5>
+              <form id="agregarRecomendacionForm" class="gd-client-recommend-form">
+                <div class="mb-2">
+                  <input
+                    class="form-control"
+                    id="recomendacionTitulo"
+                    type="text"
+                    maxlength="60"
+                    placeholder="Titulo de la recomendacion"
+                    value="${escapeHtml(detalle.nuevaRecomendacionTitulo || "")}"
+                    required
+                  >
+                </div>
+                <div class="mb-2 gd-client-recommend-input-wrap">
+                  <textarea class="form-control" id="recomendacionTexto" rows="3" placeholder="Escribe una recomendacion personalizada para este cliente..." required>${escapeHtml(detalle.nuevaRecomendacionTexto || "")}</textarea>
                 </div>
                 <button type="submit" class="btn btn-primary w-100 btn-sm">Enviar Recomendacion</button>
               </form>
@@ -311,8 +322,8 @@ export function renderDetalleClientePage({
             recommendations: detalle.recomendaciones,
             emptyText: "No hay recomendaciones aun",
             cardClass: "gd-client-detail-fixed-card",
-            maxHeight: "210px",
-            bodyStyle: "padding: 0;",
+            maxHeight: "100%",
+            bodyStyle: "height: 100%; padding: 0;",
           })}
         </div>
       </section>

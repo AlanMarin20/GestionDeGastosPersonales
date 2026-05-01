@@ -19,130 +19,65 @@ export function renderCargarGastoPage({
   activePath,
   pageTitle,
   pageSubtitle,
-  activeTab,
   ticketFileName,
-  aiForm,
-  manualForm,
+  expenseForm,
   categoryOptions = [],
 }) {
-  const ticketTabActive = activeTab === "ticket";
-  const ticketCategoryIsNew = aiForm.categoria === NEW_CATEGORY_VALUE;
-  const manualCategoryIsNew = manualForm.categoria === NEW_CATEGORY_VALUE;
+  const categoryIsNew = expenseForm.categoria === NEW_CATEGORY_VALUE;
 
   const content = `
-    <div class="gd-tabs" role="tablist" aria-label="Modo de carga">
-      <button
-        type="button"
-        class="gd-tab ${ticketTabActive ? "active" : ""}"
-        data-action="switch-cargar-tab"
-        data-tab="ticket"
-      >
-        Ticket con IA
-      </button>
-      <button
-        type="button"
-        class="gd-tab ${!ticketTabActive ? "active" : ""}"
-        data-action="switch-cargar-tab"
-        data-tab="manual"
-      >
-        Carga manual
-      </button>
-    </div>
+    <div class="gd-card">
+      <label class="gd-upload-zone" for="ticketUploadInput">
+        <input type="file" id="ticketUploadInput" class="d-none" accept="image/png,image/jpeg,application/pdf">
+        <div class="gd-upload-icon"><i class="lni lni-camera"></i></div>
+        <div class="gd-upload-title">Subi una foto del ticket (opcional)</div>
+        <div class="gd-upload-sub">Si subis una imagen, la IA autocompleta los campos para que luego confirmes.</div>
+        <div class="gd-upload-sub">Tambien podes completar todo manualmente sin subir foto.</div>
+        <div class="gd-ai-badge"><i class="lni lni-bolt-alt"></i> IA extrae comercio, fecha, monto y categoria</div>
+        ${ticketFileName ? `<div class="gd-upload-sub mt-2">Archivo detectado: ${escapeHtml(ticketFileName)}</div>` : ""}
+      </label>
 
-    ${
-      ticketTabActive
-        ? `
-          <div class="gd-card">
-            <label class="gd-upload-zone" for="ticketUploadInput">
-              <input type="file" id="ticketUploadInput" class="d-none" accept="image/png,image/jpeg,application/pdf">
-              <div class="gd-upload-icon"><i class="lni lni-camera"></i></div>
-              <div class="gd-upload-title">Subi una foto del ticket para autocompletar</div>
-              <div class="gd-upload-sub">Formatos: PNG, JPG o PDF (maximo 10 MB)</div>
-              <div class="gd-ai-badge"><i class="lni lni-bolt-alt"></i> IA extrae comercio, fecha, monto y categoria</div>
-              ${ticketFileName ? `<div class="gd-upload-sub mt-2">Archivo detectado: ${escapeHtml(ticketFileName)}</div>` : ""}
-            </label>
+      <div class="gd-alert-strip warn">
+        <i class="lni lni-warning"></i>
+        <span>Si usas IA, revisa los datos detectados antes de guardar.</span>
+      </div>
 
-            <div class="gd-alert-strip warn">
-              <i class="lni lni-warning"></i>
-              <span>Revisa los datos detectados por IA antes de guardar.</span>
+      <form id="expenseForm">
+        <div class="gd-form-grid">
+          <div>
+            <label class="gd-form-label" for="expenseComercio">Comercio</label>
+            <input class="gd-form-input" id="expenseComercio" name="comercio" value="${escapeHtml(expenseForm.comercio)}" placeholder="Ej: YPF, Carrefour" required>
+          </div>
+          <div>
+            <label class="gd-form-label" for="expenseFecha">Fecha</label>
+            <input class="gd-form-input" id="expenseFecha" name="fecha" type="date" value="${escapeHtml(expenseForm.fecha)}" required>
+          </div>
+          <div>
+            <label class="gd-form-label" for="expenseMonto">Monto</label>
+            <input class="gd-form-input" id="expenseMonto" name="monto" type="number" min="0" step="0.01" value="${escapeHtml(expenseForm.monto)}" required>
+          </div>
+          <div>
+            <label class="gd-form-label" for="expenseCategoria">Categoria</label>
+            <select class="gd-form-select" id="expenseCategoria" name="categoria" required>
+              <option value="">Selecciona una categoria</option>
+              ${renderCategoryOptions(expenseForm.categoria, categoryOptions)}
+            </select>
+          </div>
+          <div class="gd-form-full ${categoryIsNew ? "" : "d-none"}" data-new-category-wrap="unified">
+            <label class="gd-form-label" for="expenseNuevaCategoria">Nombre de la nueva categoria</label>
+            <div class="d-flex gap-2 flex-wrap">
+              <input class="gd-form-input flex-grow-1" id="expenseNuevaCategoria" name="nuevaCategoria" value="" placeholder="Ej: Mascotas">
+              <button type="button" class="gd-btn-primary" data-action="save-new-category" data-form="unified">Guardar categoria</button>
             </div>
-
-            <form id="ticketAiForm">
-              <div class="gd-form-grid">
-                <div>
-                  <label class="gd-form-label" for="ticketComercio">Comercio</label>
-                  <input class="gd-form-input" id="ticketComercio" name="comercio" value="${escapeHtml(aiForm.comercio)}" required>
-                </div>
-                <div>
-                  <label class="gd-form-label" for="ticketFecha">Fecha</label>
-                  <input class="gd-form-input" id="ticketFecha" name="fecha" type="date" value="${escapeHtml(aiForm.fecha)}" required>
-                </div>
-                <div>
-                  <label class="gd-form-label" for="ticketMonto">Monto</label>
-                  <input class="gd-form-input" id="ticketMonto" name="monto" type="number" min="0" step="0.01" value="${escapeHtml(aiForm.monto)}" required>
-                </div>
-                <div>
-                  <label class="gd-form-label" for="ticketCategoria">Categoria</label>
-                  <select class="gd-form-select" id="ticketCategoria" name="categoria" required>
-                    ${renderCategoryOptions(aiForm.categoria, categoryOptions)}
-                  </select>
-                </div>
-                <div class="gd-form-full ${ticketCategoryIsNew ? "" : "d-none"}" data-new-category-wrap="ticket">
-                  <label class="gd-form-label" for="ticketNuevaCategoria">Nombre de la nueva categoria</label>
-                  <div class="d-flex gap-2 flex-wrap">
-                    <input class="gd-form-input flex-grow-1" id="ticketNuevaCategoria" name="nuevaCategoria" value="" placeholder="Ej: Mascotas">
-                    <button type="button" class="gd-btn-primary" data-action="save-new-category" data-form="ticket">Guardar categoria</button>
-                  </div>
-                </div>
-                <div class="gd-form-full">
-                  <label class="gd-form-label" for="ticketDescripcion">Descripcion</label>
-                  <input class="gd-form-input" id="ticketDescripcion" name="descripcion" value="${escapeHtml(aiForm.descripcion)}" placeholder="Detalle opcional">
-                </div>
-              </div>
-              <button type="submit" class="gd-submit-btn">Guardar gasto detectado</button>
-            </form>
           </div>
-        `
-        : `
-          <div class="gd-card">
-            <form id="manualExpenseForm">
-              <div class="gd-form-grid">
-                <div>
-                  <label class="gd-form-label" for="manualComercio">Comercio</label>
-                  <input class="gd-form-input" id="manualComercio" name="comercio" value="${escapeHtml(manualForm.comercio)}" placeholder="Ej: YPF, Carrefour" required>
-                </div>
-                <div>
-                  <label class="gd-form-label" for="manualFecha">Fecha</label>
-                  <input class="gd-form-input" id="manualFecha" name="fecha" type="date" value="${escapeHtml(manualForm.fecha)}" required>
-                </div>
-                <div>
-                  <label class="gd-form-label" for="manualMonto">Monto</label>
-                  <input class="gd-form-input" id="manualMonto" name="monto" type="number" min="0" step="0.01" value="${escapeHtml(manualForm.monto)}" required>
-                </div>
-                <div>
-                  <label class="gd-form-label" for="manualCategoria">Categoria</label>
-                  <select class="gd-form-select" id="manualCategoria" name="categoria" required>
-                    <option value="">Selecciona una categoria</option>
-                    ${renderCategoryOptions(manualForm.categoria, categoryOptions)}
-                  </select>
-                </div>
-                <div class="gd-form-full ${manualCategoryIsNew ? "" : "d-none"}" data-new-category-wrap="manual">
-                  <label class="gd-form-label" for="manualNuevaCategoria">Nombre de la nueva categoria</label>
-                  <div class="d-flex gap-2 flex-wrap">
-                    <input class="gd-form-input flex-grow-1" id="manualNuevaCategoria" name="nuevaCategoria" value="" placeholder="Ej: Mascotas">
-                    <button type="button" class="gd-btn-primary" data-action="save-new-category" data-form="manual">Guardar categoria</button>
-                  </div>
-                </div>
-                <div class="gd-form-full">
-                  <label class="gd-form-label" for="manualDescripcion">Descripcion</label>
-                  <input class="gd-form-input" id="manualDescripcion" name="descripcion" value="${escapeHtml(manualForm.descripcion)}" placeholder="Detalle opcional">
-                </div>
-              </div>
-              <button type="submit" class="gd-submit-btn">Guardar gasto manual</button>
-            </form>
+          <div class="gd-form-full">
+            <label class="gd-form-label" for="expenseDescripcion">Descripcion</label>
+            <input class="gd-form-input" id="expenseDescripcion" name="descripcion" value="${escapeHtml(expenseForm.descripcion)}" placeholder="Detalle opcional">
           </div>
-        `
-    }
+        </div>
+        <button type="submit" class="gd-submit-btn">Guardar gasto</button>
+      </form>
+    </div>
   `;
 
   return renderDashboardAppLayout({

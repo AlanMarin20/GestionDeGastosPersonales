@@ -19,6 +19,12 @@ const SETTINGS_NAV_GROUPS = [
     ],
   },
   {
+    label: "Asesoria",
+    items: [
+      { id: "asesoria", label: "Asesor", icon: "lni lni-user" },
+    ],
+  },
+  {
     label: "Preferencias",
     items: [
       { id: "notificaciones", label: "Notificaciones", icon: "lni lni-alarm" },
@@ -43,6 +49,23 @@ const SETTINGS_SECTION_IDS = SETTINGS_NAV_GROUPS.reduce((ids, group) => {
 }, []);
 
 const DEFAULT_SETTINGS_SECTION = "perfil";
+
+function getAdvisorInitials(name) {
+  const words = String(name || "")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+
+  if (words.length === 0) {
+    return "AS";
+  }
+
+  if (words.length === 1) {
+    return words[0].slice(0, 2).toUpperCase();
+  }
+
+  return `${words[0][0]}${words[1][0]}`.toUpperCase();
+}
 
 function resolveActiveSettingsSection() {
   if (typeof window === "undefined") {
@@ -144,6 +167,15 @@ export function renderConfiguracionCuentaPage({
     comfortable: "Comoda",
     compact: "Compacta",
   }[config.densidad] || "Comoda";
+  const advisorLink = config.asesoria?.asesor || null;
+  const advisorRequest = config.asesoria?.solicitud || {};
+  const advisorName = String(advisorLink?.nombre || "").trim();
+  const advisorEmail = String(advisorLink?.email || "").trim();
+  const advisorSpecialty = String(advisorLink?.especialidad || "").trim();
+  const advisorCode = String(advisorLink?.codigoVerificacion || "").trim();
+  const advisorInitials = getAdvisorInitials(advisorName);
+  const advisorHasProfile = Boolean(advisorLink);
+  const advisorStatusLabel = advisorHasProfile ? "Vinculado" : "Sin asesor vinculado";
 
   const content = `
     <section class="gd-settings-shell">
@@ -428,6 +460,90 @@ export function renderConfiguracionCuentaPage({
               <button type="button" class="gd-btn-primary">Agregar categoria</button>
             </div>
           </article>
+        </section>
+
+        <section
+          id="config-section-asesoria"
+          class="gd-settings-panel ${activeSection === "asesoria" ? "active" : ""}"
+          data-config-section="asesoria"
+          ${activeSection === "asesoria" ? "" : "hidden"}
+        >
+          <div class="row g-3 align-items-stretch">
+            <div class="col-12 col-xl-6">
+              <article class="gd-card h-100">
+                <h2 class="gd-card-title mb-1">Agregar asesor</h2>
+                <p class="gd-muted mb-3">Genera un codigo unico de verificacion para que el asesor lo ingrese y quede vinculado a tu cuenta.</p>
+
+                <form id="agregarAsesorForm">
+                  <div class="gd-form-grid">
+                    <div>
+                      <label class="gd-form-label" for="asesorNombre">Nombre del asesor</label>
+                      <input id="asesorNombre" class="gd-form-input" value="${escapeHtml(String(advisorRequest.nombre || ""))}" placeholder="Ej: Laura Gomez" required>
+                    </div>
+                    <div>
+                      <label class="gd-form-label" for="asesorEmail">Email del asesor</label>
+                      <input id="asesorEmail" type="email" class="gd-form-input" value="${escapeHtml(String(advisorRequest.email || ""))}" placeholder="asesor@correo.com" required>
+                    </div>
+                    <div class="gd-form-full">
+                      <label class="gd-form-label" for="asesorEspecialidad">Especialidad</label>
+                      <input id="asesorEspecialidad" class="gd-form-input" value="${escapeHtml(String(advisorRequest.especialidad || ""))}" placeholder="Ej: Ahorro, presupuesto, inversiones">
+                    </div>
+                  </div>
+
+                  <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-2 mt-3">
+                    <small class="gd-muted">Al guardar se crea automaticamente el codigo de verificacion.</small>
+                    <button type="submit" class="gd-btn-primary">Generar codigo y vincular</button>
+                  </div>
+                </form>
+              </article>
+            </div>
+
+            <div class="col-12 col-xl-6">
+              <article class="gd-card h-100">
+                <div class="d-flex align-items-start justify-content-between gap-2 mb-3">
+                  <div>
+                    <h2 class="gd-card-title mb-1">Perfil del asesor</h2>
+                    <p class="gd-muted mb-0">${advisorHasProfile ? "Revisa los datos vinculados y comparte el codigo de verificacion." : "Aun no tienes un asesor vinculado."}</p>
+                  </div>
+                  ${advisorHasProfile
+                    ? `<button type="button" class="gd-action-btn danger" data-action="desvincular-asesor" aria-label="Desvincular asesor">🗑</button>`
+                    : ""
+                  }
+                </div>
+
+                ${advisorHasProfile
+                  ? `
+                    <div class="gd-settings-advisor-profile">
+                      <div class="gd-settings-advisor-avatar">${escapeHtml(advisorInitials)}</div>
+                      <div class="gd-settings-advisor-copy">
+                        <p class="gd-settings-session-title mb-1">${escapeHtml(advisorName)}</p>
+                        <p class="gd-settings-session-sub mb-1">${escapeHtml(advisorEmail)}</p>
+                        <p class="gd-settings-session-sub mb-0">${escapeHtml(advisorSpecialty || "Sin especialidad definida")}</p>
+                      </div>
+                    </div>
+
+                    <div class="gd-settings-advisor-code-box mt-3">
+                      <span class="gd-muted d-block mb-1">Codigo de verificacion</span>
+                      <strong class="gd-settings-advisor-code">${escapeHtml(advisorCode || "Pendiente de generar")}</strong>
+                      <p class="gd-muted mb-0 mt-2">El asesor debe ingresar este codigo para completar la vinculacion.</p>
+                    </div>
+
+                    <div class="gd-settings-advisor-meta mt-3">
+                      <span class="gd-settings-category-pill">${escapeHtml(advisorStatusLabel)}</span>
+                      <span class="gd-settings-advisor-meta-text">Vinculo activo en la seccion de Asesoria.</span>
+                    </div>
+                  `
+                  : `
+                    <div class="gd-settings-advisor-empty">
+                      <i class="lni lni-user fs-1"></i>
+                      <p class="mb-1 fw-semibold">Sin asesor vinculado</p>
+                      <p class="gd-muted mb-0">Completa el formulario de la izquierda para generar el codigo y activar el perfil del asesor.</p>
+                    </div>
+                  `
+                }
+              </article>
+            </div>
+          </div>
         </section>
 
         <section

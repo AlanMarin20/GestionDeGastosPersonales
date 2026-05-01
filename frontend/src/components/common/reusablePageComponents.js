@@ -858,7 +858,7 @@ export function contenedorRecomendaciones({
 
   const renderItem = itemRenderer ?? ((item, index) => `
     <div class="alert ${index % 2 === 0 ? 'alert-info' : 'alert-warning'} alert-sm mb-0 fp-recommendation-item" role="alert">
-      <small class="fp-recommendation-item-text"><strong>${escapeHtml(item.fecha)}:</strong> ${escapeHtml(item.texto)}</small>
+      <small class="fp-recommendation-item-text"><strong>${escapeHtml(item.fecha)}:</strong> ${item.titulo ? `<strong>${escapeHtml(item.titulo)}</strong> · ` : ''}${escapeHtml(item.texto)}</small>
     </div>
   `);
 

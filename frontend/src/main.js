@@ -26,8 +26,8 @@ import { renderDashboardPage as renderDashboardPageView } from "./pages/Dashboar
 import { renderDetalleAhorrosPage as renderDetalleAhorrosPageView } from "./pages/DetalleAhorrosPage";
 import { renderCargarGastoPage as renderCargarGastoPageView } from "./pages/CargarGastoPage";
 import { renderMisGastosPage as renderMisGastosPageView } from "./pages/MisGastosPage";
-import { renderReportesPage as renderReportesPageView } from "./pages/ReportesPage";
 import { renderRecomendacionesPage as renderRecomendacionesPageView } from "./pages/RecomendacionesPage";
+import { renderRecomendacionesHistoricasPage as renderRecomendacionesHistoricasPageView } from "./pages/RecomendacionesHistoricasPage";
 import { renderEditarPerfilPage as renderEditarPerfilPageView } from "./pages/EditarPerfilPage";
 import { renderPreferenciaNotificacionesPageView } from "./pages/PreferenciaNotificacionesPage";
 import { renderLandingPage as renderLandingPageView } from "./pages/LandingPage";
@@ -429,21 +429,13 @@ const state = {
       },
     ],
     cargar: {
-      activeTab: "ticket",
       ticketFileName: "",
-      aiForm: {
+      form: {
         comercio: "Disco Supermaxi",
         fecha: "2026-04-18",
         monto: "42480",
         categoria: "Supermercado",
         descripcion: "Compras semanales",
-      },
-      manualForm: {
-        comercio: "",
-        fecha: "2026-04-19",
-        monto: "",
-        categoria: "",
-        descripcion: "",
       },
     },
     filtros: {
@@ -534,6 +526,7 @@ const state = {
       },
     ],
     busqueda: "",
+    orden: "a-z",
     clienteSeleccionadoId: null,
     nuevoCliente: {
       nombre: "",
@@ -619,16 +612,19 @@ const state = {
     recomendaciones: [
       {
         id: "1",
+        titulo: "Reducir gasto en comida",
         texto: "Considera reducir gastos de comida un 15%",
         fecha: "22 mar",
       },
       {
         id: "2",
+        titulo: "Presupuesto de vivienda estable",
         texto: "Tu presupuesto de vivienda esta dentro del limite",
         fecha: "20 mar",
       },
     ],
-    nuevaRecomendacion: "",
+    nuevaRecomendacionTitulo: "",
+    nuevaRecomendacionTexto: "",
     showAllRecentExpenses: false,
   },
   perfil: {
@@ -676,6 +672,14 @@ const state = {
         fecha: "Hace 5 dias",
       },
     ],
+    asesoria: {
+      asesor: null,
+      solicitud: {
+        nombre: "",
+        email: "",
+        especialidad: "",
+      },
+    },
   },
   notificaciones: {
     resumenSemanal: true,
@@ -1207,8 +1211,20 @@ function getInitials(name) {
   return `${words[0][0]}${words[1][0]}`.toUpperCase();
 }
 
+function generateAdvisorVerificationCode() {
+  const randomPart = Math.random().toString(36).slice(2, 8).toUpperCase();
+  const timePart = Date.now().toString(36).slice(-4).toUpperCase();
+  return `ADV-${randomPart}-${timePart}`;
+}
+
 function buildAdvisorUsers() {
   const search = state.asesor.busqueda.trim().toLowerCase();
+  const sortOrder = state.asesor.orden;
+  const riskPriority = {
+    low: 1,
+    medium: 2,
+    high: 3,
+  };
 
   return state.asesor.clientes
     .filter((client) => client.nombre.toLowerCase().includes(search))
@@ -1229,6 +1245,38 @@ function buildAdvisorUsers() {
         initials: getInitials(client.nombre),
         avatarColor: ADVISOR_AVATAR_COLORS[index % ADVISOR_AVATAR_COLORS.length],
       };
+    })
+    .sort((left, right) => {
+      const byNameAsc = left.name.localeCompare(right.name, "es", { sensitivity: "base" });
+      const byNameDesc = right.name.localeCompare(left.name, "es", { sensitivity: "base" });
+      const leftRisk = riskPriority[left.risk] || 0;
+      const rightRisk = riskPriority[right.risk] || 0;
+
+      if (sortOrder === "z-a") {
+        return byNameDesc;
+      }
+
+      if (sortOrder === "riesgo-alto") {
+        if (rightRisk !== leftRisk) {
+          return rightRisk - leftRisk;
+        }
+        if (right.spentPercent !== left.spentPercent) {
+          return right.spentPercent - left.spentPercent;
+        }
+        return byNameAsc;
+      }
+
+      if (sortOrder === "riesgo-bajo") {
+        if (leftRisk !== rightRisk) {
+          return leftRisk - rightRisk;
+        }
+        if (left.spentPercent !== right.spentPercent) {
+          return left.spentPercent - right.spentPercent;
+        }
+        return byNameAsc;
+      }
+
+      return byNameAsc;
     });
 }
 
@@ -1824,10 +1872,8 @@ function renderCargarGastoPage() {
     activePath: "/dashboard/cargar",
     pageTitle: "Cargar gasto",
     pageSubtitle: "Registra un gasto manual o mediante ticket con IA",
-    activeTab: state.finanzas.cargar.activeTab,
     ticketFileName: state.finanzas.cargar.ticketFileName,
-    aiForm: state.finanzas.cargar.aiForm,
-    manualForm: state.finanzas.cargar.manualForm,
+    expenseForm: state.finanzas.cargar.form,
     categoryOptions: getMisGastosCategoryOptions(),
   });
 }
@@ -1853,32 +1899,6 @@ function renderMisGastosPage() {
     editingExpense,
     deletingExpense,
     formatMoney,
-  });
-}
-
-function renderReportesPage() {
-  const monthlySeries = getDashboardMonthlySeries();
-  const averageMonthlyExpense = monthlySeries.length > 0
-    ? monthlySeries.reduce((sum, item) => sum + item.total, 0) / monthlySeries.length
-    : 0;
-  const categories = getDashboardCategorySummary(getFinanzasCurrentPeriod());
-  const merchantRanking = getMerchantRankingRows();
-  const reportMetrics = getReportMetrics({
-    averageMonthlyExpense,
-    categories,
-    merchantRanking,
-  });
-
-  return renderReportesPageView({
-    profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
-    profileName: state.perfil.nombre || "Usuario",
-    activePath: "/dashboard/reportes",
-    pageTitle: "Reportes",
-    pageSubtitle: "Analisis de consumo y deteccion de gastos inusuales",
-    metrics: reportMetrics,
-    evolutionRows: getReportEvolutionRows(),
-    merchantRows: merchantRanking,
-    unusualSpending: getUnusualSpendingMessages(),
   });
 }
 
@@ -1913,10 +1933,21 @@ function renderDashboardAsesorPage({
     metrics: getAdvisorPanelMetrics(),
     users: buildAdvisorUsers(),
     search: state.asesor.busqueda,
+    sortOrder: state.asesor.orden,
     showAddClientModal: Boolean(state.asesor.modals.nuevoCliente),
     newClientName: state.asesor.nuevoCliente.nombre,
     newClientCode: state.asesor.nuevoCliente.codigo,
     formatMoney,
+  });
+}
+
+function renderRecomendacionesHistoricasPage(pathname) {
+  return renderRecomendacionesHistoricasPageView({
+    pathname,
+    state,
+    profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
+    profileName: state.perfil.nombre || "Usuario",
+    formatCurrency: formatMoney,
   });
 }
 
@@ -2005,10 +2036,6 @@ function buildRouteView(pathname) {
     return renderDashboardLayout(renderMisGastosPage());
   }
 
-  if (pathname === "/dashboard/reportes") {
-    return renderDashboardLayout(renderReportesPage());
-  }
-
   if (pathname === "/dashboard/recomendaciones") {
     return renderDashboardLayout(renderRecomendacionesPage());
   }
@@ -2033,6 +2060,14 @@ function buildRouteView(pathname) {
     return renderDashboardLayout(renderDashboardAsesorPage(), {
       showScrollTop: false,
     });
+  }
+
+  if (pathname === "/dashboard/recomendaciones/historicas") {
+    return renderDashboardLayout(renderRecomendacionesHistoricasPage(pathname));
+  }
+
+  if (pathname.match(/^\/cliente\/[^/]+\/recomendaciones\/historicas$/)) {
+    return renderDashboardLayout(renderRecomendacionesHistoricasPage(pathname));
   }
 
   if (pathname.startsWith("/cliente/")) {
@@ -2359,24 +2394,16 @@ function attachGlobalNavigation() {
       closeDashboardDropdowns();
       navigate("/perfil/configuracion");
     },
-    "switch-cargar-tab": ({ event, actionButton }) => {
-      event.preventDefault();
-      const nextTab = actionButton.getAttribute("data-tab");
-      if (nextTab === "ticket" || nextTab === "manual") {
-        state.finanzas.cargar.activeTab = nextTab;
-        render();
-      }
-    },
     "save-new-category": ({ event, actionButton }) => {
       event.preventDefault();
 
       const formKey = actionButton.getAttribute("data-form");
-      if (formKey !== "ticket" && formKey !== "manual") {
+      if (formKey !== "unified") {
         return;
       }
 
-      const inputId = formKey === "ticket" ? "ticketNuevaCategoria" : "manualNuevaCategoria";
-      const selectId = formKey === "ticket" ? "ticketCategoria" : "manualCategoria";
+      const inputId = "expenseNuevaCategoria";
+      const selectId = "expenseCategoria";
       const input = document.getElementById(inputId);
       const select = document.getElementById(selectId);
       const newCategory = (input?.value || "").trim();
@@ -2398,11 +2425,7 @@ function attachGlobalNavigation() {
         state.finanzas.categories = [...state.finanzas.categories, newCategory].sort((a, b) => a.localeCompare(b));
       }
 
-      if (formKey === "ticket") {
-        state.finanzas.cargar.aiForm.categoria = newCategory;
-      } else {
-        state.finanzas.cargar.manualForm.categoria = newCategory;
-      }
+      state.finanzas.cargar.form.categoria = newCategory;
 
       if (select) {
         select.value = newCategory;
@@ -2614,6 +2637,33 @@ function attachGlobalNavigation() {
         (cliente) => cliente.id !== clienteId,
       );
       showAppNotification("Cliente desvinculado", "success");
+      render();
+    },
+    "desvincular-asesor": async ({ event }) => {
+      event.preventDefault();
+
+      const shouldUnlink = await showAppConfirm({
+        title: "Desvincular asesor",
+        message: "Esta accion eliminara el asesor vinculado y su codigo de verificacion.",
+        confirmText: "Desvincular",
+        cancelText: "Cancelar",
+        danger: true,
+      });
+
+      if (!shouldUnlink) {
+        return;
+      }
+
+      state.configuracion.asesoria = {
+        asesor: null,
+        solicitud: {
+          nombre: "",
+          email: "",
+          especialidad: "",
+        },
+      };
+      saveAppPreferences();
+      showAppNotification("Asesor desvinculado", "success");
       render();
     },
     "cerrar-sesion": ({ actionButton }) => {
@@ -2986,13 +3036,11 @@ function attachFormHandlers(pathname) {
 
   if (pathname === "/dashboard/cargar") {
     const ticketUploadInput = document.getElementById("ticketUploadInput");
-    const ticketAiForm = document.getElementById("ticketAiForm");
-    const manualExpenseForm = document.getElementById("manualExpenseForm");
-    const ticketCategorySelect = document.getElementById("ticketCategoria");
-    const manualCategorySelect = document.getElementById("manualCategoria");
+    const expenseForm = document.getElementById("expenseForm");
+    const categorySelect = document.getElementById("expenseCategoria");
 
-    const syncNewCategoryVisibility = (formKey, value) => {
-      const wrap = document.querySelector(`[data-new-category-wrap='${formKey}']`);
+    const syncNewCategoryVisibility = (value) => {
+      const wrap = document.querySelector("[data-new-category-wrap='unified']");
       if (!wrap) {
         return;
       }
@@ -3001,19 +3049,12 @@ function attachFormHandlers(pathname) {
       wrap.classList.toggle("d-none", !shouldShow);
     };
 
-    syncNewCategoryVisibility("ticket", ticketCategorySelect?.value || "");
-    syncNewCategoryVisibility("manual", manualCategorySelect?.value || "");
+    syncNewCategoryVisibility(categorySelect?.value || "");
 
-    ticketCategorySelect?.addEventListener("change", (event) => {
+    categorySelect?.addEventListener("change", (event) => {
       const value = event.target.value || "";
-      state.finanzas.cargar.aiForm.categoria = value;
-      syncNewCategoryVisibility("ticket", value);
-    });
-
-    manualCategorySelect?.addEventListener("change", (event) => {
-      const value = event.target.value || "";
-      state.finanzas.cargar.manualForm.categoria = value;
-      syncNewCategoryVisibility("manual", value);
+      state.finanzas.cargar.form.categoria = value;
+      syncNewCategoryVisibility(value);
     });
 
     ticketUploadInput?.addEventListener("change", (event) => {
@@ -3023,7 +3064,7 @@ function attachFormHandlers(pathname) {
       }
 
       state.finanzas.cargar.ticketFileName = file.name;
-      state.finanzas.cargar.aiForm = {
+      state.finanzas.cargar.form = {
         comercio: "Disco Supermaxi",
         fecha: "2026-04-18",
         monto: "42480",
@@ -3033,9 +3074,9 @@ function attachFormHandlers(pathname) {
       render();
     });
 
-    ticketAiForm?.addEventListener("submit", (event) => {
+    expenseForm?.addEventListener("submit", (event) => {
       event.preventDefault();
-      const formData = new FormData(ticketAiForm);
+      const formData = new FormData(expenseForm);
 
       const payload = {
         comercio: (formData.get("comercio") || "").toString().trim(),
@@ -3045,7 +3086,7 @@ function attachFormHandlers(pathname) {
         descripcion: (formData.get("descripcion") || "").toString().trim(),
       };
 
-      state.finanzas.cargar.aiForm = payload;
+      state.finanzas.cargar.form = payload;
 
       if (!addExpenseRecord(payload)) {
         showAppNotification(
@@ -3059,43 +3100,13 @@ function attachFormHandlers(pathname) {
       state.finanzas.filtros.periodo = periodKey || "todos";
       state.finanzas.filtros.search = "";
       state.finanzas.filtros.categoria = "Todas";
-      navigate("/dashboard/gastos");
-    });
-
-    manualExpenseForm?.addEventListener("submit", (event) => {
-      event.preventDefault();
-      const formData = new FormData(manualExpenseForm);
-
-      const payload = {
-        comercio: (formData.get("comercio") || "").toString().trim(),
-        fecha: (formData.get("fecha") || "").toString(),
-        monto: (formData.get("monto") || "").toString(),
-        categoria: (formData.get("categoria") || "").toString(),
-        descripcion: (formData.get("descripcion") || "").toString().trim(),
-      };
-
-      state.finanzas.cargar.manualForm = payload;
-
-      if (!addExpenseRecord(payload)) {
-        showAppNotification(
-          "No se pudo guardar el gasto. Revisa los datos.",
-          "error",
-        );
-        return;
-      }
-
-      state.finanzas.cargar.manualForm = {
+      state.finanzas.cargar.form = {
         comercio: "",
         fecha: payload.fecha,
         monto: "",
         categoria: "",
         descripcion: "",
       };
-
-      const periodKey = getMonthKeyFromDate(payload.fecha);
-      state.finanzas.filtros.periodo = periodKey || "todos";
-      state.finanzas.filtros.search = "";
-      state.finanzas.filtros.categoria = "Todas";
       navigate("/dashboard/gastos");
     });
   }
@@ -3357,6 +3368,12 @@ function attachFormHandlers(pathname) {
       render();
     });
 
+    const ordenInput = document.getElementById("advisorSortSelect");
+    ordenInput?.addEventListener("change", (event) => {
+      state.asesor.orden = event.target.value;
+      render();
+    });
+
     ["nuevoClienteNombre", "nuevoClienteCodigo"].forEach((id) => {
       const input = document.getElementById(id);
       input?.addEventListener("input", () => {
@@ -3373,30 +3390,41 @@ function attachFormHandlers(pathname) {
     formRecomendacion?.addEventListener("submit", (event) => {
       event.preventDefault();
 
-      const texto = (
-        document.getElementById("recomendacion")?.value ?? ""
+      const titulo = (
+        document.getElementById("recomendacionTitulo")?.value ?? ""
       ).trim();
-      state.detalleCliente.nuevaRecomendacion = texto;
+      const texto = (
+        document.getElementById("recomendacionTexto")?.value ?? ""
+      ).trim();
+      state.detalleCliente.nuevaRecomendacionTitulo = titulo;
+      state.detalleCliente.nuevaRecomendacionTexto = texto;
 
-      if (!texto) {
+      if (!titulo || !texto) {
         return;
       }
 
       state.detalleCliente.recomendaciones = [
         {
           id: Date.now().toString(),
+          titulo,
           texto,
           fecha: getCurrentDateShort(),
         },
         ...state.detalleCliente.recomendaciones,
       ];
-      state.detalleCliente.nuevaRecomendacion = "";
+      state.detalleCliente.nuevaRecomendacionTitulo = "";
+      state.detalleCliente.nuevaRecomendacionTexto = "";
       render();
     });
 
-    const recomendacionInput = document.getElementById("recomendacion");
-    recomendacionInput?.addEventListener("input", (event) => {
-      state.detalleCliente.nuevaRecomendacion = event.target.value;
+    const recomendacionTituloInput = document.getElementById("recomendacionTitulo");
+    recomendacionTituloInput?.addEventListener("input", (event) => {
+      state.detalleCliente.nuevaRecomendacionTitulo = event.target.value;
+    });
+
+    const recomendacionTextoInput = document.getElementById("recomendacionTexto");
+    recomendacionTextoInput?.addEventListener("input", (event) => {
+      state.detalleCliente.nuevaRecomendacionTexto = event.target.value;
     });
   }
 
@@ -3576,6 +3604,57 @@ function attachFormHandlers(pathname) {
     monedaSelect?.addEventListener("change", (event) => {
       state.configuracion.moneda = normalizeCurrency(event.target.value);
       saveAppPreferences();
+      render();
+    });
+
+    const asesorNombreInput = document.getElementById("asesorNombre");
+    asesorNombreInput?.addEventListener("input", (event) => {
+      state.configuracion.asesoria.solicitud.nombre = event.target.value;
+    });
+
+    const asesorEmailInput = document.getElementById("asesorEmail");
+    asesorEmailInput?.addEventListener("input", (event) => {
+      state.configuracion.asesoria.solicitud.email = event.target.value;
+    });
+
+    const asesorEspecialidadInput = document.getElementById("asesorEspecialidad");
+    asesorEspecialidadInput?.addEventListener("input", (event) => {
+      state.configuracion.asesoria.solicitud.especialidad = event.target.value;
+    });
+
+    const asesorForm = document.getElementById("agregarAsesorForm");
+    asesorForm?.addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const nombre = (document.getElementById("asesorNombre")?.value ?? "").trim();
+      const email = (document.getElementById("asesorEmail")?.value ?? "").trim();
+      const especialidad = (document.getElementById("asesorEspecialidad")?.value ?? "").trim();
+
+      if (!nombre || !email) {
+        showAppNotification("Completa el nombre y el email del asesor", "warning");
+        return;
+      }
+
+      const codigoVerificacion = generateAdvisorVerificationCode();
+
+      state.configuracion.asesoria = {
+        asesor: {
+          nombre,
+          email,
+          especialidad,
+          codigoVerificacion,
+          estado: "Pendiente de verificacion",
+          vinculadoEn: new Date().toISOString(),
+        },
+        solicitud: {
+          nombre,
+          email,
+          especialidad,
+        },
+      };
+
+      saveAppPreferences();
+      showAppNotification("Asesor agregado y codigo generado", "success");
       render();
     });
 
@@ -3970,6 +4049,14 @@ function loadAppPreferences() {
     mostrarCentavos: Boolean(state.configuracion.mostrarCentavos),
     autenticacionDos: Boolean(state.configuracion.autenticacionDos),
     imagePreview: String(state.perfil?.imagePreview || DEFAULT_PROFILE_IMAGE),
+    asesoria: {
+      asesor: state.configuracion?.asesoria?.asesor || null,
+      solicitud: {
+        nombre: String(state.configuracion?.asesoria?.solicitud?.nombre || ""),
+        email: String(state.configuracion?.asesoria?.solicitud?.email || ""),
+        especialidad: String(state.configuracion?.asesoria?.solicitud?.especialidad || ""),
+      },
+    },
   };
 
   if (!rawPreferences) {
@@ -3993,6 +4080,14 @@ function loadAppPreferences() {
       mostrarCentavos: Boolean(parsedPreferences.mostrarCentavos),
       autenticacionDos: Boolean(parsedPreferences.autenticacionDos),
       imagePreview: String(parsedPreferences.imagePreview || fallback.imagePreview),
+      asesoria: {
+        asesor: parsedPreferences.asesoria?.asesor || fallback.asesoria.asesor,
+        solicitud: {
+          nombre: String(parsedPreferences.asesoria?.solicitud?.nombre || fallback.asesoria.solicitud.nombre),
+          email: String(parsedPreferences.asesoria?.solicitud?.email || fallback.asesoria.solicitud.email),
+          especialidad: String(parsedPreferences.asesoria?.solicitud?.especialidad || fallback.asesoria.solicitud.especialidad),
+        },
+      },
     };
   } catch {
     return fallback;
@@ -4014,6 +4109,14 @@ function saveAppPreferences() {
       mostrarCentavos: Boolean(state.configuracion.mostrarCentavos),
       autenticacionDos: Boolean(state.configuracion.autenticacionDos),
       imagePreview: String(state.perfil?.imagePreview || DEFAULT_PROFILE_IMAGE),
+      asesoria: {
+        asesor: state.configuracion?.asesoria?.asesor || null,
+        solicitud: {
+          nombre: String(state.configuracion?.asesoria?.solicitud?.nombre || ""),
+          email: String(state.configuracion?.asesoria?.solicitud?.email || ""),
+          especialidad: String(state.configuracion?.asesoria?.solicitud?.especialidad || ""),
+        },
+      },
     }),
   );
 

@@ -26,11 +26,6 @@ const USER_NAV_ITEMS = [
         label: "Mis movimientos",
         icon: "lni lni-list",
       },
-      {
-        href: "/dashboard/reportes",
-        label: "Reportes",
-        icon: "lni lni-bar-chart",
-      },
     ],
   },
   {

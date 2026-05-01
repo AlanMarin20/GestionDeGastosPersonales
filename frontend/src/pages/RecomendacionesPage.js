@@ -1,11 +1,17 @@
 import { renderDashboardAppLayout } from "../components/dashboard/dashboardAppLayout";
 import { escapeHtml } from "../utils/sanitize";
 
-const ICON_BY_SEVERITY = {
-  danger: "lni lni-warning",
-  warning: "lni lni-bolt-alt",
-  good: "lni lni-checkmark-circle",
-  info: "lni lni-bulb",
+const SOURCE_CONFIG = {
+  asesor: {
+    label: "Asesor",
+    className: "gd-rec-source-asesor",
+    iconClass: "lni lni-user",
+  },
+  ia: {
+    label: "IA",
+    className: "gd-rec-source-ia",
+    iconClass: "lni lni-bolt-alt",
+  },
 };
 
 export function renderRecomendacionesPage({
@@ -18,17 +24,21 @@ export function renderRecomendacionesPage({
   isAsesor = false,
 }) {
   const content = `
+    <div class="d-flex justify-content-end mb-2">
+      <a href="/dashboard/recomendaciones/historicas" data-link class="btn btn-outline-secondary btn-sm">Ver historial de recomendaciones</a>
+    </div>
+
     ${recomendaciones
       .map((item) => {
-        const severity = item.severity || "info";
-        const iconClass = ICON_BY_SEVERITY[severity] || ICON_BY_SEVERITY.info;
+        const sourceRaw = String(item.source || item.type || "").trim().toLowerCase();
+        const source = sourceRaw === "ia" ? SOURCE_CONFIG.ia : SOURCE_CONFIG.asesor;
 
         return `
-          <article class="gd-rec-card ${escapeHtml(severity)}">
+          <article class="gd-rec-card ${escapeHtml(source.className)}">
             <header class="gd-rec-head">
-              <i class="${escapeHtml(iconClass)}"></i>
+              <i class="${escapeHtml(source.iconClass)}"></i>
               <h2 class="gd-rec-title">${escapeHtml(item.title)}</h2>
-              <span class="gd-rec-type">${escapeHtml(item.type)}</span>
+              <span class="gd-rec-type">${escapeHtml(source.label)}</span>
             </header>
             <p class="gd-rec-body">${escapeHtml(item.body)}</p>
             <div class="gd-rec-meta">

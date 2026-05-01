@@ -86,6 +86,7 @@ export function renderDashboardAsesorPage({
   metrics,
   users,
   search,
+  sortOrder,
   showAddClientModal,
   newClientName,
   newClientCode,
@@ -111,6 +112,16 @@ export function renderDashboardAsesorPage({
       <header class="gd-card-header">
         <h2 class="gd-card-title">Clientes Asignados</h2>
         <div class="gd-advisor-toolbar d-flex align-items-center gap-2 ms-auto flex-nowrap justify-content-end">
+          <select
+            id="advisorSortSelect"
+            class="form-select gd-advisor-sort-select gd-advisor-toolbar-control"
+            aria-label="Ordenar clientes"
+          >
+            <option value="a-z" ${sortOrder === "a-z" ? "selected" : ""}>A-Z</option>
+            <option value="z-a" ${sortOrder === "z-a" ? "selected" : ""}>Z-A</option>
+            <option value="riesgo-alto" ${sortOrder === "riesgo-alto" ? "selected" : ""}>Riesgo Alto</option>
+            <option value="riesgo-bajo" ${sortOrder === "riesgo-bajo" ? "selected" : ""}>Riesgo Bajo</option>
+          </select>
           <button
             type="button"
             class="gd-action-btn gd-advisor-toolbar-control"

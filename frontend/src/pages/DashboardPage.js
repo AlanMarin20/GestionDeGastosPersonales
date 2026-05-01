@@ -90,7 +90,6 @@ export function renderDashboardPage({
         ariaLabel: "Gastos por mes",
         height: "220px",
         dashboardStyle: true,
-        headerActionMarkup: `<button type="button" class="gd-card-action" data-nav="/dashboard/reportes">ver reportes</button>`,
       })}
 
       ${graficoTorta({
