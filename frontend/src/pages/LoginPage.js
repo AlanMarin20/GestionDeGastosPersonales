@@ -29,6 +29,15 @@ export function renderLoginPage({
     </p>
   `;
 
+  const submitButtonMarkup = [
+    botonIniciarCrearCuenta({
+      text: 'Iniciar Sesión',
+      type: 'submit',
+      className: 'main-btn btn-hover w-100 mb-3',
+    }),
+    '<p class="text-muted mb-3 text-center"><a href="/recuperar-contrasena" data-link class="text-primary fw-bold text-decoration-none">¿Problemas para iniciar sesion?</a></p>',
+  ].join('');
+
   return renderAuthPublicPage({
     encabezadoExterno,
     fondoDecorativoAuth,
@@ -37,11 +46,7 @@ export function renderLoginPage({
     formId: 'loginForm',
     errorId: 'loginError',
     formFieldsMarkup: fieldsMarkup,
-    submitButtonMarkup: botonIniciarCrearCuenta({
-      text: 'Iniciar Sesión',
-      type: 'submit',
-      className: 'main-btn btn-hover w-100 mb-4',
-    }),
+    submitButtonMarkup,
     footerMarkup,
     footerClass: 'text-center',
   });

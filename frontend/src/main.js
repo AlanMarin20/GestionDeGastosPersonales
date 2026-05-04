@@ -39,6 +39,9 @@ import {
 } from "./pages/FaqDetailPage";
 import { renderLoginPage as renderLoginPageView } from "./pages/LoginPage";
 import { renderRegistroPage as renderRegistroPageView } from "./pages/RegistroPage";
+import { renderRecuperarContrasenaPage as renderRecuperarContrasenaPageView } from "./pages/RecuperarContrasenaPage";
+import { renderVerificarCodigoRecuperacionPage as renderVerificarCodigoRecuperacionPageView } from "./pages/VerificarCodigoRecuperacionPage";
+import { renderNuevaContrasenaPage as renderNuevaContrasenaPageView } from "./pages/NuevaContrasenaPage";
 import { renderRegistroExitosoPage as renderRegistroExitosoPageView } from "./pages/RegistroExitosoPage";
 import { escapeHtml } from "./utils/sanitize";
 import "./index.css";
@@ -641,6 +644,10 @@ const state = {
   },
   currentUser: null,
   profileLoaded: false,
+  authRecovery: {
+    email: "",
+    codeVerified: false,
+  },
   configuracion: {
     moneda: "USD",
     idioma: "es",
@@ -1829,6 +1836,36 @@ function renderRegistroPage() {
   });
 }
 
+function renderRecuperarContrasenaPage() {
+  return renderRecuperarContrasenaPageView({
+    encabezadoExterno,
+    botonIniciarCrearCuenta,
+    campoAuthInput,
+    fondoDecorativoAuth,
+    renderAuthPublicPage,
+  });
+}
+
+function renderVerificarCodigoRecuperacionPage() {
+  return renderVerificarCodigoRecuperacionPageView({
+    encabezadoExterno,
+    botonIniciarCrearCuenta,
+    campoAuthInput,
+    fondoDecorativoAuth,
+    renderAuthPublicPage,
+  });
+}
+
+function renderNuevaContrasenaPage() {
+  return renderNuevaContrasenaPageView({
+    encabezadoExterno,
+    botonIniciarCrearCuenta,
+    campoAuthInput,
+    fondoDecorativoAuth,
+    renderAuthPublicPage,
+  });
+}
+
 function renderRegistroExitosoPage() {
   return renderRegistroExitosoPageView({
     encabezadoExterno,
@@ -2002,6 +2039,18 @@ function buildRouteView(pathname) {
 
   if (pathname === "/login") {
     return renderLoginPage();
+  }
+
+  if (pathname === "/recuperar-contrasena") {
+    return renderRecuperarContrasenaPage();
+  }
+
+  if (pathname === "/recuperar-contrasena/verificar") {
+    return renderVerificarCodigoRecuperacionPage();
+  }
+
+  if (pathname === "/recuperar-contrasena/nueva") {
+    return renderNuevaContrasenaPage();
   }
 
   if (pathname === "/faqs") {
@@ -2875,6 +2924,226 @@ function attachFormHandlers(pathname) {
       } finally {
         if (submitBtn) submitBtn.disabled = false;
       }
+    });
+  }
+
+  if (pathname === "/recuperar-contrasena") {
+    const recoveryForm = document.getElementById("recuperarContrasenaForm");
+    const emailInput = document.getElementById("email");
+    const errorDiv = document.getElementById("recuperarContrasenaError");
+
+    state.authRecovery.codeVerified = false;
+
+    if (emailInput && state.authRecovery.email) {
+      emailInput.value = state.authRecovery.email;
+    }
+
+    const removeFieldErrorState = () => {
+      [emailInput].forEach((field) => {
+        field?.classList.remove("auth-input-error");
+      });
+    };
+
+    const setAuthError = (
+      message,
+      fieldsToHighlight = [],
+      variant = "default",
+    ) => {
+      if (errorDiv) {
+        errorDiv.textContent = message;
+        errorDiv.classList.remove("auth-error-alert-email-format");
+        if (variant === "email-format") {
+          errorDiv.classList.add("auth-error-alert-email-format");
+        }
+        errorDiv.classList.remove("d-none");
+      }
+
+      removeFieldErrorState();
+      fieldsToHighlight.forEach((field) => {
+        field?.classList.add("auth-input-error");
+      });
+    };
+
+    const clearAuthError = () => {
+      if (errorDiv) {
+        errorDiv.classList.add("d-none");
+        errorDiv.classList.remove("auth-error-alert-email-format");
+      }
+      removeFieldErrorState();
+    };
+
+    emailInput?.addEventListener("input", () => {
+      emailInput.classList.remove("auth-input-error");
+    });
+
+    recoveryForm?.addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const email = emailInput?.value?.trim() ?? "";
+
+      clearAuthError();
+
+      if (!email) {
+        setAuthError("Completa el correo para continuar", [emailInput]);
+        return;
+      }
+
+      if (!email.includes("@")) {
+        setAuthError(
+          "El correo debe incluir '@' para ser valido",
+          [emailInput],
+          "email-format",
+        );
+        return;
+      }
+
+      state.authRecovery.email = email;
+      state.authRecovery.codeVerified = false;
+      showAppNotification(
+        "Si el correo pertenece a una cuenta, enviaremos un codigo de verificacion.",
+        "info",
+      );
+      navigate("/recuperar-contrasena/verificar");
+    });
+  }
+
+  if (pathname === "/recuperar-contrasena/verificar") {
+    const verifyForm = document.getElementById("verificarCodigoForm");
+    const codeInput = document.getElementById("codigoRecuperacion");
+    const errorDiv = document.getElementById("verificarCodigoError");
+
+    const removeFieldErrorState = () => {
+      [codeInput].forEach((field) => {
+        field?.classList.remove("auth-input-error");
+      });
+    };
+
+    const setAuthError = (message, fieldsToHighlight = []) => {
+      if (errorDiv) {
+        errorDiv.textContent = message;
+        errorDiv.classList.remove("d-none");
+      }
+
+      removeFieldErrorState();
+      fieldsToHighlight.forEach((field) => {
+        field?.classList.add("auth-input-error");
+      });
+    };
+
+    const clearAuthError = () => {
+      if (errorDiv) {
+        errorDiv.classList.add("d-none");
+      }
+      removeFieldErrorState();
+    };
+
+    codeInput?.addEventListener("input", () => {
+      const sanitized = (codeInput.value || "").replace(/\D/g, "").slice(0, 6);
+      if (sanitized !== codeInput.value) {
+        codeInput.value = sanitized;
+      }
+      codeInput.classList.remove("auth-input-error");
+    });
+
+    verifyForm?.addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const code = (codeInput?.value || "").trim();
+      const normalizedCode = code.replace(/\s+/g, "");
+
+      clearAuthError();
+
+      if (!normalizedCode) {
+        setAuthError("Ingresa el codigo de verificacion", [codeInput]);
+        return;
+      }
+
+      if (!/^\d{6}$/.test(normalizedCode)) {
+        setAuthError("El codigo debe tener 6 digitos", [codeInput]);
+        return;
+      }
+
+      state.authRecovery.codeVerified = true;
+      navigate("/recuperar-contrasena/nueva");
+    });
+  }
+
+  if (pathname === "/recuperar-contrasena/nueva") {
+    if (!state.authRecovery.codeVerified) {
+      showAppNotification("Primero verifica tu codigo para continuar", "warning");
+      navigate("/recuperar-contrasena/verificar", true);
+      return;
+    }
+
+    const updateForm = document.getElementById("actualizarContrasenaForm");
+    const passwordInput = document.getElementById("nuevaContrasena");
+    const confirmPasswordInput = document.getElementById("confirmarContrasena");
+    const errorDiv = document.getElementById("actualizarContrasenaError");
+
+    const removeFieldErrorState = () => {
+      [passwordInput, confirmPasswordInput].forEach((field) => {
+        field?.classList.remove("auth-input-error");
+      });
+    };
+
+    const setAuthError = (message, fieldsToHighlight = []) => {
+      if (errorDiv) {
+        errorDiv.textContent = message;
+        errorDiv.classList.remove("d-none");
+      }
+
+      removeFieldErrorState();
+      fieldsToHighlight.forEach((field) => {
+        field?.classList.add("auth-input-error");
+      });
+    };
+
+    const clearAuthError = () => {
+      if (errorDiv) {
+        errorDiv.classList.add("d-none");
+      }
+      removeFieldErrorState();
+    };
+
+    [passwordInput, confirmPasswordInput].forEach((field) => {
+      field?.addEventListener("input", () => {
+        field.classList.remove("auth-input-error");
+      });
+    });
+
+    updateForm?.addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const password = passwordInput?.value ?? "";
+      const confirmPassword = confirmPasswordInput?.value ?? "";
+
+      clearAuthError();
+
+      if (!password || !confirmPassword) {
+        setAuthError("Completa los campos para continuar", [
+          passwordInput,
+          confirmPasswordInput,
+        ]);
+        return;
+      }
+
+      if (!isStrongPassword(password)) {
+        setAuthError(PASSWORD_POLICY_MESSAGE, [passwordInput]);
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        setAuthError("Las contrasenas no coinciden", [
+          passwordInput,
+          confirmPasswordInput,
+        ]);
+        return;
+      }
+
+      state.authRecovery.email = "";
+      state.authRecovery.codeVerified = false;
+      showAppNotification("Contrasena actualizada. Inicia sesion.", "success");
+      navigate("/login", true);
     });
   }
 
@@ -4144,6 +4413,7 @@ function isFixedDarkRoute(pathname) {
     pathname.startsWith("/faqs/") ||
     pathname === "/sobre-nosotros" ||
     pathname === "/login" ||
+    pathname.startsWith("/recuperar-contrasena") ||
     pathname === "/registro" ||
     pathname === "/registro/exitoso";
 }
