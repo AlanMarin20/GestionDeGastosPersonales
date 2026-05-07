@@ -9,7 +9,7 @@ import {
 import { escapeHtml } from "../utils/sanitize";
 
 export function resolveDetalleCliente(pathname, state) {
-  const match = pathname.match(/^\/cliente\/([^/]+)(?:\/gastos)?$/);
+  const match = pathname.match(/^\/cliente\/([^/]+)(?:\/(?:gastos|recomendaciones\/historicas))?$/);
   if (!match) {
     return null;
   }

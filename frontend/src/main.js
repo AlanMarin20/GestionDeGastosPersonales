@@ -28,6 +28,7 @@ import { renderCargarGastoPage as renderCargarGastoPageView } from "./pages/Carg
 import { renderMisGastosPage as renderMisGastosPageView } from "./pages/MisGastosPage";
 import { renderRecomendacionesPage as renderRecomendacionesPageView } from "./pages/RecomendacionesPage";
 import { renderRecomendacionesHistoricasPage as renderRecomendacionesHistoricasPageView } from "./pages/RecomendacionesHistoricasPage";
+import { renderRecHistoricasClientePage as renderRecHistoricasClientePageView } from "./pages/RecHistoricasClientePage";
 import { renderEditarPerfilPage as renderEditarPerfilPageView } from "./pages/EditarPerfilPage";
 import { renderPreferenciaNotificacionesPageView } from "./pages/PreferenciaNotificacionesPage";
 import { renderLandingPage as renderLandingPageView } from "./pages/LandingPage";
@@ -1524,6 +1525,82 @@ function exportFilteredExpensesAsCsv() {
   window.URL.revokeObjectURL(url);
 }
 
+function applyHistoricalRecommendationFilters() {
+  const searchInput = document.getElementById("recSearchInput");
+  const monthFilter = document.getElementById("recMonthFilter");
+  const yearFilter = document.getElementById("recYearFilter");
+  const emitterFilter = document.getElementById("recEmitterFilter");
+
+  const searchTerm = (searchInput?.value || "").trim().toLowerCase();
+  const selectedMonth = monthFilter?.value || "";
+  const selectedYear = yearFilter?.value || "";
+  const selectedEmitter = emitterFilter?.value || "";
+
+  document.querySelectorAll(".gd-rec-card").forEach((card) => {
+    let visible = true;
+
+    if (searchTerm) {
+      const title = card.getAttribute("data-title") || "";
+      const body = card.getAttribute("data-body") || "";
+      visible = title.includes(searchTerm) || body.includes(searchTerm);
+    }
+
+    if (visible && selectedMonth) {
+      visible = (card.getAttribute("data-month") || "") === selectedMonth;
+    }
+
+    if (visible && selectedYear) {
+      visible = (card.getAttribute("data-year") || "") === selectedYear;
+    }
+
+    if (visible && selectedEmitter) {
+      visible = (card.getAttribute("data-source") || "") === selectedEmitter;
+    }
+
+    card.style.display = visible ? "" : "none";
+  });
+
+  document.querySelectorAll("[data-month-section]").forEach((section) => {
+    const hasVisibleCards = Array.from(
+      section.querySelectorAll(".gd-rec-card"),
+    ).some((card) => card.style.display !== "none");
+
+    section.style.display = hasVisibleCards ? "" : "none";
+  });
+}
+
+function exportVisibleHistoricalRecommendationsAsCsv() {
+  const visibleCards = Array.from(document.querySelectorAll(".gd-rec-card")).filter(
+    (card) => card.style.display !== "none",
+  );
+
+  const rows = [["Título", "Cuerpo", "Fecha", "Mes", "Año", "Emisor"]];
+
+  visibleCards.forEach((card) => {
+    rows.push([
+      card.querySelector(".gd-rec-title")?.textContent || "",
+      card.querySelector(".gd-rec-body")?.textContent || "",
+      card.getAttribute("data-date") || "",
+      card.getAttribute("data-month") || "",
+      card.getAttribute("data-year") || "",
+      card.getAttribute("data-source") || "",
+    ]);
+  });
+
+  const csv = rows.map((row) => row.map(csvEscape).join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = window.URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "recomendaciones.csv";
+  document.body.append(link);
+  link.click();
+  link.remove();
+
+  window.URL.revokeObjectURL(url);
+}
+
 function addExpenseRecord({ comercio, fecha, monto, categoria, descripcion }) {
   const numericAmount = Number.parseFloat(String(monto));
 
@@ -2053,6 +2130,23 @@ function renderRecomendacionesHistoricasPage(pathname) {
   });
 }
 
+function renderRecHistoricasClientePage(pathname) {
+  const detalleCliente = resolveDetalleCliente(pathname);
+
+  if (!detalleCliente || !isAdvisorClientDetailAuthorized(pathname)) {
+    return "";
+  }
+
+  return renderRecHistoricasClientePageView({
+    clienteId: detalleCliente.id,
+    clienteNombre: detalleCliente.nombre,
+    recomendaciones: state.detalleCliente.recomendaciones || [],
+    profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
+    profileName: state.perfil.nombre || "Usuario",
+    activePath: pathname,
+  });
+}
+
 
 function renderDashboardAsesorPage({
   activePath = "/dashboard/asesor",
@@ -2184,7 +2278,7 @@ function buildRouteView(pathname) {
   }
 
   if (pathname.match(/^\/cliente\/[^/]+\/recomendaciones\/historicas$/)) {
-    return renderDashboardLayout(renderRecomendacionesHistoricasPage(pathname));
+    return renderDashboardLayout(renderRecHistoricasClientePage(pathname));
   }
 
   if (pathname === "/dashboard/ahorros") {
@@ -2582,6 +2676,10 @@ function attachGlobalNavigation() {
     "export-expenses-csv": ({ event }) => {
       event.preventDefault();
       exportFilteredExpensesAsCsv();
+    },
+    "export-recommendations-csv": ({ event }) => {
+      event.preventDefault();
+      exportVisibleHistoricalRecommendationsAsCsv();
     },
     "open-edit-expense": ({ event, actionButton }) => {
       event.preventDefault();
@@ -3491,6 +3589,27 @@ function attachFormHandlers(pathname) {
       state.finanzas.filtros.periodo = event.target.value;
       render();
     });
+  }
+
+  if (
+    pathname === "/dashboard/recomendaciones/historicas" ||
+    pathname.match(/^\/cliente\/[^/]+\/recomendaciones\/historicas$/)
+  ) {
+    const searchInput = document.getElementById("recSearchInput");
+    const monthFilter = document.getElementById("recMonthFilter");
+    const yearFilter = document.getElementById("recYearFilter");
+    const emitterFilter = document.getElementById("recEmitterFilter");
+
+    const handleFilterChange = () => {
+      applyHistoricalRecommendationFilters();
+    };
+
+    searchInput?.addEventListener("input", handleFilterChange);
+    monthFilter?.addEventListener("change", handleFilterChange);
+    yearFilter?.addEventListener("change", handleFilterChange);
+    emitterFilter?.addEventListener("change", handleFilterChange);
+
+    applyHistoricalRecommendationFilters();
   }
 
   if (pathname === "/dashboard") {

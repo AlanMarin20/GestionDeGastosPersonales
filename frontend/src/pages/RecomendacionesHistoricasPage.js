@@ -14,59 +14,136 @@ const SOURCE_CONFIG = {
   },
 };
 
+const MONTH_LABELS = [
+  "Enero",
+  "Febrero",
+  "Marzo",
+  "Abril",
+  "Mayo",
+  "Junio",
+  "Julio",
+  "Agosto",
+  "Septiembre",
+  "Octubre",
+  "Noviembre",
+  "Diciembre",
+];
+
+const MONTH_INDEX_BY_NAME = {
+  ene: 0,
+  enero: 0,
+  feb: 1,
+  febrero: 1,
+  mar: 2,
+  marzo: 2,
+  abr: 3,
+  abril: 3,
+  may: 4,
+  mayo: 4,
+  jun: 5,
+  junio: 5,
+  jul: 6,
+  julio: 6,
+  ago: 7,
+  agosto: 7,
+  sep: 8,
+  sept: 8,
+  septiembre: 8,
+  set: 8,
+  oct: 9,
+  octubre: 9,
+  nov: 10,
+  noviembre: 10,
+  dic: 11,
+  diciembre: 11,
+};
+
 function parseDateParts(dateStr) {
-  const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-  const shortMonths = { ene: 0, feb: 1, mar: 2, abr: 3, may: 4, jun: 5, jul: 6, ago: 7, sep: 8, oct: 9, nov: 10, dic: 11 };
-  
-  if (!dateStr) return { month: '', year: '' };
-  
-  // Intenta formato ISO: 2026-04
-  const isoMatch = dateStr.match(/(\d{4})-(\d{2})/);
+  const fallbackYear = String(new Date().getFullYear());
+  const raw = String(dateStr || "").trim();
+
+  if (!raw) return { month: "", year: "", monthKey: "", label: "" };
+
+  const isoMatch = raw.match(/(\d{4})-(\d{2})(?:-(\d{2}))?/);
   if (isoMatch) {
     const year = isoMatch[1];
-    const monthIdx = parseInt(isoMatch[2], 10) - 1;
-    return { month: months[monthIdx] || '', year };
+    const monthIdx = Number(isoMatch[2]) - 1;
+    const month = MONTH_LABELS[monthIdx] || "";
+    return {
+      month,
+      year,
+      monthKey: `${year}-${String(monthIdx + 1).padStart(2, "0")}`,
+      label: month && year ? `${month} ${year}` : month,
+    };
   }
-  
-  // Intenta formato: "18 abr 2026"
-  const parts = dateStr.split(' ');
-  if (parts.length >= 2) {
-    const shortMonth = parts[parts.length - 2].toLowerCase();
-    const year = parts[parts.length - 1];
-    const monthIdx = shortMonths[shortMonth];
-    if (monthIdx !== undefined) {
-      return { month: months[monthIdx], year };
-    }
+
+  const normalizedParts = raw
+    .toLowerCase()
+    .replace(/[.,]/g, " ")
+    .split(/\s+/)
+    .filter(Boolean);
+
+  const yearToken = normalizedParts.find((part) => /^\d{4}$/.test(part));
+  const year = yearToken || fallbackYear;
+  const monthIndex = normalizedParts
+    .map((part) => MONTH_INDEX_BY_NAME[part] ?? MONTH_INDEX_BY_NAME[part.slice(0, 3)] ?? null)
+    .find((index) => index !== null);
+
+  if (monthIndex === undefined || monthIndex === null) {
+    return { month: "", year: "", monthKey: raw, label: raw };
   }
-  
-  return { month: '', year: '' };
+
+  const month = MONTH_LABELS[monthIndex] || "";
+  return {
+    month,
+    year,
+    monthKey: `${year}-${String(monthIndex + 1).padStart(2, "0")}`,
+    label: month && year ? `${month} ${year}` : month,
+  };
+}
+
+function normalizeRecommendationItem(item = {}) {
+  const date = String(item.date || item.fecha || "").trim();
+  const title = String(item.title || item.titulo || "Sin titulo").trim();
+  const body = String(item.body || item.texto || "").trim();
+  const source = String(item.source || item.type || item.emisor || "").trim().toLowerCase();
+
+  return {
+    ...item,
+    date,
+    title,
+    body,
+    source,
+  };
 }
 
 function groupByMonth(recommendations) {
   const map = {};
-  (recommendations || []).forEach((r) => {
-    const d = r.date || "Sin fecha";
-    let month = d;
-    const isoMatch = d.match(/(\d{4}-\d{2})/);
-    if (isoMatch) month = isoMatch[1];
-    else {
-      const parts = d.split(" ");
-      if (parts.length >= 2) month = parts.slice(-2).join(" ");
+  (recommendations || []).forEach((rawItem) => {
+    const item = normalizeRecommendationItem(rawItem);
+    const parsed = parseDateParts(item.date);
+    const key = parsed.monthKey || parsed.label || item.date || "Sin fecha";
+
+    if (!map[key]) {
+      map[key] = {
+        label: parsed.label || item.date || "Sin fecha",
+        items: [],
+      };
     }
 
-    if (!map[month]) map[month] = [];
-    map[month].push(r);
+    map[key].items.push(item);
   });
   return map;
 }
 
-function renderRecommendationItem(item) {
+function renderRecommendationItem(rawItem) {
+  const item = normalizeRecommendationItem(rawItem);
   const parts = parseDateParts(item.date);
   const sourceRaw = String(item.source || item.type || '').trim().toLowerCase();
   const source = sourceRaw === 'ia' ? SOURCE_CONFIG.ia : SOURCE_CONFIG.asesor;
   
   return `
-    <article class="gd-rec-card ${escapeHtml(source.className)}" data-month="${escapeHtml(parts.month)}" data-year="${escapeHtml(parts.year)}" data-source="${escapeHtml(sourceRaw === 'ia' ? 'ia' : 'asesor')}" data-title="${escapeHtml((item.title || '').toLowerCase())}" data-body="${escapeHtml((item.body || '').toLowerCase())}">
+    <article class="gd-rec-card ${escapeHtml(source.className)}" data-date="${escapeHtml(item.date || '')}" data-month="${escapeHtml(parts.month)}" data-year="${escapeHtml(parts.year)}" data-source="${escapeHtml(sourceRaw === 'ia' ? 'ia' : 'asesor')}" data-title="${escapeHtml((item.title || '').toLowerCase())}" data-body="${escapeHtml((item.body || '').toLowerCase())}">
       <header class="gd-rec-head">
         <i class="${escapeHtml(source.iconClass)}"></i>
         <h2 class="gd-rec-title">${escapeHtml(item.title)}</h2>
@@ -85,6 +162,8 @@ export function renderRecomendacionesHistoricasPage({
   pageSubtitle = "Recomendaciones agrupadas por mes",
   recomendaciones = [],
   filters = { search: "", periodo: "todos" },
+  sidebarSections = null,
+  notificationCount = recomendaciones.length,
 }) {
   const byMonth = groupByMonth(recomendaciones);
   const months = Object.keys(byMonth).sort((a, b) => (a < b ? 1 : -1));
@@ -155,99 +234,14 @@ export function renderRecomendacionesHistoricasPage({
           .map(
             (month) => `
           <section class="mb-4" data-month-section="${escapeHtml(month)}">
-            <div class="gd-rec-month-header"><strong>${escapeHtml(month)}</strong> <span class="badge bg-secondary">${byMonth[month].length}</span></div>
-            <div class="gd-rec-month-list mt-2">${byMonth[month].map(renderRecommendationItem).join("")}</div>
+            <div class="gd-rec-month-header"><strong>${escapeHtml(byMonth[month].label)}</strong> <span class="badge bg-secondary">${byMonth[month].items.length}</span></div>
+            <div class="gd-rec-month-list mt-2">${byMonth[month].items.map(renderRecommendationItem).join("")}</div>
           </section>
         `,
           )
           .join("")}
       </div>
     </div>
-
-    <script>
-      (function() {
-        const searchInput = document.getElementById('recSearchInput');
-        const monthFilter = document.getElementById('recMonthFilter');
-        const yearFilter = document.getElementById('recYearFilter');
-        const emitterFilter = document.getElementById('recEmitterFilter');
-        
-        function applyFilters() {
-          const searchTerm = (searchInput?.value || '').trim().toLowerCase();
-          const selectedMonth = monthFilter?.value || '';
-          const selectedYear = yearFilter?.value || '';
-          const selectedEmitter = emitterFilter?.value || '';
-          
-          const cards = document.querySelectorAll('.gd-rec-card');
-          cards.forEach(card => {
-            let visible = true;
-            
-            // Filtrar por búsqueda
-            if (searchTerm) {
-              const title = card.getAttribute('data-title') || '';
-              const body = card.getAttribute('data-body') || '';
-              visible = title.includes(searchTerm) || body.includes(searchTerm);
-            }
-            
-            // Filtrar por mes
-            if (visible && selectedMonth) {
-              const cardMonth = card.getAttribute('data-month') || '';
-              visible = cardMonth === selectedMonth;
-            }
-            
-            // Filtrar por año
-            if (visible && selectedYear) {
-              const cardYear = card.getAttribute('data-year') || '';
-              visible = cardYear === selectedYear;
-            }
-            
-            // Filtrar por emisor
-            if (visible && selectedEmitter) {
-              const cardSource = card.getAttribute('data-source') || '';
-              visible = cardSource === selectedEmitter;
-            }
-            
-            card.style.display = visible ? '' : 'none';
-          });
-          
-          // Ocultar secciones vacías
-          const sections = document.querySelectorAll('[data-month-section]');
-          sections.forEach(section => {
-            const visibleCards = section.querySelectorAll('.gd-rec-card[style=""]');
-            const hasVisible = Array.from(visibleCards).some(c => c.style.display !== 'none');
-            section.style.display = hasVisible ? '' : 'none';
-          });
-        }
-        
-        // Event listeners
-        searchInput?.addEventListener('input', applyFilters);
-        monthFilter?.addEventListener('change', applyFilters);
-        yearFilter?.addEventListener('change', applyFilters);
-        emitterFilter?.addEventListener('change', applyFilters);
-        
-        // Exportar CSV
-        document.querySelector('[data-action="export-recommendations-csv"]')?.addEventListener('click', function() {
-          const visibleCards = Array.from(document.querySelectorAll('.gd-rec-card')).filter(c => c.style.display !== 'none');
-          const rows = [['Título', 'Cuerpo', 'Fecha', 'Categoría', 'Emisor']];
-          
-          visibleCards.forEach(card => {
-            const title = card.querySelector('.gd-rec-title')?.textContent || '';
-            const body = card.querySelector('.gd-rec-body')?.textContent || '';
-            const tags = Array.from(card.querySelectorAll('.gd-rec-tag')).map(t => t.textContent);
-            const date = tags[0] || '';
-            const category = tags[1] || '';
-            const emitter = card.getAttribute('data-source') || '';
-            rows.push([title, body, date, category, emitter]);
-          });
-          
-          const csv = rows.map(row => row.map(cell => '"' + String(cell).replace(/"/g, '""') + '"').join(',')).join('\n');
-          const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-          const link = document.createElement('a');
-          link.href = URL.createObjectURL(blob);
-          link.download = 'recomendaciones.csv';
-          link.click();
-        });
-      })();
-    </script>
   `;
 
   return renderDashboardAppLayout({
@@ -258,6 +252,8 @@ export function renderRecomendacionesHistoricasPage({
     profileImage,
     profileName,
     isAsesor: true,
+    notificationCount,
+    sidebarSections,
   });
 }
 
