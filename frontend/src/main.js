@@ -455,37 +455,109 @@ const state = {
         id: "r-1",
         severity: "danger",
         title: "Gasto excesivo en combustible",
-        type: "ALERTA",
+        source: "asesor",
         body: "Tu gasto en combustible este mes fue 3.2x mayor que tu promedio historico. Revisa si hubo un viaje extraordinario o una ineficiencia de consumo.",
-        date: "18 abr 2026",
+        date: "2026-04",
         category: "Transporte",
       },
       {
         id: "r-2",
         severity: "warning",
         title: "Entretenimiento cerca del limite",
-        type: "ADVERTENCIA",
+        source: "asesor",
         body: "Ya consumiste el 82% del presupuesto mensual de entretenimiento en la primera quincena.",
-        date: "17 abr 2026",
+        date: "2026-04",
         category: "Entretenimiento",
       },
       {
         id: "r-3",
         severity: "good",
         title: "Excelente control en salud",
-        type: "POSITIVO",
+        source: "asesor",
         body: "Tus gastos de salud se mantienen estables por tercer mes consecutivo y dentro del presupuesto estimado.",
-        date: "General",
+        date: "2026-03",
         category: "Salud",
       },
       {
         id: "r-4",
         severity: "info",
-        title: "Sugerencia de ahorro",
-        type: "IA",
+        title: "Sugerencia de ahorro en restaurantes",
+        source: "ia",
         body: "Si reduces un 10% tus gastos en restaurantes, podrias ahorrar alrededor de 4800 por mes adicional.",
-        date: "Generado por IA",
+        date: "2026-04",
         category: "Habitos",
+      },
+      {
+        id: "r-5",
+        severity: "warning",
+        title: "Presupuesto de suscripciones superado",
+        source: "ia",
+        body: "Detectamos 5 suscripciones activas que no estás usando. Podrías ahorrar 2500 mensuales cancelándolas.",
+        date: "2026-04",
+        category: "Entretenimiento",
+      },
+      {
+        id: "r-6",
+        severity: "info",
+        title: "Aumento en gastos de servicios",
+        source: "asesor",
+        body: "Los servicios (agua, luz, internet) aumentaron 15% respecto al mes anterior. Verifica el consumo en detalle.",
+        date: "2026-05",
+        category: "Servicios",
+      },
+      {
+        id: "r-7",
+        severity: "good",
+        title: "Meta de ahorro alcanzada",
+        source: "ia",
+        body: "Felicitaciones! Alcanzaste tu meta de ahorro del 20% del ingreso mensual. Continua así!",
+        date: "2026-05",
+        category: "Ahorros",
+      },
+      {
+        id: "r-8",
+        severity: "danger",
+        title: "Gasto atípico detectado",
+        source: "asesor",
+        body: "Se detectó una compra de 45000 en electrónica. ¿Es una compra planificada o debería revisarse?",
+        date: "2026-03",
+        category: "Electrónica",
+      },
+      {
+        id: "r-9",
+        severity: "warning",
+        title: "Tendencia de gastos en alimentos",
+        source: "ia",
+        body: "Los gastos en alimentos han incrementado un 12% en los últimos 3 meses. Considera revisar hábitos de compra.",
+        date: "2026-02",
+        category: "Alimentos",
+      },
+      {
+        id: "r-10",
+        severity: "info",
+        title: "Nuevo ahorro potencial identificado",
+        source: "asesor",
+        body: "Refinanciando tu deuda de tarjeta, podrías ahorrar 800 mensuales en intereses. ¿Te interesa cotizar?",
+        date: "2026-03",
+        category: "Deudas",
+      },
+      {
+        id: "r-11",
+        severity: "good",
+        title: "Reducción exitosa en transporte",
+        source: "ia",
+        body: "Excelente trabajo! Redujiste los gastos de transporte en un 25% respecto a enero.",
+        date: "2026-02",
+        category: "Transporte",
+      },
+      {
+        id: "r-12",
+        severity: "warning",
+        title: "Presupuesto de viajes pendiente",
+        source: "asesor",
+        body: "Planificaremos tu viaje a Cartagena. ¿Cuál es tu presupuesto máximo y fechas tentativas?",
+        date: "2026-01",
+        category: "Viajes",
       },
     ],
   },
@@ -1956,6 +2028,32 @@ function renderRecomendacionesPage({
   });
 }
 
+function renderRecomendacionesHistoricasPage(pathname) {
+  const recomendaciones = state.finanzas.recomendaciones || [];
+  const recommendationsByMonth = recomendaciones.reduce((acc, r) => {
+    const d = r.date || "Sin fecha";
+    let month = d;
+    const isoMatch = d.match(/(\d{4}-\d{2})/);
+    if (isoMatch) month = isoMatch[1];
+    else {
+      const parts = d.split(" ");
+      if (parts.length >= 2) month = parts.slice(-2).join(" ");
+    }
+    acc[month] = acc[month] || [];
+    acc[month].push(r);
+    return acc;
+  }, {});
+
+  return renderRecomendacionesHistoricasPageView({
+    pathname,
+    recomendaciones: recomendaciones,
+    recommendationsByMonth,
+    profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
+    profileName: state.perfil.nombre || "Usuario",
+  });
+}
+
+
 function renderDashboardAsesorPage({
   activePath = "/dashboard/asesor",
   pageTitle = "Dashboard asesor",
@@ -1978,15 +2076,7 @@ function renderDashboardAsesorPage({
   });
 }
 
-function renderRecomendacionesHistoricasPage(pathname) {
-  return renderRecomendacionesHistoricasPageView({
-    pathname,
-    state,
-    profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
-    profileName: state.perfil.nombre || "Usuario",
-    formatCurrency: formatMoney,
-  });
-}
+// RecomendacionesHistoricasPage removed: function omitted intentionally.
 
 function resolveDetalleCliente(pathname) {
   return resolveDetalleClienteView(pathname, state);
@@ -2089,6 +2179,14 @@ function buildRouteView(pathname) {
     return renderDashboardLayout(renderRecomendacionesPage());
   }
 
+  if (pathname === "/dashboard/recomendaciones/historicas") {
+    return renderDashboardLayout(renderRecomendacionesHistoricasPage(pathname));
+  }
+
+  if (pathname.match(/^\/cliente\/[^/]+\/recomendaciones\/historicas$/)) {
+    return renderDashboardLayout(renderRecomendacionesHistoricasPage(pathname));
+  }
+
   if (pathname === "/dashboard/ahorros") {
     return renderDashboardLayout(renderDetalleAhorrosPage());
   }
@@ -2111,13 +2209,7 @@ function buildRouteView(pathname) {
     });
   }
 
-  if (pathname === "/dashboard/recomendaciones/historicas") {
-    return renderDashboardLayout(renderRecomendacionesHistoricasPage(pathname));
-  }
-
-  if (pathname.match(/^\/cliente\/[^/]+\/recomendaciones\/historicas$/)) {
-    return renderDashboardLayout(renderRecomendacionesHistoricasPage(pathname));
-  }
+  // Historical recommendations page removed; routes no longer available.
 
   if (pathname.startsWith("/cliente/")) {
     if (!resolveDetalleCliente(pathname) || !isAdvisorClientDetailAuthorized(pathname)) {
