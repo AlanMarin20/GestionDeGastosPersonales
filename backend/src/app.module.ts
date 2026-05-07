@@ -16,6 +16,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { RecommendationsModule } from './recommendations/recommendations.module';
 import { RolesModule } from './roles/roles.module';
 import { UserRolesModule } from './user-roles/user-roles.module';
+import { BalancesModule } from './balances/balances.module';
 import { RolesGuard } from './auth/roles.guard';
 
 @Module({
@@ -67,6 +68,7 @@ import { RolesGuard } from './auth/roles.guard';
     RecommendationsModule,
     RolesModule,
     UserRolesModule,
+    BalancesModule,
   ],
   controllers: [AppController],
   providers: [AppService, RolesGuard],

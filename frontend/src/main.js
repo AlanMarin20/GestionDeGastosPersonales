@@ -160,8 +160,8 @@ const state = {
   },
   finanzas: {
     currentPeriod: "2026-04",
-    monthlyIncome: 320000,
-    monthlySavingsGoal: 172800,
+    monthlyIncome: 0,
+    monthlySavingsGoal: 0,
     categories: [
       "Supermercado",
       "Transporte",
@@ -1033,72 +1033,47 @@ function getDashboardCategorySummary(periodKey = getFinanzasCurrentPeriod()) {
   });
 }
 
-function getDashboardMetrics() {
-  const currentPeriod = getFinanzasCurrentPeriod();
-  const monthlyExpense = getFinanzasMonthTotal(currentPeriod);
-  const income = state.finanzas.monthlyIncome;
-  const savings = income - monthlyExpense;
+function getDashboardBalanceData() {
+  const balanceData = state.finanzas.balancesData || {};
 
-  const monthKeys = getFinanzasAllMonthKeys();
-  const currentIndex = monthKeys.indexOf(currentPeriod);
-  const previousPeriod = currentIndex > 0 ? monthKeys[currentIndex - 1] : "";
-  const previousMonthExpense = previousPeriod
-    ? getFinanzasMonthTotal(previousPeriod)
-    : 0;
-
-  const expenseDelta = previousMonthExpense > 0
-    ? ((monthlyExpense - previousMonthExpense) / previousMonthExpense) * 100
-    : 0;
-
-  const savingsDelta = state.finanzas.monthlySavingsGoal > 0
-    ? ((savings - state.finanzas.monthlySavingsGoal) / state.finanzas.monthlySavingsGoal) * 100
-    : 0;
-
-  const expenseCount = getFinanzasExpensesForPeriod(currentPeriod).length;
-  const ticketCount =
-    state.finanzas.ticketGoalByPeriod[currentPeriod] ?? expenseCount;
-
-  const metricsSource = {
-    monthlyExpense,
-    income,
-    savings,
-    expenseDelta,
-    savingsDelta,
-    expenseCount,
-    ticketCount,
-    currentPeriod,
+  return {
+    ingreso: Number(balanceData.ingreso ?? 0),
+    egreso: Number(balanceData.egreso ?? 0),
+    ahorro: Number(balanceData.ahorro ?? 0),
+    disponible: (Number(balanceData.ingreso ?? 0) - Number(balanceData.egreso ?? 0)),
   };
+}
+
+function getDashboardMetrics() {
+  const balanceData = getDashboardBalanceData();
 
   const metricDefinitions = [
     {
       key: "monthly-expense",
       label: "Gasto mensual",
-      resolveValue: (source) => formatMoney(source.monthlyExpense),
-      resolveDelta: (source) =>
-        `${source.expenseDelta >= 0 ? "subio" : "bajo"} ${Math.abs(source.expenseDelta).toFixed(1)}% vs mes anterior`,
-      resolveTrend: (source) => (source.expenseDelta <= 0 ? "up" : "down"),
+      resolveValue: (source) => formatMoney(source.egreso),
+      resolveDelta: () => "dato cargado desde la base",
+      resolveTrend: () => "up",
+    },
+    {
+      key: "available-cash",
+      label: "Dinero Disponible",
+      resolveValue: (source) => formatMoney(source.disponible),
+      resolveDelta: () => "calculado: ingreso - egreso",
+      resolveTrend: () => "up",
     },
     {
       key: "net-income",
       label: "Ingreso",
-      resolveValue: (source) => formatMoney(source.income),
-      resolveDelta: () => "subio 3.0% este mes",
+      resolveValue: (source) => formatMoney(source.ingreso),
+      resolveDelta: () => "dato cargado desde la base",
       resolveTrend: () => "up",
     },
     {
       key: "accumulated-savings",
       label: "Ahorro acumulado",
-      resolveValue: (source) => formatMoney(Math.max(source.savings, 0)),
-      resolveDelta: (source) =>
-        `${source.savingsDelta >= 0 ? "sobre" : "bajo"} objetivo ${Math.abs(source.savingsDelta).toFixed(1)}%`,
-      resolveTrend: (source) => (source.savingsDelta >= 0 ? "up" : "down"),
-    },
-    {
-      key: "tickets-loaded",
-      label: "Tickets cargados",
-      resolveValue: (source) => String(source.ticketCount),
-      resolveDelta: (source) =>
-        `registrados ${source.expenseCount} en ${formatMonthLabelShort(source.currentPeriod)}`,
+      resolveValue: (source) => formatMoney(source.ahorro),
+      resolveDelta: () => "dato cargado desde la base",
       resolveTrend: () => "up",
     },
   ];
@@ -1106,9 +1081,9 @@ function getDashboardMetrics() {
   return metricDefinitions.map((definition) => ({
     id: definition.key,
     label: definition.label,
-    value: definition.resolveValue(metricsSource),
-    delta: definition.resolveDelta(metricsSource),
-    trend: definition.resolveTrend(metricsSource),
+    value: definition.resolveValue(balanceData),
+    delta: definition.resolveDelta(balanceData),
+    trend: definition.resolveTrend(balanceData),
   }));
 }
 
@@ -1770,6 +1745,35 @@ async function loadCurrentUser() {
     state.currentUser = null;
     state.profileLoaded = true;
     return null;
+  }
+}
+
+async function loadDashboardBalances() {
+  const accessToken = getAccessToken();
+
+  if (!accessToken) {
+    return;
+  }
+
+  try {
+    const response = await apiFetch("/api/balances/current");
+
+    if (!response.ok) {
+      console.warn("No se pudieron cargar los balances desde la API");
+      return;
+    }
+
+    const balances = await response.json();
+
+    if (balances && typeof balances === "object") {
+      state.finanzas.balancesData = {
+        ingreso: Number(balances.ingreso ?? 0),
+        egreso: Number(balances.egreso ?? 0),
+        ahorro: Number(balances.ahorro ?? 0),
+      };
+    }
+  } catch (error) {
+    console.warn("Error cargando balances:", error);
   }
 }
 
@@ -4748,5 +4752,11 @@ if (typeof systemThemeMedia.addEventListener === "function") {
 }
 
 loadCurrentUser().finally(() => {
+  // Cargar balances en paralelo después de que el usuario esté autenticado
+  if (getAccessToken()) {
+    loadDashboardBalances().then(() => render());
+    return;
+  }
+  
   render();
 });
