@@ -28,7 +28,7 @@ export function renderRecuperarContrasenaPage({
       <a href="/login" data-link class="text-primary fw-bold text-decoration-none">Inicia sesion</a>
     </p>
     <p class="text-muted mb-0">
-      No tienes cuenta?
+      ¿No tienes cuenta?
       <a href="/registro" data-link class="text-primary fw-bold text-decoration-none">Registrate aqui</a>
     </p>
   `;
