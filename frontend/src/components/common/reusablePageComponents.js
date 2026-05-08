@@ -407,18 +407,21 @@ export function tarjetaLandingPage({
   iconImageSrc = '',
   iconImageFallbackSrc = '',
   iconAlt = '',
+  iconHtml = '',
   descriptionClassName = '',
 } = {}) {
-  const iconMarkup = iconImageSrc
-    ? iconImageFallbackSrc
-      ? `
+  const iconMarkup = iconHtml
+    ? iconHtml
+    : iconImageSrc
+      ? iconImageFallbackSrc
+        ? `
         <picture>
           <source srcset="${escapeHtml(iconImageSrc)}" type="image/webp" />
           <img src="${escapeHtml(iconImageFallbackSrc)}" alt="${escapeHtml(iconAlt || title)}" class="fp-feature-card-icon-image" />
         </picture>
       `
-      : `<img src="${escapeHtml(iconImageSrc)}" alt="${escapeHtml(iconAlt || title)}" class="fp-feature-card-icon-image" />`
-    : `<i class="lni ${escapeHtml(iconClass)}"></i>`;
+        : `<img src="${escapeHtml(iconImageSrc)}" alt="${escapeHtml(iconAlt || title)}" class="fp-feature-card-icon-image" />`
+      : `<i class="lni ${escapeHtml(iconClass)}"></i>`;
 
   return `
     <div class="col-lg-4 col-md-8 col-sm-10">

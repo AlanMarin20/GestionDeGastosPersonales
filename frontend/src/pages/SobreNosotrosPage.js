@@ -1,3 +1,5 @@
+import { escapeHtml } from '../utils/sanitize';
+
 const TEAM_MEMBERS = [
   {
     name: 'Joaquin Contreras',
@@ -19,23 +21,22 @@ function renderTeamMemberCard(member) {
       <div class="border rounded-3 h-100 p-4 team-member-panel">
         <div class="d-flex align-items-center gap-3 mb-3">
           <img
-            src="${member.image}"
-            alt="${member.name}"
+            src="${escapeHtml(member.image)}"
+            alt="${escapeHtml(member.name)}"
             class="rounded-circle border fp-team-member-avatar"
             data-fallback-src="/assets/img/user-avatar-default.svg"
           />
           <div>
-            <h6 class="fw-bold mb-1 fp-public-title-sm">${member.name}</h6>
+            <h6 class="fw-bold mb-1 fp-public-title-sm">${escapeHtml(member.name)}</h6>
             <p class="text-muted mb-0 small">Desarrollador Web</p>
           </div>
         </div>
-
         <div class="d-flex flex-column gap-2">
-          <a href="${member.linkedin}" target="_blank" rel="noopener noreferrer" class="text-decoration-none faq-link">
-            <i class="lni lni-linkedin-original me-2"></i>LinkedIn
+          <a href="${escapeHtml(member.linkedin)}" target="_blank" rel="noopener noreferrer" class="text-decoration-none faq-link">
+            <i class="lni lni-linkedin-original me-2" aria-hidden="true"></i>LinkedIn
           </a>
-          <a href="mailto:${member.email}" class="text-decoration-none faq-link">
-            <i class="lni lni-envelope me-2"></i>${member.email}
+          <a href="mailto:${escapeHtml(member.email)}" class="text-decoration-none faq-link">
+            <i class="lni lni-envelope me-2" aria-hidden="true"></i>${escapeHtml(member.email)}
           </a>
         </div>
       </div>
@@ -73,9 +74,8 @@ export function renderSobreNosotrosPage({
     bodyClass: 'card-body p-4 p-md-5',
     bodyMarkup: `
       <h5 class="fw-bold mb-4 fp-public-subtitle">Equipo de Desarrollo</h5>
-
       <div class="row g-4">
-        ${TEAM_MEMBERS.map((member) => renderTeamMemberCard(member)).join('')}
+        ${TEAM_MEMBERS.map(renderTeamMemberCard).join('')}
       </div>
     `,
   });
@@ -83,13 +83,13 @@ export function renderSobreNosotrosPage({
   return `
     <div class="min-vh-100 d-flex flex-column public-page-shell public-about-page fp-public-surface">
       ${encabezadoExterno({
-        rightHref: "/login",
-        rightText: "Iniciar sesión",
-        rightClass: "landing-access-btn landing-login-btn",
+        rightHref: '/login',
+        rightText: 'Iniciar sesión',
+        rightClass: 'landing-access-btn landing-login-btn',
         rightMarkup: headerAuthMarkup,
       })}
 
-      <div class="container flex-grow-1 fp-public-main-container">
+      <main class="container flex-grow-1 fp-public-main-container">
         <div class="row g-4 justify-content-center">
           <div class="col-12 col-xl-10">
             <h1 class="fw-bold mb-3 fp-public-title">Sobre Nosotros</h1>
@@ -97,16 +97,14 @@ export function renderSobreNosotrosPage({
               Proyecto desarrollado en la materia WEB 2 del Instituto Universitario Aeronáutico.
             </p>
           </div>
-
           <div class="col-12 col-xl-10">
             ${aboutProjectCard}
           </div>
-
           <div class="col-12 col-xl-10">
             ${teamCard}
           </div>
         </div>
-      </div>
+      </main>
 
       ${botonScrollTop()}
     </div>
