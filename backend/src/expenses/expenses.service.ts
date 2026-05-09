@@ -15,34 +15,16 @@ export class ExpensesService {
   ) {}
 
   async create(userId: string, createExpenseDto: CreateExpenseDto) {
-    const expense = this.expenseRepository.create({
-      amount: createExpenseDto.amount,
-      merchant: createExpenseDto.merchant,
-      description: createExpenseDto.description,
-      expenseDate: createExpenseDto.expenseDate
-        ? new Date(createExpenseDto.expenseDate)
-        : undefined,
-      ticketImageUrl: createExpenseDto.ticketImageUrl,
-      user: { id: userId },
-      category: createExpenseDto.categoryId
-        ? ({ id: createExpenseDto.categoryId } as Expense['category'])
-        : undefined,
-    });
-
-    const saved = await this.expenseRepository.save(expense);
-
-    await this.movimientosService.registrar(
+    return await this.movimientosService.registrar(
       userId,
       'egreso',
       createExpenseDto.amount,
       createExpenseDto.description,
       'ARS',
-      saved.expenseDate ? new Date(saved.expenseDate) : undefined,
+      createExpenseDto.expenseDate ? new Date(createExpenseDto.expenseDate) : undefined,
       createExpenseDto.categoryId,
       createExpenseDto.merchant,
     );
-
-    return saved;
   }
 
   async findAll(userId: string) {
