@@ -4,12 +4,14 @@ import { Repository } from 'typeorm';
 import { Balance } from './entities/balance.entity';
 import { CreateBalanceDto } from './dto/create-balance.dto';
 import { UpdateBalanceDto } from './dto/update-balance.dto';
+import { MovimientosService } from '../movimientos/movimientos.service';
 
 @Injectable()
 export class BalancesService {
   constructor(
     @InjectRepository(Balance)
     private readonly balanceRepository: Repository<Balance>,
+    private readonly movimientosService: MovimientosService,
   ) {}
 
   async create(userId: string, createBalanceDto: CreateBalanceDto) {
@@ -62,6 +64,21 @@ export class BalancesService {
       ingreso,
       ahorroAcumulado: Number(balance.ahorro),
     };
+  }
+
+  async getGraficoGastos(userId: string) {
+    const balance = await this.balanceRepository.findOne({
+      where: { user: { id: userId } },
+      order: { createdAt: 'DESC' },
+    });
+
+    const ingreso = balance ? Number(balance.ingreso) : 0;
+    const egreso = balance ? Number(balance.egreso) : 0;
+    const porcentaje = ingreso > 0 ? Math.round((egreso / ingreso) * 100 * 100) / 100 : 0;
+
+    const meses = await this.movimientosService.getGastosMensuales(userId);
+
+    return { porcentaje, meses };
   }
 
   async findAll(userId: string) {

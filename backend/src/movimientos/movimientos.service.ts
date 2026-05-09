@@ -64,4 +64,35 @@ export class MovimientosService {
     await this.movimientoRepository.remove(movimiento);
     return { message: 'Movimiento eliminado correctamente' };
   }
+
+  async getGastosMensuales(userId: string): Promise<{ mes: Date; label: string; total: number }[]> {
+    const rows: { mes: Date; label: string; total: string }[] =
+      await this.movimientoRepository.manager.query(
+        `
+        SELECT
+          mes,
+          TO_CHAR(mes, 'Mon YYYY') AS label,
+          total
+        FROM (
+          SELECT
+            gs.mes,
+            COALESCE(SUM(m.monto), 0) AS total
+          FROM generate_series(
+            DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '5 months',
+            DATE_TRUNC('month', CURRENT_DATE),
+            INTERVAL '1 month'
+          ) AS gs(mes)
+          LEFT JOIN movimientos m
+            ON DATE_TRUNC('month', m.fecha) = gs.mes
+            AND m.usuario_id = $1
+            AND m.tipo = 'egreso'
+          GROUP BY gs.mes
+        ) t
+        ORDER BY t.mes DESC
+        `,
+        [userId],
+      );
+
+    return rows.map((r) => ({ mes: r.mes, label: r.label, total: Number(r.total) }));
+  }
 }

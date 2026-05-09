@@ -29,6 +29,11 @@ export class BalancesController {
     return this.balancesService.getDashboard(req.user.sub);
   }
 
+  @Get('grafico-gastos')
+  getGraficoGastos(@Request() req) {
+    return this.balancesService.getGraficoGastos(req.user.sub);
+  }
+
   @Get('current')
   findCurrent(@Request() req) {
     return this.balancesService.findCurrentBalance(req.user.sub);
