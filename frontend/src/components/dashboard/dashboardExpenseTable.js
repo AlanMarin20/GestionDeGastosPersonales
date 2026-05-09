@@ -92,7 +92,8 @@ export function renderDashboardExpenseCard({
   title = "Ultimos movimientos",
   actionHref = "",
   actionText = "Ver todos los gastos",
-  actionClassName = "gd-card-action",
+  actionClassName = "gd-top-btn",
+  actionIconClass = "lni lni-chevron-right",
   expenses = [],
   formatMoney,
   showDescription = false,
@@ -102,8 +103,9 @@ export function renderDashboardExpenseCard({
   rowMapper = null,
 } = {}) {
   const cardClasses = ["gd-card", cardClass].filter(Boolean).join(" ");
+  const iconMarkup = actionIconClass ? `<i class="${escapeHtml(actionIconClass)}"></i>` : "";
   const actionMarkup = actionHref
-    ? `<a href="${escapeHtml(actionHref)}" data-link class="${escapeHtml(actionClassName)}">${escapeHtml(actionText)}</a>`
+    ? `<a href="${escapeHtml(actionHref)}" data-link class="${escapeHtml(actionClassName)}">${iconMarkup}${escapeHtml(actionText)}</a>`
     : "";
   const tableExpenses = typeof rowMapper === "function"
     ? expenses.map((expense) => rowMapper(expense))

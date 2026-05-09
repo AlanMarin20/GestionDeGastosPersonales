@@ -183,6 +183,41 @@ export class AsesorService {
     };
   }
 
+  async getGastosPorMes(clienteId: string, advisorId: string) {
+    const rows: { mes_label: string; total: string }[] =
+      await this.userRepository.manager.query(
+        `
+        SELECT
+          TO_CHAR(mes, 'Mon YYYY') AS mes_label,
+          total
+        FROM (
+          SELECT
+            mes,
+            COALESCE(SUM(m.monto), 0) AS total
+          FROM generate_series(
+            DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '11 months',
+            DATE_TRUNC('month', CURRENT_DATE),
+            INTERVAL '1 month'
+          ) AS mes
+          LEFT JOIN movimientos m
+            ON DATE_TRUNC('month', m.fecha) = mes
+            AND m.usuario_id = $1
+            AND m.tipo = 'egreso'
+            AND EXISTS (
+              SELECT 1 FROM usuarios u
+              WHERE u.id = m.usuario_id
+                AND u.asesor_id = $2
+            )
+          GROUP BY mes
+        ) t
+        ORDER BY t.mes ASC
+        `,
+        [clienteId, advisorId],
+      );
+
+    return rows.map((r) => ({ mes: r.mes_label, total: Number(r.total) }));
+  }
+
   async vincularCliente(advisorId: string, codigoVinculacion: string) {
     const result: { rowCount: number } = await this.userRepository.manager.query(
       `
