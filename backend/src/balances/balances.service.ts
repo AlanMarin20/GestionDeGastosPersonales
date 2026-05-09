@@ -114,6 +114,40 @@ export class BalancesService {
     return await this.balanceRepository.save(balance);
   }
 
+  async getResumenAsesor(advisorId: string): Promise<{
+    clientesAsignados: number;
+    riesgoMedio: number;
+    riesgoAlto: number;
+  }> {
+    const rows: { clientes_asignados: string; riesgo_medio: string; riesgo_alto: string }[] =
+      await this.balanceRepository.manager.query(
+        `
+        SELECT
+          COUNT(*) AS clientes_asignados,
+          COUNT(*) FILTER (
+            WHERE b.ingreso > 0
+            AND (b.egreso / b.ingreso) >= 0.90
+            AND (b.egreso / b.ingreso) < 0.95
+          ) AS riesgo_medio,
+          COUNT(*) FILTER (
+            WHERE b.ingreso > 0
+            AND (b.egreso / b.ingreso) >= 0.95
+          ) AS riesgo_alto
+        FROM usuarios u
+        LEFT JOIN balances b ON b.usuario_id = u.id
+        WHERE u.asesor_id = $1
+        `,
+        [advisorId],
+      );
+
+    const row = rows[0];
+    return {
+      clientesAsignados: Number(row.clientes_asignados),
+      riesgoMedio: Number(row.riesgo_medio),
+      riesgoAlto: Number(row.riesgo_alto),
+    };
+  }
+
   async remove(id: string, userId: string) {
     const balance = await this.balanceRepository.findOne({
       where: { id, user: { id: userId } },

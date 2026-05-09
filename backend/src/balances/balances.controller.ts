@@ -34,6 +34,11 @@ export class BalancesController {
     return this.balancesService.getGraficoGastos(req.user.sub);
   }
 
+  @Get('asesor/resumen')
+  getResumenAsesor(@Request() req) {
+    return this.balancesService.getResumenAsesor(req.user.sub);
+  }
+
   @Get('current')
   findCurrent(@Request() req) {
     return this.balancesService.findCurrentBalance(req.user.sub);
