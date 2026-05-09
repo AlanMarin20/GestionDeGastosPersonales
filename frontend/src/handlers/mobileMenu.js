@@ -1,4 +1,4 @@
-function getLandingMobileMenuElements() {
+export function getLandingMobileMenuElements() {
   const menu = document.querySelector("[data-landing-mobile-menu]");
   const backdrop = document.querySelector("[data-landing-mobile-backdrop]");
   const toggleButton = document.querySelector("[data-action='toggle-landing-mobile-menu']");
