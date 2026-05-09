@@ -2659,11 +2659,6 @@ function attachGlobalNavigation() {
       event.preventDefault();
       clearSessionAndRedirectToLogin();
     },
-    "switch-account": ({ event }) => {
-      event.preventDefault();
-      closeDashboardDropdowns();
-      navigate("/perfil/configuracion");
-    },
     "save-new-category": ({ event, actionButton }) => {
       event.preventDefault();
 

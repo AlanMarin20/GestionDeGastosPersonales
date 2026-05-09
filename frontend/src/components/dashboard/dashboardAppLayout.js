@@ -195,10 +195,6 @@ export function renderDashboardAppLayout({
             </button>
 
             <div id="gd-user-chip-dropdown" class="gd-user-chip-dropdown" role="menu" aria-label="Opciones de cuenta">
-              <button type="button" class="gd-user-chip-dropdown-item" data-action="switch-account" role="menuitem">
-                <i class="lni lni-cog" aria-hidden="true"></i>
-                <span>Configuracion de cuenta</span>
-              </button>
               <button type="button" class="gd-user-chip-dropdown-item gd-user-chip-dropdown-item-danger" data-action="logout" role="menuitem">
                 <i class="lni lni-exit" aria-hidden="true"></i>
                 <span>Cerrar sesion</span>
