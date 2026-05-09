@@ -170,7 +170,10 @@ export function renderRecomendacionesHistoricasPage({
 
   const content = `
     <div class="d-flex justify-content-end mb-2">
-      <a href="/dashboard/recomendaciones" data-link class="btn btn-outline-secondary btn-sm">Volver a recomendaciones</a>
+      <a href="/dashboard/recomendaciones" data-link class="gd-top-btn">
+        <i class="lni lni-arrow-left"></i>
+        Volver
+      </a>
     </div>
 
     <div class="gd-filters" style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; align-items: flex-end;">

@@ -381,6 +381,7 @@ body.theme-dark .gd-topbar {
   display: inline-flex;
   gap: 0.38rem;
   align-items: center;
+  text-decoration: none !important;
 }
 
 .gd-top-btn:hover {

@@ -18,6 +18,7 @@ import { RolesModule } from './roles/roles.module';
 import { UserRolesModule } from './user-roles/user-roles.module';
 import { BalancesModule } from './balances/balances.module';
 import { MovimientosModule } from './movimientos/movimientos.module';
+import { AsesorModule } from './asesor/asesor.module';
 import { RolesGuard } from './auth/roles.guard';
 
 @Module({
@@ -71,6 +72,7 @@ import { RolesGuard } from './auth/roles.guard';
     UserRolesModule,
     BalancesModule,
     MovimientosModule,
+    AsesorModule,
   ],
   controllers: [AppController],
   providers: [AppService, RolesGuard],

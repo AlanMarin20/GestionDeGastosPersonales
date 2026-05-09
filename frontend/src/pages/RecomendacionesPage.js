@@ -169,7 +169,10 @@ export function renderRecomendacionesPage({
 
   const content = `
     <div class="d-flex justify-content-end mb-2">
-      <a href="/dashboard/recomendaciones/historicas" data-link class="btn btn-outline-secondary btn-sm">Ver historial de recomendaciones</a>
+      <a href="/dashboard/recomendaciones/historicas" data-link class="gd-top-btn gd-top-btn-primary">
+        <i class="lni lni-list"></i>
+        Ver historial
+      </a>
     </div>
 
     ${latestMonthRecommendations.length > 0

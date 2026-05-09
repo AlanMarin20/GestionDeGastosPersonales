@@ -1777,6 +1777,37 @@ async function loadDashboardBalances() {
   }
 }
 
+async function loadMovimientos() {
+  if (!getAccessToken()) {
+    return;
+  }
+
+  try {
+    const response = await apiFetch("/api/movimientos");
+
+    if (!response.ok) {
+      console.warn("No se pudieron cargar los movimientos desde la API");
+      return;
+    }
+
+    const movimientos = await response.json();
+
+    if (Array.isArray(movimientos)) {
+      state.finanzas.gastos = movimientos.map((m) => ({
+        id: m.id,
+        comercio: m.comercio ?? "-",
+        categoria: m.categoria ?? "Sin categoría",
+        descripcion: m.descripcion ?? "",
+        fecha: m.fecha,
+        monto: Number(m.monto),
+        tipo: m.tipo,
+      }));
+    }
+  } catch (error) {
+    console.warn("Error cargando movimientos:", error);
+  }
+}
+
 function navigate(path, replace = false) {
   closeLandingMobileMenu();
   closeDashboardDropdowns();
@@ -4752,11 +4783,10 @@ if (typeof systemThemeMedia.addEventListener === "function") {
 }
 
 loadCurrentUser().finally(() => {
-  // Cargar balances en paralelo después de que el usuario esté autenticado
   if (getAccessToken()) {
-    loadDashboardBalances().then(() => render());
+    Promise.all([loadDashboardBalances(), loadMovimientos()]).finally(() => render());
     return;
   }
-  
+
   render();
 });
