@@ -66,23 +66,44 @@ export class AsesorService {
       id: string;
       nombre_completo: string;
       email: string;
-      ingreso: string | null;
-      egreso: string | null;
-      ahorro: string | null;
       riesgo: string;
+      saldo_actual_mes: string;
+      gastos_mes: string;
+      presupuesto_total: string;
+      total_ahorrado: string;
     }[] = await this.userRepository.manager.query(
       `
       SELECT
         u.id,
         u.nombre_completo,
         u.email,
-        b.ingreso,
-        b.egreso,
-        b.ahorro,
         CASE
           WHEN b.ingreso > 0 THEN b.egreso / b.ingreso
           ELSE 0
-        END AS riesgo
+        END AS riesgo,
+        COALESCE((
+          SELECT SUM(m.monto) FROM movimientos m
+          WHERE m.usuario_id = u.id AND m.tipo = 'ingreso'
+            AND m.fecha >= DATE_TRUNC('month', CURRENT_DATE)
+        ), 0)
+        -
+        COALESCE((
+          SELECT SUM(m.monto) FROM movimientos m
+          WHERE m.usuario_id = u.id AND m.tipo = 'egreso'
+            AND m.fecha >= DATE_TRUNC('month', CURRENT_DATE)
+        ), 0) AS saldo_actual_mes,
+        COALESCE((
+          SELECT SUM(m.monto) FROM movimientos m
+          WHERE m.usuario_id = u.id AND m.tipo = 'egreso'
+            AND m.fecha >= DATE_TRUNC('month', CURRENT_DATE)
+        ), 0) AS gastos_mes,
+        COALESCE((
+          SELECT SUM(p.monto_limite) FROM presupuestos p
+          WHERE p.usuario_id = u.id
+            AND p.mes = EXTRACT(MONTH FROM CURRENT_DATE)
+            AND p.anio = EXTRACT(YEAR FROM CURRENT_DATE)
+        ), 0) AS presupuesto_total,
+        COALESCE(b.ahorro, 0) AS total_ahorrado
       FROM usuarios u
       LEFT JOIN balances b ON b.usuario_id = u.id
       WHERE u.id = $1
@@ -100,10 +121,11 @@ export class AsesorService {
       id: r.id,
       nombreCompleto: r.nombre_completo,
       email: r.email,
-      ingreso: r.ingreso !== null ? Number(r.ingreso) : null,
-      egreso: r.egreso !== null ? Number(r.egreso) : null,
-      ahorro: r.ahorro !== null ? Number(r.ahorro) : null,
       riesgo: Number(r.riesgo),
+      saldoActualMes: Number(r.saldo_actual_mes),
+      gastosMes: Number(r.gastos_mes),
+      presupuestoTotal: Number(r.presupuesto_total),
+      totalAhorrado: Number(r.total_ahorrado),
     };
   }
 
