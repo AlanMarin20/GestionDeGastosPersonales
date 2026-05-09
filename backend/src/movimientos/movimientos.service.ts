@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Movimiento, TipoMovimiento } from './entities/movimiento.entity';
+import { Balance } from '../balances/entities/balance.entity';
 import { CreateMovimientoDto } from './dto/create-movimiento.dto';
 
 @Injectable()
@@ -9,7 +10,22 @@ export class MovimientosService {
   constructor(
     @InjectRepository(Movimiento)
     private readonly movimientoRepository: Repository<Movimiento>,
+    @InjectRepository(Balance)
+    private readonly balanceRepository: Repository<Balance>,
   ) {}
+
+  private async syncBalance(userId: string, tipo: TipoMovimiento, delta: number) {
+    let balance = await this.balanceRepository.findOne({ where: { user: { id: userId } } });
+    if (!balance) {
+      balance = this.balanceRepository.create({ user: { id: userId }, ingreso: 0, egreso: 0, ahorro: 0 });
+    }
+    if (tipo === 'ingreso') {
+      balance.ingreso = Number(balance.ingreso) + delta;
+    } else {
+      balance.egreso = Number(balance.egreso) + delta;
+    }
+    await this.balanceRepository.save(balance);
+  }
 
   async create(userId: string, dto: CreateMovimientoDto) {
     const movimiento = this.movimientoRepository.create({
@@ -20,7 +36,9 @@ export class MovimientosService {
       descripcion: dto.descripcion,
       fecha: dto.fecha ? new Date(dto.fecha) : undefined,
     });
-    return await this.movimientoRepository.save(movimiento);
+    const saved = await this.movimientoRepository.save(movimiento);
+    await this.syncBalance(userId, dto.tipo, Number(dto.monto));
+    return saved;
   }
 
   async registrar(
@@ -43,7 +61,9 @@ export class MovimientosService {
       category: categoriaId ? ({ id: categoriaId } as any) : undefined,
       comercio,
     });
-    return await this.movimientoRepository.save(movimiento);
+    const saved = await this.movimientoRepository.save(movimiento);
+    await this.syncBalance(userId, tipo, monto);
+    return saved;
   }
 
   async findAll(userId: string) {
@@ -90,6 +110,7 @@ export class MovimientosService {
 
   async remove(id: string, userId: string) {
     const movimiento = await this.findOne(id, userId);
+    await this.syncBalance(userId, movimiento.tipo, -Number(movimiento.monto));
     await this.movimientoRepository.remove(movimiento);
     return { message: 'Movimiento eliminado correctamente' };
   }

@@ -15,31 +15,15 @@ export class IncomesService {
   ) {}
 
   async create(userId: string, createIncomeDto: CreateIncomeDto) {
-    const income = this.incomeRepository.create({
-      amount: createIncomeDto.amount,
-      source: createIncomeDto.source,
-      description: createIncomeDto.description,
-      incomeDate: createIncomeDto.incomeDate
-        ? new Date(createIncomeDto.incomeDate)
-        : undefined,
-      user: { id: userId },
-      category: createIncomeDto.categoryId
-        ? ({ id: createIncomeDto.categoryId } as Income['category'])
-        : undefined,
-    });
-
-    const saved = await this.incomeRepository.save(income);
-
-    await this.movimientosService.registrar(
+    return await this.movimientosService.registrar(
       userId,
       'ingreso',
       createIncomeDto.amount,
       createIncomeDto.description ?? createIncomeDto.source,
       'ARS',
-      saved.incomeDate ? new Date(saved.incomeDate) : undefined,
+      createIncomeDto.incomeDate ? new Date(createIncomeDto.incomeDate) : undefined,
+      createIncomeDto.categoryId,
     );
-
-    return saved;
   }
 
   async findAll(userId: string) {

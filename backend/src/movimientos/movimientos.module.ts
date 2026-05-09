@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Movimiento } from './entities/movimiento.entity';
+import { Balance } from '../balances/entities/balance.entity';
 import { MovimientosService } from './movimientos.service';
 import { MovimientosController } from './movimientos.controller';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Movimiento])],
+  imports: [TypeOrmModule.forFeature([Movimiento, Balance])],
   controllers: [MovimientosController],
   providers: [MovimientosService],
   exports: [MovimientosService],
