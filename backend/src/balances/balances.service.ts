@@ -38,6 +38,32 @@ export class BalancesService {
     return balance;
   }
 
+  async getDashboard(userId: string) {
+    const balance = await this.balanceRepository.findOne({
+      where: { user: { id: userId } },
+      order: { createdAt: 'DESC' },
+    });
+
+    if (!balance) {
+      return {
+        gastoMensual: 0,
+        dineroDisponible: 0,
+        ingreso: 0,
+        ahorroAcumulado: 0,
+      };
+    }
+
+    const ingreso = Number(balance.ingreso);
+    const egreso = Number(balance.egreso);
+
+    return {
+      gastoMensual: egreso,
+      dineroDisponible: ingreso - egreso,
+      ingreso,
+      ahorroAcumulado: Number(balance.ahorro),
+    };
+  }
+
   async findAll(userId: string) {
     return await this.balanceRepository.find({
       where: { user: { id: userId } },

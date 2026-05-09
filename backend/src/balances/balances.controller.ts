@@ -24,6 +24,11 @@ export class BalancesController {
     return this.balancesService.create(req.user.sub, createBalanceDto);
   }
 
+  @Get('dashboard')
+  getDashboard(@Request() req) {
+    return this.balancesService.getDashboard(req.user.sub);
+  }
+
   @Get('current')
   findCurrent(@Request() req) {
     return this.balancesService.findCurrentBalance(req.user.sub);
