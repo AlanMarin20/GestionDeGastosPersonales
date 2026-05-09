@@ -36,6 +36,21 @@ export class RecommendationsController {
     return this.recommendationsService.findAllForUser(req.user.sub);
   }
 
+  @Get('historia')
+  getHistoria(
+    @Request() req,
+    @Query('emisor') emisor?: string,
+    @Query('mes') mes?: string,
+    @Query('anio') anio?: string,
+  ) {
+    return this.recommendationsService.getHistoria(
+      req.user.sub,
+      emisor,
+      mes ? Number(mes) : undefined,
+      anio ? Number(anio) : undefined,
+    );
+  }
+
   @Get(':id')
   findOne(@Request() req, @Param('id') id: string) {
     return this.recommendationsService.findOneForUser(id, req.user.sub);

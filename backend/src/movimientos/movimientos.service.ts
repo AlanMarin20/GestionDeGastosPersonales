@@ -47,10 +47,35 @@ export class MovimientosService {
   }
 
   async findAll(userId: string) {
-    return await this.movimientoRepository.find({
-      where: { user: { id: userId } },
-      order: { fecha: 'DESC', creadoEn: 'DESC' },
-    });
+    const rows: {
+      id: string;
+      comercio: string | null;
+      categoria: string;
+      descripcion: string | null;
+      fecha: Date;
+      monto: string;
+      tipo: string;
+      moneda: string;
+    }[] = await this.movimientoRepository.manager.query(
+      `
+      SELECT
+        m.id,
+        m.comercio,
+        COALESCE(c.nombre, 'Sin categoría') AS categoria,
+        m.descripcion,
+        m.fecha,
+        m.monto,
+        m.tipo,
+        m.moneda
+      FROM movimientos m
+      LEFT JOIN categorias c ON m.categoria_id = c.id
+      WHERE m.usuario_id = $1
+      ORDER BY m.fecha DESC, m.creado_en DESC
+      `,
+      [userId],
+    );
+
+    return rows.map((r) => ({ ...r, monto: Number(r.monto) }));
   }
 
   async findOne(id: string, userId: string) {

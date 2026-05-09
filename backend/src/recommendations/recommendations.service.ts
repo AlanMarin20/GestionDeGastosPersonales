@@ -87,4 +87,30 @@ export class RecommendationsService {
 
     return { message: 'Recomendación eliminada correctamente' };
   }
+
+  async getHistoria(
+    userId: string,
+    emisor?: string,
+    mes?: number,
+    anio?: number,
+  ): Promise<{ emisor: string; contenido: string; creado_en: Date }[]> {
+    return await this.recommendationRepository.manager.query(
+      `
+      SELECT
+        CASE
+          WHEN asesor_id IS NULL THEN 'IA'
+          ELSE 'asesor'
+        END AS emisor,
+        contenido,
+        creado_en
+      FROM recomendaciones
+      WHERE usuario_id = $1
+        AND ($2::text IS NULL OR ($2 = 'ia' AND asesor_id IS NULL) OR ($2 = 'asesor' AND asesor_id IS NOT NULL))
+        AND ($3::int IS NULL OR EXTRACT(MONTH FROM creado_en) = $3)
+        AND ($4::int IS NULL OR EXTRACT(YEAR FROM creado_en) = $4)
+      ORDER BY creado_en DESC
+      `,
+      [userId, emisor ?? null, mes ?? null, anio ?? null],
+    );
+  }
 }
