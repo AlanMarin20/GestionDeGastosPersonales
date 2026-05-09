@@ -152,6 +152,13 @@ import {
 } from "./ui/theme";
 import { buildPieChart, buildBarChart, initCharts } from "./ui/charts";
 import { installGlobalImageErrorHandler } from "./ui/imageErrors";
+import {
+  closeDashboardDropdowns,
+  toggleDashboardDropdown,
+  toggleDashboardNotificationsMenu,
+  toggleDashboardUserChipMenu,
+} from "./handlers/dropdowns";
+import { closeLandingMobileMenu, toggleLandingMobileMenu } from "./handlers/mobileMenu";
 import "./index.css";
 import "./App.css";
 import "./components/dashboard/dashboard-widgets.css";
@@ -180,81 +187,6 @@ function navigate(path, replace = false) {
 
 function navigateBack() {
   history.back();
-}
-
-function getLandingMobileMenuElements() {
-  const menu = document.querySelector("[data-landing-mobile-menu]");
-  const backdrop = document.querySelector("[data-landing-mobile-backdrop]");
-  const toggleButton = document.querySelector(
-    "[data-action='toggle-landing-mobile-menu']",
-  );
-  const menuContainer = menu?.closest(".landing-auth-group") ||
-    toggleButton?.closest(".landing-auth-group") || null;
-
-  return {
-    menu,
-    backdrop,
-    toggleButton,
-    menuContainer,
-  };
-}
-
-function closeLandingMobileMenu({ restoreFocus = false } = {}) {
-  const { menu, backdrop, toggleButton } = getLandingMobileMenuElements();
-
-  document.body.classList.remove("landing-mobile-menu-open");
-
-  if (!menu || !toggleButton) {
-    if (backdrop) {
-      backdrop.classList.remove("is-open");
-      backdrop.hidden = true;
-    }
-    return;
-  }
-
-  const wasOpen = !menu.hidden;
-  menu.classList.remove("is-open");
-  menu.hidden = true;
-
-  if (backdrop) {
-    backdrop.classList.remove("is-open");
-    backdrop.hidden = true;
-  }
-
-  toggleButton.setAttribute("aria-expanded", "false");
-
-  if (restoreFocus && wasOpen) {
-    toggleButton.focus();
-  }
-}
-
-function toggleLandingMobileMenu() {
-  const { menu, backdrop, toggleButton } = getLandingMobileMenuElements();
-
-  if (!menu || !toggleButton) {
-    return;
-  }
-
-  if (menu.hidden) {
-    menu.hidden = false;
-    if (backdrop) {
-      backdrop.hidden = false;
-    }
-
-    menu.classList.remove("is-open");
-    backdrop?.classList.remove("is-open");
-
-    window.requestAnimationFrame(() => {
-      menu.classList.add("is-open");
-      backdrop?.classList.add("is-open");
-    });
-
-    document.body.classList.add("landing-mobile-menu-open");
-    toggleButton.setAttribute("aria-expanded", "true");
-    return;
-  }
-
-  closeLandingMobileMenu();
 }
 
 function clearRegistroExitosoAutoRedirect() {
@@ -731,77 +663,6 @@ function hasAuthenticatedSession() {
   return Boolean(getAccessToken() && state.currentUser?.id);
 }
 
-const DASHBOARD_DROPDOWN_CONFIG = Object.freeze([
-  Object.freeze({
-    containerSelector: ".gd-top-notifications",
-    triggerAction: "toggle-notifications-menu",
-  }),
-  Object.freeze({
-    containerSelector: ".gd-user-chip-menu",
-    triggerAction: "toggle-user-chip-menu",
-  }),
-  Object.freeze({
-    containerSelector: ".gd-income-entry-menu",
-    triggerAction: "toggle-income-entry-menu",
-  }),
-]);
-
-const DASHBOARD_DROPDOWN_CONFIG_BY_ACTION = Object.freeze(
-  DASHBOARD_DROPDOWN_CONFIG.reduce((configByAction, config) => {
-    configByAction[config.triggerAction] = config;
-    return configByAction;
-  }, {}),
-);
-
-function closeDashboardDropdown(config) {
-  if (!config) {
-    return;
-  }
-
-  document
-    .querySelectorAll(`${config.containerSelector}.is-open`)
-    .forEach((menu) => {
-      menu.classList.remove("is-open");
-      const trigger = menu.querySelector(
-        `[data-action='${config.triggerAction}']`,
-      );
-      trigger?.setAttribute("aria-expanded", "false");
-    });
-}
-
-function closeDashboardDropdowns() {
-  DASHBOARD_DROPDOWN_CONFIG.forEach((config) => {
-    closeDashboardDropdown(config);
-  });
-}
-
-function toggleDashboardDropdown(trigger, action) {
-  const config = DASHBOARD_DROPDOWN_CONFIG_BY_ACTION[action];
-  if (!config) {
-    return;
-  }
-
-  const menu = trigger?.closest(config.containerSelector);
-  if (!menu) {
-    return;
-  }
-
-  const shouldOpen = !menu.classList.contains("is-open");
-  closeDashboardDropdowns();
-
-  if (shouldOpen) {
-    menu.classList.add("is-open");
-    trigger.setAttribute("aria-expanded", "true");
-  }
-}
-
-function toggleDashboardNotificationsMenu(trigger) {
-  toggleDashboardDropdown(trigger, "toggle-notifications-menu");
-}
-
-function toggleDashboardUserChipMenu(trigger) {
-  toggleDashboardDropdown(trigger, "toggle-user-chip-menu");
-}
 
 function clearSessionAndRedirectToLogin() {
   localStorage.removeItem(ACCESS_TOKEN_KEY);
