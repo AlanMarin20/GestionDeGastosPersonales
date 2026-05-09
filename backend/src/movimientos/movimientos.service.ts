@@ -30,6 +30,8 @@ export class MovimientosService {
     descripcion?: string,
     moneda = 'ARS',
     fecha?: Date,
+    categoriaId?: number,
+    comercio?: string,
   ) {
     const movimiento = this.movimientoRepository.create({
       user: { id: userId },
@@ -38,6 +40,8 @@ export class MovimientosService {
       moneda,
       descripcion,
       fecha,
+      category: categoriaId ? ({ id: categoriaId } as any) : undefined,
+      comercio,
     });
     return await this.movimientoRepository.save(movimiento);
   }

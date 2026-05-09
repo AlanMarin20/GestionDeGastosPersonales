@@ -4,12 +4,14 @@ import { CreateExpenseDto } from './dto/create-expense.dto';
 import { UpdateExpenseDto } from './dto/update-expense.dto';
 import { Expense } from './entities/expense.entity';
 import { Repository } from 'typeorm';
+import { MovimientosService } from '../movimientos/movimientos.service';
 
 @Injectable()
 export class ExpensesService {
   constructor(
     @InjectRepository(Expense)
     private readonly expenseRepository: Repository<Expense>,
+    private readonly movimientosService: MovimientosService,
   ) {}
 
   async create(userId: string, createExpenseDto: CreateExpenseDto) {
@@ -27,7 +29,20 @@ export class ExpensesService {
         : undefined,
     });
 
-    return await this.expenseRepository.save(expense);
+    const saved = await this.expenseRepository.save(expense);
+
+    await this.movimientosService.registrar(
+      userId,
+      'egreso',
+      createExpenseDto.amount,
+      createExpenseDto.description,
+      'ARS',
+      saved.expenseDate ? new Date(saved.expenseDate) : undefined,
+      createExpenseDto.categoryId,
+      createExpenseDto.merchant,
+    );
+
+    return saved;
   }
 
   async findAll(userId: string) {

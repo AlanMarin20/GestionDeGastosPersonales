@@ -24,6 +24,9 @@ export class Movimiento {
   @JoinColumn({ name: 'categoria_id' })
   category?: Category;
 
+  @Column({ name: 'comercio', type: 'varchar', length: 150, nullable: true })
+  comercio?: string;
+
   @Column({ name: 'descripcion', type: 'text', nullable: true })
   descripcion?: string;
 
