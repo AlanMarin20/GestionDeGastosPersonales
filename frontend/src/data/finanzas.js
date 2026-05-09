@@ -137,8 +137,8 @@ export function getDashboardMetrics() {
   }));
 }
 
-export function getDashboardRecentExpenses(limit = 5, periodKey = getFinanzasCurrentPeriod()) {
-  return getFinanzasExpensesForPeriod(periodKey)
+export function getDashboardRecentExpenses(limit = 5) {
+  return state.finanzas.gastos
     .slice()
     .sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime())
     .slice(0, limit)

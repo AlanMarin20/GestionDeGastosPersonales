@@ -52,7 +52,7 @@ export async function loadDashboardBalances() {
   if (!accessToken) return;
 
   try {
-    const response = await apiFetch("/api/balances/current");
+    const response = await apiFetch("/api/balances/dashboard");
 
     if (!response.ok) {
       console.warn("No se pudieron cargar los balances desde la API");
@@ -64,8 +64,9 @@ export async function loadDashboardBalances() {
     if (balances && typeof balances === "object") {
       state.finanzas.balancesData = {
         ingreso: Number(balances.ingreso ?? 0),
-        egreso: Number(balances.egreso ?? 0),
-        ahorro: Number(balances.ahorro ?? 0),
+        egreso: Number(balances.gastoMensual ?? balances.egreso ?? 0),
+        ahorro: Number(balances.ahorroAcumulado ?? balances.ahorro ?? 0),
+        disponible: Number(balances.dineroDisponible ?? 0),
       };
     }
   } catch (error) {

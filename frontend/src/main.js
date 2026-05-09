@@ -337,7 +337,7 @@ function renderDashboardPage() {
     pageSubtitle: `Resumen financiero · ${formatMonthLabelLong(currentPeriod)}`,
     metrics: getDashboardMetrics(),
     categories: getDashboardCategorySummary(currentPeriod),
-    recentExpenses: getDashboardRecentExpenses(5, currentPeriod),
+    recentExpenses: getDashboardRecentExpenses(5),
     formatMoney,
     currentCurrency: normalizeCurrency(state.configuracion.moneda),
   });
