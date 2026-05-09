@@ -65,6 +65,27 @@ export class MovimientosService {
     return { message: 'Movimiento eliminado correctamente' };
   }
 
+  async getUltimosMovimientos(userId: string): Promise<{ categoria: string; tipo: string; fecha: Date; monto: number }[]> {
+    const rows: { categoria: string; tipo: string; fecha: Date; monto: string }[] =
+      await this.movimientoRepository.manager.query(
+        `
+        SELECT
+          COALESCE(c.nombre, 'Sin categoría') AS categoria,
+          m.tipo,
+          m.fecha,
+          m.monto
+        FROM movimientos m
+        LEFT JOIN categorias c ON m.categoria_id = c.id
+        WHERE m.usuario_id = $1
+        ORDER BY m.fecha DESC
+        LIMIT 5
+        `,
+        [userId],
+      );
+
+    return rows.map((r) => ({ ...r, monto: Number(r.monto) }));
+  }
+
   async getGastosPorMes(userId: string): Promise<{ mes: string; orden: Date; total: number }[]> {
     const rows: { mes: string; orden: Date; total: string }[] =
       await this.movimientoRepository.manager.query(

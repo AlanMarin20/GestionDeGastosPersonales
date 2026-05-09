@@ -7,6 +7,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
+import { Category } from '../../categories/entities/category.entity';
 
 export type TipoMovimiento = 'ingreso' | 'egreso';
 
@@ -18,6 +19,10 @@ export class Movimiento {
   @ManyToOne(() => User, { nullable: false })
   @JoinColumn({ name: 'usuario_id' })
   user!: User;
+
+  @ManyToOne(() => Category, { nullable: true })
+  @JoinColumn({ name: 'categoria_id' })
+  category?: Category;
 
   @Column({ name: 'descripcion', type: 'text', nullable: true })
   descripcion?: string;
