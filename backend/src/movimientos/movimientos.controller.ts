@@ -22,6 +22,11 @@ export class MovimientosController {
     return this.movimientosService.create(req.user.sub, dto);
   }
 
+  @Get('gastos-por-mes')
+  getGastosPorMes(@Request() req) {
+    return this.movimientosService.getGastosPorMes(req.user.sub);
+  }
+
   @Get()
   findAll(@Request() req) {
     return this.movimientosService.findAll(req.user.sub);
