@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../users/entities/user.entity';
+import { Recommendation } from '../recommendations/entities/recommendation.entity';
 
 type OrdenClientes = 'riesgo' | 'nombre' | 'ingreso';
 
@@ -10,6 +11,8 @@ export class AsesorService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(Recommendation)
+    private readonly recommendationRepository: Repository<Recommendation>,
   ) {}
 
   async getClientesAsignados(advisorId: string, orden: OrdenClientes = 'riesgo') {
@@ -216,6 +219,146 @@ export class AsesorService {
       );
 
     return rows.map((r) => ({ mes: r.mes_label, total: Number(r.total) }));
+  }
+
+  async getDashboardCliente(clienteId: string, advisorId: string) {
+    const rows: {
+      gasto_mensual: string;
+      dinero_disponible: string;
+      ingreso: string;
+      ahorro_acumulado: string;
+    }[] = await this.userRepository.manager.query(
+      `
+      SELECT
+        COALESCE(b.egreso, 0)              AS gasto_mensual,
+        COALESCE(b.ingreso - b.egreso, 0)  AS dinero_disponible,
+        COALESCE(b.ingreso, 0)             AS ingreso,
+        COALESCE(b.ahorro, 0)              AS ahorro_acumulado
+      FROM usuarios u
+      LEFT JOIN balances b ON b.usuario_id = u.id
+      WHERE u.id = $1
+        AND u.asesor_id = $2
+      `,
+      [clienteId, advisorId],
+    );
+
+    if (!rows.length) {
+      throw new NotFoundException('Cliente no encontrado o no pertenece a este asesor');
+    }
+
+    const r = rows[0];
+    return {
+      gastoMensual:    Number(r.gasto_mensual),
+      dineroDisponible: Number(r.dinero_disponible),
+      ingreso:          Number(r.ingreso),
+      ahorroAcumulado:  Number(r.ahorro_acumulado),
+    };
+  }
+
+  async getUltimosMovimientosCliente(clienteId: string, advisorId: string) {
+    const exists: { exists: boolean }[] = await this.userRepository.manager.query(
+      `SELECT EXISTS (
+         SELECT 1 FROM usuarios WHERE id = $1 AND asesor_id = $2
+       ) AS exists`,
+      [clienteId, advisorId],
+    );
+
+    if (!exists[0]?.exists) {
+      throw new NotFoundException('Cliente no encontrado o no pertenece a este asesor');
+    }
+
+    const rows: {
+      id: string;
+      comercio: string | null;
+      categoria: string;
+      descripcion: string | null;
+      fecha: Date;
+      monto: string;
+      tipo: string;
+      moneda: string;
+    }[] = await this.userRepository.manager.query(
+      `
+      SELECT
+        m.id,
+        m.comercio,
+        COALESCE(c.nombre, 'Sin categoría') AS categoria,
+        m.descripcion,
+        m.fecha,
+        m.monto,
+        m.tipo,
+        m.moneda
+      FROM movimientos m
+      LEFT JOIN categorias c ON m.categoria_id = c.id
+      WHERE m.usuario_id = $1
+      ORDER BY m.fecha DESC, m.creado_en DESC
+      LIMIT 5
+      `,
+      [clienteId],
+    );
+
+    return rows.map((r) => ({ ...r, monto: Number(r.monto) }));
+  }
+
+  async getRecomendacionesEnviadas(clienteId: string, advisorId: string) {
+    const exists: { exists: boolean }[] = await this.userRepository.manager.query(
+      `SELECT EXISTS (
+         SELECT 1 FROM usuarios WHERE id = $1 AND asesor_id = $2
+       ) AS exists`,
+      [clienteId, advisorId],
+    );
+
+    if (!exists[0]?.exists) {
+      throw new NotFoundException('Cliente no encontrado o no pertenece a este asesor');
+    }
+
+    const rows: { id: string; contenido: string; tipo: string; fue_leida: boolean; creado_en: Date }[] =
+      await this.userRepository.manager.query(
+        `
+        SELECT id, contenido, tipo, fue_leida, creado_en
+        FROM recomendaciones
+        WHERE usuario_id = $1
+          AND asesor_id = $2
+        ORDER BY creado_en DESC
+        `,
+        [clienteId, advisorId],
+      );
+
+    return rows.map((r) => ({
+      id: r.id,
+      contenido: r.contenido,
+      tipo: r.tipo,
+      fueLeida: r.fue_leida,
+      creadoEn: r.creado_en,
+    }));
+  }
+
+  async agregarRecomendacion(clienteId: string, advisorId: string, contenido: string, tipo = 'general') {
+    const exists: { exists: boolean }[] = await this.userRepository.manager.query(
+      `SELECT EXISTS (
+         SELECT 1 FROM usuarios WHERE id = $1 AND asesor_id = $2
+       ) AS exists`,
+      [clienteId, advisorId],
+    );
+
+    if (!exists[0]?.exists) {
+      throw new NotFoundException('Cliente no encontrado o no pertenece a este asesor');
+    }
+
+    const recommendation = this.recommendationRepository.create({
+      user: { id: clienteId },
+      advisor: { id: advisorId },
+      contenido,
+      tipo,
+    });
+
+    const saved = await this.recommendationRepository.save(recommendation);
+
+    return {
+      id: saved.id,
+      contenido: saved.contenido,
+      tipo: saved.tipo,
+      creadoEn: saved.createdAt,
+    };
   }
 
   async vincularCliente(advisorId: string, codigoVinculacion: string) {
