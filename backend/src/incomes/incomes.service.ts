@@ -4,12 +4,14 @@ import { CreateIncomeDto } from './dto/create-income.dto';
 import { UpdateIncomeDto } from './dto/update-income.dto';
 import { Income } from './entities/income.entity';
 import { Repository } from 'typeorm';
+import { MovimientosService } from '../movimientos/movimientos.service';
 
 @Injectable()
 export class IncomesService {
   constructor(
     @InjectRepository(Income)
     private readonly incomeRepository: Repository<Income>,
+    private readonly movimientosService: MovimientosService,
   ) {}
 
   async create(userId: string, createIncomeDto: CreateIncomeDto) {
@@ -26,7 +28,18 @@ export class IncomesService {
         : undefined,
     });
 
-    return await this.incomeRepository.save(income);
+    const saved = await this.incomeRepository.save(income);
+
+    await this.movimientosService.registrar(
+      userId,
+      'ingreso',
+      createIncomeDto.amount,
+      createIncomeDto.description ?? createIncomeDto.source,
+      'ARS',
+      saved.incomeDate ? new Date(saved.incomeDate) : undefined,
+    );
+
+    return saved;
   }
 
   async findAll(userId: string) {
