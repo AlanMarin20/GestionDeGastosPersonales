@@ -1,6 +1,6 @@
 import { state } from "../state";
 import { CATEGORY_COLORS } from "./mockData";
-import { getMonthKeyFromDate, compareMonthKeys, formatMonthLabelShort, formatMonthLabelLong, formatIsoDateShort } from "../utils/date";
+import { getMonthKeyFromDate, compareMonthKeys, formatMonthLabelShort, formatMonthLabelLong, formatIsoDateShort, formatDateDDMMYYYY } from "../utils/date";
 import { formatMoney } from "../utils/money";
 
 export function getFinanzasCurrentPeriod() {
@@ -144,7 +144,7 @@ export function getDashboardRecentExpenses(limit = 5, periodKey = getFinanzasCur
     .slice(0, limit)
     .map((expense) => ({
       ...expense,
-      fechaCorta: formatIsoDateShort(expense.fecha),
+      fechaCorta: formatDateDDMMYYYY(expense.fecha),
     }));
 }
 
@@ -194,6 +194,6 @@ export function getFilteredExpenses() {
     .sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime())
     .map((expense) => ({
       ...expense,
-      fechaCorta: formatIsoDateShort(expense.fecha),
+      fechaCorta: formatDateDDMMYYYY(expense.fecha),
     }));
 }

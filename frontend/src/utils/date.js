@@ -68,6 +68,23 @@ export function formatMonthLabelLong(monthKey) {
   return `${MONTH_LABELS_LONG[month - 1]} ${year}`;
 }
 
+export function formatDateDDMMYYYY(dateIso) {
+  if (!dateIso) {
+    return "-";
+  }
+
+  const date = new Date(dateIso);
+  if (Number.isNaN(date.getTime())) {
+    return dateIso;
+  }
+
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear();
+
+  return `${day}/${month}/${year}`;
+}
+
 export function formatIsoDateShort(dateIso) {
   if (!dateIso) {
     return "-";
