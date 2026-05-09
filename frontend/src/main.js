@@ -45,58 +45,47 @@ import { renderVerificarCodigoRecuperacionPage as renderVerificarCodigoRecuperac
 import { renderNuevaContrasenaPage as renderNuevaContrasenaPageView } from "./pages/NuevaContrasenaPage";
 import { renderRegistroExitosoPage as renderRegistroExitosoPageView } from "./pages/RegistroExitosoPage";
 import { escapeHtml } from "./utils/sanitize";
+import {
+  API_BASE_URL,
+  ACCESS_TOKEN_KEY,
+  THEME_STORAGE_KEY,
+  APP_PREFERENCES_STORAGE_KEY,
+  DEFAULT_PROFILE_IMAGE,
+  PASSWORD_POLICY_MESSAGE,
+  REGISTRO_EXITOSO_REDIRECT_SECONDS,
+  APP_NOTIFICATION_CONTAINER_ID,
+  APP_CONFIRM_DIALOG_ID,
+  THEME_MODES,
+  FONT_SIZE_MODES,
+  DENSITY_MODES,
+  CURRENCY_CONFIG,
+} from "./config";
+import {
+  MONTH_LABELS_SHORT,
+  MONTH_LABELS_LONG,
+  getCurrentDateShort,
+  getMonthKeyFromDate,
+  parseMonthKey,
+  compareMonthKeys,
+  formatMonthLabelShort,
+  formatMonthLabelLong,
+  formatIsoDateShort,
+} from "./utils/date";
+import {
+  formatCurrency,
+  isStrongPassword,
+  normalizeThemeMode,
+  normalizeFontSizeMode,
+  normalizeDensityMode,
+  normalizeCurrency,
+} from "./utils/format";
 import "./index.css";
 import "./App.css";
 import "./components/dashboard/dashboard-widgets.css";
 import "./components/dashboard/gestion-dashboard.css";
 
 const appRoot = document.getElementById("root");
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
-const ACCESS_TOKEN_KEY = "access_token";
-const THEME_STORAGE_KEY = "theme_preference";
-const APP_PREFERENCES_STORAGE_KEY = "app_preferences";
-// OAuth de terceros deshabilitado temporalmente.
-const DEFAULT_PROFILE_IMAGE = "/assets/img/user-avatar-default.svg";
-const PASSWORD_POLICY_MESSAGE =
-  "La contraseña debe tener al menos 8 caracteres e incluir mayúscula, minúscula, número y carácter especial";
-const REGISTRO_EXITOSO_REDIRECT_SECONDS = 5;
-const APP_NOTIFICATION_CONTAINER_ID = "app-notification-stack";
-const APP_CONFIRM_DIALOG_ID = "app-confirm-dialog";
-const THEME_MODES = new Set(["light", "dark", "system"]);
-const FONT_SIZE_MODES = new Set(["sm", "md", "lg"]);
-const DENSITY_MODES = new Set(["comfortable", "compact"]);
 let hasGlobalImageErrorHandler = false;
-
-const CURRENCY_CONFIG = {
-  USD: {
-    currency: "USD",
-    fallbackLocale: "en-US",
-    localeByLanguage: {
-      es: "es-AR",
-      en: "en-US",
-      pt: "pt-BR",
-    },
-  },
-  ARS: {
-    currency: "ARS",
-    fallbackLocale: "es-AR",
-    localeByLanguage: {
-      es: "es-AR",
-      en: "en-US",
-      pt: "pt-BR",
-    },
-  },
-  EUR: {
-    currency: "EUR",
-    fallbackLocale: "es-ES",
-    localeByLanguage: {
-      es: "es-ES",
-      en: "en-IE",
-      pt: "pt-PT",
-    },
-  },
-};
 
 let registroExitosoRedirectTimeoutId = null;
 let registroExitosoCountdownIntervalId = null;
@@ -770,36 +759,6 @@ const state = {
   },
 };
 
-const MONTH_LABELS_SHORT = [
-  "Ene",
-  "Feb",
-  "Mar",
-  "Abr",
-  "May",
-  "Jun",
-  "Jul",
-  "Ago",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dic",
-];
-
-const MONTH_LABELS_LONG = [
-  "Enero",
-  "Febrero",
-  "Marzo",
-  "Abril",
-  "Mayo",
-  "Junio",
-  "Julio",
-  "Agosto",
-  "Septiembre",
-  "Octubre",
-  "Noviembre",
-  "Diciembre",
-];
-
 const CATEGORY_COLORS = {
   Supermercado: "#38bdf8",
   Transporte: "#0ea5e9",
@@ -829,39 +788,6 @@ const monthlyExpensesDetalle = [
 
 let chartInstances = [];
 
-function formatCurrency(value) {
-  return `$${Number(value).toFixed(2)}`;
-}
-
-function isStrongPassword(password) {
-  return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/.test(
-    password,
-  );
-}
-
-function getCurrentDateShort() {
-  return new Date().toLocaleDateString("es-ES", {
-    day: "numeric",
-    month: "short",
-  });
-}
-
-function normalizeThemeMode(value) {
-  return THEME_MODES.has(value) ? value : "system";
-}
-
-function normalizeFontSizeMode(value) {
-  return FONT_SIZE_MODES.has(value) ? value : "md";
-}
-
-function normalizeDensityMode(value) {
-  return DENSITY_MODES.has(value) ? value : "comfortable";
-}
-
-function normalizeCurrency(value) {
-  return CURRENCY_CONFIG[value] ? value : "USD";
-}
-
 function createMoneyFormatter() {
   const currencyCode = normalizeCurrency(state.configuracion.moneda);
   const currencyConfig = CURRENCY_CONFIG[currencyCode] || CURRENCY_CONFIG.USD;
@@ -882,75 +808,6 @@ function formatMoney(value) {
   const normalizedValue = Number(value);
   const amount = Number.isFinite(normalizedValue) ? normalizedValue : 0;
   return createMoneyFormatter().format(amount);
-}
-
-function getMonthKeyFromDate(dateIso) {
-  if (!dateIso || typeof dateIso !== "string") {
-    return "";
-  }
-
-  const [year = "", month = ""] = dateIso.split("-");
-  if (year.length !== 4 || month.length !== 2) {
-    return "";
-  }
-
-  return `${year}-${month}`;
-}
-
-function parseMonthKey(monthKey) {
-  const [yearString = "0", monthString = "0"] = String(monthKey).split("-");
-  const year = Number.parseInt(yearString, 10);
-  const month = Number.parseInt(monthString, 10);
-
-  return {
-    year: Number.isNaN(year) ? 0 : year,
-    month: Number.isNaN(month) ? 0 : month,
-  };
-}
-
-function compareMonthKeys(a, b) {
-  const left = parseMonthKey(a);
-  const right = parseMonthKey(b);
-
-  if (left.year !== right.year) {
-    return left.year - right.year;
-  }
-
-  return left.month - right.month;
-}
-
-function formatMonthLabelShort(monthKey) {
-  const { month } = parseMonthKey(monthKey);
-  if (month < 1 || month > 12) {
-    return monthKey;
-  }
-
-  return MONTH_LABELS_SHORT[month - 1];
-}
-
-function formatMonthLabelLong(monthKey) {
-  const { year, month } = parseMonthKey(monthKey);
-  if (month < 1 || month > 12) {
-    return monthKey;
-  }
-
-  return `${MONTH_LABELS_LONG[month - 1]} ${year}`;
-}
-
-function formatIsoDateShort(dateIso) {
-  if (!dateIso) {
-    return "-";
-  }
-
-  const date = new Date(`${dateIso}T00:00:00`);
-  if (Number.isNaN(date.getTime())) {
-    return dateIso;
-  }
-
-  return date.toLocaleDateString("es-ES", {
-    day: "numeric",
-    month: "short",
-  });
 }
 
 function getFinanzasCurrentPeriod() {

@@ -1,0 +1,85 @@
+export const MONTH_LABELS_SHORT = [
+  "Ene", "Feb", "Mar", "Abr", "May", "Jun",
+  "Jul", "Ago", "Sep", "Oct", "Nov", "Dic",
+];
+
+export const MONTH_LABELS_LONG = [
+  "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+  "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
+];
+
+export function getCurrentDateShort() {
+  return new Date().toLocaleDateString("es-ES", {
+    day: "numeric",
+    month: "short",
+  });
+}
+
+export function getMonthKeyFromDate(dateIso) {
+  if (!dateIso || typeof dateIso !== "string") {
+    return "";
+  }
+
+  const [year = "", month = ""] = dateIso.split("-");
+  if (year.length !== 4 || month.length !== 2) {
+    return "";
+  }
+
+  return `${year}-${month}`;
+}
+
+export function parseMonthKey(monthKey) {
+  const [yearString = "0", monthString = "0"] = String(monthKey).split("-");
+  const year = Number.parseInt(yearString, 10);
+  const month = Number.parseInt(monthString, 10);
+
+  return {
+    year: Number.isNaN(year) ? 0 : year,
+    month: Number.isNaN(month) ? 0 : month,
+  };
+}
+
+export function compareMonthKeys(a, b) {
+  const left = parseMonthKey(a);
+  const right = parseMonthKey(b);
+
+  if (left.year !== right.year) {
+    return left.year - right.year;
+  }
+
+  return left.month - right.month;
+}
+
+export function formatMonthLabelShort(monthKey) {
+  const { month } = parseMonthKey(monthKey);
+  if (month < 1 || month > 12) {
+    return monthKey;
+  }
+
+  return MONTH_LABELS_SHORT[month - 1];
+}
+
+export function formatMonthLabelLong(monthKey) {
+  const { year, month } = parseMonthKey(monthKey);
+  if (month < 1 || month > 12) {
+    return monthKey;
+  }
+
+  return `${MONTH_LABELS_LONG[month - 1]} ${year}`;
+}
+
+export function formatIsoDateShort(dateIso) {
+  if (!dateIso) {
+    return "-";
+  }
+
+  const date = new Date(`${dateIso}T00:00:00`);
+  if (Number.isNaN(date.getTime())) {
+    return dateIso;
+  }
+
+  return date.toLocaleDateString("es-ES", {
+    day: "numeric",
+    month: "short",
+  });
+}
