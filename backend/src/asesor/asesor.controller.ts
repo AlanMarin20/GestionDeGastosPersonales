@@ -31,6 +31,11 @@ export class AsesorController {
     return this.asesorService.getDetalleCliente(id, req.user.sub);
   }
 
+  @Get('clientes/:id/grafico-categorias')
+  getGraficoCategorias(@Request() req, @Param('id') id: string) {
+    return this.asesorService.getGraficoCategorias(id, req.user.sub);
+  }
+
   @Post('clientes')
   vincularCliente(@Request() req, @Body() dto: VincularClienteDto) {
     return this.asesorService.vincularCliente(req.user.sub, dto.codigoVinculacion);

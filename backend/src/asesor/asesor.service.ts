@@ -129,6 +129,60 @@ export class AsesorService {
     };
   }
 
+  async getGraficoCategorias(clienteId: string, advisorId: string) {
+    const [porcentajeRow]: { porcentaje_gastado: string }[] =
+      await this.userRepository.manager.query(
+        `
+        SELECT
+          CASE
+            WHEN b.ingreso > 0
+            THEN ROUND((b.egreso / b.ingreso) * 100, 2)
+            ELSE 0
+          END AS porcentaje_gastado
+        FROM balances b
+        JOIN usuarios u ON u.id = b.usuario_id
+        WHERE u.id = $1
+          AND u.asesor_id = $2
+        `,
+        [clienteId, advisorId],
+      );
+
+    if (!porcentajeRow) {
+      throw new NotFoundException('Cliente no encontrado o no pertenece a este asesor');
+    }
+
+    const categorias: { categoria: string; total: string; porcentaje: string }[] =
+      await this.userRepository.manager.query(
+        `
+        SELECT categoria, total,
+          ROUND((total * 100.0) / SUM(total) OVER (), 2) AS porcentaje
+        FROM (
+          SELECT
+            COALESCE(c.nombre, 'Sin categoría') AS categoria,
+            SUM(m.monto) AS total
+          FROM movimientos m
+          JOIN usuarios u ON u.id = m.usuario_id
+          LEFT JOIN categorias c ON m.categoria_id = c.id
+          WHERE m.usuario_id = $1
+            AND u.asesor_id = $2
+            AND m.tipo = 'egreso'
+          GROUP BY COALESCE(c.nombre, 'Sin categoría')
+        ) t
+        ORDER BY total DESC
+        `,
+        [clienteId, advisorId],
+      );
+
+    return {
+      porcentaje: Number(porcentajeRow.porcentaje_gastado),
+      categorias: categorias.map((c) => ({
+        categoria: c.categoria,
+        total: Number(c.total),
+        porcentaje: Number(c.porcentaje),
+      })),
+    };
+  }
+
   async vincularCliente(advisorId: string, codigoVinculacion: string) {
     const result: { rowCount: number } = await this.userRepository.manager.query(
       `
