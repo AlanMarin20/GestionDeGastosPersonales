@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { GoogleGenAI } from '@google/genai';
+import Groq from 'groq-sdk';
 
 export interface TicketData {
   comercio: string;
@@ -25,14 +25,14 @@ Si no podés determinar algún campo con certeza, dejalo como string vacío "".`
 
 @Injectable()
 export class TicketOcrService {
-  private readonly genai: GoogleGenAI;
+  private readonly groq: Groq;
 
   constructor(private readonly configService: ConfigService) {
-    const apiKey = this.configService.get<string>('GEMINI_API_KEY');
+    const apiKey = this.configService.get<string>('GROQ_API_KEY');
     if (!apiKey) {
-      throw new InternalServerErrorException('GEMINI_API_KEY no configurada');
+      throw new InternalServerErrorException('GROQ_API_KEY no configurada');
     }
-    this.genai = new GoogleGenAI({ apiKey: apiKey.trim() });
+    this.groq = new Groq({ apiKey: apiKey.trim() });
   }
 
   async analyzeTicket(file: Express.Multer.File): Promise<TicketData> {
@@ -40,32 +40,30 @@ export class TicketOcrService {
       throw new BadRequestException('No se recibió ninguna imagen');
     }
 
-    const allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/heic'];
+    const allowedMimes = ['image/jpeg', 'image/png', 'image/webp'];
     if (!allowedMimes.includes(file.mimetype)) {
       throw new BadRequestException('Formato no soportado. Usá JPG, PNG o WebP.');
     }
 
     const base64Image = file.buffer.toString('base64');
+    const dataUrl = `data:${file.mimetype};base64,${base64Image}`;
 
-    const response = await this.genai.models.generateContent({
-      model: 'gemini-2.0-flash',
-      contents: [
+    const completion = await this.groq.chat.completions.create({
+      model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+      messages: [
         {
           role: 'user',
-          parts: [
-            {
-              inlineData: {
-                mimeType: file.mimetype as 'image/jpeg' | 'image/png' | 'image/webp' | 'image/heic',
-                data: base64Image,
-              },
-            },
-            { text: PROMPT },
+          content: [
+            { type: 'image_url', image_url: { url: dataUrl } },
+            { type: 'text', text: PROMPT },
           ],
         },
       ],
+      temperature: 0,
+      max_tokens: 512,
     });
 
-    const rawText = response.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+    const rawText = completion.choices[0]?.message?.content ?? '';
 
     try {
       const cleaned = rawText.replace(/```(?:json)?/g, '').replace(/```/g, '').trim();

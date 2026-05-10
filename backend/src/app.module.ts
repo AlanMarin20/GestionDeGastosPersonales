@@ -32,6 +32,7 @@ import { RolesGuard } from './auth/roles.guard';
         JWT_SECRET: Joi.string().min(16).required(),
         ANTHROPIC_API_KEY: Joi.string().allow('').optional(),
         GEMINI_API_KEY: Joi.string().allow('').optional(),
+        GROQ_API_KEY: Joi.string().allow('').optional(),
         FRONTEND_URL: Joi.string().uri().optional(),
         // OAuth de terceros deshabilitado temporalmente.
         // GOOGLE_CLIENT_ID: Joi.string().allow('').optional(),
