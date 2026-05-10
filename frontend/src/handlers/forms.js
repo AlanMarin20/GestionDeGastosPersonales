@@ -838,6 +838,12 @@ export function attachFormHandlers(pathname, { navigate, render }) {
     destinoInput?.addEventListener("input", (event) => {
       dashboard.destinoForm.monto = event.target.value;
     });
+
+    const ahorroSelect = document.getElementById("dashboardAhorroSelect");
+    ahorroSelect?.addEventListener("change", (event) => {
+      state.dashboard.selectedAhorroId = event.target.value || null;
+      render();
+    });
   }
 
   if (pathname === "/dashboard/ahorros") {

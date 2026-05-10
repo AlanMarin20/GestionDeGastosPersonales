@@ -338,6 +338,8 @@ function renderDashboardPage() {
     categories: getDashboardCategorySummary(currentPeriod),
     recentExpenses: getDashboardRecentExpenses(5),
     currentCurrency: normalizeCurrency(state.configuracion.moneda),
+    ahorros: state.dashboard.ahorros,
+    selectedAhorroId: state.dashboard.selectedAhorroId,
   });
 }
 

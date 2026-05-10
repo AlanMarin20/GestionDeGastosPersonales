@@ -27,6 +27,7 @@ export const state = {
       },
     ],
     ahorros: [],
+    selectedAhorroId: null,
     formData: {
       descripcion: "",
       monto: "",

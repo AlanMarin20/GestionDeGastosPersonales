@@ -5,6 +5,42 @@ import {
   renderDashboardExpenseCard,
   tarjetaValor,
 } from "../components/common/reusablePageComponents";
+import { escapeHtml } from "../utils/sanitize";
+import { formatMoney } from "../utils/money";
+
+function buildAhorroSelectorMarkup({ ahorros, selectedAhorroId }) {
+  if (!ahorros || ahorros.length === 0) return "";
+
+  const selectedAhorro = ahorros.find((a) => a.id === selectedAhorroId) ?? null;
+
+  const selectMarkup = `
+    <select id="dashboardAhorroSelect" class="form-select form-select-sm gd-ahorro-metric-select mt-2">
+      <option value="">Seleccionar objetivo...</option>
+      ${ahorros
+        .map(
+          (a) =>
+            `<option value="${escapeHtml(a.id)}" ${selectedAhorroId === a.id ? "selected" : ""}>${escapeHtml(a.nombre)}</option>`,
+        )
+        .join("")}
+    </select>
+  `;
+
+  if (!selectedAhorro || !selectedAhorro.meta) {
+    return selectMarkup;
+  }
+
+  const progress = Math.min((selectedAhorro.monto / selectedAhorro.meta) * 100, 100);
+
+  return `
+    ${selectMarkup}
+    <div class="gd-mini-bar mt-2">
+      <div class="gd-mini-bar-fill gd-mini-bar-fill-dynamic" style="--gd-progress-width: ${escapeHtml(progress.toFixed(1))}%; --gd-progress-color: #16a34a;"></div>
+    </div>
+    <p class="gd-metric-delta gd-delta-up mt-1 mb-0">
+      ${escapeHtml(progress.toFixed(1))}% &middot; meta ${escapeHtml(formatMoney(selectedAhorro.meta))}
+    </p>
+  `;
+}
 
 export function renderDashboardPage({
   profileImage,
@@ -15,6 +51,8 @@ export function renderDashboardPage({
   metrics,
   recentExpenses,
   currentCurrency,
+  ahorros = [],
+  selectedAhorroId = null,
 }) {
   const resolveMetricActionMarkup = (metric) => {
     if (metric.id === "monthly-expense") {
@@ -66,6 +104,13 @@ export function renderDashboardPage({
     return "";
   };
 
+  const resolveMetricExtraMarkup = (metric) => {
+    if (metric.id === "accumulated-savings") {
+      return buildAhorroSelectorMarkup({ ahorros, selectedAhorroId });
+    }
+    return "";
+  };
+
   const content = `
     <section class="gd-metrics">
       ${metrics
@@ -77,6 +122,7 @@ export function renderDashboardPage({
             trend: metric.trend,
             layout: "dashboard-metric",
             dashboardActionMarkup: resolveMetricActionMarkup(metric),
+            dashboardExtraMarkup: resolveMetricExtraMarkup(metric),
           }),
         )
         .join("")}
