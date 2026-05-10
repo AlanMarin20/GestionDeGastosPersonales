@@ -26,6 +26,11 @@ const USER_NAV_ITEMS = [
         label: "Mis movimientos",
         icon: "lni lni-list",
       },
+      {
+        href: "/dashboard/ahorros",
+        label: "Ahorros",
+        icon: "lni lni-investment",
+      },
     ],
   },
   {
