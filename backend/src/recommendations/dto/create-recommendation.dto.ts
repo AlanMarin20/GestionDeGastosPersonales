@@ -20,7 +20,23 @@ export class CreateRecommendationDto {
 
   @IsOptional()
   @IsString()
+  @MaxLength(200)
+  titulo?: string;
+
+  @IsOptional()
+  @IsString()
   @MaxLength(30)
   @IsIn(['general', 'alerta', 'consejo'])
   type?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(30)
+  @IsIn(['danger', 'warning', 'good', 'info'])
+  severidad?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  categoria?: string;
 }

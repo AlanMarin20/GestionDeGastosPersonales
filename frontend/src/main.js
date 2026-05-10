@@ -137,6 +137,13 @@ import {
   loadMovimientos,
 } from "./api/user";
 import { loadAhorros } from "./api/ahorros";
+import { loadRecomendaciones } from "./api/recomendaciones";
+import {
+  loadAsesorClientes,
+  loadClienteDetalle,
+  loadClienteMovimientos,
+  loadClienteRecomendaciones,
+} from "./api/asesor";
 import {
   showAppNotification,
   showAppConfirm,
@@ -183,6 +190,20 @@ function navigate(path, replace = false) {
     history.pushState({}, "", path);
   }
   render();
+
+  if (String(path).startsWith("/cliente/")) {
+    const match = String(path).match(/^\/cliente\/([^/?#]+)/);
+    if (match) {
+      const clienteId = decodeURIComponent(match[1]);
+      state.detalleCliente.gastos = [];
+      state.detalleCliente.recomendaciones = [];
+      Promise.all([
+        loadClienteDetalle(clienteId),
+        loadClienteMovimientos(clienteId),
+        loadClienteRecomendaciones(clienteId),
+      ]).then(() => render());
+    }
+  }
 }
 
 function cambioRol(pathname) {
@@ -826,7 +847,26 @@ if (typeof systemThemeMedia.addEventListener === "function") {
 
 loadCurrentUser().finally(() => {
   if (getAccessToken()) {
-    Promise.all([loadDashboardBalances(), loadMovimientos(), loadAhorros()]).finally(() => render());
+    const initialPath = window.location.pathname;
+    const clienteMatch = initialPath.match(/^\/cliente\/([^/?#]+)/);
+    const initialLoads = [
+      loadDashboardBalances(),
+      loadMovimientos(),
+      loadAhorros(),
+      loadRecomendaciones(),
+      loadAsesorClientes(),
+    ];
+
+    if (clienteMatch) {
+      const clienteId = decodeURIComponent(clienteMatch[1]);
+      initialLoads.push(
+        loadClienteDetalle(clienteId),
+        loadClienteMovimientos(clienteId),
+        loadClienteRecomendaciones(clienteId),
+      );
+    }
+
+    Promise.all(initialLoads).finally(() => render());
     return;
   }
 

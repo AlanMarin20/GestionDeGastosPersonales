@@ -28,6 +28,7 @@ import {
 import { apiFetch } from "../api/client";
 import { loadDashboardBalances, loadMovimientos } from "../api/user";
 import { loadAhorros, updateAhorro, deleteAhorro } from "../api/ahorros";
+import { apiDesvincularCliente, loadAsesorClientes } from "../api/asesor";
 
 export function attachGlobalNavigation({ navigate, render }) {
   function clearSessionAndRedirectToLogin() {
@@ -383,9 +384,7 @@ export function attachGlobalNavigation({ navigate, render }) {
     "desvincular-cliente": async ({ event, actionButton }) => {
       event.preventDefault();
       const clienteId = actionButton.getAttribute("data-cliente-id");
-      if (!clienteId) {
-        return;
-      }
+      if (!clienteId) return;
 
       const shouldUnlink = await showAppConfirm({
         title: "Desvincular cliente",
@@ -395,15 +394,16 @@ export function attachGlobalNavigation({ navigate, render }) {
         danger: true,
       });
 
-      if (!shouldUnlink) {
-        return;
-      }
+      if (!shouldUnlink) return;
 
-      state.asesor.clientes = state.asesor.clientes.filter(
-        (cliente) => cliente.id !== clienteId,
-      );
-      showAppNotification("Cliente desvinculado", "success");
-      render();
+      try {
+        await apiDesvincularCliente(clienteId);
+        state.asesor.clientes = state.asesor.clientes.filter((c) => c.id !== clienteId);
+        showAppNotification("Cliente desvinculado", "success");
+        render();
+      } catch {
+        showAppNotification("No se pudo desvincular el cliente", "error");
+      }
     },
     "desvincular-asesor": async ({ event }) => {
       event.preventDefault();

@@ -24,8 +24,17 @@ export class Recommendation {
   @Column({ type: 'text' })
   contenido: string;
 
+  @Column({ type: 'varchar', nullable: true })
+  titulo?: string;
+
   @Column({ type: 'varchar', default: 'general' })
   tipo: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  severidad?: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  categoria?: string;
 
   @Column({ name: 'fue_leida', type: 'boolean', default: false })
   wasRead: boolean;

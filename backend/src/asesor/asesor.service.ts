@@ -332,7 +332,15 @@ export class AsesorService {
     }));
   }
 
-  async agregarRecomendacion(clienteId: string, advisorId: string, contenido: string, tipo = 'general') {
+  async agregarRecomendacion(
+    clienteId: string,
+    advisorId: string,
+    contenido: string,
+    tipo = 'general',
+    titulo?: string,
+    severidad?: string,
+    categoria?: string,
+  ) {
     const exists: { exists: boolean }[] = await this.userRepository.manager.query(
       `SELECT EXISTS (
          SELECT 1 FROM usuarios WHERE id = $1 AND asesor_id = $2
@@ -348,15 +356,21 @@ export class AsesorService {
       user: { id: clienteId },
       advisor: { id: advisorId },
       contenido,
+      titulo,
       tipo,
+      severidad,
+      categoria,
     });
 
     const saved = await this.recommendationRepository.save(recommendation);
 
     return {
       id: saved.id,
+      titulo: saved.titulo,
       contenido: saved.contenido,
       tipo: saved.tipo,
+      severidad: saved.severidad,
+      categoria: saved.categoria,
       creadoEn: saved.createdAt,
     };
   }

@@ -12,6 +12,30 @@ export class RecommendationsService {
     private readonly recommendationRepository: Repository<Recommendation>,
   ) {}
 
+  private mapToFrontend(r: Recommendation) {
+    const tipoSevMap: Record<string, string> = {
+      alerta: 'danger',
+      consejo: 'info',
+      general: 'warning',
+    };
+    const severity = r.severidad || tipoSevMap[r.tipo] || 'info';
+    const source = r.advisor ? 'asesor' : 'ia';
+    const date = r.createdAt
+      ? new Date(r.createdAt).toISOString().slice(0, 7)
+      : '';
+
+    return {
+      id: r.id,
+      title: r.titulo || '',
+      body: r.contenido,
+      severity,
+      source,
+      date,
+      category: r.categoria || '',
+      wasRead: r.wasRead,
+    };
+  }
+
   async create(requestUserId: string, createDto: CreateRecommendationDto) {
     const recommendation = this.recommendationRepository.create({
       user: { id: createDto.userId ?? requestUserId },
@@ -19,18 +43,22 @@ export class RecommendationsService {
         ? ({ id: createDto.advisorId } as Recommendation['advisor'])
         : undefined,
       contenido: createDto.content,
+      titulo: createDto.titulo,
       tipo: createDto.type ?? 'general',
+      severidad: createDto.severidad,
+      categoria: createDto.categoria,
     });
 
     return await this.recommendationRepository.save(recommendation);
   }
 
   async findAllForUser(userId: string) {
-    return await this.recommendationRepository.find({
+    const rows = await this.recommendationRepository.find({
       where: { user: { id: userId } },
       relations: { advisor: true },
       order: { createdAt: 'DESC' },
     });
+    return rows.map((r) => this.mapToFrontend(r));
   }
 
   async findAllByAdvisor(advisorId: string) {
@@ -93,15 +121,27 @@ export class RecommendationsService {
     emisor?: string,
     mes?: number,
     anio?: number,
-  ): Promise<{ emisor: string; contenido: string; creado_en: Date }[]> {
-    return await this.recommendationRepository.manager.query(
+  ) {
+    const rows: {
+      id: string;
+      emisor: string;
+      titulo: string | null;
+      contenido: string;
+      severidad: string | null;
+      categoria: string | null;
+      creado_en: Date;
+    }[] = await this.recommendationRepository.manager.query(
       `
       SELECT
+        id,
         CASE
-          WHEN asesor_id IS NULL THEN 'IA'
+          WHEN asesor_id IS NULL THEN 'ia'
           ELSE 'asesor'
         END AS emisor,
+        titulo,
         contenido,
+        severidad,
+        categoria,
         creado_en
       FROM recomendaciones
       WHERE usuario_id = $1
@@ -112,5 +152,17 @@ export class RecommendationsService {
       `,
       [userId, emisor ?? null, mes ?? null, anio ?? null],
     );
+
+    const tipoSevMap: Record<string, string> = { alerta: 'danger', consejo: 'info', general: 'warning' };
+
+    return rows.map((r) => ({
+      id: r.id,
+      source: r.emisor,
+      title: r.titulo || '',
+      body: r.contenido,
+      severity: r.severidad || tipoSevMap['general'],
+      category: r.categoria || '',
+      date: new Date(r.creado_en).toISOString().slice(0, 7),
+    }));
   }
 }

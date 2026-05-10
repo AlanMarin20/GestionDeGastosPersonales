@@ -65,8 +65,8 @@ describe('RecommendationsService', () => {
       const result = await service.getHistoria(USER_ID);
 
       expect(result).toHaveLength(2);
-      expect(result[0].emisor).toBe('IA');
-      expect(result[1].emisor).toBe('asesor');
+      expect(result[0].source).toBe('ia');
+      expect(result[1].source).toBe('asesor');
     });
 
     it('pasa null para filtros no proporcionados', async () => {

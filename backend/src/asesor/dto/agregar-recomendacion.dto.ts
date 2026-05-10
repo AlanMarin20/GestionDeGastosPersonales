@@ -1,4 +1,4 @@
-import { IsOptional, IsString, Length } from 'class-validator';
+import { IsIn, IsOptional, IsString, Length, MaxLength } from 'class-validator';
 
 export class AgregarRecomendacionDto {
   @IsString()
@@ -7,5 +7,20 @@ export class AgregarRecomendacionDto {
 
   @IsOptional()
   @IsString()
+  @MaxLength(200)
+  titulo?: string;
+
+  @IsOptional()
+  @IsString()
   tipo?: string;
+
+  @IsOptional()
+  @IsString()
+  @IsIn(['danger', 'warning', 'good', 'info'])
+  severidad?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  categoria?: string;
 }

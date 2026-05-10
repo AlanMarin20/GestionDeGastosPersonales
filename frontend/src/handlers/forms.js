@@ -20,10 +20,15 @@ import { apiCreateMovimiento } from "../api/movimientos";
 import { loadDashboardBalances, loadMovimientos } from "../api/user";
 import { createAhorro, loadAhorros } from "../api/ahorros";
 import {
+  apiVincularCliente,
+  apiAddClienteRecomendacion,
+  loadAsesorClientes,
+  loadClienteRecomendaciones,
+} from "../api/asesor";
+import {
   generateAdvisorVerificationCode,
   closeAdvisorNewClientModal,
   updateAdvisorNewClientField,
-  addAdvisorClientRecord,
 } from "../data/advisor";
 import { applyHistoricalRecommendationFilters } from "../data/csv";
 import { apiFetch } from "../api/client";
@@ -932,7 +937,7 @@ export function attachFormHandlers(pathname, { navigate, render }) {
     pathname === "/dashboard/asesor/recomendaciones"
   ) {
     const addClientForm = document.getElementById("addClientForm");
-    addClientForm?.addEventListener("submit", (event) => {
+    addClientForm?.addEventListener("submit", async (event) => {
       event.preventDefault();
 
       const nombre = (document.getElementById("nuevoClienteNombre")?.value ?? "").trim();
@@ -941,15 +946,25 @@ export function attachFormHandlers(pathname, { navigate, render }) {
       updateAdvisorNewClientField("nombre", nombre);
       updateAdvisorNewClientField("codigo", codigo);
 
-      const result = addAdvisorClientRecord({ nombre, codigo });
-      if (!result.ok) {
-        showAppNotification(result.message, "warning");
+      if (!codigo) {
+        showAppNotification("Ingresa el codigo de vinculacion del cliente", "warning");
         return;
       }
 
-      closeAdvisorNewClientModal();
-      showAppNotification("Cliente agregado correctamente", "success");
-      render();
+      const submitBtn = addClientForm.querySelector('[type="submit"]');
+      if (submitBtn) submitBtn.disabled = true;
+
+      try {
+        await apiVincularCliente(codigo);
+        await loadAsesorClientes();
+        closeAdvisorNewClientModal();
+        showAppNotification("Cliente vinculado correctamente", "success");
+        render();
+      } catch (error) {
+        showAppNotification(error.message || "Codigo invalido o expirado", "error");
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+      }
     });
 
     const busquedaInput = document.getElementById("advisorSearchInput");
@@ -977,34 +992,38 @@ export function attachFormHandlers(pathname, { navigate, render }) {
     const formRecomendacion = document.getElementById(
       "agregarRecomendacionForm",
     );
-    formRecomendacion?.addEventListener("submit", (event) => {
+    formRecomendacion?.addEventListener("submit", async (event) => {
       event.preventDefault();
 
-      const titulo = (
-        document.getElementById("recomendacionTitulo")?.value ?? ""
-      ).trim();
-      const texto = (
-        document.getElementById("recomendacionTexto")?.value ?? ""
-      ).trim();
+      const titulo = (document.getElementById("recomendacionTitulo")?.value ?? "").trim();
+      const texto = (document.getElementById("recomendacionTexto")?.value ?? "").trim();
       state.detalleCliente.nuevaRecomendacionTitulo = titulo;
       state.detalleCliente.nuevaRecomendacionTexto = texto;
 
-      if (!titulo || !texto) {
-        return;
-      }
+      if (!texto) return;
 
-      state.detalleCliente.recomendaciones = [
-        {
-          id: Date.now().toString(),
+      const clienteId = state.asesor.clienteSeleccionadoId;
+      if (!clienteId) return;
+
+      const submitBtn = formRecomendacion.querySelector('[type="submit"]');
+      if (submitBtn) submitBtn.disabled = true;
+
+      try {
+        await apiAddClienteRecomendacion(clienteId, {
+          contenido: texto,
           titulo,
-          texto,
-          fecha: getCurrentDateShort(),
-        },
-        ...state.detalleCliente.recomendaciones,
-      ];
-      state.detalleCliente.nuevaRecomendacionTitulo = "";
-      state.detalleCliente.nuevaRecomendacionTexto = "";
-      render();
+          tipo: "general",
+        });
+        await loadClienteRecomendaciones(clienteId);
+        state.detalleCliente.nuevaRecomendacionTitulo = "";
+        state.detalleCliente.nuevaRecomendacionTexto = "";
+        showAppNotification("Recomendacion enviada correctamente", "success");
+        render();
+      } catch {
+        showAppNotification("No se pudo enviar la recomendacion", "error");
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+      }
     });
 
     const recomendacionTituloInput = document.getElementById("recomendacionTitulo");
