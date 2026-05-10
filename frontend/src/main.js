@@ -81,7 +81,6 @@ import {
 } from "./utils/format";
 import { state } from "./state";
 import { monthlyExpensesDetalle } from "./data/mockData";
-import { formatMoney, createMoneyFormatter } from "./utils/money";
 import {
   getFinanzasCurrentPeriod,
   getFinanzasAllMonthKeys,
@@ -338,7 +337,6 @@ function renderDashboardPage() {
     metrics: getDashboardMetrics(),
     categories: getDashboardCategorySummary(currentPeriod),
     recentExpenses: getDashboardRecentExpenses(5),
-    formatMoney,
     currentCurrency: normalizeCurrency(state.configuracion.moneda),
   });
 }
@@ -351,7 +349,6 @@ function renderDetalleAhorrosPage() {
     pageTitle: "Detalle de ahorros",
     pageSubtitle: "Resumen completo de objetivos y fondos acumulados",
     ahorros: state.dashboard.ahorros,
-    formatMoney,
   });
 }
 
@@ -389,7 +386,6 @@ function renderMisGastosPage() {
     gastos: getFilteredExpenses(),
     editingExpense,
     deletingExpense,
-    formatMoney,
   });
 }
 
@@ -471,7 +467,6 @@ function renderDashboardAsesorPage({
     showAddClientModal: Boolean(state.asesor.modals.nuevoCliente),
     newClientName: state.asesor.nuevoCliente.nombre,
     newClientCode: state.asesor.nuevoCliente.codigo,
-    formatMoney,
   });
 }
 

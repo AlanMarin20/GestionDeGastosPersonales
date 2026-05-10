@@ -1,17 +1,11 @@
-import { CURRENCY_CONFIG } from "../config";
 import { state } from "../state";
-import { normalizeCurrency } from "./format";
 
 export function createMoneyFormatter() {
-  const currencyCode = normalizeCurrency(state.configuracion.moneda);
-  const currencyConfig = CURRENCY_CONFIG[currencyCode] || CURRENCY_CONFIG.USD;
-  const language = String(state.configuracion.idioma || "es");
-  const locale = currencyConfig.localeByLanguage?.[language] || currencyConfig.fallbackLocale;
   const shouldShowDecimals = Boolean(state.configuracion.mostrarCentavos);
 
-  return new Intl.NumberFormat(locale, {
+  return new Intl.NumberFormat("es-AR", {
     style: "currency",
-    currency: currencyConfig.currency,
+    currency: "ARS",
     maximumFractionDigits: shouldShowDecimals ? 2 : 0,
     minimumFractionDigits: shouldShowDecimals ? 2 : 0,
   });

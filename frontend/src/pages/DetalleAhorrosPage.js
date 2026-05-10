@@ -1,5 +1,6 @@
 import { renderDashboardAppLayout } from "../components/dashboard/dashboardAppLayout";
 import { escapeHtml } from "../utils/sanitize";
+import { formatMoney } from "../utils/money";
 
 function resolveProgress(ahorro) {
   const meta = Number(ahorro.meta || 0);
@@ -19,7 +20,6 @@ export function renderDetalleAhorrosPage({
   pageTitle,
   pageSubtitle,
   ahorros,
-  formatMoney,
 }) {
   const content = `
     <article class="gd-card">

@@ -35,7 +35,7 @@ export function loadAppPreferences() {
   const rawPreferences = localStorage.getItem(APP_PREFERENCES_STORAGE_KEY);
 
   const fallback = {
-    moneda: normalizeCurrency(state.configuracion.moneda),
+    moneda: "ARS",
     idioma: String(state.configuracion.idioma || "es"),
     tema: fallbackThemeMode,
     tamanioFuente: normalizeFontSizeMode(state.configuracion.tamanioFuente),
@@ -60,7 +60,7 @@ export function loadAppPreferences() {
     const parsedPreferences = JSON.parse(rawPreferences);
 
     return {
-      moneda: normalizeCurrency(parsedPreferences.moneda || fallback.moneda),
+      moneda: "ARS",
       idioma: ["es", "en", "pt"].includes(parsedPreferences.idioma)
         ? parsedPreferences.idioma
         : fallback.idioma,
@@ -91,7 +91,7 @@ export function saveAppPreferences() {
   localStorage.setItem(
     APP_PREFERENCES_STORAGE_KEY,
     JSON.stringify({
-      moneda: normalizeCurrency(state.configuracion.moneda),
+      moneda: "ARS",
       idioma: state.configuracion.idioma,
       tema: themeMode,
       tamanioFuente: normalizeFontSizeMode(state.configuracion.tamanioFuente),

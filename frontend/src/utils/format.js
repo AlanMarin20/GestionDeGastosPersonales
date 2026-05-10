@@ -26,5 +26,5 @@ export function normalizeDensityMode(value) {
 }
 
 export function normalizeCurrency(value) {
-  return CURRENCY_CONFIG[value] ? value : "USD";
+  return CURRENCY_CONFIG[value] ? value : "ARS";
 }

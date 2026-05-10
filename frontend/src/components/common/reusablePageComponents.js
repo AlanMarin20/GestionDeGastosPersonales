@@ -1,5 +1,6 @@
 import { renderExpenseTable } from "../dashboard/dashboardExpenseTable";
 import { escapeHtml } from "../../utils/sanitize";
+import { formatMoney } from "../../utils/money";
 
 export function encabezadoInterno({
   pageTitle = '',
@@ -640,7 +641,7 @@ export function botonRegistrarGastos({
   return `<button type="${escapeHtml(type)}" class="${escapeHtml(className)}"${styleAttr}>${iconMarkup}${escapeHtml(text)}</button>`;
 }
 
-export function tarjetaAhorro({ ahorro, formatCurrency }) {
+export function tarjetaAhorro({ ahorro }) {
   const progress = ahorro.meta ? Math.min((ahorro.monto / ahorro.meta) * 100, 100) : 0;
 
   return `
@@ -649,7 +650,7 @@ export function tarjetaAhorro({ ahorro, formatCurrency }) {
         <div class="d-flex justify-content-between align-items-start mb-3">
           <div>
             <h3 class="h6 fw-bold mb-1 text-dark">${escapeHtml(ahorro.nombre)}</h3>
-            <span class="badge bg-primary bg-opacity-10 text-primary px-2 py-1 fp-savings-amount-badge">${formatCurrency(ahorro.monto)}</span>
+            <span class="badge bg-primary bg-opacity-10 text-primary px-2 py-1 fp-savings-amount-badge">${escapeHtml(formatMoney(ahorro.monto))}</span>
           </div>
           ${botonMasAccion({
             className: 'btn btn-primary btn-sm fw-bold shadow-sm border-0 fp-circle-action-btn',
@@ -664,7 +665,7 @@ export function tarjetaAhorro({ ahorro, formatCurrency }) {
               <div>
                 <div class="d-flex justify-content-between mb-1">
                   <small class="text-muted fw-semibold fp-savings-progress-label">Progreso</small>
-                  <small class="text-muted fw-semibold fp-savings-progress-label">Meta: ${formatCurrency(ahorro.meta)}</small>
+                  <small class="text-muted fw-semibold fp-savings-progress-label">Meta: ${escapeHtml(formatMoney(ahorro.meta))}</small>
                 </div>
                 <div class="progress fp-savings-progress">
                   <div class="progress-bar bg-success fp-savings-progress-bar" role="progressbar" style="width: ${progress}%;"></div>
@@ -802,7 +803,6 @@ export function renderDashboardExpenseCard({
   actionClassName = 'gd-top-btn',
   actionIconClass = 'lni lni-chevron-right',
   expenses = [],
-  formatMoney,
   showDescription = false,
   showActions = false,
   emptyMessage = 'No hay gastos recientes',
@@ -829,7 +829,6 @@ export function renderDashboardExpenseCard({
 
       ${renderExpenseTable({
         expenses: tableExpenses,
-        formatMoney,
         showDescription,
         showActions,
         emptyMessage,

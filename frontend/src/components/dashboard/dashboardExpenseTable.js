@@ -1,9 +1,9 @@
 import { normalizeCategoryClass } from "../../utils/category";
 import { escapeHtml } from "../../utils/sanitize";
+import { formatMoney } from "../../utils/money";
 
 export function renderExpenseTable({
   expenses = [],
-  formatMoney,
   showDescription = false,
   showActions = false,
   emptyMessage = "",
@@ -17,13 +17,6 @@ export function renderExpenseTable({
     { label: "Monto", className: "gd-right" },
     ...(showActions ? [{ label: "Acciones", className: "gd-right" }] : []),
   ];
-
-  const formatAmount = (amount) => {
-    if (typeof formatMoney === "function") {
-      return formatMoney(amount);
-    }
-    return String(amount ?? "");
-  };
 
   const rowMarkup = rows.length === 0
     ? (emptyMessage
@@ -63,7 +56,7 @@ export function renderExpenseTable({
             </td>
             ${descriptionCell}
             <td class="gd-muted">${escapeHtml(expense.fechaCorta)}</td>
-            <td class="gd-right">${escapeHtml(formatAmount(expense.monto))}</td>
+            <td class="gd-right">${escapeHtml(formatMoney(expense.monto))}</td>
             ${actionsCell}
           </tr>
         `;
@@ -88,43 +81,3 @@ export function renderExpenseTable({
   `;
 }
 
-export function renderDashboardExpenseCard({
-  title = "Ultimos movimientos",
-  actionHref = "",
-  actionText = "Ver todos los gastos",
-  actionClassName = "gd-top-btn",
-  actionIconClass = "lni lni-chevron-right",
-  expenses = [],
-  formatMoney,
-  showDescription = false,
-  showActions = false,
-  emptyMessage = "No hay gastos recientes",
-  cardClass = "",
-  rowMapper = null,
-} = {}) {
-  const cardClasses = ["gd-card", cardClass].filter(Boolean).join(" ");
-  const iconMarkup = actionIconClass ? `<i class="${escapeHtml(actionIconClass)}"></i>` : "";
-  const actionMarkup = actionHref
-    ? `<a href="${escapeHtml(actionHref)}" data-link class="${escapeHtml(actionClassName)}">${iconMarkup}${escapeHtml(actionText)}</a>`
-    : "";
-  const tableExpenses = typeof rowMapper === "function"
-    ? expenses.map((expense) => rowMapper(expense))
-    : expenses;
-
-  return `
-    <article class="${escapeHtml(cardClasses)}">
-      <div class="gd-card-header">
-        <h2 class="gd-card-title">${escapeHtml(title)}</h2>
-        ${actionMarkup}
-      </div>
-
-      ${renderExpenseTable({
-        expenses: tableExpenses,
-        formatMoney,
-        showDescription,
-        showActions,
-        emptyMessage,
-      })}
-    </article>
-  `;
-}

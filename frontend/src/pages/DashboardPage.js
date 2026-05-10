@@ -14,7 +14,6 @@ export function renderDashboardPage({
   pageSubtitle,
   metrics,
   recentExpenses,
-  formatMoney,
   currentCurrency,
 }) {
   const resolveMetricActionMarkup = (metric) => {
@@ -47,9 +46,9 @@ export function renderDashboardPage({
           <section class="gd-income-entry-dropdown" aria-label="Nuevo ingreso">
             <label class="gd-income-entry-label" for="incomeCurrencySelect">Moneda</label>
             <select id="incomeCurrencySelect" class="gd-income-entry-input" data-income-field="currency">
-              <option value="USD" ${currentCurrency === "USD" ? "selected" : ""}>USD</option>
-              <option value="ARS" ${currentCurrency === "ARS" ? "selected" : ""}>ARS</option>
-              <option value="EUR" ${currentCurrency === "EUR" ? "selected" : ""}>EUR</option>
+              <option value="ARS" selected>ARS (Peso argentino)</option>
+              <option value="USD" disabled>USD (próximamente)</option>
+              <option value="EUR" disabled>EUR (próximamente)</option>
             </select>
 
             <label class="gd-income-entry-label" for="incomeAmountInput">Monto</label>
@@ -106,7 +105,6 @@ export function renderDashboardPage({
       actionHref: "/dashboard/gastos",
       actionText: "ver todo",
       expenses: recentExpenses,
-      formatMoney,
     })}
   `;
 

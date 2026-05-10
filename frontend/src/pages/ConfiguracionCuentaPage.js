@@ -258,9 +258,9 @@ export function renderConfiguracionCuentaPage({
               <div>
                 <label class="gd-form-label" for="configMoneda">Moneda</label>
                 <select id="moneda" name="moneda" class="gd-form-select">
-                  <option value="USD" ${config.moneda === "USD" ? "selected" : ""}>Dolar USD</option>
-                  <option value="ARS" ${config.moneda === "ARS" ? "selected" : ""}>Peso argentino</option>
-                  <option value="EUR" ${config.moneda === "EUR" ? "selected" : ""}>Euro</option>
+                  <option value="ARS" selected>Peso argentino (ARS)</option>
+                  <option value="USD" disabled>Dolar USD (próximamente)</option>
+                  <option value="EUR" disabled>Euro (próximamente)</option>
                 </select>
               </div>
               <div>

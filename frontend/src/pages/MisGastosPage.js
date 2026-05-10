@@ -1,6 +1,7 @@
 import { renderDashboardAppLayout } from "../components/dashboard/dashboardAppLayout";
 import { renderExpenseTable } from "../components/dashboard/dashboardExpenseTable";
 import { escapeHtml } from "../utils/sanitize";
+import { formatMoney } from "../utils/money";
 
 function renderEditExpenseModal({ editingExpense, categoryOptions }) {
   if (!editingExpense) {
@@ -53,7 +54,7 @@ function renderEditExpenseModal({ editingExpense, categoryOptions }) {
   `;
 }
 
-function renderDeleteExpenseModal({ deletingExpense, formatMoney }) {
+function renderDeleteExpenseModal({ deletingExpense }) {
   if (!deletingExpense) {
     return "";
   }
@@ -85,7 +86,6 @@ export function renderMisGastosPage({
   gastos,
   editingExpense,
   deletingExpense,
-  formatMoney,
 }) {
   const content = `
     <div class="gd-filters">
@@ -131,7 +131,6 @@ export function renderMisGastosPage({
 
       ${renderExpenseTable({
         expenses: gastos,
-        formatMoney,
         showDescription: true,
         showActions: true,
         emptyMessage: "No hay gastos que coincidan con los filtros aplicados.",
@@ -140,7 +139,7 @@ export function renderMisGastosPage({
 
     ${renderEditExpenseModal({ editingExpense, categoryOptions })}
 
-    ${renderDeleteExpenseModal({ deletingExpense, formatMoney })}
+    ${renderDeleteExpenseModal({ deletingExpense })}
   `;
 
   return renderDashboardAppLayout({

@@ -1,6 +1,7 @@
 import { renderDashboardAppLayout } from "../components/dashboard/dashboardAppLayout";
 import { tarjetaValor } from "../components/common/reusablePageComponents";
 import { escapeHtml } from "../utils/sanitize";
+import { formatMoney } from "../utils/money";
 
 const RISK_CONFIG = {
   low: {
@@ -20,7 +21,7 @@ const RISK_CONFIG = {
   },
 };
 
-function renderAdvisorClientRow({ user, risk, formatMoney }) {
+function renderAdvisorClientRow({ user, risk }) {
   return `
     <article class="gd-user-row">
       <span class="gd-user-avatar gd-user-avatar-dynamic" style="--gd-avatar-color: ${escapeHtml(user.avatarColor)};">${escapeHtml(user.initials)}</span>
@@ -90,7 +91,6 @@ export function renderDashboardAsesorPage({
   showAddClientModal,
   newClientName,
   newClientCode,
-  formatMoney,
 }) {
   const content = `
     <section class="gd-metrics gd-metrics-3">
@@ -146,7 +146,7 @@ export function renderDashboardAsesorPage({
             : users
                 .map((user) => {
                   const risk = RISK_CONFIG[user.risk] || RISK_CONFIG.medium;
-                  return renderAdvisorClientRow({ user, risk, formatMoney });
+                  return renderAdvisorClientRow({ user, risk });
                 })
                 .join("")
         }

@@ -74,8 +74,18 @@ export async function loadDashboardBalances() {
   }
 }
 
+function getCurrentMonthKey() {
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  return `${now.getFullYear()}-${month}`;
+}
+
 export async function loadMovimientos() {
   if (!getAccessToken()) return;
+
+  const currentMonthKey = getCurrentMonthKey();
+  state.finanzas.currentPeriod = currentMonthKey;
+  state.finanzas.filtros.periodo = currentMonthKey;
 
   try {
     const response = await apiFetch("/api/movimientos");
@@ -93,7 +103,7 @@ export async function loadMovimientos() {
         comercio: m.comercio ?? "-",
         categoria: m.categoria ?? "Sin categoría",
         descripcion: m.descripcion ?? "",
-        fecha: m.fecha,
+        fecha: typeof m.fecha === "string" ? m.fecha.slice(0, 10) : m.fecha,
         monto: Number(m.monto),
         tipo: m.tipo,
       }));
