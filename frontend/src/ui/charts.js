@@ -1,13 +1,12 @@
 import Chart from "chart.js/auto";
 import { state } from "../state";
 import { formatMoney } from "../utils/money";
+import { escapeHtml } from "../utils/sanitize";
 import {
   getFinanzasCurrentPeriod,
   getDashboardMonthlySeries,
   getDashboardCategorySummary,
-  getDashboardBalanceData,
 } from "../data/finanzas";
-import { monthlyExpensesDetalle } from "../data/mockData";
 import { resolveDetalleCliente as resolveDetalleClienteView } from "../pages/DetalleClientePage";
 
 let chartInstances = [];
@@ -16,7 +15,7 @@ export function getChartInstances() {
   return chartInstances;
 }
 
-export function buildPieChart(canvasId, labels, values, centerPercentage = 0, colors = []) {
+export function buildPieChart(canvasId, labels, values, centerAmount = 0, colors = [], legendContainerId = null) {
   const canvas = document.getElementById(canvasId);
   if (!canvas) return;
 
@@ -29,8 +28,7 @@ export function buildPieChart(canvasId, labels, values, centerPercentage = 0, co
   const centerTextColor = isDark ? "#f8fafc" : "#0f172a";
   const centerSubTextColor = isDark ? "#94a3b8" : "#64748b";
 
-  const normalizedCenter = Math.max(0, Math.min(100, centerPercentage));
-  const centerText = `${normalizedCenter.toFixed(1)}%`;
+  const centerText = formatMoney(centerAmount);
 
   const centerTextPlugin = {
     id: `centerText-${canvasId}`,
@@ -46,15 +44,24 @@ export function buildPieChart(canvasId, labels, values, centerPercentage = 0, co
       ctx.textBaseline = "middle";
 
       ctx.fillStyle = centerTextColor;
-      ctx.font = "700 24px Inter, sans-serif";
+      ctx.font = "700 16px Inter, sans-serif";
       ctx.fillText(centerText, centerX, centerY - 8);
 
       ctx.fillStyle = centerSubTextColor;
-      ctx.font = "500 12px Inter, sans-serif";
-      ctx.fillText("Gastado", centerX, centerY + 14);
+      ctx.font = "500 11px Inter, sans-serif";
+      ctx.fillText("Total mes", centerX, centerY + 12);
       ctx.restore();
     },
   };
+
+  const defaultColors = [
+    "rgba(13, 110, 253, 0.85)",
+    "rgba(25, 135, 84, 0.85)",
+    "rgba(220, 53, 69, 0.85)",
+    "rgba(255, 193, 7, 0.85)",
+    "rgba(13, 202, 240, 0.85)",
+  ];
+  const usedColors = colors.length > 0 ? colors : defaultColors;
 
   const instance = new Chart(canvas, {
     type: "doughnut",
@@ -63,15 +70,7 @@ export function buildPieChart(canvasId, labels, values, centerPercentage = 0, co
       datasets: [
         {
           data: values,
-          backgroundColor: colors.length > 0
-            ? colors
-            : [
-                "rgba(13, 110, 253, 0.85)",
-                "rgba(25, 135, 84, 0.85)",
-                "rgba(220, 53, 69, 0.85)",
-                "rgba(255, 193, 7, 0.85)",
-                "rgba(13, 202, 240, 0.85)",
-              ],
+          backgroundColor: usedColors,
           borderColor: datasetBorder,
           borderWidth: 3,
           hoverOffset: 8,
@@ -110,6 +109,23 @@ export function buildPieChart(canvasId, labels, values, centerPercentage = 0, co
   });
 
   chartInstances.push(instance);
+
+  if (legendContainerId) {
+    const container = document.getElementById(legendContainerId);
+    if (container) {
+      const total = values.reduce((acc, val) => acc + Number(val || 0), 0);
+      const items = labels.map((label, i) => {
+        const pct = total > 0 ? ((Number(values[i] || 0) / total) * 100).toFixed(1) : "0.0";
+        const color = usedColors[i % usedColors.length];
+        return `<li class="gd-legend-item">
+          <span class="gd-legend-dot" style="background:${escapeHtml(String(color))}" aria-hidden="true"></span>
+          <span class="gd-legend-label">${escapeHtml(String(label))}</span>
+          <span class="gd-legend-value">${escapeHtml(pct)}%</span>
+        </li>`;
+      }).join("");
+      container.innerHTML = `<ul class="gd-legend" aria-label="Categorias de gasto">${items}</ul>`;
+    }
+  }
 }
 
 export function buildBarChart(canvasId, dataPoints) {
@@ -272,16 +288,16 @@ export function initCharts(pathname) {
     const currentPeriod = getFinanzasCurrentPeriod();
     const monthlySeries = getDashboardMonthlySeries();
     const categorySeries = getDashboardCategorySummary(currentPeriod);
-    const { egreso, ingreso } = getDashboardBalanceData();
-    const spentPercentage = ingreso > 0 ? (egreso / ingreso) * 100 : 0;
+    const totalEgreso = categorySeries.reduce((sum, item) => sum + item.total, 0);
 
     buildBarChart("dashboardMonthlyBarChart", monthlySeries);
     buildPieChart(
       "dashboardCategoryDonutChart",
       categorySeries.map((item) => item.label),
       categorySeries.map((item) => item.total),
-      spentPercentage,
+      totalEgreso,
       categorySeries.map((item) => item.color),
+      "dashboardCategoryLegend",
     );
   }
 
@@ -289,31 +305,56 @@ export function initCharts(pathname) {
     const currentPeriod = getFinanzasCurrentPeriod();
     const monthlySeries = getDashboardMonthlySeries();
     const categorySeries = getDashboardCategorySummary(currentPeriod);
-    const { egreso, ingreso } = getDashboardBalanceData();
-    const spentPercentage = ingreso > 0 ? (egreso / ingreso) * 100 : 0;
+    const totalEgreso = categorySeries.reduce((sum, item) => sum + item.total, 0);
 
     buildBarChart("patronesBarChart", monthlySeries);
     buildPieChart(
       "patronesCategoryDonut",
       categorySeries.map((item) => item.label),
       categorySeries.map((item) => item.total),
-      spentPercentage,
+      totalEgreso,
       categorySeries.map((item) => item.color),
+      "patronesCategoryLegend",
     );
   }
 
   if (pathname.startsWith("/cliente/") && !pathname.endsWith("/gastos")) {
     const detalleCliente = resolveDetalleClienteView(pathname, state);
-    const presupuesto = Number(detalleCliente?.presupuesto || 0);
-    const gastadoMes = Number(detalleCliente?.gastadoMes || 0);
-    const porcentajeGastado = presupuesto > 0 ? (gastadoMes / presupuesto) * 100 : 0;
+    const gastos = state.detalleCliente?.gastos ?? [];
 
-    buildBarChart("detalleMonthlyBarChart", monthlyExpensesDetalle);
+    const categoryTotals = new Map();
+    gastos.forEach((g) => {
+      const cat = g.categoria || "Otros";
+      categoryTotals.set(cat, (categoryTotals.get(cat) || 0) + Number(g.monto || 0));
+    });
+    const categoryEntries = [...categoryTotals.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5);
+    const totalEgresoCliente = categoryEntries.reduce((s, [, v]) => s + v, 0);
+
+    const monthlyMap = new Map();
+    gastos.forEach((g) => {
+      const key = g.fecha ? g.fecha.slice(0, 7) : "";
+      if (key) monthlyMap.set(key, (monthlyMap.get(key) || 0) + Number(g.monto || 0));
+    });
+    const monthlySeries = [...monthlyMap.entries()]
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .slice(-6)
+      .map(([key, total]) => ({ label: key.slice(5), total }));
+
+    const presupuesto = Number(detalleCliente?.presupuesto || 0);
+    const porcentajeGastado = presupuesto > 0 ? (totalEgresoCliente / presupuesto) * 100 : 0;
+
+    if (monthlySeries.length > 0) {
+      buildBarChart("detalleMonthlyBarChart", monthlySeries);
+    }
     buildPieChart(
       "detallePieChart",
-      ["Comida", "Vivienda", "Transporte", "Salud", "Otros"],
-      [35, 25, 15, 10, 15],
-      porcentajeGastado,
+      categoryEntries.length > 0 ? categoryEntries.map(([label]) => label) : ["Sin gastos"],
+      categoryEntries.length > 0 ? categoryEntries.map(([, v]) => v) : [1],
+      totalEgresoCliente,
+      [],
+      "detalleCategoryLegend",
     );
   }
 }

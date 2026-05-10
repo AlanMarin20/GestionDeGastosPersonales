@@ -42,19 +42,6 @@ function renderUnusualSpending(unusualMessages) {
   `).join("");
 }
 
-function renderCategoryLegend(categorySummary) {
-  return `
-    <ul class="gd-legend" aria-label="Categorias de gasto">
-      ${categorySummary.map((item) => `
-        <li class="gd-legend-item">
-          <span class="gd-legend-dot" style="background: ${escapeHtml(item.color || "#38bdf8")}" aria-hidden="true"></span>
-          <span class="gd-legend-label">${escapeHtml(item.label)}</span>
-          <span class="gd-legend-value">${escapeHtml(item.share)}</span>
-        </li>
-      `).join("")}
-    </ul>
-  `;
-}
 
 function renderEvolutionRows(evolutionRows) {
   if (!evolutionRows.length) {
@@ -117,11 +104,7 @@ export function renderPatronesPage({
         ariaLabel: "Distribucion de gastos por categoria",
         height: "220px",
         dashboardStyle: true,
-        summaryItems: categorySummary.map((item) => ({
-          color: item.color || "#38bdf8",
-          label: item.label,
-          value: item.share,
-        })),
+        legendContainerId: "patronesCategoryLegend",
       })}
     </section>
 

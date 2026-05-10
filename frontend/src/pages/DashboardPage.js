@@ -143,6 +143,7 @@ export function renderDashboardPage({
         ariaLabel: "Distribucion por categoria",
         height: "220px",
         dashboardStyle: true,
+        legendContainerId: "dashboardCategoryLegend",
       })}
     </section>
 

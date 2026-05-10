@@ -690,6 +690,7 @@ function renderChartCard({
   chartWrapClass = '',
   chartWrapStyle = '',
   summaryItems = [],
+  legendContainerId = '',
 }) {
   const summaryMarkup = Array.isArray(summaryItems) && summaryItems.length > 0
     ? `
@@ -708,6 +709,9 @@ function renderChartCard({
     const cardClasses = ['gd-card', cardClass].filter(Boolean).join(' ');
     const chartClasses = ['gd-chart-wrap', chartWrapClass].filter(Boolean).join(' ');
     const extraWrapStyle = chartWrapStyle ? ` ${escapeHtml(chartWrapStyle)}` : '';
+    const legendMarkup = legendContainerId
+      ? `<div id="${escapeHtml(legendContainerId)}" class="gd-chart-legend mt-2"></div>`
+      : '';
 
     return `
       <article class="${escapeHtml(cardClasses)}">
@@ -719,6 +723,7 @@ function renderChartCard({
         <div class="${escapeHtml(chartClasses)}" style="min-height: ${escapeHtml(height)};${extraWrapStyle}">
           <canvas id="${escapeHtml(canvasId)}" aria-label="${escapeHtml(ariaLabel)}" role="img"></canvas>
         </div>
+        ${legendMarkup}
       </article>
     `;
   }
@@ -755,6 +760,7 @@ export function graficoTorta({
   chartWrapClass = '',
   chartWrapStyle = '',
   summaryItems = [],
+  legendContainerId = '',
 } = {}) {
   return renderChartCard({
     title,
@@ -767,6 +773,7 @@ export function graficoTorta({
     chartWrapClass,
     chartWrapStyle,
     summaryItems,
+    legendContainerId,
   });
 }
 
