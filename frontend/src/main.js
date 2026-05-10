@@ -363,6 +363,7 @@ function renderCargarGastoPage() {
     pageTitle: "Cargar gasto",
     pageSubtitle: "Registra un gasto manual o mediante ticket con IA",
     ticketFileName: state.finanzas.cargar.ticketFileName,
+    ocrLoading: state.finanzas.cargar.ocrLoading,
     expenseForm: state.finanzas.cargar.form,
     categoryOptions: getMisGastosCategoryOptions(),
   });

@@ -333,12 +333,13 @@ export const state = {
     ],
     cargar: {
       ticketFileName: "",
+      ocrLoading: false,
       form: {
-        comercio: "Disco Supermaxi",
-        fecha: "2026-04-18",
-        monto: "42480",
-        categoria: "Supermercado",
-        descripcion: "Compras semanales",
+        comercio: "",
+        fecha: "",
+        monto: "",
+        categoria: "",
+        descripcion: "",
       },
     },
     filtros: {

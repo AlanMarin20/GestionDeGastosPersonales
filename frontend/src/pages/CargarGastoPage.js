@@ -20,6 +20,7 @@ export function renderCargarGastoPage({
   pageTitle,
   pageSubtitle,
   ticketFileName,
+  ocrLoading = false,
   expenseForm,
   categoryOptions = [],
 }) {
@@ -28,13 +29,19 @@ export function renderCargarGastoPage({
   const content = `
     <div class="gd-card">
       <label class="gd-upload-zone" for="ticketUploadInput">
-        <input type="file" id="ticketUploadInput" class="d-none" accept="image/png,image/jpeg,application/pdf">
-        <div class="gd-upload-icon"><i class="lni lni-camera"></i></div>
-        <div class="gd-upload-title">Subi una foto del ticket (opcional)</div>
+        <input type="file" id="ticketUploadInput" class="d-none" accept="image/png,image/jpeg">
+        <div class="gd-upload-icon">
+          ${ocrLoading ? '<span class="gd-spinner"></span>' : '<i class="lni lni-camera"></i>'}
+        </div>
+        <div class="gd-upload-title">
+          ${ocrLoading ? "Analizando ticket con IA..." : "Subi una foto del ticket (opcional)"}
+        </div>
+        ${!ocrLoading ? `
         <div class="gd-upload-sub">Si subis una imagen, la IA autocompleta los campos para que luego confirmes.</div>
         <div class="gd-upload-sub">Tambien podes completar todo manualmente sin subir foto.</div>
         <div class="gd-ai-badge"><i class="lni lni-bolt-alt"></i> IA extrae comercio, fecha, monto y categoria</div>
-        ${ticketFileName ? `<div class="gd-upload-sub mt-2">Archivo detectado: ${escapeHtml(ticketFileName)}</div>` : ""}
+        ` : ""}
+        ${ticketFileName ? `<div class="gd-upload-sub mt-2">Archivo: ${escapeHtml(ticketFileName)}</div>` : ""}
       </label>
 
       <div class="gd-alert-strip warn">

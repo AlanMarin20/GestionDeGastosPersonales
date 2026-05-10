@@ -544,21 +544,46 @@ export function attachFormHandlers(pathname, { navigate, render }) {
       syncNewCategoryVisibility(value);
     });
 
-    ticketUploadInput?.addEventListener("change", (event) => {
+    ticketUploadInput?.addEventListener("change", async (event) => {
       const file = event.target.files?.[0];
       if (!file) {
         return;
       }
 
       state.finanzas.cargar.ticketFileName = file.name;
-      state.finanzas.cargar.form = {
-        comercio: "Disco Supermaxi",
-        fecha: "2026-04-18",
-        monto: "42480",
-        categoria: "Supermercado",
-        descripcion: "Compras semanales",
-      };
+      state.finanzas.cargar.ocrLoading = true;
       render();
+
+      try {
+        const formData = new FormData();
+        formData.append("ticket", file);
+
+        const response = await apiFetch("/ticket-ocr/analyze", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error(`Error ${response.status}`);
+        }
+
+        const data = await response.json();
+        state.finanzas.cargar.form = {
+          comercio: data.comercio ?? "",
+          fecha: data.fecha ?? "",
+          monto: data.monto ?? "",
+          categoria: data.categoria ?? "",
+          descripcion: data.descripcion ?? "",
+        };
+      } catch {
+        showAppNotification(
+          "No se pudo analizar el ticket. Completá los datos manualmente.",
+          "warn",
+        );
+      } finally {
+        state.finanzas.cargar.ocrLoading = false;
+        render();
+      }
     });
 
     expenseForm?.addEventListener("submit", (event) => {

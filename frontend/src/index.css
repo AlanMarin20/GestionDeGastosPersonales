@@ -219,3 +219,17 @@ body.theme-dark .app-confirm-btn-secondary:hover {
 body.theme-dark .app-confirm-danger .app-confirm-title {
   color: #fca5a5;
 }
+
+.gd-spinner {
+  display: inline-block;
+  width: 2rem;
+  height: 2rem;
+  border: 3px solid rgba(99, 102, 241, 0.2);
+  border-top-color: #6366f1;
+  border-radius: 50%;
+  animation: gd-spin 0.7s linear infinite;
+}
+
+@keyframes gd-spin {
+  to { transform: rotate(360deg); }
+}

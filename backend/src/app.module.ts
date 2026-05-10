@@ -19,6 +19,7 @@ import { UserRolesModule } from './user-roles/user-roles.module';
 import { BalancesModule } from './balances/balances.module';
 import { MovimientosModule } from './movimientos/movimientos.module';
 import { AsesorModule } from './asesor/asesor.module';
+import { TicketOcrModule } from './ticket-ocr/ticket-ocr.module';
 import { RolesGuard } from './auth/roles.guard';
 
 @Module({
@@ -30,6 +31,7 @@ import { RolesGuard } from './auth/roles.guard';
         DATABASE_URL: Joi.string().uri().required(),
         JWT_SECRET: Joi.string().min(16).required(),
         ANTHROPIC_API_KEY: Joi.string().allow('').optional(),
+        GEMINI_API_KEY: Joi.string().allow('').optional(),
         FRONTEND_URL: Joi.string().uri().optional(),
         // OAuth de terceros deshabilitado temporalmente.
         // GOOGLE_CLIENT_ID: Joi.string().allow('').optional(),
@@ -73,6 +75,7 @@ import { RolesGuard } from './auth/roles.guard';
     BalancesModule,
     MovimientosModule,
     AsesorModule,
+    TicketOcrModule,
   ],
   controllers: [AppController],
   providers: [AppService, RolesGuard],
