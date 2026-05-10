@@ -15,7 +15,8 @@ import {
 } from "../utils/format";
 import { showAppNotification } from "../ui/notifications";
 import { saveAppPreferences } from "../ui/theme";
-import { addExpenseRecord, addSavingsGoalRecord } from "../data/expenses";
+import { addExpenseRecord } from "../data/expenses";
+import { createAhorro, loadAhorros } from "../api/ahorros";
 import {
   generateAdvisorVerificationCode,
   closeAdvisorNewClientModal,
@@ -841,31 +842,37 @@ export function attachFormHandlers(pathname, { navigate, render }) {
 
   if (pathname === "/dashboard/ahorros") {
     const ahorroForm = document.getElementById("detalleAhorroForm");
-    ahorroForm?.addEventListener("submit", (event) => {
+    ahorroForm?.addEventListener("submit", async (event) => {
       event.preventDefault();
 
-      const nombreInput = document.getElementById("detalleAhorroNombre");
-      const montoInput = document.getElementById("detalleAhorroMonto");
-      const metaInput = document.getElementById("detalleAhorroMeta");
+      const nombre = (document.getElementById("detalleAhorroNombre")?.value || "").trim();
+      const montoInicial = Number.parseFloat(document.getElementById("detalleAhorroMonto")?.value || "") || 0;
+      const meta = Number.parseFloat(document.getElementById("detalleAhorroMeta")?.value || "") || 0;
 
-      const nombre = (nombreInput?.value || "").trim();
-      const montoInicial = Number.parseFloat(montoInput?.value || "");
-      const meta = Number.parseFloat(metaInput?.value || "");
-
-      const wasAdded = addSavingsGoalRecord({ nombre, montoInicial, meta });
-      if (!wasAdded) {
+      if (!nombre) {
         showAppNotification("Completa al menos el nombre del ahorro", "warning");
         return;
       }
 
-      state.dashboard.nuevoAhorroForm = {
-        nombre: "",
-        montoInicial: "",
-        meta: "",
-      };
+      if (meta > 0 && meta <= montoInicial) {
+        showAppNotification("La meta debe ser mayor al monto inicial", "warning");
+        return;
+      }
 
-      showAppNotification("Nuevo ahorro agregado", "success");
-      render();
+      const disponible = state.finanzas.balancesData?.disponible ?? 0;
+      if (montoInicial > 0 && montoInicial > disponible) {
+        showAppNotification(`El monto inicial supera el dinero disponible (${disponible.toFixed(2)})`, "warning");
+        return;
+      }
+
+      try {
+        await createAhorro({ nombre, montoInicial, meta });
+        await loadAhorros();
+        showAppNotification("Nuevo ahorro agregado", "success");
+        render();
+      } catch (error) {
+        showAppNotification(error.message || "Error al crear el ahorro", "error");
+      }
     });
   }
 

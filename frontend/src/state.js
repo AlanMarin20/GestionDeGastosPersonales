@@ -26,11 +26,7 @@ export const state = {
         fecha: "20 mar",
       },
     ],
-    ahorros: [
-      { id: "1", nombre: "Vacaciones", monto: 1500, meta: 3000 },
-      { id: "2", nombre: "Auto Nuevo", monto: 850, meta: 2500 },
-      { id: "3", nombre: "Emergencias", monto: 2000 },
-    ],
+    ahorros: [],
     formData: {
       descripcion: "",
       monto: "",
@@ -91,6 +87,8 @@ export const state = {
     ui: {
       editingExpenseId: null,
       deletingExpenseId: null,
+      editingAhorroId: null,
+      deletingAhorroId: null,
     },
     recomendaciones: [
       {

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateSavingsGoalDto } from './dto/create-savings-goal.dto';
@@ -13,10 +13,38 @@ export class SavingsGoalsService {
   ) {}
 
   async create(userId: string, createSavingsGoalDto: CreateSavingsGoalDto) {
+    const currentAmount = createSavingsGoalDto.currentAmount ?? 0;
+    const targetAmount = createSavingsGoalDto.targetAmount ?? 0;
+
+    if (targetAmount > 0 && currentAmount > 0 && targetAmount <= currentAmount) {
+      throw new BadRequestException(
+        'La meta debe ser mayor al monto inicial',
+      );
+    }
+
+    if (currentAmount > 0) {
+      const rows: { disponible: string }[] =
+        await this.goalRepository.manager.query(
+          `SELECT
+            COALESCE(SUM(CASE WHEN tipo = 'ingreso' THEN monto ELSE 0 END), 0) -
+            COALESCE(SUM(CASE WHEN tipo = 'egreso' THEN monto ELSE 0 END), 0) AS disponible
+           FROM movimientos
+           WHERE usuario_id = $1
+             AND DATE_TRUNC('month', fecha) = DATE_TRUNC('month', CURRENT_DATE)`,
+          [userId],
+        );
+      const disponible = Number(rows[0]?.disponible ?? 0);
+      if (currentAmount > disponible) {
+        throw new BadRequestException(
+          `El monto inicial supera el dinero disponible este mes (${disponible.toFixed(2)})`,
+        );
+      }
+    }
+
     const goal = this.goalRepository.create({
       nombre: createSavingsGoalDto.name,
-      targetAmount: createSavingsGoalDto.targetAmount,
-      currentAmount: createSavingsGoalDto.currentAmount ?? 0,
+      targetAmount,
+      currentAmount,
       dueDate: createSavingsGoalDto.dueDate
         ? new Date(createSavingsGoalDto.dueDate)
         : undefined,

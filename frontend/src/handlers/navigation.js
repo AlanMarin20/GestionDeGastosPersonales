@@ -27,6 +27,7 @@ import {
 } from "../data/advisor";
 import { apiFetch } from "../api/client";
 import { loadDashboardBalances, loadMovimientos } from "../api/user";
+import { loadAhorros, updateAhorro, deleteAhorro } from "../api/ahorros";
 
 export function attachGlobalNavigation({ navigate, render }) {
   function clearSessionAndRedirectToLogin() {
@@ -258,6 +259,70 @@ export function attachGlobalNavigation({ navigate, render }) {
       state.dashboard.modals.destino = false;
       state.dashboard.ahorroDestinoId = null;
       render();
+    },
+    "open-edit-ahorro": ({ actionButton }) => {
+      const ahorroId = actionButton.getAttribute("data-ahorro-id");
+      if (!ahorroId) return;
+      state.finanzas.ui.editingAhorroId = ahorroId;
+      state.finanzas.ui.deletingAhorroId = null;
+      render();
+    },
+    "close-edit-ahorro-modal": () => {
+      state.finanzas.ui.editingAhorroId = null;
+      render();
+    },
+    "save-edit-ahorro": async ({ actionButton }) => {
+      const ahorroId = actionButton.getAttribute("data-ahorro-id");
+      if (!ahorroId) return;
+
+      const nombre = document.getElementById("editAhorroNombre")?.value?.trim() || "";
+      const montoInicial = Number.parseFloat(document.getElementById("editAhorroMonto")?.value || "") || 0;
+      const meta = Number.parseFloat(document.getElementById("editAhorroMeta")?.value || "") || 0;
+
+      if (!nombre) {
+        showAppNotification("El nombre es requerido", "warning");
+        return;
+      }
+
+      if (meta > 0 && meta <= montoInicial) {
+        showAppNotification("La meta debe ser mayor al monto", "warning");
+        return;
+      }
+
+      try {
+        await updateAhorro(ahorroId, { nombre, montoInicial, meta });
+        await loadAhorros();
+        state.finanzas.ui.editingAhorroId = null;
+        showAppNotification("Ahorro actualizado", "success");
+        render();
+      } catch (error) {
+        showAppNotification(error.message || "Error al actualizar el ahorro", "error");
+      }
+    },
+    "open-delete-ahorro": ({ actionButton }) => {
+      const ahorroId = actionButton.getAttribute("data-ahorro-id");
+      if (!ahorroId) return;
+      state.finanzas.ui.deletingAhorroId = ahorroId;
+      state.finanzas.ui.editingAhorroId = null;
+      render();
+    },
+    "close-delete-ahorro-modal": () => {
+      state.finanzas.ui.deletingAhorroId = null;
+      render();
+    },
+    "confirm-delete-ahorro": async ({ actionButton }) => {
+      const ahorroId = actionButton.getAttribute("data-ahorro-id");
+      if (!ahorroId) return;
+
+      try {
+        await deleteAhorro(ahorroId);
+        await loadAhorros();
+        state.finanzas.ui.deletingAhorroId = null;
+        showAppNotification("Ahorro eliminado", "success");
+        render();
+      } catch (error) {
+        showAppNotification(error.message || "Error al eliminar el ahorro", "error");
+      }
     },
     "open-add-client-modal": ({ event }) => {
       event.preventDefault();

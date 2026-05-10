@@ -13,6 +13,58 @@ function resolveProgress(ahorro) {
   return Math.min((monto / meta) * 100, 100);
 }
 
+function renderEditAhorroModal({ editingAhorro }) {
+  if (!editingAhorro) return "";
+
+  return `
+    <div class="gd-modal-backdrop" data-action="close-edit-ahorro-modal"></div>
+    <section class="gd-modal" role="dialog" aria-modal="true" aria-label="Editar ahorro">
+      <div class="gd-modal-card">
+        <h3 class="gd-modal-title">Editar ahorro</h3>
+        <p class="gd-modal-sub">Actualiza nombre, monto y meta del objetivo.</p>
+
+        <div class="gd-form-grid">
+          <div class="gd-form-full">
+            <label class="gd-form-label" for="editAhorroNombre">Nombre</label>
+            <input id="editAhorroNombre" class="gd-form-input" value="${escapeHtml(editingAhorro.nombre)}">
+          </div>
+          <div>
+            <label class="gd-form-label" for="editAhorroMonto">Monto actual</label>
+            <input id="editAhorroMonto" type="number" min="0" step="0.01" class="gd-form-input" value="${escapeHtml(String(editingAhorro.monto))}">
+          </div>
+          <div>
+            <label class="gd-form-label" for="editAhorroMeta">Meta (opcional)</label>
+            <input id="editAhorroMeta" type="number" min="0" step="0.01" class="gd-form-input" value="${escapeHtml(String(editingAhorro.meta ?? ""))}">
+          </div>
+        </div>
+
+        <div class="gd-modal-actions">
+          <button type="button" class="gd-btn-secondary" data-action="close-edit-ahorro-modal">Cancelar</button>
+          <button type="button" class="gd-btn-primary" data-action="save-edit-ahorro" data-ahorro-id="${escapeHtml(editingAhorro.id)}">Guardar cambios</button>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+function renderDeleteAhorroModal({ deletingAhorro }) {
+  if (!deletingAhorro) return "";
+
+  return `
+    <div class="gd-modal-backdrop" data-action="close-delete-ahorro-modal"></div>
+    <section class="gd-modal" role="dialog" aria-modal="true" aria-label="Eliminar ahorro">
+      <div class="gd-modal-card">
+        <h3 class="gd-modal-title">Eliminar ahorro</h3>
+        <p class="gd-modal-sub">Esta accion eliminara el objetivo "${escapeHtml(deletingAhorro.nombre)}" con ${escapeHtml(formatMoney(deletingAhorro.monto))} acumulado.</p>
+        <div class="gd-modal-actions">
+          <button type="button" class="gd-btn-secondary" data-action="close-delete-ahorro-modal">Cancelar</button>
+          <button type="button" class="gd-btn-danger" data-action="confirm-delete-ahorro" data-ahorro-id="${escapeHtml(deletingAhorro.id)}">Eliminar</button>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
 export function renderDetalleAhorrosPage({
   profileImage,
   profileName,
@@ -20,6 +72,8 @@ export function renderDetalleAhorrosPage({
   pageTitle,
   pageSubtitle,
   ahorros,
+  editingAhorro,
+  deletingAhorro,
 }) {
   const content = `
     <article class="gd-card">
@@ -44,6 +98,10 @@ export function renderDetalleAhorrosPage({
                     <div class="gd-list-item-aside">
                       <p class="gd-list-item-amount">${escapeHtml(formatMoney(ahorro.monto))}</p>
                       <p class="gd-list-item-sub">${hasGoal ? `${escapeHtml(progress.toFixed(1))}%` : ""}</p>
+                    </div>
+                    <div class="gd-action-cell">
+                      <button type="button" class="gd-action-btn" data-action="open-edit-ahorro" data-ahorro-id="${escapeHtml(ahorro.id)}" aria-label="Editar ahorro">Editar</button>
+                      <button type="button" class="gd-action-btn danger" data-action="open-delete-ahorro" data-ahorro-id="${escapeHtml(ahorro.id)}" aria-label="Eliminar ahorro">🗑</button>
                     </div>
                   </div>
                 `;
@@ -75,6 +133,9 @@ export function renderDetalleAhorrosPage({
         </div>
       </form>
     </article>
+
+    ${renderEditAhorroModal({ editingAhorro })}
+    ${renderDeleteAhorroModal({ deletingAhorro })}
   `;
 
   return renderDashboardAppLayout({

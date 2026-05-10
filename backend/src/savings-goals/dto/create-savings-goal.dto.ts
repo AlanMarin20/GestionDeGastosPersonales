@@ -13,9 +13,10 @@ export class CreateSavingsGoalDto {
   @MaxLength(150)
   name: string;
 
+  @IsOptional()
   @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0)
-  targetAmount: number;
+  targetAmount?: number;
 
   @IsOptional()
   @IsNumber({ maxDecimalPlaces: 2 })

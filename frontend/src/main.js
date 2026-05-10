@@ -97,7 +97,6 @@ import {
 } from "./data/finanzas";
 import {
   addExpenseRecord,
-  addSavingsGoalRecord,
   updateExpenseRecord,
   deleteExpenseRecord,
 } from "./data/expenses";
@@ -135,6 +134,7 @@ import {
   loadDashboardBalances,
   loadMovimientos,
 } from "./api/user";
+import { loadAhorros } from "./api/ahorros";
 import {
   showAppNotification,
   showAppConfirm,
@@ -342,6 +342,15 @@ function renderDashboardPage() {
 }
 
 function renderDetalleAhorrosPage() {
+  const editingId = state.finanzas.ui.editingAhorroId;
+  const deletingId = state.finanzas.ui.deletingAhorroId;
+  const editingAhorro = editingId
+    ? state.dashboard.ahorros.find((a) => a.id === editingId) ?? null
+    : null;
+  const deletingAhorro = deletingId
+    ? state.dashboard.ahorros.find((a) => a.id === deletingId) ?? null
+    : null;
+
   return renderDetalleAhorrosPageView({
     profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
     profileName: state.perfil.nombre || "Usuario",
@@ -349,6 +358,8 @@ function renderDetalleAhorrosPage() {
     pageTitle: "Detalle de ahorros",
     pageSubtitle: "Resumen completo de objetivos y fondos acumulados",
     ahorros: state.dashboard.ahorros,
+    editingAhorro,
+    deletingAhorro,
   });
 }
 
@@ -711,7 +722,7 @@ if (typeof systemThemeMedia.addEventListener === "function") {
 
 loadCurrentUser().finally(() => {
   if (getAccessToken()) {
-    Promise.all([loadDashboardBalances(), loadMovimientos()]).finally(() => render());
+    Promise.all([loadDashboardBalances(), loadMovimientos(), loadAhorros()]).finally(() => render());
     return;
   }
 
