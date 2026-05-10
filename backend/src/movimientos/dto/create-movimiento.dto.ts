@@ -23,6 +23,16 @@ export class CreateMovimientoDto {
 
   @IsOptional()
   @IsString()
+  @MaxLength(150)
+  comercio?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  categoria?: string;
+
+  @IsOptional()
+  @IsString()
   descripcion?: string;
 
   @IsOptional()

@@ -1,30 +1,51 @@
 import { state } from "../state";
 import { getMonthKeyFromDate } from "../utils/date";
+import { apiCreateMovimiento, apiUpdateMovimiento, apiDeleteMovimiento } from "../api/movimientos";
 
-export function addExpenseRecord({ comercio, fecha, monto, categoria, descripcion }) {
+export async function addExpenseRecord({ comercio, fecha, monto, categoria, descripcion }) {
   const numericAmount = Number.parseFloat(String(monto));
 
   if (!comercio || !fecha || Number.isNaN(numericAmount) || numericAmount <= 0 || !categoria) {
     return false;
   }
 
-  const monthKey = getMonthKeyFromDate(fecha);
-  const id = `g-${Date.now()}`;
+  try {
+    const saved = await apiCreateMovimiento({
+      tipo: "egreso",
+      monto: numericAmount,
+      comercio,
+      categoria,
+      descripcion,
+      fecha,
+    });
 
-  state.finanzas.gastos = [
-    { id, comercio, fecha, monto: numericAmount, categoria, descripcion },
-    ...state.finanzas.gastos,
-  ];
+    const monthKey = getMonthKeyFromDate(fecha);
 
-  if (monthKey) {
-    state.finanzas.currentPeriod = monthKey;
+    state.finanzas.gastos = [
+      {
+        id: saved.id,
+        comercio,
+        fecha,
+        monto: numericAmount,
+        categoria,
+        descripcion: descripcion || "",
+        tipo: "egreso",
+      },
+      ...state.finanzas.gastos,
+    ];
 
-    if (state.finanzas.ticketGoalByPeriod[monthKey] !== undefined) {
-      state.finanzas.ticketGoalByPeriod[monthKey] += 1;
+    if (monthKey) {
+      state.finanzas.currentPeriod = monthKey;
+      if (state.finanzas.ticketGoalByPeriod[monthKey] !== undefined) {
+        state.finanzas.ticketGoalByPeriod[monthKey] += 1;
+      }
     }
-  }
 
-  return true;
+    return true;
+  } catch (error) {
+    console.error("Error guardando gasto:", error);
+    return false;
+  }
 }
 
 export function addSavingsGoalRecord({ nombre, montoInicial, meta }) {
@@ -54,7 +75,7 @@ export function addSavingsGoalRecord({ nombre, montoInicial, meta }) {
   return true;
 }
 
-export function updateExpenseRecord(expenseId, updates) {
+export async function updateExpenseRecord(expenseId, updates) {
   const previousExpense = state.finanzas.gastos.find((item) => item.id === expenseId);
   if (!previousExpense) {
     return false;
@@ -65,27 +86,48 @@ export function updateExpenseRecord(expenseId, updates) {
     return false;
   }
 
-  state.finanzas.gastos = state.finanzas.gastos.map((expense) =>
-    expense.id === expenseId
-      ? {
-          ...expense,
-          comercio: updates.comercio,
-          fecha: updates.fecha,
-          monto: nextAmount,
-          categoria: updates.categoria,
-          descripcion: updates.descripcion || "",
-        }
-      : expense,
-  );
+  try {
+    await apiUpdateMovimiento(expenseId, {
+      tipo: previousExpense.tipo || "egreso",
+      monto: nextAmount,
+      comercio: updates.comercio,
+      categoria: updates.categoria,
+      descripcion: updates.descripcion || "",
+      fecha: updates.fecha,
+    });
 
-  return true;
+    state.finanzas.gastos = state.finanzas.gastos.map((expense) =>
+      expense.id === expenseId
+        ? {
+            ...expense,
+            comercio: updates.comercio,
+            fecha: updates.fecha,
+            monto: nextAmount,
+            categoria: updates.categoria,
+            descripcion: updates.descripcion || "",
+          }
+        : expense,
+    );
+
+    return true;
+  } catch (error) {
+    console.error("Error actualizando gasto:", error);
+    return false;
+  }
 }
 
-export function deleteExpenseRecord(expenseId) {
-  const previousLength = state.finanzas.gastos.length;
-  state.finanzas.gastos = state.finanzas.gastos.filter(
-    (expense) => expense.id !== expenseId,
-  );
+export async function deleteExpenseRecord(expenseId) {
+  try {
+    await apiDeleteMovimiento(expenseId);
 
-  return state.finanzas.gastos.length !== previousLength;
+    const previousLength = state.finanzas.gastos.length;
+    state.finanzas.gastos = state.finanzas.gastos.filter(
+      (expense) => expense.id !== expenseId,
+    );
+
+    return state.finanzas.gastos.length !== previousLength;
+  } catch (error) {
+    console.error("Error eliminando gasto:", error);
+    return false;
+  }
 }

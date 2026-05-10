@@ -155,7 +155,7 @@ export function attachGlobalNavigation({ navigate, render }) {
       state.finanzas.ui.editingExpenseId = null;
       render();
     },
-    "save-edit-expense": ({ event, actionButton }) => {
+    "save-edit-expense": async ({ event, actionButton }) => {
       event.preventDefault();
       const expenseId = actionButton.getAttribute("data-expense-id");
       if (!expenseId) {
@@ -171,13 +171,15 @@ export function attachGlobalNavigation({ navigate, render }) {
       const descripcion =
         document.getElementById("editExpenseDescripcion")?.value?.trim() || "";
 
-      const updated = updateExpenseRecord(expenseId, {
+      actionButton.disabled = true;
+      const updated = await updateExpenseRecord(expenseId, {
         comercio,
         categoria,
         fecha,
         monto,
         descripcion,
       });
+      actionButton.disabled = false;
 
       if (!updated) {
         showAppNotification(
@@ -206,17 +208,23 @@ export function attachGlobalNavigation({ navigate, render }) {
       state.finanzas.ui.deletingExpenseId = null;
       render();
     },
-    "confirm-delete-expense": ({ event, actionButton }) => {
+    "confirm-delete-expense": async ({ event, actionButton }) => {
       event.preventDefault();
       const expenseId = actionButton.getAttribute("data-expense-id");
       if (!expenseId) {
         return;
       }
 
-      if (deleteExpenseRecord(expenseId)) {
+      actionButton.disabled = true;
+      const deleted = await deleteExpenseRecord(expenseId);
+      actionButton.disabled = false;
+
+      if (deleted) {
         state.finanzas.ui.deletingExpenseId = null;
         state.finanzas.ui.editingExpenseId = null;
         render();
+      } else {
+        showAppNotification("No se pudo eliminar el gasto.", "error");
       }
     },
     "toggle-dashboard-expenses": ({ actionButton }) => {

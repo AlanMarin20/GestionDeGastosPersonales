@@ -16,6 +16,8 @@ import {
 import { showAppNotification } from "../ui/notifications";
 import { saveAppPreferences } from "../ui/theme";
 import { addExpenseRecord } from "../data/expenses";
+import { apiCreateMovimiento } from "../api/movimientos";
+import { loadDashboardBalances, loadMovimientos } from "../api/user";
 import { createAhorro, loadAhorros } from "../api/ahorros";
 import {
   generateAdvisorVerificationCode,
@@ -587,7 +589,7 @@ export function attachFormHandlers(pathname, { navigate, render }) {
       }
     });
 
-    expenseForm?.addEventListener("submit", (event) => {
+    expenseForm?.addEventListener("submit", async (event) => {
       event.preventDefault();
       const formData = new FormData(expenseForm);
 
@@ -601,7 +603,14 @@ export function attachFormHandlers(pathname, { navigate, render }) {
 
       state.finanzas.cargar.form = payload;
 
-      if (!addExpenseRecord(payload)) {
+      const submitBtn = expenseForm.querySelector('[type="submit"]');
+      if (submitBtn) submitBtn.disabled = true;
+
+      const saved = await addExpenseRecord(payload);
+
+      if (submitBtn) submitBtn.disabled = false;
+
+      if (!saved) {
         showAppNotification(
           "No se pudo guardar el gasto. Revisa los datos.",
           "error",
@@ -670,7 +679,7 @@ export function attachFormHandlers(pathname, { navigate, render }) {
     const dashboard = state.dashboard;
 
     const nuevoGastoForm = document.getElementById("nuevoGastoForm");
-    nuevoGastoForm?.addEventListener("submit", (event) => {
+    nuevoGastoForm?.addEventListener("submit", async (event) => {
       event.preventDefault();
       const descripcionInput = document.getElementById("descripcion");
       const montoInput = document.getElementById("monto");
@@ -679,22 +688,39 @@ export function attachFormHandlers(pathname, { navigate, render }) {
       const descripcion = descripcionInput?.value?.trim() ?? "";
       const montoStr = montoInput?.value ?? "";
       const categoria = categoriaSelect?.value ?? "Comida";
+      const monto = Number.parseFloat(montoStr);
 
-      if (!descripcion || !montoStr) {
+      if (!descripcion || !montoStr || Number.isNaN(monto) || monto <= 0) {
         return;
       }
 
-      dashboard.gastos = [
-        {
-          id: Date.now().toString(),
-          descripcion,
-          monto: Number.parseFloat(montoStr),
-          categoria,
-          fecha: getCurrentDateShort(),
-        },
-        ...dashboard.gastos,
-      ];
+      const submitBtn = nuevoGastoForm.querySelector('[type="submit"]');
+      if (submitBtn) submitBtn.disabled = true;
 
+      try {
+        const saved = await apiCreateMovimiento({
+          tipo: "egreso",
+          monto,
+          descripcion,
+          categoria,
+          comercio: descripcion,
+        });
+
+        const today = getCurrentDateShort();
+        state.finanzas.gastos = [
+          { id: saved.id, comercio: descripcion, descripcion, monto, categoria, fecha: today, tipo: "egreso" },
+          ...state.finanzas.gastos,
+        ];
+        dashboard.gastos = [
+          { id: saved.id, descripcion, monto, categoria, fecha: today },
+          ...dashboard.gastos,
+        ];
+        await loadDashboardBalances();
+      } catch {
+        showAppNotification("No se pudo guardar el gasto.", "error");
+      }
+
+      if (submitBtn) submitBtn.disabled = false;
       dashboard.formData = { descripcion: "", monto: "", categoria: "Comida" };
       render();
     });
@@ -710,7 +736,7 @@ export function attachFormHandlers(pathname, { navigate, render }) {
     });
 
     const ingresoForm = document.getElementById("ingresoForm");
-    ingresoForm?.addEventListener("submit", (event) => {
+    ingresoForm?.addEventListener("submit", async (event) => {
       event.preventDefault();
 
       const monto = Number.parseFloat(
@@ -732,6 +758,24 @@ export function attachFormHandlers(pathname, { navigate, render }) {
         return;
       }
 
+      const submitBtn = ingresoForm.querySelector('[type="submit"]');
+      if (submitBtn) submitBtn.disabled = true;
+
+      try {
+        await apiCreateMovimiento({
+          tipo: "ingreso",
+          monto,
+          descripcion: concepto,
+          categoria: origen,
+        });
+        await loadDashboardBalances();
+      } catch {
+        showAppNotification("No se pudo registrar el ingreso.", "error");
+        if (submitBtn) submitBtn.disabled = false;
+        return;
+      }
+
+      if (submitBtn) submitBtn.disabled = false;
       dashboard.saldoActual += monto;
       dashboard.ingresoForm = { monto: "", concepto: "", origen: "Sueldo" };
       dashboard.modals.ingreso = false;

@@ -1,9 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { Movimiento, TipoMovimiento } from './entities/movimiento.entity';
 import { Balance } from '../balances/entities/balance.entity';
+import { Category } from '../categories/entities/category.entity';
 import { CreateMovimientoDto } from './dto/create-movimiento.dto';
+import { UpdateMovimientoDto } from './dto/update-movimiento.dto';
 
 @Injectable()
 export class MovimientosService {
@@ -12,6 +14,8 @@ export class MovimientosService {
     private readonly movimientoRepository: Repository<Movimiento>,
     @InjectRepository(Balance)
     private readonly balanceRepository: Repository<Balance>,
+    @InjectRepository(Category)
+    private readonly categoryRepository: Repository<Category>,
   ) {}
 
   private async syncBalance(userId: string, tipo: TipoMovimiento, delta: number) {
@@ -27,17 +31,60 @@ export class MovimientosService {
     await this.balanceRepository.save(balance);
   }
 
+  private async findCategoryByName(name: string, userId: string): Promise<Category | undefined> {
+    const cat = await this.categoryRepository.findOne({
+      where: [
+        { name: ILike(name), isDefault: true },
+        { name: ILike(name), user: { id: userId } },
+      ],
+    });
+    return cat ?? undefined;
+  }
+
   async create(userId: string, dto: CreateMovimientoDto) {
+    const category = dto.categoria
+      ? await this.findCategoryByName(dto.categoria, userId)
+      : undefined;
+
     const movimiento = this.movimientoRepository.create({
       user: { id: userId },
       tipo: dto.tipo,
       monto: dto.monto,
       moneda: dto.moneda ?? 'ARS',
+      comercio: dto.comercio,
       descripcion: dto.descripcion,
       fecha: dto.fecha ? new Date(dto.fecha) : undefined,
+      category,
     });
     const saved = await this.movimientoRepository.save(movimiento);
     await this.syncBalance(userId, dto.tipo, Number(dto.monto));
+    return saved;
+  }
+
+  async update(id: string, userId: string, dto: UpdateMovimientoDto) {
+    const existing = await this.findOne(id, userId);
+
+    await this.syncBalance(userId, existing.tipo, -Number(existing.monto));
+
+    const category =
+      dto.categoria !== undefined
+        ? dto.categoria
+          ? await this.findCategoryByName(dto.categoria, userId)
+          : undefined
+        : existing.category;
+
+    Object.assign(existing, {
+      tipo: dto.tipo ?? existing.tipo,
+      monto: dto.monto ?? existing.monto,
+      moneda: dto.moneda ?? existing.moneda,
+      comercio: dto.comercio ?? existing.comercio,
+      descripcion: dto.descripcion ?? existing.descripcion,
+      fecha: dto.fecha ? new Date(dto.fecha) : existing.fecha,
+      category,
+    });
+
+    const saved = await this.movimientoRepository.save(existing);
+    await this.syncBalance(userId, saved.tipo, Number(saved.monto));
     return saved;
   }
 

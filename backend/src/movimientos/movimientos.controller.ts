@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
   Body,
   Param,
   Delete,
@@ -10,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { MovimientosService } from './movimientos.service';
 import { CreateMovimientoDto } from './dto/create-movimiento.dto';
+import { UpdateMovimientoDto } from './dto/update-movimiento.dto';
 import { AuthGuard } from '../auth/auth.guard';
 
 @UseGuards(AuthGuard)
@@ -40,6 +42,11 @@ export class MovimientosController {
   @Get(':id')
   findOne(@Request() req, @Param('id') id: string) {
     return this.movimientosService.findOne(id, req.user.sub);
+  }
+
+  @Patch(':id')
+  update(@Request() req, @Param('id') id: string, @Body() dto: UpdateMovimientoDto) {
+    return this.movimientosService.update(id, req.user.sub, dto);
   }
 
   @Delete(':id')
