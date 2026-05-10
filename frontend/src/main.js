@@ -28,6 +28,8 @@ import { renderCargarGastoPage as renderCargarGastoPageView } from "./pages/Carg
 import { renderMisGastosPage as renderMisGastosPageView } from "./pages/MisGastosPage";
 import { renderRecomendacionesPage as renderRecomendacionesPageView } from "./pages/RecomendacionesPage";
 import { renderRecomendacionesHistoricasPage as renderRecomendacionesHistoricasPageView } from "./pages/RecomendacionesHistoricasPage";
+import { renderNotificacionesPage as renderNotificacionesPageView } from "./pages/NotificacionesPage";
+import { renderPatronesPage as renderPatronesPageView } from "./pages/PatronesPage";
 import { renderRecHistoricasClientePage as renderRecHistoricasClientePageView } from "./pages/RecHistoricasClientePage";
 import { renderEditarPerfilPage as renderEditarPerfilPageView } from "./pages/EditarPerfilPage";
 import { renderPreferenciaNotificacionesPageView } from "./pages/PreferenciaNotificacionesPage";
@@ -444,6 +446,98 @@ function renderRecomendacionesHistoricasPage(pathname) {
   });
 }
 
+function renderNotificacionesPage() {
+  const recomendaciones = state.finanzas.recomendaciones || [];
+  const { egreso, ingreso } = getDashboardBalanceData();
+  const dynamicAlerts = [];
+
+  if (ingreso > 0) {
+    const spentPct = (egreso / ingreso) * 100;
+    if (spentPct >= 90) {
+      dynamicAlerts.push({
+        id: "budget-critical",
+        severity: "danger",
+        title: "Presupuesto casi agotado",
+        body: `Gastaste el ${spentPct.toFixed(0)}% de tu ingreso mensual. Considera reducir gastos no esenciales.`,
+        date: new Date().toISOString().slice(0, 7),
+        category: "Presupuesto",
+        source: "sistema",
+        actionHref: "/dashboard/gastos",
+      });
+    } else if (spentPct >= 75) {
+      dynamicAlerts.push({
+        id: "budget-warning",
+        severity: "warning",
+        title: "Gasto elevado este mes",
+        body: `Utilizaste el ${spentPct.toFixed(0)}% de tu ingreso mensual. Quedan ${formatCurrency(ingreso - egreso, normalizeCurrency(state.configuracion.moneda))} disponibles.`,
+        date: new Date().toISOString().slice(0, 7),
+        category: "Presupuesto",
+        source: "sistema",
+        actionHref: "/dashboard",
+      });
+    }
+  }
+
+  const unusualMessages = getUnusualSpendingMessages();
+  if (unusualMessages.length > 0) {
+    unusualMessages.forEach((msg, i) => {
+      dynamicAlerts.push({
+        id: `unusual-${i}`,
+        severity: "warning",
+        title: "Gasto inusual detectado",
+        body: msg,
+        date: new Date().toISOString().slice(0, 7),
+        category: "Analisis",
+        source: "sistema",
+        actionHref: "/dashboard/patrones",
+      });
+    });
+  }
+
+  const allNotifications = [...dynamicAlerts, ...recomendaciones];
+
+  return renderNotificacionesPageView({
+    profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
+    profileName: state.perfil.nombre || "Usuario",
+    activePath: "/dashboard/notificaciones",
+    pageTitle: "Notificaciones",
+    pageSubtitle: "Alertas activas, avisos y logros financieros",
+    notifications: allNotifications,
+  });
+}
+
+function renderPatronesPage() {
+  const monthlySeries = getDashboardMonthlySeries();
+  const currentPeriod = getFinanzasCurrentPeriod();
+  const categorySummary = getDashboardCategorySummary(currentPeriod);
+  const merchantRanking = getMerchantRankingRows(5);
+  const unusualMessages = getUnusualSpendingMessages();
+  const evolutionRows = getReportEvolutionRows();
+
+  const avgMonthly = monthlySeries.length > 0
+    ? monthlySeries.reduce((sum, item) => sum + item.total, 0) / monthlySeries.length
+    : 0;
+
+  const metrics = getReportMetrics({
+    averageMonthlyExpense: avgMonthly,
+    categories: categorySummary,
+    merchantRanking,
+  });
+
+  return renderPatronesPageView({
+    profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
+    profileName: state.perfil.nombre || "Usuario",
+    activePath: "/dashboard/patrones",
+    pageTitle: "Patrones de gasto",
+    pageSubtitle: "Analisis de habitos, evolucion y comportamiento financiero",
+    metrics,
+    categorySummary,
+    merchantRanking,
+    unusualMessages,
+    evolutionRows,
+  });
+}
+
 function renderRecHistoricasClientePage(pathname) {
   const detalleCliente = resolveDetalleCliente(pathname);
 
@@ -588,6 +682,14 @@ function buildRouteView(pathname) {
 
   if (pathname === "/dashboard/recomendaciones/historicas") {
     return renderDashboardLayout(renderRecomendacionesHistoricasPage(pathname));
+  }
+
+  if (pathname === "/dashboard/notificaciones") {
+    return renderDashboardLayout(renderNotificacionesPage());
+  }
+
+  if (pathname === "/dashboard/patrones") {
+    return renderDashboardLayout(renderPatronesPage());
   }
 
   if (pathname.match(/^\/cliente\/[^/]+\/recomendaciones\/historicas$/)) {

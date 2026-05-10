@@ -192,6 +192,78 @@ export function buildBarChart(canvasId, dataPoints) {
   chartInstances.push(instance);
 }
 
+export function buildLineChart(canvasId, dataPoints) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+
+  const isDark = state.configuracion.temaOscuro;
+  const axisTextColor = isDark ? "#cbd5e1" : "#334155";
+  const gridColor = isDark ? "rgba(148, 163, 184, 0.08)" : "#e2e8f0";
+  const tooltipBackground = isDark ? "rgba(15, 23, 42, 0.95)" : "rgba(255, 255, 255, 0.95)";
+  const tooltipTitle = isDark ? "#f8fafc" : "#1e293b";
+  const tooltipBody = isDark ? "#cbd5e1" : "#334155";
+  const tooltipBorder = isDark ? "#334155" : "#e2e8f0";
+  const fillColor = isDark ? "rgba(37, 99, 235, 0.15)" : "rgba(37, 99, 235, 0.08)";
+
+  const instance = new Chart(canvas, {
+    type: "line",
+    data: {
+      labels: dataPoints.map((item) => item.label),
+      datasets: [
+        {
+          data: dataPoints.map((item) => item.total),
+          borderColor: "rgba(37, 99, 235, 0.9)",
+          backgroundColor: fillColor,
+          borderWidth: 2.5,
+          fill: true,
+          tension: 0.42,
+          pointBackgroundColor: "rgba(37, 99, 235, 0.9)",
+          pointBorderColor: isDark ? "#0d131f" : "#ffffff",
+          pointBorderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 7,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: tooltipBackground,
+          titleColor: tooltipTitle,
+          bodyColor: tooltipBody,
+          borderColor: tooltipBorder,
+          borderWidth: 1,
+          padding: 12,
+          callbacks: {
+            label(context) {
+              return ` ${formatMoney(context.raw)}`;
+            },
+          },
+        },
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { color: axisTextColor, font: { family: "'Inter', sans-serif", size: 11 } },
+        },
+        y: {
+          beginAtZero: true,
+          grid: { color: gridColor },
+          ticks: {
+            color: axisTextColor,
+            callback(value) { return formatMoney(value); },
+          },
+        },
+      },
+    },
+  });
+
+  chartInstances.push(instance);
+}
+
 export function initCharts(pathname) {
   chartInstances.forEach((chart) => chart.destroy());
   chartInstances = [];
@@ -206,6 +278,23 @@ export function initCharts(pathname) {
     buildBarChart("dashboardMonthlyBarChart", monthlySeries);
     buildPieChart(
       "dashboardCategoryDonutChart",
+      categorySeries.map((item) => item.label),
+      categorySeries.map((item) => item.total),
+      spentPercentage,
+      categorySeries.map((item) => item.color),
+    );
+  }
+
+  if (pathname === "/dashboard/patrones") {
+    const currentPeriod = getFinanzasCurrentPeriod();
+    const monthlySeries = getDashboardMonthlySeries();
+    const categorySeries = getDashboardCategorySummary(currentPeriod);
+    const { egreso, ingreso } = getDashboardBalanceData();
+    const spentPercentage = ingreso > 0 ? (egreso / ingreso) * 100 : 0;
+
+    buildBarChart("patronesBarChart", monthlySeries);
+    buildPieChart(
+      "patronesCategoryDonut",
       categorySeries.map((item) => item.label),
       categorySeries.map((item) => item.total),
       spentPercentage,
