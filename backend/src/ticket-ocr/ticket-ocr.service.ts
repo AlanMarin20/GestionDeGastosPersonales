@@ -18,7 +18,7 @@ Extraé los siguientes datos y respondé ÚNICAMENTE con un objeto JSON válido,
   "fecha": "fecha en formato YYYY-MM-DD",
   "monto": "monto total como número sin símbolo de moneda (ej: 1250.50)",
   "categoria": "una de estas categorías: Supermercado, Restaurante, Transporte, Salud, Educación, Entretenimiento, Ropa, Tecnología, Hogar, Ocio, Otro",
-  "descripcion": "breve descripción del gasto en una oración"
+  "descripcion": "breve descripción del gasto en una oración, puedes incluir un listado de los items de la compra"
 }
 
 Si no podés determinar algún campo con certeza, dejalo como string vacío "".`;
@@ -60,7 +60,7 @@ export class TicketOcrService {
         },
       ],
       temperature: 0,
-      max_tokens: 512,
+      max_tokens: 1000,
     });
 
     const rawText = completion.choices[0]?.message?.content ?? '';

@@ -558,7 +558,7 @@ export function attachFormHandlers(pathname, { navigate, render }) {
         const formData = new FormData();
         formData.append("ticket", file);
 
-        const response = await apiFetch("/ticket-ocr/analyze", {
+        const response = await apiFetch("/api/ticket-ocr/analyze", {
           method: "POST",
           body: formData,
         });
