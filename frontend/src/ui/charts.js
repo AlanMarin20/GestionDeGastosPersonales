@@ -5,7 +5,7 @@ import {
   getFinanzasCurrentPeriod,
   getDashboardMonthlySeries,
   getDashboardCategorySummary,
-  getFinanzasMonthTotal,
+  getDashboardBalanceData,
 } from "../data/finanzas";
 import { monthlyExpensesDetalle } from "../data/mockData";
 import { resolveDetalleCliente as resolveDetalleClienteView } from "../pages/DetalleClientePage";
@@ -200,9 +200,8 @@ export function initCharts(pathname) {
     const currentPeriod = getFinanzasCurrentPeriod();
     const monthlySeries = getDashboardMonthlySeries();
     const categorySeries = getDashboardCategorySummary(currentPeriod);
-    const monthlyExpense = getFinanzasMonthTotal(currentPeriod);
-    const income = state.finanzas.monthlyIncome;
-    const spentPercentage = income > 0 ? (monthlyExpense / income) * 100 : 0;
+    const { egreso, ingreso } = getDashboardBalanceData();
+    const spentPercentage = ingreso > 0 ? (egreso / ingreso) * 100 : 0;
 
     buildBarChart("dashboardMonthlyBarChart", monthlySeries);
     buildPieChart(

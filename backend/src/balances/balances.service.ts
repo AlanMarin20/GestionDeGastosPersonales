@@ -46,23 +46,25 @@ export class BalancesService {
       order: { createdAt: 'DESC' },
     });
 
-    if (!balance) {
-      return {
-        gastoMensual: 0,
-        dineroDisponible: 0,
-        ingreso: 0,
-        ahorroAcumulado: 0,
-      };
-    }
+    const rows: { egreso: string; ingreso: string }[] =
+      await this.balanceRepository.manager.query(
+        `SELECT
+          COALESCE(SUM(CASE WHEN tipo = 'egreso' THEN monto ELSE 0 END), 0) AS egreso,
+          COALESCE(SUM(CASE WHEN tipo = 'ingreso' THEN monto ELSE 0 END), 0) AS ingreso
+         FROM movimientos
+         WHERE usuario_id = $1
+           AND DATE_TRUNC('month', fecha) = DATE_TRUNC('month', CURRENT_DATE)`,
+        [userId],
+      );
 
-    const ingreso = Number(balance.ingreso);
-    const egreso = Number(balance.egreso);
+    const gastoMensual = Number(rows[0]?.egreso ?? 0);
+    const ingresoMensual = Number(rows[0]?.ingreso ?? 0);
 
     return {
-      gastoMensual: egreso,
-      dineroDisponible: ingreso - egreso,
-      ingreso,
-      ahorroAcumulado: Number(balance.ahorro),
+      gastoMensual,
+      dineroDisponible: ingresoMensual - gastoMensual,
+      ingreso: ingresoMensual,
+      ahorroAcumulado: balance ? Number(balance.ahorro) : 0,
     };
   }
 
