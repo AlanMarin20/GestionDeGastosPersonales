@@ -939,6 +939,28 @@ body.theme-dark .gd-chart-summary-badge {
   background: rgba(100, 116, 139, 0.14);
 }
 
+.gd-pill-tipo-ingreso {
+  color: #16a34a;
+  background: rgba(22, 163, 74, 0.12);
+  letter-spacing: 0.04em;
+}
+
+.gd-pill-tipo-egreso {
+  color: #dc2626;
+  background: rgba(220, 38, 38, 0.12);
+  letter-spacing: 0.04em;
+}
+
+.gd-monto-ingreso {
+  color: #16a34a;
+  font-weight: 700;
+}
+
+.gd-monto-egreso {
+  color: #dc2626;
+  font-weight: 700;
+}
+
 .gd-tabs {
   display: inline-flex;
   padding: 0.28rem;

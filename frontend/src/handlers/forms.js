@@ -627,6 +627,7 @@ export function attachFormHandlers(pathname, { navigate, render }) {
       state.finanzas.filtros.periodo = periodKey || "todos";
       state.finanzas.filtros.search = "";
       state.finanzas.filtros.categoria = "Todas";
+      state.finanzas.filtros.tipo = "Todos";
       state.finanzas.cargar.form = {
         comercio: "",
         fecha: payload.fecha,
@@ -640,11 +641,17 @@ export function attachFormHandlers(pathname, { navigate, render }) {
 
   if (pathname === "/dashboard/gastos") {
     const searchInput = document.getElementById("expenseSearchInput");
+    const typeFilter = document.getElementById("expenseTypeFilter");
     const categoryFilter = document.getElementById("expenseCategoryFilter");
     const periodFilter = document.getElementById("expensePeriodFilter");
 
     searchInput?.addEventListener("input", (event) => {
       state.finanzas.filtros.search = event.target.value;
+      render();
+    });
+
+    typeFilter?.addEventListener("change", (event) => {
+      state.finanzas.filtros.tipo = event.target.value;
       render();
     });
 

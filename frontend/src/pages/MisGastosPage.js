@@ -97,6 +97,12 @@ export function renderMisGastosPage({
         value="${escapeHtml(filters.search)}"
       >
 
+      <select id="expenseTypeFilter" class="gd-form-select">
+        <option value="Todos" ${filters.tipo === "Todos" ? "selected" : ""}>Todos los tipos</option>
+        <option value="Ingreso" ${filters.tipo === "Ingreso" ? "selected" : ""}>Ingresos</option>
+        <option value="Egreso" ${filters.tipo === "Egreso" ? "selected" : ""}>Gastos</option>
+      </select>
+
       <select id="expenseCategoryFilter" class="gd-form-select">
         <option value="Todas" ${filters.categoria === "Todas" ? "selected" : ""}>Todas las categorias</option>
         ${categoryOptions
@@ -133,7 +139,8 @@ export function renderMisGastosPage({
         expenses: gastos,
         showDescription: true,
         showActions: true,
-        emptyMessage: "No hay gastos que coincidan con los filtros aplicados.",
+        showTipo: true,
+        emptyMessage: "No hay movimientos que coincidan con los filtros aplicados.",
       })}
     </div>
 

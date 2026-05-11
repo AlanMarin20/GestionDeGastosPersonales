@@ -62,6 +62,7 @@ export const state = {
       search: "",
       categoria: "Todas",
       periodo: "",
+      tipo: "Todos",
     },
     ui: {
       editingExpenseId: null,

@@ -6,10 +6,12 @@ export function renderExpenseTable({
   expenses = [],
   showDescription = false,
   showActions = false,
+  showTipo = false,
   emptyMessage = "",
 } = {}) {
   const rows = Array.isArray(expenses) ? expenses : [];
   const headers = [
+    ...(showTipo ? [{ label: "Tipo" }] : []),
     { label: "Comercio" },
     { label: "Categoria" },
     ...(showDescription ? [{ label: "Descripcion" }] : []),
@@ -30,9 +32,16 @@ export function renderExpenseTable({
       : "")
     : rows
       .map((expense) => {
+        const esIngreso = expense.tipo === "ingreso";
+
+        const tipoCell = showTipo
+          ? `<td><span class="gd-pill ${esIngreso ? "gd-pill-tipo-ingreso" : "gd-pill-tipo-egreso"}">${esIngreso ? "INGRESO" : "GASTO"}</span></td>`
+          : "";
+
         const descriptionCell = showDescription
           ? `<td class="gd-muted">${escapeHtml(expense.descripcion || "-")}</td>`
           : "";
+
         const actionsCell = showActions
           ? `
             <td class="gd-right">
@@ -48,15 +57,21 @@ export function renderExpenseTable({
           `
           : "";
 
+        const montoPrefix = showTipo ? (esIngreso ? "+" : "-") : "";
+        const montoClass = showTipo
+          ? (esIngreso ? "gd-monto-ingreso" : "gd-monto-egreso")
+          : "";
+
         return `
           <tr>
+            ${tipoCell}
             <td>${escapeHtml(expense.comercio)}</td>
             <td>
               <span class="gd-pill gd-pill-${normalizeCategoryClass(expense.categoria)}">${escapeHtml(expense.categoria)}</span>
             </td>
             ${descriptionCell}
             <td class="gd-muted">${escapeHtml(expense.fechaCorta)}</td>
-            <td class="gd-right">${escapeHtml(formatMoney(expense.monto))}</td>
+            <td class="gd-right ${escapeHtml(montoClass)}">${montoPrefix}${escapeHtml(formatMoney(expense.monto))}</td>
             ${actionsCell}
           </tr>
         `;

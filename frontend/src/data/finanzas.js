@@ -49,7 +49,9 @@ export function getDashboardMonthlySeries() {
 
 export function getDashboardCategorySummary(periodKey = getFinanzasCurrentPeriod()) {
   const totals = new Map();
-  const expenses = getFinanzasExpensesForPeriod(periodKey);
+  const expenses = getFinanzasExpensesForPeriod(periodKey).filter(
+    (expense) => expense.tipo === "egreso",
+  );
 
   expenses.forEach((expense) => {
     const category = expense.categoria || "Otros";
@@ -96,34 +98,34 @@ export function getDashboardBalanceData() {
 
 export function getDashboardMetrics() {
   const balanceData = getDashboardBalanceData();
+  const currentPeriod = getFinanzasCurrentPeriod();
+  const monthlyIngreso = getFinanzasExpensesForPeriod(currentPeriod)
+    .filter((expense) => expense.tipo === "ingreso")
+    .reduce((sum, expense) => sum + Number(expense.monto || 0), 0);
 
   const metricDefinitions = [
     {
       key: "monthly-expense",
       label: "Gasto mensual",
-      resolveValue: (source) => formatMoney(source.egreso),
-      resolveDelta: () => "dato cargado desde la base",
+      resolveValue: () => formatMoney(balanceData.egreso),
       resolveTrend: () => "up",
     },
     {
       key: "available-cash",
       label: "Dinero Disponible",
-      resolveValue: (source) => formatMoney(source.disponible),
-      resolveDelta: () => "calculado: ingreso - egreso",
+      resolveValue: () => formatMoney(monthlyIngreso - balanceData.egreso),
       resolveTrend: () => "up",
     },
     {
       key: "net-income",
-      label: "Ingreso",
-      resolveValue: (source) => formatMoney(source.ingreso),
-      resolveDelta: () => "dato cargado desde la base",
+      label: "Ingreso Total Mensual",
+      resolveValue: () => formatMoney(monthlyIngreso),
       resolveTrend: () => "up",
     },
     {
       key: "accumulated-savings",
       label: "Ahorro acumulado",
-      resolveValue: (source) => formatMoney(source.ahorro),
-      resolveDelta: () => "dato cargado desde la base",
+      resolveValue: () => formatMoney(balanceData.ahorro),
       resolveTrend: () => "up",
     },
   ];
@@ -131,9 +133,9 @@ export function getDashboardMetrics() {
   return metricDefinitions.map((definition) => ({
     id: definition.key,
     label: definition.label,
-    value: definition.resolveValue(balanceData),
-    delta: definition.resolveDelta(balanceData),
-    trend: definition.resolveTrend(balanceData),
+    value: definition.resolveValue(),
+    delta: "",
+    trend: definition.resolveTrend(),
   }));
 }
 
@@ -171,7 +173,7 @@ export function getMisGastosPeriodOptions() {
 }
 
 export function getFilteredExpenses() {
-  const { search, categoria, periodo } = state.finanzas.filtros;
+  const { search, categoria, periodo, tipo } = state.finanzas.filtros;
   const normalizedSearch = search.trim().toLowerCase();
 
   return state.finanzas.gastos
@@ -182,6 +184,11 @@ export function getFilteredExpenses() {
 
       if (categoria !== "Todas" && expense.categoria !== categoria) {
         return false;
+      }
+
+      if (tipo && tipo !== "Todos") {
+        const tipoEsperado = tipo === "Ingreso" ? "ingreso" : "egreso";
+        if (expense.tipo !== tipoEsperado) return false;
       }
 
       if (normalizedSearch && !expense.comercio.toLowerCase().includes(normalizedSearch)) {
