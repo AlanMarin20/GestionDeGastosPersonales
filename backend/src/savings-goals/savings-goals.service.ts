@@ -18,6 +18,13 @@ export class SavingsGoalsService {
     private readonly balanceRepository: Repository<Balance>,
   ) {}
 
+  private async findCategoriaAhorroId(): Promise<number | undefined> {
+    const rows: { id: number }[] = await this.movimientoRepository.manager.query(
+      `SELECT id FROM categorias WHERE LOWER(nombre) = 'ahorro' AND es_default = true LIMIT 1`,
+    );
+    return rows[0]?.id;
+  }
+
   private async getOrCreateBalance(userId: string): Promise<Balance> {
     let balance = await this.balanceRepository.findOne({
       where: { user: { id: userId } },
@@ -59,6 +66,9 @@ export class SavingsGoalsService {
       }
     }
 
+    // Garantizar que exista fila en balances para que los triggers de BD puedan actualizarla
+    await this.getOrCreateBalance(userId);
+
     const goal = this.goalRepository.create({
       nombre: createSavingsGoalDto.name,
       targetAmount,
@@ -69,10 +79,11 @@ export class SavingsGoalsService {
       isActive: createSavingsGoalDto.isActive ?? true,
       user: { id: userId },
     });
-    const saved = await this.goalRepository.save(goal);
+    const saved = await this.goalRepository.save(goal); // trigger recalcula balances.ahorro
 
-    // Si hay monto inicial, registrar el egreso correspondiente
+    // Si hay monto inicial, registrar el egreso; el trigger recalcula balances.egreso
     if (currentAmount > 0) {
+      const categoriaId = await this.findCategoriaAhorroId();
       const movimiento = this.movimientoRepository.create({
         user: { id: userId },
         tipo: 'egreso',
@@ -81,13 +92,9 @@ export class SavingsGoalsService {
         comercio: `Ahorro: ${createSavingsGoalDto.name}`.substring(0, 150),
         descripcion: 'Monto inicial de objetivo de ahorro',
         fecha: new Date(),
+        category: categoriaId ? ({ id: categoriaId } as any) : undefined,
       });
       await this.movimientoRepository.save(movimiento);
-
-      const balance = await this.getOrCreateBalance(userId);
-      balance.egreso = Number(balance.egreso) + currentAmount;
-      balance.ahorro = Number(balance.ahorro) + currentAmount;
-      await this.balanceRepository.save(balance);
     }
 
     return saved;
@@ -126,9 +133,12 @@ export class SavingsGoalsService {
     const goal = await this.findOne(id, userId);
     const currentAmount = Number(goal.currentAmount ?? 0);
 
-    await this.goalRepository.remove(goal);
+    // Garantizar que exista fila en balances antes de las operaciones
+    await this.getOrCreateBalance(userId);
 
-    // Devolver el saldo acumulado al neto del usuario
+    await this.goalRepository.remove(goal); // trigger recalcula balances.ahorro
+
+    // Devolver el saldo acumulado; el trigger recalcula balances.ingreso
     if (currentAmount > 0) {
       const movimiento = this.movimientoRepository.create({
         user: { id: userId },
@@ -140,11 +150,6 @@ export class SavingsGoalsService {
         fecha: new Date(),
       });
       await this.movimientoRepository.save(movimiento);
-
-      const balance = await this.getOrCreateBalance(userId);
-      balance.ingreso = Number(balance.ingreso) + currentAmount;
-      balance.ahorro = Math.max(0, Number(balance.ahorro) - currentAmount);
-      await this.balanceRepository.save(balance);
     }
 
     return { message: 'Meta de ahorro eliminada correctamente' };

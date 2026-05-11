@@ -25,6 +25,13 @@ export class SavingsMovementsService {
     private readonly balanceRepository: Repository<Balance>,
   ) {}
 
+  private async findCategoriaAhorroId(): Promise<number | undefined> {
+    const rows: { id: number }[] = await this.movimientoRepository.manager.query(
+      `SELECT id FROM categorias WHERE LOWER(nombre) = 'ahorro' AND es_default = true LIMIT 1`,
+    );
+    return rows[0]?.id;
+  }
+
   private async getOrCreateBalance(userId: string): Promise<Balance> {
     let balance = await this.balanceRepository.findOne({
       where: { user: { id: userId } },
@@ -57,6 +64,9 @@ export class SavingsMovementsService {
       ? new Date(createDto.movementDate)
       : new Date();
 
+    // Garantizar que exista fila en balances para que los triggers de BD puedan actualizarla
+    await this.getOrCreateBalance(userId);
+
     if (tipo === 'deposito') {
       const rows: { neto: string }[] = await this.movimientoRepository.manager.query(
         `SELECT
@@ -73,7 +83,7 @@ export class SavingsMovementsService {
         );
       }
 
-      // Registrar egreso en movimientos para reflejar en el neto
+      const categoriaId = await this.findCategoriaAhorroId();
       const movimiento = this.movimientoRepository.create({
         user: { id: userId },
         tipo: 'egreso',
@@ -82,16 +92,12 @@ export class SavingsMovementsService {
         comercio: `Ahorro: ${goal.nombre}`.substring(0, 150),
         descripcion: createDto.description ?? 'Depósito a objetivo de ahorro',
         fecha: now,
+        category: categoriaId ? ({ id: categoriaId } as any) : undefined,
       });
       await this.movimientoRepository.save(movimiento);
 
-      const balance = await this.getOrCreateBalance(userId);
-      balance.egreso = Number(balance.egreso) + amount;
-      balance.ahorro = Number(balance.ahorro) + amount;
-      await this.balanceRepository.save(balance);
-
       goal.currentAmount = Number(goal.currentAmount) + amount;
-      await this.goalRepository.save(goal);
+      await this.goalRepository.save(goal); // trigger recalcula balances.ahorro
     } else {
       // retiro
       if (amount > Number(goal.currentAmount)) {
@@ -100,7 +106,7 @@ export class SavingsMovementsService {
         );
       }
 
-      // Registrar ingreso en movimientos para reflejar en el neto
+      // El trigger de BD recalcula balances.ingreso automáticamente
       const movimiento = this.movimientoRepository.create({
         user: { id: userId },
         tipo: 'ingreso',
@@ -112,13 +118,8 @@ export class SavingsMovementsService {
       });
       await this.movimientoRepository.save(movimiento);
 
-      const balance = await this.getOrCreateBalance(userId);
-      balance.ingreso = Number(balance.ingreso) + amount;
-      balance.ahorro = Math.max(0, Number(balance.ahorro) - amount);
-      await this.balanceRepository.save(balance);
-
       goal.currentAmount = Math.max(0, Number(goal.currentAmount) - amount);
-      await this.goalRepository.save(goal);
+      await this.goalRepository.save(goal); // trigger recalcula balances.ahorro
     }
 
     const movement = this.movementRepository.create({
