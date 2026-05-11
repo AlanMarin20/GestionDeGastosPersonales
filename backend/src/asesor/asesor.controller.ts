@@ -53,7 +53,13 @@ export class AsesorController {
     @Param('id') id: string,
     @Body() dto: AgregarRecomendacionDto,
   ) {
-    return this.asesorService.agregarRecomendacion(id, req.user.sub, dto.contenido, dto.tipo, dto.titulo, dto.severidad, dto.categoria);
+    return this.asesorService.agregarRecomendacion(
+      id, 
+      req.user.sub, 
+      dto.contenido, 
+      dto.tipo || 'asesor',
+      dto.titulo,
+    );
   }
 
   @Get('clientes/:id/gastos-por-mes')

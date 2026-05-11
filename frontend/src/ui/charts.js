@@ -308,12 +308,26 @@ export function initCharts(pathname) {
     const gastadoMes = Number(detalleCliente?.gastadoMes || 0);
     const porcentajeGastado = presupuesto > 0 ? (gastadoMes / presupuesto) * 100 : 0;
 
-    buildBarChart("detalleMonthlyBarChart", monthlyExpensesDetalle);
-    buildPieChart(
-      "detallePieChart",
-      ["Comida", "Vivienda", "Transporte", "Salud", "Otros"],
-      [35, 25, 15, 10, 15],
-      porcentajeGastado,
-    );
+    // Gráfico de barras con datos reales de gastos por mes
+    const gastosPorMes = state.detalleCliente.gastosPorMes && state.detalleCliente.gastosPorMes.length > 0
+      ? state.detalleCliente.gastosPorMes
+      : monthlyExpensesDetalle;
+    buildBarChart("detalleMonthlyBarChart", gastosPorMes);
+    
+    // Gráfico de torta con datos reales de categorías
+    const categorias = state.detalleCliente.graficoCategorias?.categorias || [];
+    if (categorias.length > 0) {
+      const labels = categorias.map(c => c.categoria);
+      const values = categorias.map(c => c.total);
+      buildPieChart("detallePieChart", labels, values, porcentajeGastado);
+    } else {
+      // Fallback a datos mockup si no hay categorías
+      buildPieChart(
+        "detallePieChart",
+        ["Comida", "Vivienda", "Transporte", "Salud", "Otros"],
+        [35, 25, 15, 10, 15],
+        porcentajeGastado,
+      );
+    }
   }
 }

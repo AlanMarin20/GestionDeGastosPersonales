@@ -35,6 +35,7 @@ export function resolveDetalleCliente(pathname, state) {
   const presupuestoValue = Number(clienteAsesor.presupuesto ?? clienteAsesor.budget ?? 0);
   const gastadoMesValue = Number(clienteAsesor.gastosMes ?? clienteAsesor.monthlySpend ?? 0);
   const ahorrosValue = Number(clienteAsesor.ahorros ?? clienteAsesor.totalAhorro ?? clienteAsesor.savings ?? 0);
+  const saldoActualValue = Number(clienteAsesor.saldoActualMes ?? clienteAsesor.saldoActual ?? 0);
 
   const presupuesto = Number.isFinite(presupuestoValue) && presupuestoValue >= 0
     ? presupuestoValue
@@ -45,7 +46,9 @@ export function resolveDetalleCliente(pathname, state) {
   const ahorros = Number.isFinite(ahorrosValue) && ahorrosValue >= 0
     ? ahorrosValue
     : 0;
-  const saldoActual = Math.max(presupuesto - gastadoMes, 0);
+  const saldoActual = Number.isFinite(saldoActualValue)
+    ? saldoActualValue
+    : Math.max(presupuesto - gastadoMes, 0);
 
   return {
     id: clienteId,

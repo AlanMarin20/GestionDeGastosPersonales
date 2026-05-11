@@ -87,6 +87,11 @@ export const state = {
   detalleCliente: {
     gastos: [],
     recomendaciones: [],
+    gastosPorMes: [],
+    graficoCategorias: {
+      porcentaje: 0,
+      categorias: [],
+    },
     nuevaRecomendacionTitulo: "",
     nuevaRecomendacionTexto: "",
     showAllRecentExpenses: false,

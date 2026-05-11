@@ -143,6 +143,8 @@ import {
   loadClienteDetalle,
   loadClienteMovimientos,
   loadClienteRecomendaciones,
+  loadClienteGastosPorMes,
+  loadClienteGraficoCategorias,
 } from "./api/asesor";
 import {
   showAppNotification,
@@ -197,10 +199,14 @@ function navigate(path, replace = false) {
       const clienteId = decodeURIComponent(match[1]);
       state.detalleCliente.gastos = [];
       state.detalleCliente.recomendaciones = [];
+      state.detalleCliente.gastosPorMes = [];
+      state.detalleCliente.graficoCategorias = { porcentaje: 0, categorias: [] };
       Promise.all([
         loadClienteDetalle(clienteId),
         loadClienteMovimientos(clienteId),
         loadClienteRecomendaciones(clienteId),
+        loadClienteGastosPorMes(clienteId),
+        loadClienteGraficoCategorias(clienteId),
       ]).then(() => render());
     }
   }
@@ -863,6 +869,8 @@ loadCurrentUser().finally(() => {
         loadClienteDetalle(clienteId),
         loadClienteMovimientos(clienteId),
         loadClienteRecomendaciones(clienteId),
+        loadClienteGastosPorMes(clienteId),
+        loadClienteGraficoCategorias(clienteId),
       );
     }
 

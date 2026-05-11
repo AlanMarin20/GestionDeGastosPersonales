@@ -35,6 +35,7 @@ export class AsesorService {
       nombre_completo: string;
       ingreso: string | null;
       egreso: string | null;
+      ahorro: string | null;
       riesgo: string;
     }[] = await this.userRepository.manager.query(
       `
@@ -43,6 +44,7 @@ export class AsesorService {
         u.nombre_completo,
         b.ingreso,
         b.egreso,
+        b.ahorro,
         CASE
           WHEN b.ingreso > 0 THEN b.egreso / b.ingreso
           ELSE 0
@@ -60,6 +62,7 @@ export class AsesorService {
       nombreCompleto: r.nombre_completo,
       ingreso: r.ingreso !== null ? Number(r.ingreso) : null,
       egreso: r.egreso !== null ? Number(r.egreso) : null,
+      ahorro: r.ahorro !== null ? Number(r.ahorro) : null,
       riesgo: Number(r.riesgo),
     }));
   }
@@ -300,35 +303,53 @@ export class AsesorService {
   }
 
   async getRecomendacionesEnviadas(clienteId: string, advisorId: string) {
-    const exists: { exists: boolean }[] = await this.userRepository.manager.query(
-      `SELECT EXISTS (
-         SELECT 1 FROM usuarios WHERE id = $1 AND asesor_id = $2
-       ) AS exists`,
-      [clienteId, advisorId],
-    );
-
-    if (!exists[0]?.exists) {
-      throw new NotFoundException('Cliente no encontrado o no pertenece a este asesor');
-    }
-
-    const rows: { id: string; contenido: string; tipo: string; fue_leida: boolean; creado_en: Date }[] =
+    // Obtener últimas 2 recomendaciones sin filtrar por tipo
+    const rows: any[] =
       await this.userRepository.manager.query(
         `
-        SELECT id, contenido, tipo, fue_leida, creado_en
+        SELECT 
+          titulo,
+          contenido,
+          tipo,
+          creado_en as "creadoEn"
         FROM recomendaciones
         WHERE usuario_id = $1
-          AND asesor_id = $2
         ORDER BY creado_en DESC
+        LIMIT 2
         `,
-        [clienteId, advisorId],
+        [clienteId],
       );
 
     return rows.map((r) => ({
-      id: r.id,
+      titulo: r.titulo || '',
       contenido: r.contenido,
       tipo: r.tipo,
-      fueLeida: r.fue_leida,
-      creadoEn: r.creado_en,
+      creadoEn: r.creadoEn,
+    }));
+  }
+
+  async getRecomendacionesHistoricas(clienteId: string, advisorId: string) {
+    // Obtener todas las recomendaciones sin límite
+    const rows: any[] =
+      await this.userRepository.manager.query(
+        `
+        SELECT 
+          titulo,
+          contenido,
+          tipo,
+          creado_en as "creadoEn"
+        FROM recomendaciones
+        WHERE usuario_id = $1
+        ORDER BY creado_en DESC
+        `,
+        [clienteId],
+      );
+
+    return rows.map((r) => ({
+      titulo: r.titulo || '',
+      contenido: r.contenido,
+      tipo: r.tipo,
+      creadoEn: r.creadoEn,
     }));
   }
 
@@ -336,42 +357,34 @@ export class AsesorService {
     clienteId: string,
     advisorId: string,
     contenido: string,
-    tipo = 'general',
+    tipo = 'asesor',
     titulo?: string,
-    severidad?: string,
-    categoria?: string,
   ) {
-    const exists: { exists: boolean }[] = await this.userRepository.manager.query(
-      `SELECT EXISTS (
-         SELECT 1 FROM usuarios WHERE id = $1 AND asesor_id = $2
-       ) AS exists`,
-      [clienteId, advisorId],
+    // SQL directo: INSERT INTO recomendaciones
+    // SELECT u.id, advisorId, titulo, contenido, tipo
+    // FROM usuarios u
+    // WHERE u.id = clienteId AND u.asesor_id = advisorId
+    const result = await this.userRepository.manager.query(
+      `
+      INSERT INTO recomendaciones (usuario_id, asesor_id, titulo, contenido, tipo)
+      SELECT u.id, $2, $3, $4, $5
+      FROM usuarios u
+      WHERE u.id = $1 AND u.asesor_id = $2
+      RETURNING id, creado_en
+      `,
+      [clienteId, advisorId, titulo || '', contenido, tipo],
     );
 
-    if (!exists[0]?.exists) {
+    if (!result || result.length === 0) {
       throw new NotFoundException('Cliente no encontrado o no pertenece a este asesor');
     }
 
-    const recommendation = this.recommendationRepository.create({
-      user: { id: clienteId },
-      advisor: { id: advisorId },
-      contenido,
-      titulo,
-      tipo,
-      severidad,
-      categoria,
-    });
-
-    const saved = await this.recommendationRepository.save(recommendation);
-
     return {
-      id: saved.id,
-      titulo: saved.titulo,
-      contenido: saved.contenido,
-      tipo: saved.tipo,
-      severidad: saved.severidad,
-      categoria: saved.categoria,
-      creadoEn: saved.createdAt,
+      id: result[0].id,
+      titulo: titulo || '',
+      contenido,
+      tipo,
+      creadoEn: result[0].creado_en,
     };
   }
 

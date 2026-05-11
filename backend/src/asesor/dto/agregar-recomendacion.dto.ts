@@ -3,7 +3,7 @@ import { IsIn, IsOptional, IsString, Length, MaxLength } from 'class-validator';
 export class AgregarRecomendacionDto {
   @IsString()
   @Length(1, 2000)
-  contenido: string;
+  contenido!: string;
 
   @IsOptional()
   @IsString()
@@ -12,6 +12,7 @@ export class AgregarRecomendacionDto {
 
   @IsOptional()
   @IsString()
+  @IsIn(['asesor', 'ia'])
   tipo?: string;
 
   @IsOptional()
