@@ -200,13 +200,14 @@ export function renderConfiguracionCuentaPage({ state, profileImage, profileName
 
   // Score financiero
   const score = getFinancialScore();
+  const tier = scoreTier(score);
   const scoreDescriptions = {
     excellent: "Tus hábitos financieros son excelentes. Mantenés un buen nivel de ahorro y diversificación.",
     good: "Buen control financiero. Hay margen para mejorar tu tasa de ahorro mensual.",
     fair: "Podés mejorar. Revisá tus gastos y considerá crear objetivos de ahorro.",
     low: "Requiere atención. Tus gastos superan o igualan tus ingresos registrados.",
   };
-  const scoreDesc = scoreDescriptions[scoreTier(score)];
+  const scoreDesc = scoreDescriptions[tier];
 
   // Presupuestos con gasto real
   const currentPeriod = getFinanzasCurrentPeriod();
@@ -249,6 +250,9 @@ export function renderConfiguracionCuentaPage({ state, profileImage, profileName
   const perfilFin = config.perfilFinanciero || {};
   const ingresoEstimado = String(perfilFin.ingresoEstimado || "");
   const objetivoAhorro = String(perfilFin.objetivoAhorro || "");
+  const ingresoNum = parseFloat(ingresoEstimado) || 0;
+  const objetivoNum = parseFloat(objetivoAhorro) || 0;
+  const impliedRate = ingresoNum > 0 && objetivoNum > 0 ? Math.round((objetivoNum / ingresoNum) * 100) : null;
 
   // Plan: uso real
   const ticketCount = state.finanzas.gastos?.length || 0;
