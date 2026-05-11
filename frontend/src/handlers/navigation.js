@@ -1,5 +1,6 @@
 import { state } from "../state";
 import { ACCESS_TOKEN_KEY } from "../config";
+
 import {
   DASHBOARD_DROPDOWN_CONFIG,
   closeDashboardDropdown,
@@ -19,6 +20,7 @@ import {
   exportFilteredExpensesAsCsv,
   exportVisibleHistoricalRecommendationsAsCsv,
 } from "../data/csv";
+
 import { updateExpenseRecord, deleteExpenseRecord } from "../data/expenses";
 import {
   openAdvisorNewClientModal,
@@ -29,6 +31,8 @@ import { apiFetch } from "../api/client";
 import { loadDashboardBalances, loadMovimientos } from "../api/user";
 import { loadAhorros, updateAhorro, deleteAhorro, depositarAhorro, retirarAhorro } from "../api/ahorros";
 import { apiDesvincularCliente, loadAsesorClientes } from "../api/asesor";
+import { loadBudgets, deleteBudget } from "../api/budgets";
+import { loadCategories, deleteCategory } from "../api/categories";
 
 export function attachGlobalNavigation({ navigate, render }) {
   function clearSessionAndRedirectToLogin() {
@@ -519,6 +523,105 @@ export function attachGlobalNavigation({ navigate, render }) {
         render();
       } catch {
         showAppNotification("No se pudo desvincular el cliente", "error");
+      }
+    },
+    "delete-budget": async ({ event, actionButton }) => {
+      event.preventDefault();
+      const budgetId = actionButton.getAttribute("data-budget-id");
+      if (!budgetId) return;
+
+      const ok = await showAppConfirm({
+        title: "Eliminar presupuesto",
+        message: "¿Eliminás este presupuesto? No se borran los gastos asociados.",
+        confirmText: "Eliminar",
+        cancelText: "Cancelar",
+        danger: true,
+      });
+      if (!ok) return;
+
+      try {
+        await deleteBudget(budgetId);
+        await loadBudgets();
+        showAppNotification("Presupuesto eliminado", "success");
+        render();
+      } catch {
+        showAppNotification("No se pudo eliminar el presupuesto", "error");
+      }
+    },
+    "delete-category": async ({ event, actionButton }) => {
+      event.preventDefault();
+      const categoryId = actionButton.getAttribute("data-category-id");
+      if (!categoryId) return;
+
+      const ok = await showAppConfirm({
+        title: "Eliminar categoría",
+        message: "¿Eliminás esta categoría? Los gastos con esta categoría no se borran.",
+        confirmText: "Eliminar",
+        cancelText: "Cancelar",
+        danger: true,
+      });
+      if (!ok) return;
+
+      try {
+        await deleteCategory(Number(categoryId));
+        await loadCategories();
+        showAppNotification("Categoría eliminada", "success");
+        render();
+      } catch (err) {
+        showAppNotification(err?.message || "No se pudo eliminar la categoría", "error");
+      }
+    },
+    "export-gastos-csv": ({ event }) => {
+      event.preventDefault();
+      exportFilteredExpensesAsCsv();
+    },
+    "borrar-historial": async ({ event }) => {
+      event.preventDefault();
+      const ok = await showAppConfirm({
+        title: "Borrar historial de movimientos",
+        message: "Esta acción eliminará todos tus movimientos del servidor. No se puede deshacer.",
+        confirmText: "Borrar todo",
+        cancelText: "Cancelar",
+        danger: true,
+      });
+      if (!ok) return;
+
+      try {
+        const gastos = [...(state.finanzas.gastos || [])];
+        await Promise.all(gastos.map((g) => apiFetch(`/api/movimientos/${g.id}`, { method: "DELETE" }).catch(() => {})));
+        await Promise.all([loadMovimientos(), loadDashboardBalances()]);
+        showAppNotification("Historial de movimientos eliminado", "success");
+        render();
+      } catch {
+        showAppNotification("Error al borrar el historial", "error");
+      }
+    },
+    "eliminar-cuenta": async ({ event }) => {
+      event.preventDefault();
+      const ok = await showAppConfirm({
+        title: "Eliminar cuenta",
+        message: "Esta acción eliminará permanentemente tu cuenta y todos tus datos. No se puede deshacer.",
+        confirmText: "Eliminar mi cuenta",
+        cancelText: "Cancelar",
+        danger: true,
+      });
+      if (!ok) return;
+
+      const userId = state.currentUser?.id;
+      if (!userId) {
+        showAppNotification("No se pudo identificar la cuenta", "error");
+        return;
+      }
+
+      try {
+        await apiFetch(`/api/users/${userId}`, { method: "DELETE" });
+        localStorage.removeItem(ACCESS_TOKEN_KEY);
+        state.currentUser = null;
+        state.profileLoaded = true;
+        showAppNotification("Cuenta eliminada. Hasta luego.", "info");
+        navigate("/login", true);
+      } catch {
+        showAppNotification("No se pudo eliminar la cuenta", "error");
       }
     },
     "desvincular-asesor": async ({ event }) => {

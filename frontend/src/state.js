@@ -83,6 +83,8 @@ export const state = {
       retirhandoAhorroId: null,
     },
     recomendaciones: [],
+    budgets: [],
+    customCategories: [],
   },
   asesor: {
     clientes: [],
@@ -139,6 +141,10 @@ export const state = {
     autenticacionDos: false,
     sesionesActivas: true,
     sesiones: [],
+    perfilFinanciero: {
+      ingresoEstimado: "",
+      objetivoAhorro: "",
+    },
     asesoria: {
       asesor: null,
       solicitud: {

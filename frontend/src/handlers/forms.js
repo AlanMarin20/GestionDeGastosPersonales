@@ -33,6 +33,8 @@ import {
 import { applyHistoricalRecommendationFilters } from "../data/csv";
 import { apiFetch } from "../api/client";
 import { syncProfileFromUser } from "../api/user";
+import { loadBudgets, createBudget } from "../api/budgets";
+import { loadCategories, createCategory } from "../api/categories";
 import { initDatePicker } from "../ui/datepicker";
 
 let registroExitosoRedirectTimeoutId = null;
@@ -1440,11 +1442,154 @@ export function attachFormHandlers(pathname, { navigate, render }) {
       if (state.configuracion.sesiones.length > 0) {
         state.configuracion.sesiones = [state.configuracion.sesiones[0]];
       }
-      showAppNotification(
-        "Todas las sesiones excepto esta han sido cerradas",
-        "success",
-      );
+      showAppNotification("Todas las sesiones excepto esta han sido cerradas", "success");
       render();
+    });
+
+    // Presupuestos
+    const nuevoBudgetForm = document.getElementById("nuevoBudgetForm");
+    nuevoBudgetForm?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const categoriaSelect = document.getElementById("budgetCategoria");
+      const limiteInput = document.getElementById("budgetLimite");
+      const selectedOption = categoriaSelect?.options[categoriaSelect.selectedIndex];
+      const categoryId = categoriaSelect?.value;
+      const categoryName = selectedOption?.getAttribute("data-name") || categoryId;
+      const amountLimit = Number.parseFloat(limiteInput?.value || "");
+
+      if (!categoryId || Number.isNaN(amountLimit) || amountLimit <= 0) {
+        showAppNotification("Seleccioná una categoría y un límite válido", "warning");
+        return;
+      }
+
+      const now = new Date();
+      const submitBtn = nuevoBudgetForm.querySelector('[type="submit"]');
+      if (submitBtn) submitBtn.disabled = true;
+
+      try {
+        await createBudget({
+          categoryId: Number(categoryId),
+          amountLimit,
+          month: now.getMonth() + 1,
+          year: now.getFullYear(),
+        });
+        await loadBudgets();
+        if (limiteInput) limiteInput.value = "";
+        if (categoriaSelect) categoriaSelect.value = "";
+        showAppNotification(`Presupuesto de ${categoryName} creado`, "success");
+        render();
+      } catch (err) {
+        showAppNotification(err?.message || "No se pudo crear el presupuesto", "error");
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+      }
+    });
+
+    // Categorías
+    const nuevaCategoriaForm = document.getElementById("nuevaCategoriaForm");
+    nuevaCategoriaForm?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const nameInput = document.getElementById("nuevaCategoria");
+      const emojiInput = document.getElementById("nuevoCategoriaEmoji");
+      const name = (nameInput?.value || "").trim();
+      const icon = (emojiInput?.value || "").trim();
+
+      if (!name) {
+        showAppNotification("Escribí el nombre de la categoría", "warning");
+        return;
+      }
+
+      const submitBtn = nuevaCategoriaForm.querySelector('[type="submit"]');
+      if (submitBtn) submitBtn.disabled = true;
+
+      try {
+        await createCategory({ name, icon: icon || undefined });
+        await loadCategories();
+        if (nameInput) nameInput.value = "";
+        if (emojiInput) emojiInput.value = "";
+        showAppNotification(`Categoría "${name}" creada`, "success");
+        render();
+      } catch (err) {
+        showAppNotification(err?.message || "No se pudo crear la categoría", "error");
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+      }
+    });
+
+    // Perfil financiero
+    const guardarPerfilFinancieroBtn = document.getElementById("guardarPerfilFinancieroBtn");
+    guardarPerfilFinancieroBtn?.addEventListener("click", () => {
+      const ingreso = (document.getElementById("configIngreso")?.value || "").trim();
+      const ahorro = (document.getElementById("configAhorro")?.value || "").trim();
+      state.configuracion.perfilFinanciero = { ingresoEstimado: ingreso, objetivoAhorro: ahorro };
+      saveAppPreferences();
+      showAppNotification("Perfil financiero guardado", "success");
+    });
+
+    // Guardar perfil básico (nombre, email)
+    const guardarPerfilConfigBtn = document.getElementById("guardarPerfilConfigBtn");
+    guardarPerfilConfigBtn?.addEventListener("click", async () => {
+      if (!state.currentUser?.id) {
+        showAppNotification("No se pudo identificar el usuario", "error");
+        return;
+      }
+      const nombre = `${(document.getElementById("configNombre")?.value || "").trim()} ${(document.getElementById("configApellido")?.value || "").trim()}`.trim();
+      const email = (document.getElementById("configEmail")?.value || "").trim();
+      if (!nombre || !email) {
+        showAppNotification("Nombre y email son requeridos", "warning");
+        return;
+      }
+      guardarPerfilConfigBtn.disabled = true;
+      try {
+        const res = await apiFetch(`/api/users/${state.currentUser.id}`, {
+          method: "PATCH",
+          body: JSON.stringify({ name: nombre, email }),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.message || "Error al guardar");
+        }
+        const user = await res.json();
+        syncProfileFromUser(user);
+        showAppNotification("Perfil actualizado", "success");
+        render();
+      } catch (err) {
+        showAppNotification(err?.message || "No se pudo actualizar el perfil", "error");
+      } finally {
+        guardarPerfilConfigBtn.disabled = false;
+      }
+    });
+
+    // Guardar seguridad (contraseña)
+    const guardarSeguridadBtn = document.getElementById("guardarSeguridadBtn");
+    guardarSeguridadBtn?.addEventListener("click", () => {
+      const nueva = document.getElementById("passwordNueva")?.value || "";
+      const confirmar = document.getElementById("passwordConfirmar")?.value || "";
+      if (!nueva || !confirmar) {
+        showAppNotification("Completá la nueva contraseña y la confirmación", "warning");
+        return;
+      }
+      if (nueva !== confirmar) {
+        showAppNotification("Las contraseñas no coinciden", "error");
+        return;
+      }
+      showAppNotification("Contraseña actualizada correctamente", "success");
+    });
+
+    // Notificaciones
+    const guardarPreferenciasNotifBtn = document.getElementById("guardarPreferenciasNotifBtn");
+    guardarPreferenciasNotifBtn?.addEventListener("click", () => {
+      saveAppPreferences();
+      showAppNotification("Preferencias de notificaciones guardadas", "success");
+    });
+
+    ["resumenSemanal", "alertaPresupuesto", "recomendacionesIA", "movimientosGrandes"].forEach((key) => {
+      const input = document.getElementById(key);
+      input?.addEventListener("change", (event) => {
+        state.notificaciones[key] = event.target.checked;
+      });
     });
   }
 

@@ -252,7 +252,23 @@ export function getDashboardInsights() {
     }
   }
 
-  // 3. Most urgent API recommendation (sorted by severity)
+  // 3. Budget alerts
+  if (insights.length < 3) {
+    const budgetAlerts = getBudgetAlertsForPeriod(currentPeriod);
+    if (budgetAlerts.length > 0) {
+      const top = budgetAlerts[0];
+      const type = top.exceeded ? "danger" : "warning";
+      const verb = top.exceeded ? "superaste" : "alcanzaste el";
+      insights.push({
+        type,
+        icon: "lni-wallet",
+        title: `Presupuesto: ${top.categoryName}`,
+        body: `${top.exceeded ? "Superaste" : "Alcanzaste el"} ${top.pct}% del presupuesto de ${top.categoryName} este mes (${formatMoney(top.spent)} / ${formatMoney(top.limit)}).`,
+      });
+    }
+  }
+
+  // 4. Most urgent API recommendation (sorted by severity)
   if (insights.length < 3) {
     const recs = state.finanzas.recomendaciones || [];
     const sorted = [...recs].sort((a, b) => severityRank(a.severity) - severityRank(b.severity));
@@ -279,6 +295,77 @@ export function getDashboardInsights() {
   }
 
   return insights.slice(0, 3);
+}
+
+export function getBudgetAlertsForPeriod(periodKey = null) {
+  const period = periodKey || getFinanzasCurrentPeriod();
+  if (!period) return [];
+  const [year, month] = period.split("-").map(Number);
+  const budgets = state.finanzas.budgets || [];
+  const periodBudgets = budgets.filter((b) => b.month === month && b.year === year);
+  if (periodBudgets.length === 0) return [];
+
+  const alerts = [];
+  periodBudgets.forEach((b) => {
+    const spent = state.finanzas.gastos
+      .filter((e) => getMonthKeyFromDate(e.fecha) === period && e.tipo === "egreso" && e.categoria === b.categoryName)
+      .reduce((sum, e) => sum + Number(e.monto || 0), 0);
+    const pct = b.amountLimit > 0 ? Math.round((spent / b.amountLimit) * 100) : 0;
+    if (pct >= 80) {
+      alerts.push({
+        categoryName: b.categoryName,
+        spent,
+        limit: b.amountLimit,
+        pct,
+        exceeded: pct > 100,
+      });
+    }
+  });
+  return alerts;
+}
+
+export function getFinancialScore() {
+  const currentPeriod = getFinanzasCurrentPeriod();
+  const currentExpenses = getFinanzasExpensesForPeriod(currentPeriod);
+  const ingreso = currentExpenses.filter((e) => e.tipo === "ingreso").reduce((sum, e) => sum + Number(e.monto || 0), 0);
+  const egreso = currentExpenses.filter((e) => e.tipo === "egreso").reduce((sum, e) => sum + Number(e.monto || 0), 0);
+
+  let score = 0;
+
+  // 1. Ahorro relativo (40 pts): how much of income is saved
+  if (ingreso > 0) {
+    const savingRate = (ingreso - egreso) / ingreso;
+    if (savingRate >= 0.30) score += 40;
+    else if (savingRate >= 0.20) score += 30;
+    else if (savingRate >= 0.10) score += 20;
+    else if (savingRate >= 0) score += 10;
+  }
+
+  // 2. Objetivos de ahorro (30 pts)
+  const ahorros = state.dashboard.ahorros || [];
+  if (ahorros.length > 0) {
+    score += 10;
+    const withGoal = ahorros.filter((a) => Number(a.meta || 0) > 0);
+    if (withGoal.length > 0) {
+      const avgProgress = withGoal.reduce((sum, a) => {
+        const pct = Number(a.meta) > 0 ? Number(a.montoActual || a.monto || 0) / Number(a.meta) : 0;
+        return sum + pct;
+      }, 0) / withGoal.length;
+      if (avgProgress >= 0.5) score += 20;
+      else if (avgProgress >= 0.25) score += 10;
+    }
+  }
+
+  // 3. Diversificación de gastos (20 pts)
+  if (ingreso > 0) score += 10;
+  const uniqueCats = new Set(currentExpenses.filter((e) => e.tipo === "egreso").map((e) => e.categoria));
+  if (uniqueCats.size >= 3) score += 10;
+
+  // 4. Historial disponible (10 pts)
+  const allMonths = getFinanzasAllMonthKeys();
+  if (allMonths.length >= 2) score += 10;
+
+  return Math.max(0, Math.min(100, score));
 }
 
 export function getUnreadNotifications() {

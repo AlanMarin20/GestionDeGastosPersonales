@@ -98,6 +98,8 @@ import {
   getMisGastosCategoryOptions,
   getMisGastosPeriodOptions,
   getFilteredExpenses,
+  getFinancialScore,
+  getBudgetAlertsForPeriod,
 } from "./data/finanzas";
 import {
   addExpenseRecord,
@@ -140,6 +142,8 @@ import {
 } from "./api/user";
 import { loadAhorros } from "./api/ahorros";
 import { loadRecomendaciones } from "./api/recomendaciones";
+import { loadBudgets } from "./api/budgets";
+import { loadCategories } from "./api/categories";
 import {
   loadAsesorClientes,
   loadClienteDetalle,
@@ -797,6 +801,8 @@ loadCurrentUser().finally(() => {
       loadAhorros(),
       loadRecomendaciones(),
       loadAsesorClientes(),
+      loadBudgets(),
+      loadCategories(),
     ];
 
     if (clienteMatch) {
