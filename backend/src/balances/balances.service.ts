@@ -46,36 +46,57 @@ export class BalancesService {
       order: { createdAt: 'DESC' },
     });
 
-    const rows: { egreso: string; ingreso: string }[] =
+    // Stats del mes actual: excluye transferencias internas (depósitos/retiros de ahorro)
+    const statsRows: { egreso: string; ingreso: string }[] =
       await this.balanceRepository.manager.query(
         `SELECT
           COALESCE(SUM(CASE WHEN tipo = 'egreso' THEN monto ELSE 0 END), 0) AS egreso,
           COALESCE(SUM(CASE WHEN tipo = 'ingreso' THEN monto ELSE 0 END), 0) AS ingreso
          FROM movimientos
          WHERE usuario_id = $1
-           AND DATE_TRUNC('month', fecha) = DATE_TRUNC('month', CURRENT_DATE)`,
+           AND DATE_TRUNC('month', fecha) = DATE_TRUNC('month', CURRENT_DATE)
+           AND es_transferencia_interna = FALSE`,
         [userId],
       );
 
-    const gastoMensual = Number(rows[0]?.egreso ?? 0);
-    const ingresoMensual = Number(rows[0]?.ingreso ?? 0);
+    // Dinero disponible: saldo neto acumulado de todos los movimientos (incluye transferencias)
+    const netoRows: { neto: string }[] =
+      await this.balanceRepository.manager.query(
+        `SELECT
+          COALESCE(SUM(CASE WHEN tipo = 'ingreso' THEN monto ELSE 0 END), 0) -
+          COALESCE(SUM(CASE WHEN tipo = 'egreso'  THEN monto ELSE 0 END), 0) AS neto
+         FROM movimientos
+         WHERE usuario_id = $1`,
+        [userId],
+      );
+
+    const gastoMensual = Number(statsRows[0]?.egreso ?? 0);
+    const ingresoMensual = Number(statsRows[0]?.ingreso ?? 0);
+    const dineroDisponible = Number(netoRows[0]?.neto ?? 0);
 
     return {
       gastoMensual,
-      dineroDisponible: ingresoMensual - gastoMensual,
+      dineroDisponible,
       ingreso: ingresoMensual,
       ahorroAcumulado: balance ? Number(balance.ahorro) : 0,
     };
   }
 
   async getGraficoGastos(userId: string) {
-    const balance = await this.balanceRepository.findOne({
-      where: { user: { id: userId } },
-      order: { createdAt: 'DESC' },
-    });
+    // Calcula totales excluyendo transferencias internas para que la proporción sea real
+    const totalesRows: { ingreso: string; egreso: string }[] =
+      await this.balanceRepository.manager.query(
+        `SELECT
+          COALESCE(SUM(CASE WHEN tipo = 'ingreso' THEN monto ELSE 0 END), 0) AS ingreso,
+          COALESCE(SUM(CASE WHEN tipo = 'egreso'  THEN monto ELSE 0 END), 0) AS egreso
+         FROM movimientos
+         WHERE usuario_id = $1
+           AND es_transferencia_interna = FALSE`,
+        [userId],
+      );
 
-    const ingreso = balance ? Number(balance.ingreso) : 0;
-    const egreso = balance ? Number(balance.egreso) : 0;
+    const ingreso = Number(totalesRows[0]?.ingreso ?? 0);
+    const egreso = Number(totalesRows[0]?.egreso ?? 0);
     const porcentaje = ingreso > 0 ? Math.round((egreso / ingreso) * 100 * 100) / 100 : 0;
 
     const meses = await this.movimientosService.getGastosMensuales(userId);

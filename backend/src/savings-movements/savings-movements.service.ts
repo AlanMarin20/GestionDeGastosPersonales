@@ -93,6 +93,7 @@ export class SavingsMovementsService {
         descripcion: createDto.description ?? 'Depósito a objetivo de ahorro',
         fecha: now,
         category: categoriaId ? ({ id: categoriaId } as any) : undefined,
+        esTransferenciaInterna: true,
       });
       await this.movimientoRepository.save(movimiento);
 
@@ -106,7 +107,6 @@ export class SavingsMovementsService {
         );
       }
 
-      // El trigger de BD recalcula balances.ingreso automáticamente
       const movimiento = this.movimientoRepository.create({
         user: { id: userId },
         tipo: 'ingreso',
@@ -115,6 +115,7 @@ export class SavingsMovementsService {
         comercio: `Retiro ahorro: ${goal.nombre}`.substring(0, 150),
         descripcion: createDto.description ?? 'Retiro de objetivo de ahorro',
         fecha: now,
+        esTransferenciaInterna: true,
       });
       await this.movimientoRepository.save(movimiento);
 

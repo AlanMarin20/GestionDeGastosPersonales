@@ -200,6 +200,7 @@ export class MovimientosService {
           ON DATE_TRUNC('month', m.fecha) = mes
           AND m.usuario_id = $1
           AND m.tipo = 'egreso'
+          AND m.es_transferencia_interna = FALSE
         GROUP BY mes
         ORDER BY mes
         `,
@@ -230,6 +231,7 @@ export class MovimientosService {
             ON DATE_TRUNC('month', m.fecha) = gs.mes
             AND m.usuario_id = $1
             AND m.tipo = 'egreso'
+            AND m.es_transferencia_interna = FALSE
           GROUP BY gs.mes
         ) t
         ORDER BY t.mes DESC

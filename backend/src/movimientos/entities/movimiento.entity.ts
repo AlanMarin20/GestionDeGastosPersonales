@@ -42,6 +42,9 @@ export class Movimiento {
   @Column({ name: 'fecha', type: 'date', default: () => 'CURRENT_DATE' })
   fecha!: Date;
 
+  @Column({ name: 'es_transferencia_interna', type: 'boolean', default: false })
+  esTransferenciaInterna!: boolean;
+
   @CreateDateColumn({ name: 'creado_en', type: 'timestamp without time zone' })
   creadoEn!: Date;
 }

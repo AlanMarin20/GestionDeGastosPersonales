@@ -93,6 +93,7 @@ export class SavingsGoalsService {
         descripcion: 'Monto inicial de objetivo de ahorro',
         fecha: new Date(),
         category: categoriaId ? ({ id: categoriaId } as any) : undefined,
+        esTransferenciaInterna: true,
       });
       await this.movimientoRepository.save(movimiento);
     }
@@ -148,6 +149,7 @@ export class SavingsGoalsService {
         comercio: `Retiro ahorro: ${goal.nombre}`.substring(0, 150),
         descripcion: 'Objetivo de ahorro eliminado - saldo devuelto',
         fecha: new Date(),
+        esTransferenciaInterna: true,
       });
       await this.movimientoRepository.save(movimiento);
     }
