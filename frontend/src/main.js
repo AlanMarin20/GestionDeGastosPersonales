@@ -1,5 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap";
+import "flatpickr/dist/flatpickr.min.css";
 import Chart from "chart.js/auto";
 import {
   encabezadoAuthPublico,

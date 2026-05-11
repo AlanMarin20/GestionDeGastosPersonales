@@ -56,7 +56,10 @@ export function renderCargarGastoPage({
         </div>
         <div>
           <label class="gd-form-label" for="expenseFecha">Fecha</label>
-          <input class="gd-form-input" id="expenseFecha" name="fecha" type="date" value="${escapeHtml(expenseForm.fecha)}" required>
+          <div class="gd-date-field">
+            <i class="lni lni-calendar gd-date-field-icon" aria-hidden="true"></i>
+            <input class="gd-form-input gd-date-field-input" id="expenseFecha" name="fecha" type="date" lang="es-AR" value="${escapeHtml(expenseForm.fecha)}" required>
+          </div>
         </div>
         <div>
           <label class="gd-form-label" for="expenseMonto">Monto</label>
@@ -90,7 +93,10 @@ export function renderCargarGastoPage({
       <div class="gd-form-grid">
         <div>
           <label class="gd-form-label" for="incomeFecha">Fecha</label>
-          <input class="gd-form-input" id="incomeFecha" name="fecha" type="date" value="${escapeHtml(ingresoForm.fecha || "")}" required>
+          <div class="gd-date-field">
+            <i class="lni lni-calendar gd-date-field-icon" aria-hidden="true"></i>
+            <input class="gd-form-input gd-date-field-input" id="incomeFecha" name="fecha" type="date" lang="es-AR" value="${escapeHtml(ingresoForm.fecha || "")}" required>
+          </div>
         </div>
         <div>
           <label class="gd-form-label" for="incomeMonto">Monto</label>

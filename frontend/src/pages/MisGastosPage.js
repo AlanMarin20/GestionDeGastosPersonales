@@ -33,7 +33,10 @@ function renderEditExpenseModal({ editingExpense, categoryOptions }) {
           </div>
           <div>
             <label class="gd-form-label" for="editExpenseFecha">Fecha</label>
-            <input id="editExpenseFecha" type="date" class="gd-form-input" value="${escapeHtml(editingExpense.fecha)}">
+            <div class="gd-date-field">
+              <i class="lni lni-calendar gd-date-field-icon" aria-hidden="true"></i>
+              <input id="editExpenseFecha" type="date" lang="es-AR" class="gd-form-input gd-date-field-input" value="${escapeHtml(editingExpense.fecha)}">
+            </div>
           </div>
           <div>
             <label class="gd-form-label" for="editExpenseMonto">Monto</label>
@@ -114,19 +117,27 @@ export function renderMisGastosPage({
 
       <div class="gd-date-range">
         <label class="gd-form-label gd-date-range-label" for="expenseFechaDesde">Desde</label>
-        <input
-          id="expenseFechaDesde"
-          type="date"
-          class="gd-form-input gd-date-input"
-          value="${escapeHtml(filters.fechaDesde || "")}"
-        >
+        <div class="gd-date-field">
+          <i class="lni lni-calendar gd-date-field-icon" aria-hidden="true"></i>
+          <input
+            id="expenseFechaDesde"
+            type="date"
+            lang="es-AR"
+            class="gd-form-input gd-date-input gd-date-field-input"
+            value="${escapeHtml(filters.fechaDesde || "")}"
+          >
+        </div>
         <label class="gd-form-label gd-date-range-label" for="expenseFechaHasta">Hasta</label>
-        <input
-          id="expenseFechaHasta"
-          type="date"
-          class="gd-form-input gd-date-input"
-          value="${escapeHtml(filters.fechaHasta || "")}"
-        >
+        <div class="gd-date-field">
+          <i class="lni lni-calendar gd-date-field-icon" aria-hidden="true"></i>
+          <input
+            id="expenseFechaHasta"
+            type="date"
+            lang="es-AR"
+            class="gd-form-input gd-date-input gd-date-field-input"
+            value="${escapeHtml(filters.fechaHasta || "")}"
+          >
+        </div>
         ${(filters.fechaDesde || filters.fechaHasta) ? `
           <button type="button" class="gd-btn-clear-dates" data-action="clear-date-filter" aria-label="Limpiar rango de fechas">
             <i class="lni lni-close" aria-hidden="true"></i>

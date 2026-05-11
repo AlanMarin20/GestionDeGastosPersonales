@@ -33,6 +33,7 @@ import {
 import { applyHistoricalRecommendationFilters } from "../data/csv";
 import { apiFetch } from "../api/client";
 import { syncProfileFromUser } from "../api/user";
+import { initDatePicker } from "../ui/datepicker";
 
 let registroExitosoRedirectTimeoutId = null;
 let registroExitosoCountdownIntervalId = null;
@@ -530,6 +531,9 @@ export function attachFormHandlers(pathname, { navigate, render }) {
   }
 
   if (pathname === "/dashboard/cargar") {
+    initDatePicker(document.getElementById("expenseFecha"));
+    initDatePicker(document.getElementById("incomeFecha"));
+
     const ticketUploadInput = document.getElementById("ticketUploadInput");
     const expenseForm = document.getElementById("expenseForm");
     const categorySelect = document.getElementById("expenseCategoria");
@@ -699,6 +703,10 @@ export function attachFormHandlers(pathname, { navigate, render }) {
   }
 
   if (pathname === "/dashboard/gastos") {
+    initDatePicker(document.getElementById("expenseFechaDesde"));
+    initDatePicker(document.getElementById("expenseFechaHasta"));
+    initDatePicker(document.getElementById("editExpenseFecha"));
+
     const searchInput = document.getElementById("expenseSearchInput");
     const typeFilter = document.getElementById("expenseTypeFilter");
     const categoryFilter = document.getElementById("expenseCategoryFilter");
