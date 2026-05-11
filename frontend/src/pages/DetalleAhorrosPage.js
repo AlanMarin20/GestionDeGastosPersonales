@@ -42,7 +42,72 @@ function renderAhorroCard(ahorro) {
           <span class="gd-muted" style="font-size:0.64rem">Falta: ${escapeHtml(formatMoney(remaining))}</span>
         </div>
       ` : ""}
+
+      <div class="gd-ahorro-actions">
+        <button type="button" class="gd-btn-ahorro-depositar" data-action="open-depositar-ahorro" data-ahorro-id="${escapeHtml(ahorro.id)}">
+          <i class="lni lni-arrow-down" aria-hidden="true"></i> Depositar
+        </button>
+        <button type="button" class="gd-btn-ahorro-retirar" data-action="open-retirar-ahorro" data-ahorro-id="${escapeHtml(ahorro.id)}" ${Number(ahorro.monto) <= 0 ? "disabled" : ""}>
+          <i class="lni lni-arrow-up" aria-hidden="true"></i> Retirar
+        </button>
+      </div>
     </article>
+  `;
+}
+
+function renderDepositarModal({ depositandoAhorro }) {
+  if (!depositandoAhorro) return "";
+
+  return `
+    <div class="gd-modal-backdrop" data-action="close-depositar-ahorro-modal"></div>
+    <section class="gd-modal" role="dialog" aria-modal="true" aria-label="Depositar a ahorro">
+      <div class="gd-modal-card">
+        <h3 class="gd-modal-title">Depositar a "${escapeHtml(depositandoAhorro.nombre)}"</h3>
+        <p class="gd-modal-sub">El monto se descontara de tu dinero disponible.</p>
+        <div class="gd-form-grid">
+          <div class="gd-form-full">
+            <label class="gd-form-label" for="depositarMonto">Monto a depositar</label>
+            <input id="depositarMonto" type="number" min="0.01" step="0.01" class="gd-form-input" placeholder="0.00" autofocus>
+          </div>
+          <div class="gd-form-full">
+            <label class="gd-form-label" for="depositarDescripcion">Descripcion (opcional)</label>
+            <input id="depositarDescripcion" class="gd-form-input" placeholder="Ej: Ahorro mensual">
+          </div>
+        </div>
+        <div class="gd-modal-actions">
+          <button type="button" class="gd-btn-secondary" data-action="close-depositar-ahorro-modal">Cancelar</button>
+          <button type="button" class="gd-btn-primary" data-action="confirm-depositar-ahorro" data-ahorro-id="${escapeHtml(depositandoAhorro.id)}">Depositar</button>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+function renderRetirarModal({ retirhandoAhorro }) {
+  if (!retirhandoAhorro) return "";
+
+  return `
+    <div class="gd-modal-backdrop" data-action="close-retirar-ahorro-modal"></div>
+    <section class="gd-modal" role="dialog" aria-modal="true" aria-label="Retirar de ahorro">
+      <div class="gd-modal-card">
+        <h3 class="gd-modal-title">Retirar de "${escapeHtml(retirhandoAhorro.nombre)}"</h3>
+        <p class="gd-modal-sub">Disponible: ${escapeHtml(formatMoney(retirhandoAhorro.monto))}. El monto se sumara a tu dinero disponible.</p>
+        <div class="gd-form-grid">
+          <div class="gd-form-full">
+            <label class="gd-form-label" for="retirarMonto">Monto a retirar</label>
+            <input id="retirarMonto" type="number" min="0.01" step="0.01" max="${escapeHtml(String(retirhandoAhorro.monto))}" class="gd-form-input" placeholder="0.00" autofocus>
+          </div>
+          <div class="gd-form-full">
+            <label class="gd-form-label" for="retirarDescripcion">Descripcion (opcional)</label>
+            <input id="retirarDescripcion" class="gd-form-input" placeholder="Ej: Gasto imprevisto">
+          </div>
+        </div>
+        <div class="gd-modal-actions">
+          <button type="button" class="gd-btn-secondary" data-action="close-retirar-ahorro-modal">Cancelar</button>
+          <button type="button" class="gd-btn-primary" data-action="confirm-retirar-ahorro" data-ahorro-id="${escapeHtml(retirhandoAhorro.id)}">Retirar</button>
+        </div>
+      </div>
+    </section>
   `;
 }
 
@@ -88,7 +153,7 @@ function renderDeleteAhorroModal({ deletingAhorro }) {
     <section class="gd-modal" role="dialog" aria-modal="true" aria-label="Eliminar ahorro">
       <div class="gd-modal-card">
         <h3 class="gd-modal-title">Eliminar ahorro</h3>
-        <p class="gd-modal-sub">Esta accion eliminara el objetivo "${escapeHtml(deletingAhorro.nombre)}" con ${escapeHtml(formatMoney(deletingAhorro.monto))} acumulado.</p>
+        <p class="gd-modal-sub">Se eliminara "${escapeHtml(deletingAhorro.nombre)}" y los ${escapeHtml(formatMoney(deletingAhorro.monto))} acumulados se devolvera a tu dinero disponible.</p>
         <div class="gd-modal-actions">
           <button type="button" class="gd-btn-secondary" data-action="close-delete-ahorro-modal">Cancelar</button>
           <button type="button" class="gd-btn-danger" data-action="confirm-delete-ahorro" data-ahorro-id="${escapeHtml(deletingAhorro.id)}">Eliminar</button>
@@ -107,6 +172,8 @@ export function renderDetalleAhorrosPage({
   ahorros,
   editingAhorro,
   deletingAhorro,
+  depositandoAhorro,
+  retirhandoAhorro,
 }) {
   const totalAhorrado = ahorros.reduce((sum, a) => sum + Number(a.monto || 0), 0);
   const ahorrosConMeta = ahorros.filter((a) => a.meta);
@@ -166,6 +233,8 @@ export function renderDetalleAhorrosPage({
 
     ${renderEditAhorroModal({ editingAhorro })}
     ${renderDeleteAhorroModal({ deletingAhorro })}
+    ${renderDepositarModal({ depositandoAhorro })}
+    ${renderRetirarModal({ retirhandoAhorro })}
   `;
 
   return renderDashboardAppLayout({

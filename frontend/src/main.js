@@ -365,14 +365,8 @@ function renderDashboardPage() {
 }
 
 function renderDetalleAhorrosPage() {
-  const editingId = state.finanzas.ui.editingAhorroId;
-  const deletingId = state.finanzas.ui.deletingAhorroId;
-  const editingAhorro = editingId
-    ? state.dashboard.ahorros.find((a) => a.id === editingId) ?? null
-    : null;
-  const deletingAhorro = deletingId
-    ? state.dashboard.ahorros.find((a) => a.id === deletingId) ?? null
-    : null;
+  const { editingAhorroId, deletingAhorroId, depositandoAhorroId, retirhandoAhorroId } = state.finanzas.ui;
+  const ahorros = state.dashboard.ahorros;
 
   return renderDetalleAhorrosPageView({
     profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
@@ -380,9 +374,11 @@ function renderDetalleAhorrosPage() {
     activePath: "/dashboard/ahorros",
     pageTitle: "Detalle de ahorros",
     pageSubtitle: "Resumen completo de objetivos y fondos acumulados",
-    ahorros: state.dashboard.ahorros,
-    editingAhorro,
-    deletingAhorro,
+    ahorros,
+    editingAhorro: editingAhorroId ? (ahorros.find((a) => a.id === editingAhorroId) ?? null) : null,
+    deletingAhorro: deletingAhorroId ? (ahorros.find((a) => a.id === deletingAhorroId) ?? null) : null,
+    depositandoAhorro: depositandoAhorroId ? (ahorros.find((a) => a.id === depositandoAhorroId) ?? null) : null,
+    retirhandoAhorro: retirhandoAhorroId ? (ahorros.find((a) => a.id === retirhandoAhorroId) ?? null) : null,
   });
 }
 

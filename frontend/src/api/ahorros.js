@@ -78,3 +78,35 @@ export async function deleteAhorro(id) {
     throw new Error("Error al eliminar el ahorro");
   }
 }
+
+export async function depositarAhorro(goalId, amount, description) {
+  const response = await apiFetch("/api/savings-movements", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ goalId, amount, tipo: "deposito", description }),
+  });
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    const msg = Array.isArray(err.message)
+      ? err.message.join(", ")
+      : err.message || "Error al depositar";
+    throw new Error(msg);
+  }
+  return response.json();
+}
+
+export async function retirarAhorro(goalId, amount, description) {
+  const response = await apiFetch("/api/savings-movements", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ goalId, amount, tipo: "retiro", description }),
+  });
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    const msg = Array.isArray(err.message)
+      ? err.message.join(", ")
+      : err.message || "Error al retirar";
+    throw new Error(msg);
+  }
+  return response.json();
+}

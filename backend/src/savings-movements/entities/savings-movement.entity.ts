@@ -8,6 +8,8 @@ import {
 } from 'typeorm';
 import { SavingsGoal } from '../../savings-goals/entities/savings-goal.entity';
 
+export type TipoMovimientoAhorro = 'deposito' | 'retiro';
+
 @Entity('movimientos_ahorro')
 export class SavingsMovement {
   @PrimaryGeneratedColumn('uuid')
@@ -16,6 +18,9 @@ export class SavingsMovement {
   @ManyToOne(() => SavingsGoal, { nullable: false })
   @JoinColumn({ name: 'meta_id' })
   goal: SavingsGoal;
+
+  @Column({ type: 'varchar', length: 20, default: 'deposito' })
+  tipo: TipoMovimientoAhorro;
 
   @Column({ type: 'numeric', precision: 12, scale: 2 })
   monto: number;

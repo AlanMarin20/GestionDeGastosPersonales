@@ -77,6 +77,8 @@ export const state = {
       deletingExpenseId: null,
       editingAhorroId: null,
       deletingAhorroId: null,
+      depositandoAhorroId: null,
+      retirhandoAhorroId: null,
     },
     recomendaciones: [],
   },

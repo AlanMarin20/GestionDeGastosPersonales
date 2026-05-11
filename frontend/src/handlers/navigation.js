@@ -27,7 +27,7 @@ import {
 } from "../data/advisor";
 import { apiFetch } from "../api/client";
 import { loadDashboardBalances, loadMovimientos } from "../api/user";
-import { loadAhorros, updateAhorro, deleteAhorro } from "../api/ahorros";
+import { loadAhorros, updateAhorro, deleteAhorro, depositarAhorro, retirarAhorro } from "../api/ahorros";
 import { apiDesvincularCliente, loadAsesorClientes } from "../api/asesor";
 
 export function attachGlobalNavigation({ navigate, render }) {
@@ -371,6 +371,72 @@ export function attachGlobalNavigation({ navigate, render }) {
         render();
       } catch (error) {
         showAppNotification(error.message || "Error al eliminar el ahorro", "error");
+      }
+    },
+    "open-depositar-ahorro": ({ actionButton }) => {
+      const ahorroId = actionButton.getAttribute("data-ahorro-id");
+      if (!ahorroId) return;
+      state.finanzas.ui.depositandoAhorroId = ahorroId;
+      state.finanzas.ui.retirhandoAhorroId = null;
+      render();
+    },
+    "close-depositar-ahorro-modal": () => {
+      state.finanzas.ui.depositandoAhorroId = null;
+      render();
+    },
+    "confirm-depositar-ahorro": async ({ actionButton }) => {
+      const ahorroId = actionButton.getAttribute("data-ahorro-id");
+      if (!ahorroId) return;
+
+      const amount = Number.parseFloat(document.getElementById("depositarMonto")?.value || "");
+      const description = (document.getElementById("depositarDescripcion")?.value || "").trim() || undefined;
+
+      if (Number.isNaN(amount) || amount <= 0) {
+        showAppNotification("Ingresa un monto valido", "error");
+        return;
+      }
+
+      try {
+        await depositarAhorro(ahorroId, amount, description);
+        await Promise.all([loadAhorros(), loadDashboardBalances()]);
+        state.finanzas.ui.depositandoAhorroId = null;
+        showAppNotification("Deposito realizado correctamente", "success");
+        render();
+      } catch (error) {
+        showAppNotification(error.message || "Error al depositar", "error");
+      }
+    },
+    "open-retirar-ahorro": ({ actionButton }) => {
+      const ahorroId = actionButton.getAttribute("data-ahorro-id");
+      if (!ahorroId) return;
+      state.finanzas.ui.retirhandoAhorroId = ahorroId;
+      state.finanzas.ui.depositandoAhorroId = null;
+      render();
+    },
+    "close-retirar-ahorro-modal": () => {
+      state.finanzas.ui.retirhandoAhorroId = null;
+      render();
+    },
+    "confirm-retirar-ahorro": async ({ actionButton }) => {
+      const ahorroId = actionButton.getAttribute("data-ahorro-id");
+      if (!ahorroId) return;
+
+      const amount = Number.parseFloat(document.getElementById("retirarMonto")?.value || "");
+      const description = (document.getElementById("retirarDescripcion")?.value || "").trim() || undefined;
+
+      if (Number.isNaN(amount) || amount <= 0) {
+        showAppNotification("Ingresa un monto valido", "error");
+        return;
+      }
+
+      try {
+        await retirarAhorro(ahorroId, amount, description);
+        await Promise.all([loadAhorros(), loadDashboardBalances()]);
+        state.finanzas.ui.retirhandoAhorroId = null;
+        showAppNotification("Retiro realizado correctamente", "success");
+        render();
+      } catch (error) {
+        showAppNotification(error.message || "Error al retirar", "error");
       }
     },
     "open-add-client-modal": ({ event }) => {

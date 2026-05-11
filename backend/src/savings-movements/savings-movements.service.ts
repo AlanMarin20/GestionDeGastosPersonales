@@ -1,10 +1,16 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SavingsGoal } from '../savings-goals/entities/savings-goal.entity';
 import { CreateSavingsMovementDto } from './dto/create-savings-movement.dto';
 import { UpdateSavingsMovementDto } from './dto/update-savings-movement.dto';
 import { SavingsMovement } from './entities/savings-movement.entity';
+import { Movimiento } from '../movimientos/entities/movimiento.entity';
+import { Balance } from '../balances/entities/balance.entity';
 
 @Injectable()
 export class SavingsMovementsService {
@@ -13,35 +19,116 @@ export class SavingsMovementsService {
     private readonly movementRepository: Repository<SavingsMovement>,
     @InjectRepository(SavingsGoal)
     private readonly goalRepository: Repository<SavingsGoal>,
+    @InjectRepository(Movimiento)
+    private readonly movimientoRepository: Repository<Movimiento>,
+    @InjectRepository(Balance)
+    private readonly balanceRepository: Repository<Balance>,
   ) {}
+
+  private async getOrCreateBalance(userId: string): Promise<Balance> {
+    let balance = await this.balanceRepository.findOne({
+      where: { user: { id: userId } },
+    });
+    if (!balance) {
+      balance = this.balanceRepository.create({
+        user: { id: userId },
+        ingreso: 0,
+        egreso: 0,
+        ahorro: 0,
+      });
+      await this.balanceRepository.save(balance);
+    }
+    return balance;
+  }
 
   async create(userId: string, createDto: CreateSavingsMovementDto) {
     const goal = await this.goalRepository.findOne({
       where: { id: createDto.goalId, user: { id: userId } },
     });
-
     if (!goal) {
       throw new NotFoundException(
         `Meta de ahorro con id ${createDto.goalId} no encontrada`,
       );
     }
 
+    const tipo = createDto.tipo ?? 'deposito';
+    const amount = Number(createDto.amount);
+    const now = createDto.movementDate
+      ? new Date(createDto.movementDate)
+      : new Date();
+
+    if (tipo === 'deposito') {
+      const rows: { neto: string }[] = await this.movimientoRepository.manager.query(
+        `SELECT
+          COALESCE(SUM(CASE WHEN tipo = 'ingreso' THEN monto ELSE 0 END), 0) -
+          COALESCE(SUM(CASE WHEN tipo = 'egreso'  THEN monto ELSE 0 END), 0) AS neto
+         FROM movimientos
+         WHERE usuario_id = $1`,
+        [userId],
+      );
+      const neto = Number(rows[0]?.neto ?? 0);
+      if (amount > neto) {
+        throw new BadRequestException(
+          `El monto supera el dinero disponible (${neto.toFixed(2)})`,
+        );
+      }
+
+      // Registrar egreso en movimientos para reflejar en el neto
+      const movimiento = this.movimientoRepository.create({
+        user: { id: userId },
+        tipo: 'egreso',
+        monto: amount,
+        moneda: 'ARS',
+        comercio: `Ahorro: ${goal.nombre}`.substring(0, 150),
+        descripcion: createDto.description ?? 'Depósito a objetivo de ahorro',
+        fecha: now,
+      });
+      await this.movimientoRepository.save(movimiento);
+
+      const balance = await this.getOrCreateBalance(userId);
+      balance.egreso = Number(balance.egreso) + amount;
+      balance.ahorro = Number(balance.ahorro) + amount;
+      await this.balanceRepository.save(balance);
+
+      goal.currentAmount = Number(goal.currentAmount) + amount;
+      await this.goalRepository.save(goal);
+    } else {
+      // retiro
+      if (amount > Number(goal.currentAmount)) {
+        throw new BadRequestException(
+          `El monto supera el saldo del objetivo (${Number(goal.currentAmount).toFixed(2)})`,
+        );
+      }
+
+      // Registrar ingreso en movimientos para reflejar en el neto
+      const movimiento = this.movimientoRepository.create({
+        user: { id: userId },
+        tipo: 'ingreso',
+        monto: amount,
+        moneda: 'ARS',
+        comercio: `Retiro ahorro: ${goal.nombre}`.substring(0, 150),
+        descripcion: createDto.description ?? 'Retiro de objetivo de ahorro',
+        fecha: now,
+      });
+      await this.movimientoRepository.save(movimiento);
+
+      const balance = await this.getOrCreateBalance(userId);
+      balance.ingreso = Number(balance.ingreso) + amount;
+      balance.ahorro = Math.max(0, Number(balance.ahorro) - amount);
+      await this.balanceRepository.save(balance);
+
+      goal.currentAmount = Math.max(0, Number(goal.currentAmount) - amount);
+      await this.goalRepository.save(goal);
+    }
+
     const movement = this.movementRepository.create({
       goal,
-      monto: createDto.amount,
+      tipo,
+      monto: amount,
       descripcion: createDto.description,
-      fecha: createDto.movementDate
-        ? new Date(createDto.movementDate)
-        : undefined,
+      fecha: now,
     });
-
-    const savedMovement = await this.movementRepository.save(movement);
-
-    goal.currentAmount =
-      Number(goal.currentAmount ?? 0) + Number(savedMovement.monto ?? 0);
-    await this.goalRepository.save(goal);
-
-    return savedMovement;
+    return await this.movementRepository.save(movement);
   }
 
   async findAll(userId: string) {
@@ -57,11 +144,11 @@ export class SavingsMovementsService {
       where: { id, goal: { user: { id: userId } } },
       relations: { goal: true },
     });
-
     if (!movement) {
-      throw new NotFoundException(`Movimiento de ahorro con id ${id} no encontrado`);
+      throw new NotFoundException(
+        `Movimiento de ahorro con id ${id} no encontrado`,
+      );
     }
-
     return movement;
   }
 
@@ -72,25 +159,17 @@ export class SavingsMovementsService {
       const newGoal = await this.goalRepository.findOne({
         where: { id: updateDto.goalId, user: { id: userId } },
       });
-
       if (!newGoal) {
         throw new NotFoundException(
           `Meta de ahorro con id ${updateDto.goalId} no encontrada`,
         );
       }
-
       movement.goal = newGoal;
     }
 
-    if (updateDto.amount !== undefined) {
-      movement.monto = updateDto.amount;
-    }
-    if (updateDto.description !== undefined) {
-      movement.descripcion = updateDto.description;
-    }
-    if (updateDto.movementDate !== undefined) {
-      movement.fecha = new Date(updateDto.movementDate);
-    }
+    if (updateDto.amount !== undefined) movement.monto = updateDto.amount;
+    if (updateDto.description !== undefined) movement.descripcion = updateDto.description;
+    if (updateDto.movementDate !== undefined) movement.fecha = new Date(updateDto.movementDate);
 
     return await this.movementRepository.save(movement);
   }
@@ -98,7 +177,6 @@ export class SavingsMovementsService {
   async remove(id: string, userId: string) {
     const movement = await this.findOne(id, userId);
     await this.movementRepository.remove(movement);
-
     return { message: 'Movimiento de ahorro eliminado correctamente' };
   }
 }

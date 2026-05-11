@@ -1,5 +1,6 @@
 import {
   IsDateString,
+  IsIn,
   IsNumber,
   IsOptional,
   IsString,
@@ -12,8 +13,12 @@ export class CreateSavingsMovementDto {
   goalId: string;
 
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0)
+  @Min(0.01)
   amount: number;
+
+  @IsIn(['deposito', 'retiro'])
+  @IsOptional()
+  tipo?: 'deposito' | 'retiro';
 
   @IsOptional()
   @IsString()

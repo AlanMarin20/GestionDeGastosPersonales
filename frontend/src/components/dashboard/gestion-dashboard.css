@@ -3034,6 +3034,57 @@ body.theme-dark .gd-rec-savings-chip {
   margin-top: 0.32rem;
 }
 
+.gd-ahorro-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.82rem;
+}
+
+.gd-btn-ahorro-depositar,
+.gd-btn-ahorro-retirar {
+  flex: 1;
+  height: 34px;
+  border-radius: 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  transition: background 0.14s, border-color 0.14s;
+}
+
+.gd-btn-ahorro-depositar {
+  border: 1px solid rgba(34, 197, 94, 0.45);
+  background: rgba(34, 197, 94, 0.1);
+  color: #16a34a;
+}
+
+.gd-btn-ahorro-depositar:hover {
+  background: rgba(34, 197, 94, 0.2);
+  border-color: rgba(34, 197, 94, 0.7);
+}
+
+.gd-btn-ahorro-retirar {
+  border: 1px solid rgba(251, 146, 60, 0.45);
+  background: rgba(251, 146, 60, 0.1);
+  color: #d97706;
+}
+
+.gd-btn-ahorro-retirar:hover {
+  background: rgba(251, 146, 60, 0.2);
+  border-color: rgba(251, 146, 60, 0.7);
+}
+
+.gd-btn-ahorro-retirar:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+body.theme-dark .gd-btn-ahorro-depositar { color: #4ade80; }
+body.theme-dark .gd-btn-ahorro-retirar   { color: #fb923c; }
+
 @media (max-width: 600px) {
   .gd-ahorro-grid {
     grid-template-columns: 1fr;
