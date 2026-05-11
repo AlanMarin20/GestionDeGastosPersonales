@@ -25,17 +25,22 @@ Si no podés determinar algún campo con certeza, dejalo como string vacío "".`
 
 @Injectable()
 export class TicketOcrService {
-  private readonly groq: Groq;
+  private readonly groq: Groq | null;
 
   constructor(private readonly configService: ConfigService) {
     const apiKey = this.configService.get<string>('GROQ_API_KEY');
-    if (!apiKey) {
-      throw new InternalServerErrorException('GROQ_API_KEY no configurada');
+    if (apiKey && apiKey.trim()) {
+      this.groq = new Groq({ apiKey: apiKey.trim() });
+    } else {
+      this.groq = null;
     }
-    this.groq = new Groq({ apiKey: apiKey.trim() });
   }
 
   async analyzeTicket(file: Express.Multer.File): Promise<TicketData> {
+    if (!this.groq) {
+      throw new InternalServerErrorException('Servicio de OCR no configurado. Configura GROQ_API_KEY en .env');
+    }
+
     if (!file) {
       throw new BadRequestException('No se recibió ninguna imagen');
     }

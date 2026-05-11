@@ -11,20 +11,27 @@ export async function loadAsesorClientes() {
     const clientes = await response.json();
     if (!Array.isArray(clientes)) return;
 
-    state.asesor.clientes = clientes.map((c) => ({
-      id: c.id,
-      nombre: c.nombreCompleto ?? c.nombre ?? "Cliente",
-      gastosMes: Number(c.egreso ?? 0),
-      presupuesto: Number(c.ingreso ?? 0),
-      ahorros: 0,
-      estado: c.riesgo >= 0.95 ? "alerta" : c.riesgo >= 0.9 ? "revision" : "normal",
-      tickets: 0,
-      riesgo: Number(c.riesgo ?? 0),
-    }));
+    state.asesor.clientes = clientes.map((c) => {
+      const ingreso = Number(c.ingreso ?? 0);
+      const egreso = Number(c.egreso ?? 0);
+      return {
+        id: c.id,
+        nombre: c.nombreCompleto ?? c.nombre ?? "Cliente",
+        gastosMes: egreso,           // egreso = gastos del mes
+        presupuesto: ingreso,        // ingreso = presupuesto total
+        ahorros: Number(c.ahorro ?? 0), // ahorro = total ahorrado
+        saldoActualMes: ingreso - egreso, // saldo actual = ingreso - egreso
+        estado: c.riesgo >= 0.95 ? "alerta" : c.riesgo >= 0.9 ? "revision" : "normal",
+        tickets: 0,
+        riesgo: Number(c.riesgo ?? 0),
+      };
+    });
   } catch (error) {
     console.warn("Error cargando clientes del asesor:", error);
   }
 }
+
+
 
 export async function loadClienteDetalle(clienteId) {
   if (!getAccessToken() || !clienteId) return;
@@ -35,22 +42,13 @@ export async function loadClienteDetalle(clienteId) {
 
     const data = await response.json();
     const idx = state.asesor.clientes.findIndex((c) => c.id === clienteId);
-    const updated = {
-      id: data.id,
-      nombre: data.nombreCompleto ?? "Cliente",
-      gastosMes: Number(data.gastosMes ?? 0),
-      presupuesto: Number(data.presupuestoTotal ?? 0),
-      ahorros: Number(data.totalAhorrado ?? 0),
-      saldoActualMes: Number(data.saldoActualMes ?? 0),
-      estado: data.riesgo >= 0.95 ? "alerta" : data.riesgo >= 0.9 ? "revision" : "normal",
-      tickets: 0,
-      riesgo: Number(data.riesgo ?? 0),
-    };
-
+    
+    // Solo actualizar ahorros, mantener otros datos intactos
     if (idx >= 0) {
-      state.asesor.clientes = state.asesor.clientes.map((c, i) => (i === idx ? updated : c));
-    } else {
-      state.asesor.clientes = [updated, ...state.asesor.clientes];
+      state.asesor.clientes[idx] = {
+        ...state.asesor.clientes[idx],
+        ahorros: Number(data.totalAhorrado ?? 0),
+      };
     }
   } catch (error) {
     console.warn("Error cargando detalle del cliente:", error);
@@ -91,25 +89,30 @@ export async function loadClienteRecomendaciones(clienteId) {
     const rows = await response.json();
     if (!Array.isArray(rows)) return;
 
-    state.detalleCliente.recomendaciones = rows.map((r) => ({
-      id: r.id,
-      titulo: r.titulo ?? "",
-      texto: r.contenido ?? "",
-      fecha: r.creadoEn ? new Date(r.creadoEn).toLocaleDateString("es-AR") : "",
-      type: r.tipo ?? "general",
-      severidad: r.severidad ?? "",
-      categoria: r.categoria ?? "",
+    console.log("Raw rows desde API:", rows);
+    
+    // Mapea: { titulo, contenido, tipo, creadoEn } → { titulo, texto, fecha, type }
+    state.detalleCliente.recomendaciones = rows.map((r, idx) => ({
+      id: `rec-${idx}`,
+      titulo: r.titulo || "",
+      title: r.titulo || "",
+      texto: r.contenido || "",
+      body: r.contenido || "",
+      date: r.creadoEn || "",
+      type: r.tipo || "asesor",
+      source: r.tipo || "asesor",
     }));
+    console.log("Recomendaciones mapeadas:", state.detalleCliente.recomendaciones);
   } catch (error) {
     console.warn("Error cargando recomendaciones del cliente:", error);
   }
 }
 
-export async function apiAddClienteRecomendacion(clienteId, { contenido, titulo, tipo, severidad, categoria }) {
+export async function apiAddClienteRecomendacion(clienteId, { contenido, titulo, tipo }) {
   const response = await apiFetch(`/api/asesor/clientes/${clienteId}/recomendaciones`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ contenido, titulo, tipo, severidad, categoria }),
+    body: JSON.stringify({ contenido, titulo, tipo }),
   });
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
   return response.json();
@@ -132,4 +135,46 @@ export async function apiDesvincularCliente(clienteId) {
   const response = await apiFetch(`/api/asesor/clientes/${clienteId}`, { method: "DELETE" });
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
   return response.json();
+}
+
+export async function loadClienteGastosPorMes(clienteId) {
+  if (!getAccessToken() || !clienteId) return;
+
+  try {
+    const response = await apiFetch(`/api/asesor/clientes/${clienteId}/gastos-por-mes`);
+    if (!response.ok) return;
+
+    const rows = await response.json();
+    if (!Array.isArray(rows)) return;
+
+    state.detalleCliente.gastosPorMes = rows.map((r) => ({
+      label: r.mes,  // Renombrar 'mes' a 'label' para que buildBarChart lo entienda
+      total: Number(r.total ?? 0),
+    }));
+  } catch (error) {
+    console.warn("Error cargando gastos por mes:", error);
+  }
+}
+
+export async function loadClienteGraficoCategorias(clienteId) {
+  if (!getAccessToken() || !clienteId) return;
+
+  try {
+    const response = await apiFetch(`/api/asesor/clientes/${clienteId}/grafico-categorias`);
+    if (!response.ok) return;
+
+    const data = await response.json();
+    state.detalleCliente.graficoCategorias = {
+      porcentaje: Number(data.porcentaje ?? 0),
+      categorias: Array.isArray(data.categorias)
+        ? data.categorias.map((c) => ({
+            categoria: c.categoria ?? "Otros",
+            total: Number(c.total ?? 0),
+            porcentaje: Number(c.porcentaje ?? 0),
+          }))
+        : [],
+    };
+  } catch (error) {
+    console.warn("Error cargando gráfico de categorías:", error);
+  }
 }

@@ -103,7 +103,8 @@ function parseDateParts(dateStr) {
 }
 
 function normalizeRecommendationItem(item = {}) {
-  const date = String(item.date || item.fecha || "").trim();
+  // Usa fecha ISO para ordenamiento/agrupamiento (puede ser 'fecha' en ISO o 'date')
+  const date = String(item.fecha || item.date || "").trim();
   const title = String(item.title || item.titulo || "Sin titulo").trim();
   const body = String(item.body || item.texto || "").trim();
   const source = String(item.source || item.type || item.emisor || "").trim().toLowerCase();

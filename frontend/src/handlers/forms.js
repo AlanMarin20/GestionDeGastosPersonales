@@ -1078,14 +1078,15 @@ export function attachFormHandlers(pathname, { navigate, render }) {
         await apiAddClienteRecomendacion(clienteId, {
           contenido: texto,
           titulo,
-          tipo: "general",
+          tipo: "asesor",
         });
         await loadClienteRecomendaciones(clienteId);
         state.detalleCliente.nuevaRecomendacionTitulo = "";
         state.detalleCliente.nuevaRecomendacionTexto = "";
         showAppNotification("Recomendacion enviada correctamente", "success");
         render();
-      } catch {
+      } catch (error) {
+        console.error("Error al enviar recomendacion:", error);
         showAppNotification("No se pudo enviar la recomendacion", "error");
       } finally {
         if (submitBtn) submitBtn.disabled = false;
