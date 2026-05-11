@@ -375,9 +375,9 @@ export function attachGlobalNavigation({ navigate, render }) {
 
       try {
         await deleteAhorro(ahorroId);
-        await loadAhorros();
+        await Promise.all([loadAhorros(), loadDashboardBalances(), loadMovimientos()]);
         state.finanzas.ui.deletingAhorroId = null;
-        showAppNotification("Ahorro eliminado", "success");
+        showAppNotification("Ahorro eliminado y saldo devuelto", "success");
         render();
       } catch (error) {
         showAppNotification(error.message || "Error al eliminar el ahorro", "error");

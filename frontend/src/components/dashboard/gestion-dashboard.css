@@ -3346,22 +3346,75 @@ body.theme-dark .gd-rec-savings-chip {
 
 /* ── Savings goal cards ─────────────────────────────────────────── */
 
-.gd-ahorro-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.72rem;
+/* ─── Ahorros ──────────────────────────────────────────────── */
+@keyframes gd-progress-reveal {
+  from { width: 0; }
 }
 
+.gd-ahorro-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 0.8rem;
+}
+
+.gd-ahorro-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 2.5rem 1rem;
+  text-align: center;
+  color: var(--gd-muted);
+}
+.gd-ahorro-empty i {
+  font-size: 2rem;
+  opacity: 0.45;
+  margin-bottom: 0.25rem;
+}
+.gd-ahorro-empty p { margin: 0; font-size: 0.82rem; font-weight: 600; color: var(--gd-text); }
+.gd-ahorro-empty span { font-size: 0.7rem; }
+
+/* Card */
 .gd-ahorro-card {
   display: flex;
   flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+  border-top: 3px solid var(--ahorro-accent, var(--gd-accent-2));
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 
-.gd-ahorro-card-top {
+.gd-ahorro-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(15,23,42,0.18);
+}
+
+.gd-ahorro-card-body {
+  padding: 0.88rem 0.92rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  background: linear-gradient(160deg, transparent 70%, color-mix(in srgb, var(--ahorro-bg, transparent) 40%, transparent) 100%);
+}
+
+.gd-ahorro-card-head {
   display: flex;
   align-items: flex-start;
-  gap: 0.56rem;
-  margin-bottom: 0.76rem;
+  gap: 0.58rem;
+  margin-bottom: 0.8rem;
+}
+
+.gd-ahorro-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--ahorro-bg, rgba(56,189,248,0.12));
+  color: var(--ahorro-text, var(--gd-accent-2));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
 }
 
 .gd-ahorro-card-info {
@@ -3370,8 +3423,8 @@ body.theme-dark .gd-rec-savings-chip {
 }
 
 .gd-ahorro-card-name {
-  margin: 0 0 0.12rem;
-  font-size: 0.8rem;
+  margin: 0 0 0.1rem;
+  font-size: 0.82rem;
   font-weight: 700;
   color: var(--gd-text);
   overflow: hidden;
@@ -3379,61 +3432,149 @@ body.theme-dark .gd-rec-savings-chip {
   white-space: nowrap;
 }
 
-.gd-ahorro-amount {
-  margin: 0 0 0.56rem;
-  font-size: 1.45rem;
-  font-weight: 800;
-  color: var(--gd-text);
-  letter-spacing: -0.02em;
+.gd-ahorro-card-meta {
+  margin: 0;
+  font-size: 0.64rem;
+  color: var(--gd-muted);
 }
 
-.gd-ahorro-progress-labels {
+.gd-ahorro-card-controls {
+  display: flex;
+  gap: 0.22rem;
+  flex-shrink: 0;
+}
+
+.gd-ahorro-ctrl-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  border: 1px solid transparent;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.14s;
+}
+
+.gd-ahorro-ctrl-btn--edit {
+  border-color: rgba(56,189,248,0.35);
+  background: rgba(56,189,248,0.08);
+  color: var(--gd-accent-2);
+}
+
+.gd-ahorro-ctrl-btn--edit:hover {
+  border-color: rgba(56,189,248,0.65);
+  background: rgba(56,189,248,0.18);
+}
+
+.gd-ahorro-ctrl-btn--danger {
+  border-color: rgba(239,68,68,0.35);
+  background: rgba(239,68,68,0.08);
+  color: #dc2626;
+}
+
+.gd-ahorro-ctrl-btn--danger:hover {
+  border-color: rgba(239,68,68,0.65);
+  background: rgba(239,68,68,0.18);
+}
+
+/* Amount */
+.gd-ahorro-amount {
+  margin: 0 0 0.72rem;
+  font-size: 1.55rem;
+  font-weight: 800;
+  color: var(--ahorro-text, var(--gd-text));
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+/* Progress */
+.gd-ahorro-progress {
+  margin-bottom: 0.68rem;
+}
+
+.gd-ahorro-progress-bar {
+  height: 6px;
+  border-radius: 99px;
+  background: var(--gd-border);
+  overflow: hidden;
+  margin-bottom: 0.3rem;
+}
+
+.gd-ahorro-progress-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: var(--ahorro-accent, var(--gd-accent-2));
+  animation: gd-progress-reveal 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.gd-ahorro-progress-info {
   display: flex;
   justify-content: space-between;
-  margin-top: 0.32rem;
+  font-size: 0.63rem;
+  color: var(--gd-muted);
 }
 
+/* Achieved */
+.gd-ahorro-achieved {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.28rem 0.6rem;
+  border-radius: 99px;
+  background: rgba(22,163,74,0.1);
+  border: 1px solid rgba(22,163,74,0.28);
+  color: #16a34a;
+  font-size: 0.67rem;
+  font-weight: 700;
+  margin-bottom: 0.68rem;
+}
+
+/* Action buttons */
 .gd-ahorro-actions {
   display: flex;
-  gap: 0.5rem;
-  margin-top: 0.82rem;
+  gap: 0.45rem;
+  margin-top: auto;
+  padding-top: 0.75rem;
 }
 
 .gd-btn-ahorro-depositar,
 .gd-btn-ahorro-retirar {
   flex: 1;
-  height: 34px;
-  border-radius: 8px;
+  height: 36px;
+  border-radius: 9px;
   font-size: 0.72rem;
   font-weight: 700;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.3rem;
-  transition: background 0.14s, border-color 0.14s;
+  gap: 0.35rem;
+  transition: all 0.14s;
 }
 
 .gd-btn-ahorro-depositar {
-  border: 1px solid rgba(34, 197, 94, 0.45);
-  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34,197,94,0.38);
+  background: rgba(34,197,94,0.08);
   color: #16a34a;
 }
 
 .gd-btn-ahorro-depositar:hover {
-  background: rgba(34, 197, 94, 0.2);
-  border-color: rgba(34, 197, 94, 0.7);
+  background: rgba(34,197,94,0.18);
+  border-color: rgba(34,197,94,0.6);
 }
 
 .gd-btn-ahorro-retirar {
-  border: 1px solid rgba(251, 146, 60, 0.45);
-  background: rgba(251, 146, 60, 0.1);
+  border: 1px solid rgba(251,146,60,0.38);
+  background: rgba(251,146,60,0.08);
   color: #d97706;
 }
 
 .gd-btn-ahorro-retirar:hover {
-  background: rgba(251, 146, 60, 0.2);
-  border-color: rgba(251, 146, 60, 0.7);
+  background: rgba(251,146,60,0.18);
+  border-color: rgba(251,146,60,0.6);
 }
 
 .gd-btn-ahorro-retirar:disabled {
@@ -3444,8 +3585,112 @@ body.theme-dark .gd-rec-savings-chip {
 body.theme-dark .gd-btn-ahorro-depositar { color: #4ade80; }
 body.theme-dark .gd-btn-ahorro-retirar   { color: #fb923c; }
 
+/* ─── New savings form ─────────────────────────────────────── */
+.gd-ahorro-new-card {
+  background: radial-gradient(ellipse at top right, rgba(56,189,248,0.05) 0%, transparent 65%), var(--gd-surface-strong);
+}
+
+.gd-ahorro-new-header {
+  display: flex;
+  align-items: center;
+  gap: 0.78rem;
+  padding-bottom: 0.88rem;
+  border-bottom: 1px solid var(--gd-border);
+  margin-bottom: 0.88rem;
+}
+
+.gd-ahorro-new-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(56,189,248,0.18) 0%, rgba(99,102,241,0.14) 100%);
+  color: var(--gd-accent-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(56,189,248,0.18);
+}
+
+.gd-ahorro-new-fields {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 0.65rem;
+  margin-bottom: 0.88rem;
+}
+
+.gd-ahorro-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  width: 100%;
+  height: 42px;
+  border: 0;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--gd-accent) 0%, var(--gd-accent-2) 100%);
+  color: #eff6ff;
+  cursor: pointer;
+  transition: filter 0.14s, transform 0.1s;
+}
+
+.gd-ahorro-cta-btn:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.gd-ahorro-cta-btn:active {
+  transform: translateY(0);
+}
+
+.gd-form-optional {
+  font-size: 0.6rem;
+  color: var(--gd-muted);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* ─── Modal icon header ────────────────────────────────────── */
+.gd-modal-icon-header {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  margin-bottom: 0.65rem;
+}
+
+.gd-modal-icon-header--success {
+  background: rgba(22,163,74,0.12);
+  color: #16a34a;
+}
+
+.gd-modal-icon-header--warning {
+  background: rgba(217,119,6,0.12);
+  color: #d97706;
+}
+
+.gd-modal-icon-header--info {
+  background: rgba(56,189,248,0.12);
+  color: var(--gd-accent-2);
+}
+
+.gd-modal-icon-header--danger {
+  background: rgba(220,38,38,0.12);
+  color: #dc2626;
+}
+
 @media (max-width: 600px) {
   .gd-ahorro-grid {
+    grid-template-columns: 1fr;
+  }
+  .gd-ahorro-new-fields {
     grid-template-columns: 1fr;
   }
 }
