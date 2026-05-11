@@ -3,49 +3,92 @@ import { renderExpenseTable } from "../components/dashboard/dashboardExpenseTabl
 import { escapeHtml } from "../utils/sanitize";
 import { formatMoney } from "../utils/money";
 
-function renderEditExpenseModal({ editingExpense, categoryOptions }) {
+function renderCategorySelect(id, options, selectedValue) {
+  return `
+    <select id="${id}" class="gd-form-select">
+      ${options
+        .map(
+          (cat) =>
+            `<option value="${escapeHtml(cat)}" ${selectedValue === cat ? "selected" : ""}>${escapeHtml(cat)}</option>`,
+        )
+        .join("")}
+    </select>
+  `;
+}
+
+function renderEditExpenseModal({ editingExpense, categoryOptions, ingresoCategories }) {
   if (!editingExpense) {
     return "";
   }
 
+  const isIngreso = editingExpense.tipo === "ingreso";
+
+  const ingresoCategoryOpts = [
+    ...new Set([editingExpense.categoria, ...ingresoCategories].filter(Boolean)),
+  ];
+
+  const formFields = isIngreso
+    ? `
+      <div>
+        <label class="gd-form-label" for="editExpenseFecha">Fecha</label>
+        <div class="gd-date-field">
+          <i class="lni lni-calendar gd-date-field-icon" aria-hidden="true"></i>
+          <input id="editExpenseFecha" type="date" lang="es-AR" class="gd-form-input gd-date-field-input" value="${escapeHtml(editingExpense.fecha)}">
+        </div>
+      </div>
+      <div>
+        <label class="gd-form-label" for="editExpenseMonto">Monto</label>
+        <input id="editExpenseMonto" type="number" min="0" step="0.01" class="gd-form-input" value="${escapeHtml(String(editingExpense.monto))}">
+      </div>
+      <div class="gd-form-full">
+        <label class="gd-form-label" for="editExpenseCategoria">Categoria</label>
+        ${renderCategorySelect("editExpenseCategoria", ingresoCategoryOpts, editingExpense.categoria)}
+      </div>
+      <div class="gd-form-full">
+        <label class="gd-form-label" for="editExpenseDescripcion">Descripcion</label>
+        <input id="editExpenseDescripcion" class="gd-form-input" value="${escapeHtml(editingExpense.descripcion || "")}" placeholder="Ej: Sueldo de mayo">
+      </div>
+    `
+    : `
+      <div>
+        <label class="gd-form-label" for="editExpenseComercio">Comercio</label>
+        <input id="editExpenseComercio" class="gd-form-input" value="${escapeHtml(editingExpense.comercio)}">
+      </div>
+      <div>
+        <label class="gd-form-label" for="editExpenseCategoria">Categoria</label>
+        ${renderCategorySelect("editExpenseCategoria", categoryOptions, editingExpense.categoria)}
+      </div>
+      <div>
+        <label class="gd-form-label" for="editExpenseFecha">Fecha</label>
+        <div class="gd-date-field">
+          <i class="lni lni-calendar gd-date-field-icon" aria-hidden="true"></i>
+          <input id="editExpenseFecha" type="date" lang="es-AR" class="gd-form-input gd-date-field-input" value="${escapeHtml(editingExpense.fecha)}">
+        </div>
+      </div>
+      <div>
+        <label class="gd-form-label" for="editExpenseMonto">Monto</label>
+        <input id="editExpenseMonto" type="number" min="0" step="0.01" class="gd-form-input" value="${escapeHtml(String(editingExpense.monto))}">
+      </div>
+      <div class="gd-form-full">
+        <label class="gd-form-label" for="editExpenseDescripcion">Descripcion</label>
+        <input id="editExpenseDescripcion" class="gd-form-input" value="${escapeHtml(editingExpense.descripcion || "")}">
+      </div>
+    `;
+
+  const title = isIngreso ? "Editar ingreso" : "Editar gasto";
+  const subtitle = isIngreso
+    ? "Actualiza categoria, fecha y monto."
+    : "Actualiza comercio, categoria, fecha y monto.";
+
   return `
     <div class="gd-modal-backdrop" data-action="close-edit-expense-modal"></div>
-    <section class="gd-modal" role="dialog" aria-modal="true" aria-label="Editar gasto">
+    <section class="gd-modal" role="dialog" aria-modal="true" aria-label="${escapeHtml(title)}">
       <div class="gd-modal-card">
-        <h3 class="gd-modal-title">Editar gasto</h3>
-        <p class="gd-modal-sub">Actualiza comercio, categoria, fecha y monto.</p>
+        <h3 class="gd-modal-title">${escapeHtml(title)}</h3>
+        <p class="gd-modal-sub">${escapeHtml(subtitle)}</p>
 
         <div class="gd-form-grid">
-          <div>
-            <label class="gd-form-label" for="editExpenseComercio">Comercio</label>
-            <input id="editExpenseComercio" class="gd-form-input" value="${escapeHtml(editingExpense.comercio)}">
-          </div>
-          <div>
-            <label class="gd-form-label" for="editExpenseCategoria">Categoria</label>
-            <select id="editExpenseCategoria" class="gd-form-select">
-              ${categoryOptions
-                .map(
-                  (category) =>
-                    `<option value="${escapeHtml(category)}" ${editingExpense.categoria === category ? "selected" : ""}>${escapeHtml(category)}</option>`,
-                )
-                .join("")}
-            </select>
-          </div>
-          <div>
-            <label class="gd-form-label" for="editExpenseFecha">Fecha</label>
-            <div class="gd-date-field">
-              <i class="lni lni-calendar gd-date-field-icon" aria-hidden="true"></i>
-              <input id="editExpenseFecha" type="date" lang="es-AR" class="gd-form-input gd-date-field-input" value="${escapeHtml(editingExpense.fecha)}">
-            </div>
-          </div>
-          <div>
-            <label class="gd-form-label" for="editExpenseMonto">Monto</label>
-            <input id="editExpenseMonto" type="number" min="0" step="0.01" class="gd-form-input" value="${escapeHtml(String(editingExpense.monto))}">
-          </div>
-          <div class="gd-form-full">
-            <label class="gd-form-label" for="editExpenseDescripcion">Descripcion</label>
-            <input id="editExpenseDescripcion" class="gd-form-input" value="${escapeHtml(editingExpense.descripcion || "")}">
-          </div>
+          ${formFields}
         </div>
 
         <div class="gd-modal-actions">
@@ -85,6 +128,7 @@ export function renderMisGastosPage({
   pageSubtitle,
   filters,
   categoryOptions,
+  ingresoCategories = [],
   gastos,
   editingExpense,
   deletingExpense,
@@ -166,7 +210,7 @@ export function renderMisGastosPage({
       })}
     </div>
 
-    ${renderEditExpenseModal({ editingExpense, categoryOptions })}
+    ${renderEditExpenseModal({ editingExpense, categoryOptions, ingresoCategories })}
 
     ${renderDeleteExpenseModal({ deletingExpense })}
   `;

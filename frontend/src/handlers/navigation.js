@@ -203,8 +203,12 @@ export function attachGlobalNavigation({ navigate, render }) {
         return;
       }
 
-      const comercio =
-        document.getElementById("editExpenseComercio")?.value?.trim() || "";
+      const currentExpense = state.finanzas.gastos.find((e) => e.id === expenseId);
+      const isIngreso = currentExpense?.tipo === "ingreso";
+
+      const comercio = isIngreso
+        ? undefined
+        : (document.getElementById("editExpenseComercio")?.value?.trim() || "");
       const categoria =
         document.getElementById("editExpenseCategoria")?.value || "";
       const fecha = document.getElementById("editExpenseFecha")?.value || "";

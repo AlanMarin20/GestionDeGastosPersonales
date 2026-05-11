@@ -58,14 +58,25 @@ export class MovimientosService {
   }
 
   async update(id: string, userId: string, dto: UpdateMovimientoDto) {
-    const existing = await this.findOne(id, userId);
+    const existing = await this.movimientoRepository.findOne({
+      where: { id, user: { id: userId } },
+      relations: ['category'],
+    });
+    if (!existing) throw new NotFoundException(`Movimiento con id ${id} no encontrado`);
 
-    const category =
-      dto.categoria !== undefined
-        ? dto.categoria
-          ? await this.findCategoryByName(dto.categoria, userId)
-          : undefined
-        : existing.category;
+    let category = existing.category;
+    if (dto.categoria !== undefined) {
+      if (dto.categoria) {
+        let found = await this.findCategoryByName(dto.categoria, userId);
+        if (!found) {
+          found = this.categoryRepository.create({ name: dto.categoria, isDefault: false, user: { id: userId } });
+          found = await this.categoryRepository.save(found);
+        }
+        category = found;
+      } else {
+        category = undefined;
+      }
+    }
 
     Object.assign(existing, {
       tipo: dto.tipo ?? existing.tipo,

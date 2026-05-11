@@ -126,26 +126,35 @@ export async function updateExpenseRecord(expenseId, updates) {
     return false;
   }
 
+  const isIngreso = previousExpense.tipo === "ingreso";
   const nextAmount = Number.parseFloat(String(updates.monto));
-  if (!updates.comercio || !updates.fecha || Number.isNaN(nextAmount) || nextAmount <= 0 || !updates.categoria) {
+
+  if (!updates.fecha || Number.isNaN(nextAmount) || nextAmount <= 0 || !updates.categoria) {
+    return false;
+  }
+  if (!isIngreso && !updates.comercio) {
     return false;
   }
 
+  const apiPayload = {
+    tipo: previousExpense.tipo,
+    monto: nextAmount,
+    categoria: updates.categoria,
+    descripcion: updates.descripcion || "",
+    fecha: updates.fecha,
+  };
+  if (!isIngreso) {
+    apiPayload.comercio = updates.comercio;
+  }
+
   try {
-    await apiUpdateMovimiento(expenseId, {
-      tipo: previousExpense.tipo || "egreso",
-      monto: nextAmount,
-      comercio: updates.comercio,
-      categoria: updates.categoria,
-      descripcion: updates.descripcion || "",
-      fecha: updates.fecha,
-    });
+    await apiUpdateMovimiento(expenseId, apiPayload);
 
     state.finanzas.gastos = state.finanzas.gastos.map((expense) =>
       expense.id === expenseId
         ? {
             ...expense,
-            comercio: updates.comercio,
+            ...(isIngreso ? {} : { comercio: updates.comercio }),
             fecha: updates.fecha,
             monto: nextAmount,
             categoria: updates.categoria,

@@ -46,11 +46,6 @@ const USER_NAV_ITEMS = [
         label: "Patrones",
         icon: "lni lni-bar-chart",
       },
-      {
-        href: "/dashboard/notificaciones",
-        label: "Notificaciones",
-        icon: "lni lni-alarm",
-      },
     ],
   },
   {
@@ -159,7 +154,7 @@ export function renderDashboardAppLayout({
   const roleLabel = isAsesor ? "asesor" : "usuario";
   const notificationsRoute = isAsesor
     ? "/dashboard/asesor"
-    : "/dashboard/notificaciones";
+    : "/dashboard/recomendaciones";
   const primaryAction = isAsesor
     ? null
     : {

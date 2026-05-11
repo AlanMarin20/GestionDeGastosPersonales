@@ -514,6 +514,7 @@ export function tarjetaValor({
   hasButton = false,
   buttonAction = '',
   buttonId = '',
+  metricId = '',
 } = {}) {
   if (layout === 'dashboard-metric') {
     const deltaClass = trend === 'down'
@@ -529,9 +530,10 @@ export function tarjetaValor({
           ${escapeHtml(delta)}
         </span>`
       : '';
+    const metricIdAttr = metricId ? ` data-metric-id="${escapeHtml(metricId)}"` : '';
 
     return `
-      <article class="gd-metric-card">
+      <article class="gd-metric-card"${metricIdAttr}>
         <div class="gd-metric-head">
           <p class="gd-metric-label">${escapeHtml(title)}</p>
           ${dashboardActionMarkup}

@@ -43,7 +43,9 @@ export function getDashboardMonthlySeries() {
   return recentMonthKeys.map((monthKey) => ({
     key: monthKey,
     label: formatMonthLabelShort(monthKey),
-    total: getFinanzasMonthTotal(monthKey),
+    total: state.finanzas.gastos
+      .filter((e) => getMonthKeyFromDate(e.fecha) === monthKey && e.tipo === "egreso")
+      .reduce((sum, e) => sum + Number(e.monto || 0), 0),
   }));
 }
 
@@ -184,6 +186,55 @@ export function getMisGastosPeriodOptions() {
       value: monthKey,
       label: formatMonthLabelLong(monthKey),
     }));
+}
+
+export function getDashboardInsights() {
+  const insights = [];
+  const currentPeriod = getFinanzasCurrentPeriod();
+  const { egreso, ingreso } = getDashboardBalanceData();
+
+  // 1. Budget health
+  if (ingreso > 0) {
+    const pct = Math.round((egreso / ingreso) * 100);
+    if (pct > 100) {
+      insights.push({ type: "danger", icon: "lni-warning", title: "Gastos superan ingresos", body: `Tus gastos superan tus ingresos en ${pct - 100}% este mes. Revisá las categorías con mayor gasto.` });
+    } else if (pct >= 80) {
+      insights.push({ type: "warning", icon: "lni-warning", title: "Gasto elevado este mes", body: `Utilizaste el ${pct}% de tu ingreso mensual. Quedan ${formatMoney(ingreso - egreso)} disponibles.` });
+    } else if (pct > 0 && pct <= 50) {
+      insights.push({ type: "success", icon: "lni-checkmark-circle", title: "Excelente control de gastos", body: `Solo el ${pct}% de tus ingresos son gastos este mes. ¡Vas muy bien!` });
+    } else if (pct > 0) {
+      insights.push({ type: "info", icon: "lni-bulb", title: "Análisis mensual", body: `Llevás gastado el ${pct}% de tus ingresos este mes. Vas bien en el control de gastos.` });
+    }
+  } else if (egreso > 0) {
+    insights.push({ type: "info", icon: "lni-bulb", title: "Registrá tus ingresos", body: "Agregá tus ingresos del mes para calcular tu balance y tasa de ahorro." });
+  }
+
+  // 2. Top spending category
+  if (insights.length < 3) {
+    const cats = getDashboardCategorySummary(currentPeriod);
+    if (cats.length > 0 && cats[0].total > 0) {
+      const top = cats[0];
+      insights.push({ type: "info", icon: "lni-stats-up", title: `Mayor gasto: ${top.label}`, body: `${top.label} representa el ${top.share} de tus gastos este mes (${formatMoney(top.total)}).` });
+    }
+  }
+
+  // 3. Latest API recommendation
+  if (insights.length < 3) {
+    const recs = state.finanzas.recomendaciones || [];
+    if (recs.length > 0) {
+      const rec = recs[0];
+      const sev = String(rec.severity || "info").toLowerCase();
+      const type = sev === "danger" ? "danger" : sev === "warning" ? "warning" : sev === "good" ? "success" : "info";
+      insights.push({ type, icon: "lni-bulb", title: rec.title || "Sugerencia", body: rec.body || "" });
+    }
+  }
+
+  // Fallback
+  if (insights.length === 0) {
+    insights.push({ type: "info", icon: "lni-bulb", title: "Comienza a registrar", body: "Registrá tus gastos e ingresos para ver análisis y sugerencias personalizadas." });
+  }
+
+  return insights.slice(0, 3);
 }
 
 export function getFilteredExpenses() {
