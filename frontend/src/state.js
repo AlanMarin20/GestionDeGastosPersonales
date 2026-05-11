@@ -45,13 +45,21 @@ export const state = {
       "Servicios",
       "Otros",
     ],
+    ingresoCategories: ["Transferencia", "Prestamo", "Bono", "Venta"],
     ticketGoalByPeriod: {},
     gastos: [],
     cargar: {
+      activeTab: "gasto",
       ticketFileName: "",
       ocrLoading: false,
       form: {
         comercio: "",
+        fecha: "",
+        monto: "",
+        categoria: "",
+        descripcion: "",
+      },
+      ingresoForm: {
         fecha: "",
         monto: "",
         categoria: "",

@@ -93,6 +93,7 @@ import {
   getDashboardBalanceData,
   getDashboardMetrics,
   getDashboardRecentExpenses,
+  getDashboardInsight,
   getMisGastosCategoryOptions,
   getMisGastosPeriodOptions,
   getFilteredExpenses,
@@ -358,11 +359,8 @@ function renderDashboardPage() {
     pageTitle: "Dashboard",
     pageSubtitle: `Resumen financiero · ${formatMonthLabelLong(currentPeriod)}`,
     metrics: getDashboardMetrics(),
-    categories: getDashboardCategorySummary(currentPeriod),
     recentExpenses: getDashboardRecentExpenses(5),
-    currentCurrency: normalizeCurrency(state.configuracion.moneda),
-    ahorros: state.dashboard.ahorros,
-    selectedAhorroId: state.dashboard.selectedAhorroId,
+    insight: getDashboardInsight(),
   });
 }
 
@@ -393,12 +391,15 @@ function renderCargarGastoPage() {
     profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
     profileName: state.perfil.nombre || "Usuario",
     activePath: "/dashboard/cargar",
-    pageTitle: "Cargar gasto",
-    pageSubtitle: "Registra un gasto manual o mediante ticket con IA",
+    pageTitle: "Registro de Gastos e Ingresos",
+    pageSubtitle: "Registra un gasto o ingreso manual o mediante ticket con IA",
     ticketFileName: state.finanzas.cargar.ticketFileName,
     ocrLoading: state.finanzas.cargar.ocrLoading,
     expenseForm: state.finanzas.cargar.form,
     categoryOptions: getMisGastosCategoryOptions(),
+    activeTab: state.finanzas.cargar.activeTab || "gasto",
+    ingresoForm: state.finanzas.cargar.ingresoForm,
+    ingresoCategories: state.finanzas.ingresoCategories || [],
   });
 }
 

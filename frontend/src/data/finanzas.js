@@ -122,12 +122,6 @@ export function getDashboardMetrics() {
       resolveValue: () => formatMoney(monthlyIngreso),
       resolveTrend: () => "up",
     },
-    {
-      key: "accumulated-savings",
-      label: "Ahorro acumulado",
-      resolveValue: () => formatMoney(balanceData.ahorro),
-      resolveTrend: () => "up",
-    },
   ];
 
   return metricDefinitions.map((definition) => ({
@@ -148,6 +142,26 @@ export function getDashboardRecentExpenses(limit = 5) {
       ...expense,
       fechaCorta: formatDateDDMMYYYY(expense.fecha),
     }));
+}
+
+export function getDashboardInsight() {
+  const currentPeriod = getFinanzasCurrentPeriod();
+  const monthlyIngreso = getFinanzasExpensesForPeriod(currentPeriod)
+    .filter((g) => g.tipo === "ingreso")
+    .reduce((sum, g) => sum + Number(g.monto || 0), 0);
+  const { egreso } = getDashboardBalanceData();
+
+  if (monthlyIngreso === 0 && egreso === 0) {
+    return "Registrá tus ingresos y gastos para ver un análisis de tu situación financiera mensual.";
+  }
+  if (monthlyIngreso === 0) {
+    return "Registrá tus ingresos del mes para calcular tu balance y tasa de ahorro.";
+  }
+  const pct = Math.round((egreso / monthlyIngreso) * 100);
+  if (pct > 100) return `Tus gastos superan tus ingresos en ${pct - 100}% este mes. Revisá las categorías con mayor gasto.`;
+  if (pct > 80) return `Estás usando el ${pct}% de tus ingresos en gastos. Intentá reducir para mejorar tu ahorro mensual.`;
+  if (pct <= 50) return `Excelente. Solo el ${pct}% de tus ingresos son gastos este mes.`;
+  return `Llevás gastado el ${pct}% de tus ingresos este mes. Vas bien en el control de gastos.`;
 }
 
 export function getMisGastosCategoryOptions() {

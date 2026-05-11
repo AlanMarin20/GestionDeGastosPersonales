@@ -1,16 +1,49 @@
 import { renderDashboardAppLayout } from "../components/dashboard/dashboardAppLayout";
+import { tarjetaValor } from "../components/common/reusablePageComponents";
 import { escapeHtml } from "../utils/sanitize";
 import { formatMoney } from "../utils/money";
 
 function resolveProgress(ahorro) {
   const meta = Number(ahorro.meta || 0);
   const monto = Number(ahorro.monto || 0);
-
-  if (meta <= 0) {
-    return null;
-  }
-
+  if (meta <= 0) return null;
   return Math.min((monto / meta) * 100, 100);
+}
+
+function renderAhorroCard(ahorro) {
+  const progress = resolveProgress(ahorro);
+  const hasGoal = progress !== null;
+  const pct = hasGoal ? progress.toFixed(1) : 0;
+  const remaining = hasGoal ? Math.max(0, Number(ahorro.meta) - Number(ahorro.monto)) : 0;
+  const initials = escapeHtml((ahorro.nombre || "?").slice(0, 2).toUpperCase());
+
+  return `
+    <article class="gd-card gd-ahorro-card">
+      <div class="gd-ahorro-card-top">
+        <span class="gd-avatar" aria-hidden="true">${initials}</span>
+        <div class="gd-ahorro-card-info">
+          <p class="gd-ahorro-card-name">${escapeHtml(ahorro.nombre)}</p>
+          <p class="gd-muted" style="font-size:0.65rem;margin:0">${hasGoal ? `Meta: ${escapeHtml(formatMoney(ahorro.meta))}` : "Sin meta configurada"}</p>
+        </div>
+        <div class="gd-action-cell">
+          <button type="button" class="gd-action-btn" data-action="open-edit-ahorro" data-ahorro-id="${escapeHtml(ahorro.id)}" aria-label="Editar ahorro">Editar</button>
+          <button type="button" class="gd-action-btn danger" data-action="open-delete-ahorro" data-ahorro-id="${escapeHtml(ahorro.id)}" aria-label="Eliminar ahorro"><i class="lni lni-trash-can" aria-hidden="true"></i></button>
+        </div>
+      </div>
+
+      <p class="gd-ahorro-amount">${escapeHtml(formatMoney(ahorro.monto))}</p>
+
+      ${hasGoal ? `
+        <div class="gd-mini-bar">
+          <div class="gd-mini-bar-fill gd-mini-bar-fill-dynamic" style="--gd-progress-width: ${pct}%"></div>
+        </div>
+        <div class="gd-ahorro-progress-labels">
+          <span class="gd-muted" style="font-size:0.64rem">${pct}% completado</span>
+          <span class="gd-muted" style="font-size:0.64rem">Falta: ${escapeHtml(formatMoney(remaining))}</span>
+        </div>
+      ` : ""}
+    </article>
+  `;
 }
 
 function renderEditAhorroModal({ editingAhorro }) {
@@ -75,46 +108,43 @@ export function renderDetalleAhorrosPage({
   editingAhorro,
   deletingAhorro,
 }) {
+  const totalAhorrado = ahorros.reduce((sum, a) => sum + Number(a.monto || 0), 0);
+  const ahorrosConMeta = ahorros.filter((a) => a.meta);
+  const totalMeta = ahorrosConMeta.reduce((sum, a) => sum + Number(a.meta || 0), 0);
+
+  const summaryMetrics = [
+    { label: "Total ahorrado", value: formatMoney(totalAhorrado), delta: "", trend: "up" },
+    { label: "Objetivos activos", value: String(ahorros.length), delta: "", trend: "up" },
+    { label: "Meta total", value: ahorrosConMeta.length > 0 ? formatMoney(totalMeta) : "—", delta: "", trend: "up" },
+  ];
+
+  const goalsGrid = ahorros.length === 0
+    ? `<p class="gd-empty mb-0">Todavia no creaste objetivos de ahorro.</p>`
+    : `<div class="gd-ahorro-grid">${ahorros.map(renderAhorroCard).join("")}</div>`;
+
   const content = `
+    <section class="gd-metrics gd-metrics-3">
+      ${summaryMetrics.map((m) => tarjetaValor({
+        title: m.label,
+        value: m.value,
+        delta: m.delta,
+        trend: m.trend,
+        layout: "dashboard-metric",
+        dashboardActionMarkup: "",
+      })).join("")}
+    </section>
+
     <article class="gd-card">
       <header class="gd-card-header">
-        <h2 class="gd-card-title">Todos los ahorros</h2>
+        <h2 class="gd-card-title">Mis objetivos</h2>
       </header>
-
-      <div class="gd-list">
-        ${ahorros.length === 0
-          ? '<p class="gd-empty mb-0">Todavia no creaste objetivos de ahorro.</p>'
-          : ahorros
-              .map((ahorro) => {
-                const progress = resolveProgress(ahorro);
-                const hasGoal = progress !== null;
-
-                return `
-                  <div class="gd-list-item">
-                    <div class="gd-list-item-main">
-                      <p class="gd-list-item-title">${escapeHtml(ahorro.nombre)}</p>
-                      <p class="gd-list-item-sub">${hasGoal ? `Meta: ${escapeHtml(formatMoney(ahorro.meta))}` : "Sin meta configurada"}</p>
-                    </div>
-                    <div class="gd-list-item-aside">
-                      <p class="gd-list-item-amount">${escapeHtml(formatMoney(ahorro.monto))}</p>
-                      <p class="gd-list-item-sub">${hasGoal ? `${escapeHtml(progress.toFixed(1))}%` : ""}</p>
-                    </div>
-                    <div class="gd-action-cell">
-                      <button type="button" class="gd-action-btn" data-action="open-edit-ahorro" data-ahorro-id="${escapeHtml(ahorro.id)}" aria-label="Editar ahorro">Editar</button>
-                      <button type="button" class="gd-action-btn danger" data-action="open-delete-ahorro" data-ahorro-id="${escapeHtml(ahorro.id)}" aria-label="Eliminar ahorro">🗑</button>
-                    </div>
-                  </div>
-                `;
-              })
-              .join("")}
-      </div>
+      ${goalsGrid}
     </article>
 
     <article class="gd-card">
       <header class="gd-card-header">
-        <h2 class="gd-card-title">Crear nuevo ahorro</h2>
+        <h2 class="gd-card-title">Nuevo objetivo de ahorro</h2>
       </header>
-
       <form id="detalleAhorroForm" class="gd-form-grid">
         <div>
           <label class="gd-form-label" for="detalleAhorroNombre">Nombre</label>
@@ -128,8 +158,8 @@ export function renderDetalleAhorrosPage({
           <label class="gd-form-label" for="detalleAhorroMeta">Meta (opcional)</label>
           <input id="detalleAhorroMeta" type="number" min="0" step="0.01" class="gd-form-input" placeholder="0.00">
         </div>
-        <div class="gd-form-full d-flex justify-content-end">
-          <button type="submit" class="gd-btn-primary">Agregar ahorro</button>
+        <div class="gd-form-full">
+          <button type="submit" class="gd-submit-btn">Agregar objetivo</button>
         </div>
       </form>
     </article>

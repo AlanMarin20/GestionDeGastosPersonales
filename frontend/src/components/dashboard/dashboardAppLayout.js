@@ -18,7 +18,7 @@ const USER_NAV_ITEMS = [
       { href: "/dashboard", label: "Dashboard", icon: "lni lni-grid-alt" },
       {
         href: "/dashboard/cargar",
-        label: "Cargar gasto",
+        label: "Nuevo movimiento",
         icon: "lni lni-upload",
       },
       {
@@ -163,7 +163,7 @@ export function renderDashboardAppLayout({
   const primaryAction = isAsesor
     ? null
     : {
-        label: "Nuevo gasto",
+        label: "Nuevo movimiento",
         path: "/dashboard/cargar",
         icon: "lni lni-plus",
       };

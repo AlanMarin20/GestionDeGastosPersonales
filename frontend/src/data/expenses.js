@@ -48,6 +48,51 @@ export async function addExpenseRecord({ comercio, fecha, monto, categoria, desc
   }
 }
 
+export async function addIncomeRecord({ fecha, monto, categoria, descripcion }) {
+  const numericAmount = Number.parseFloat(String(monto));
+
+  if (!fecha || Number.isNaN(numericAmount) || numericAmount <= 0 || !categoria) {
+    return false;
+  }
+
+  const source = descripcion || categoria;
+
+  try {
+    const saved = await apiCreateMovimiento({
+      tipo: "ingreso",
+      monto: numericAmount,
+      comercio: source,
+      categoria,
+      descripcion: descripcion || "",
+      fecha,
+    });
+
+    const monthKey = getMonthKeyFromDate(fecha);
+
+    state.finanzas.gastos = [
+      {
+        id: saved.id,
+        comercio: source,
+        fecha,
+        monto: numericAmount,
+        categoria,
+        descripcion: descripcion || "",
+        tipo: "ingreso",
+      },
+      ...state.finanzas.gastos,
+    ];
+
+    if (monthKey) {
+      state.finanzas.currentPeriod = monthKey;
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Error guardando ingreso:", error);
+    return false;
+  }
+}
+
 export function addSavingsGoalRecord({ nombre, montoInicial, meta }) {
   const trimmedName = String(nombre || "").trim();
   const parsedInitialAmount = Number.parseFloat(String(montoInicial));

@@ -15,7 +15,7 @@ import {
 } from "../utils/format";
 import { showAppNotification } from "../ui/notifications";
 import { saveAppPreferences } from "../ui/theme";
-import { addExpenseRecord } from "../data/expenses";
+import { addExpenseRecord, addIncomeRecord } from "../data/expenses";
 import { apiCreateMovimiento } from "../api/movimientos";
 import { loadDashboardBalances, loadMovimientos } from "../api/user";
 import { createAhorro, loadAhorros } from "../api/ahorros";
@@ -630,6 +630,65 @@ export function attachFormHandlers(pathname, { navigate, render }) {
       state.finanzas.filtros.tipo = "Todos";
       state.finanzas.cargar.form = {
         comercio: "",
+        fecha: payload.fecha,
+        monto: "",
+        categoria: "",
+        descripcion: "",
+      };
+      navigate("/dashboard/gastos");
+    });
+
+    const incomeCategorySelect = document.getElementById("incomeCategoria");
+
+    const syncIncomeCategoryVisibility = (value) => {
+      const wrap = document.querySelector("[data-new-category-wrap='income']");
+      if (!wrap) return;
+      wrap.classList.toggle("d-none", value !== "__new_category__");
+    };
+
+    syncIncomeCategoryVisibility(incomeCategorySelect?.value || "");
+
+    incomeCategorySelect?.addEventListener("change", (event) => {
+      const value = event.target.value || "";
+      state.finanzas.cargar.ingresoForm.categoria = value;
+      syncIncomeCategoryVisibility(value);
+    });
+
+    const incomeForm = document.getElementById("incomeForm");
+    incomeForm?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const formData = new FormData(incomeForm);
+
+      const payload = {
+        fecha: (formData.get("fecha") || "").toString(),
+        monto: (formData.get("monto") || "").toString(),
+        categoria: (formData.get("categoria") || "").toString(),
+        descripcion: (formData.get("descripcion") || "").toString().trim(),
+      };
+
+      state.finanzas.cargar.ingresoForm = payload;
+
+      const submitBtn = incomeForm.querySelector('[type="submit"]');
+      if (submitBtn) submitBtn.disabled = true;
+
+      const saved = await addIncomeRecord(payload);
+
+      if (submitBtn) submitBtn.disabled = false;
+
+      if (!saved) {
+        showAppNotification(
+          "No se pudo guardar el ingreso. Revisa los datos.",
+          "error",
+        );
+        return;
+      }
+
+      const periodKey = getMonthKeyFromDate(payload.fecha);
+      state.finanzas.filtros.periodo = periodKey || "todos";
+      state.finanzas.filtros.search = "";
+      state.finanzas.filtros.categoria = "Todas";
+      state.finanzas.filtros.tipo = "Todos";
+      state.finanzas.cargar.ingresoForm = {
         fecha: payload.fecha,
         monto: "",
         categoria: "",

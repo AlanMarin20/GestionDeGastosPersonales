@@ -2936,3 +2936,106 @@ body.theme-dark .gd-rec-savings-chip {
   text-align: right;
   flex-shrink: 0;
 }
+
+/* ── Dashboard layout ───────────────────────────────────────────── */
+
+.gd-dashboard-charts,
+.gd-dashboard-aside {
+  display: flex;
+  flex-direction: column;
+  gap: 0.72rem;
+}
+
+.gd-metrics-3 .gd-metric-card {
+  padding: 1rem 1.1rem;
+}
+
+.gd-metrics-3 .gd-metric-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 1rem;
+  right: 1rem;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--gd-accent-2), var(--gd-accent));
+  opacity: 0.5;
+}
+
+.gd-metrics-3 .gd-metric-value {
+  font-size: 1.5rem;
+  margin-top: 0.18rem;
+}
+
+/* ── Insight card ───────────────────────────────────────────────── */
+
+.gd-insight-card {
+  border-left: 3px solid var(--gd-accent-2);
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.06) 0%, transparent 70%), var(--gd-surface);
+}
+
+.gd-insight-title {
+  color: var(--gd-accent-2);
+}
+
+.gd-insight-text {
+  margin: 0;
+  color: var(--gd-muted);
+  font-size: 0.74rem;
+  line-height: 1.55;
+}
+
+/* ── Savings goal cards ─────────────────────────────────────────── */
+
+.gd-ahorro-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.72rem;
+}
+
+.gd-ahorro-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.gd-ahorro-card-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.56rem;
+  margin-bottom: 0.76rem;
+}
+
+.gd-ahorro-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.gd-ahorro-card-name {
+  margin: 0 0 0.12rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--gd-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gd-ahorro-amount {
+  margin: 0 0 0.56rem;
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: var(--gd-text);
+  letter-spacing: -0.02em;
+}
+
+.gd-ahorro-progress-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.32rem;
+}
+
+@media (max-width: 600px) {
+  .gd-ahorro-grid {
+    grid-template-columns: 1fr;
+  }
+}

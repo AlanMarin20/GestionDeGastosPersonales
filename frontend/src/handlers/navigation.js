@@ -132,6 +132,46 @@ export function attachGlobalNavigation({ navigate, render }) {
       showAppNotification("Categoria guardada correctamente", "success");
       render();
     },
+    "save-new-income-category": ({ event }) => {
+      event.preventDefault();
+
+      const input = document.getElementById("incomeNuevaCategoria");
+      const select = document.getElementById("incomeCategoria");
+      const newCategory = (input?.value || "").trim();
+
+      if (!newCategory) {
+        showAppNotification("Escribe el nombre de la nueva categoria", "warning");
+        return;
+      }
+
+      if (!Array.isArray(state.finanzas.ingresoCategories)) {
+        state.finanzas.ingresoCategories = [];
+      }
+
+      const exists = state.finanzas.ingresoCategories.some(
+        (cat) => cat.toLowerCase() === newCategory.toLowerCase(),
+      );
+
+      if (!exists) {
+        state.finanzas.ingresoCategories = [...state.finanzas.ingresoCategories, newCategory].sort((a, b) => a.localeCompare(b));
+      }
+
+      state.finanzas.cargar.ingresoForm.categoria = newCategory;
+
+      if (select) select.value = newCategory;
+      if (input) input.value = "";
+
+      showAppNotification("Categoria guardada correctamente", "success");
+      render();
+    },
+    "switch-cargar-tab": ({ event, actionButton }) => {
+      event.preventDefault();
+      const tab = actionButton.getAttribute("data-tab");
+      if (tab === "gasto" || tab === "ingreso") {
+        state.finanzas.cargar.activeTab = tab;
+        render();
+      }
+    },
     "export-expenses-csv": ({ event }) => {
       event.preventDefault();
       exportFilteredExpensesAsCsv();
