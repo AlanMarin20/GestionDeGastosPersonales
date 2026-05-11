@@ -188,44 +188,88 @@ export function getMisGastosPeriodOptions() {
     }));
 }
 
+const SEVERITY_RANK = { danger: 0, warning: 1, good: 2, info: 3 };
+
+function severityRank(sev) {
+  return SEVERITY_RANK[String(sev || "info").toLowerCase()] ?? 3;
+}
+
 export function getDashboardInsights() {
   const insights = [];
   const currentPeriod = getFinanzasCurrentPeriod();
-  const { egreso, ingreso } = getDashboardBalanceData();
+
+  // Compute ingreso and egreso from local gastos — consistent single source
+  const currentExpenses = getFinanzasExpensesForPeriod(currentPeriod);
+  const ingreso = currentExpenses
+    .filter((e) => e.tipo === "ingreso")
+    .reduce((sum, e) => sum + Number(e.monto || 0), 0);
+  const egreso = currentExpenses
+    .filter((e) => e.tipo === "egreso")
+    .reduce((sum, e) => sum + Number(e.monto || 0), 0);
 
   // 1. Budget health
-  if (ingreso > 0) {
+  if (ingreso > 0 && egreso > 0) {
     const pct = Math.round((egreso / ingreso) * 100);
     if (pct > 100) {
       insights.push({ type: "danger", icon: "lni-warning", title: "Gastos superan ingresos", body: `Tus gastos superan tus ingresos en ${pct - 100}% este mes. Revisá las categorías con mayor gasto.` });
     } else if (pct >= 80) {
       insights.push({ type: "warning", icon: "lni-warning", title: "Gasto elevado este mes", body: `Utilizaste el ${pct}% de tu ingreso mensual. Quedan ${formatMoney(ingreso - egreso)} disponibles.` });
-    } else if (pct > 0 && pct <= 50) {
+    } else if (pct <= 50) {
       insights.push({ type: "success", icon: "lni-checkmark-circle", title: "Excelente control de gastos", body: `Solo el ${pct}% de tus ingresos son gastos este mes. ¡Vas muy bien!` });
-    } else if (pct > 0) {
+    } else {
       insights.push({ type: "info", icon: "lni-bulb", title: "Análisis mensual", body: `Llevás gastado el ${pct}% de tus ingresos este mes. Vas bien en el control de gastos.` });
     }
   } else if (egreso > 0) {
     insights.push({ type: "info", icon: "lni-bulb", title: "Registrá tus ingresos", body: "Agregá tus ingresos del mes para calcular tu balance y tasa de ahorro." });
   }
 
-  // 2. Top spending category
+  // 2. Unusual spending detection (inline to avoid circular import with reports.js)
+  if (insights.length < 3) {
+    const previousEgresos = state.finanzas.gastos.filter(
+      (e) => getMonthKeyFromDate(e.fecha) !== currentPeriod && e.tipo === "egreso",
+    );
+    const unusualItems = [];
+    currentExpenses
+      .filter((e) => e.tipo === "egreso")
+      .forEach((expense) => {
+        const historical = previousEgresos.filter((e) => e.categoria === expense.categoria);
+        if (historical.length < 2) return;
+        const avg = historical.reduce((sum, e) => sum + Number(e.monto || 0), 0) / historical.length;
+        const ratio = avg > 0 ? Number(expense.monto || 0) / avg : 0;
+        if (ratio >= 1.8) {
+          unusualItems.push({ label: expense.comercio || expense.categoria || "gasto", ratio });
+        }
+      });
+    unusualItems.sort((a, b) => b.ratio - a.ratio);
+    if (unusualItems.length > 0) {
+      const top = unusualItems[0];
+      insights.push({
+        type: "warning",
+        icon: "lni-warning",
+        title: "Gasto inusual detectado",
+        body: `"${top.label}" está ${top.ratio.toFixed(1)}x por encima de tu promedio histórico en esa categoría.`,
+      });
+    }
+  }
+
+  // 3. Most urgent API recommendation (sorted by severity)
+  if (insights.length < 3) {
+    const recs = state.finanzas.recomendaciones || [];
+    const sorted = [...recs].sort((a, b) => severityRank(a.severity) - severityRank(b.severity));
+    if (sorted.length > 0) {
+      const rec = sorted[0];
+      const sev = String(rec.severity || "info").toLowerCase();
+      const type = sev === "danger" ? "danger" : sev === "warning" ? "warning" : sev === "good" ? "success" : "info";
+      insights.push({ type, icon: "lni-bulb", title: rec.title || "Sugerencia", body: rec.body || "" });
+    }
+  }
+
+  // 4. Top spending category
   if (insights.length < 3) {
     const cats = getDashboardCategorySummary(currentPeriod);
     if (cats.length > 0 && cats[0].total > 0) {
       const top = cats[0];
       insights.push({ type: "info", icon: "lni-stats-up", title: `Mayor gasto: ${top.label}`, body: `${top.label} representa el ${top.share} de tus gastos este mes (${formatMoney(top.total)}).` });
-    }
-  }
-
-  // 3. Latest API recommendation
-  if (insights.length < 3) {
-    const recs = state.finanzas.recomendaciones || [];
-    if (recs.length > 0) {
-      const rec = recs[0];
-      const sev = String(rec.severity || "info").toLowerCase();
-      const type = sev === "danger" ? "danger" : sev === "warning" ? "warning" : sev === "good" ? "success" : "info";
-      insights.push({ type, icon: "lni-bulb", title: rec.title || "Sugerencia", body: rec.body || "" });
     }
   }
 
@@ -239,10 +283,12 @@ export function getDashboardInsights() {
 
 export function getUnreadNotifications() {
   const recs = state.finanzas.recomendaciones || [];
-  const urgent = recs.filter((r) => {
-    const sev = String(r.severity || "").toLowerCase();
-    return sev === "danger" || sev === "warning";
-  });
+  const urgent = recs
+    .filter((r) => {
+      const sev = String(r.severity || "").toLowerCase();
+      return sev === "danger" || sev === "warning";
+    })
+    .sort((a, b) => severityRank(a.severity) - severityRank(b.severity));
   const items = urgent.slice(0, 4).map((r) => ({
     title: r.title || "Alerta",
     body: r.body || "",
