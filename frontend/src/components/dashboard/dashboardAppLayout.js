@@ -1,4 +1,5 @@
 import { escapeHtml } from "../../utils/sanitize";
+import { getUnreadNotifications } from "../../data/finanzas";
 
 const ASESOR_NAV_SECTION = {
   section: "Asesor",
@@ -92,7 +93,8 @@ function renderNavGroups({ activePath, isAsesor }) {
           <div class="gd-nav-label">${escapeHtml(group.section)}</div>
           ${group.items
             .map((item) => {
-              const isActive = activePath === item.href;
+              const isActive = activePath === item.href ||
+                (item.href !== "/dashboard" && activePath.startsWith(item.href + "/"));
               return `
                 <a href="${escapeHtml(item.href)}" data-link class="gd-nav-item ${isActive ? "active" : ""}">
                   <i class="${escapeHtml(item.icon)} gd-nav-icon" aria-hidden="true"></i>
@@ -115,7 +117,8 @@ function renderCustomNavGroups({ activePath, sidebarSections }) {
           <div class="gd-nav-label">${escapeHtml(group.section)}</div>
           ${(group.items || [])
             .map((item) => {
-              const isActive = activePath === item.href;
+              const isActive = activePath === item.href ||
+                (item.href !== "/dashboard" && activePath.startsWith(item.href + "/"));
               return `
                 <a href="${escapeHtml(item.href)}" data-link class="gd-nav-item ${isActive ? "active" : ""}">
                   <i class="${escapeHtml(item.icon)} gd-nav-icon" aria-hidden="true"></i>
@@ -155,6 +158,10 @@ export function renderDashboardAppLayout({
   const notificationsRoute = isAsesor
     ? "/dashboard/asesor"
     : "/dashboard/recomendaciones";
+
+  const notifData = isAsesor ? { count: notificationCount, items: [] } : getUnreadNotifications();
+  const resolvedCount = notifData.count;
+  const resolvedItems = notifData.items;
   const primaryAction = isAsesor
     ? null
     : {
@@ -226,29 +233,29 @@ export function renderDashboardAppLayout({
               <button type="button" class="gd-top-btn gd-top-notifications-trigger" data-action="toggle-notifications-menu" aria-expanded="false" aria-haspopup="true" aria-label="Abrir notificaciones">
                 <i class="lni lni-alarm" aria-hidden="true"></i>
                 <span>Notificaciones</span>
-                ${
-                  notificationCount > 0
-                    ? `<span class="gd-alert-dot" aria-label="${notificationCount} alertas pendientes"></span>`
-                    : ""
-                }
+                ${resolvedCount > 0 ? `<span class="gd-alert-dot" aria-label="${resolvedCount} alertas pendientes"></span>` : ""}
               </button>
 
               <section class="gd-notifications-menu" aria-label="Notificaciones">
                 <header class="gd-notifications-head">
                   <h2 class="gd-notifications-title">Notificaciones</h2>
-                  <span class="gd-notifications-count">${escapeHtml(String(notificationCount))}</span>
+                  ${resolvedCount > 0 ? `<span class="gd-notifications-count">${escapeHtml(String(resolvedCount))}</span>` : ""}
                 </header>
 
                 <div class="gd-notifications-body">
-                  ${
-                    notificationCount > 0
-                      ? `<a href="${escapeHtml(notificationsRoute)}" data-link class="gd-notification-item">
-                          <span class="gd-notification-item-title">Ver alertas pendientes</span>
-                          <span class="gd-notification-item-sub">${escapeHtml(String(notificationCount))} elementos por revisar</span>
-                        </a>`
-                      : `<p class="gd-notifications-empty">No tienes notificaciones nuevas.</p>`
+                  ${resolvedItems.length > 0
+                    ? resolvedItems.map((item) => `
+                        <a href="${escapeHtml(notificationsRoute)}" data-link class="gd-notification-item gd-notification-item--${escapeHtml(item.severity)}">
+                          <span class="gd-notification-item-title">${escapeHtml(item.title)}</span>
+                          ${item.body ? `<span class="gd-notification-item-sub">${escapeHtml(item.body.length > 80 ? item.body.slice(0, 80) + "…" : item.body)}</span>` : ""}
+                        </a>
+                      `).join("")
+                    : `<p class="gd-notifications-empty">No hay alertas activas.</p>`
                   }
-
+                  ${resolvedCount > 4 ? `
+                    <a href="${escapeHtml(notificationsRoute)}" data-link class="gd-notification-item">
+                      <span class="gd-notification-item-title">Ver ${resolvedCount - 4} alertas más →</span>
+                    </a>` : ""}
                   <a href="/perfil/notificaciones" data-link class="gd-notification-item">
                     <span class="gd-notification-item-title">Preferencias de notificacion</span>
                     <span class="gd-notification-item-sub">Configura alertas y recordatorios</span>

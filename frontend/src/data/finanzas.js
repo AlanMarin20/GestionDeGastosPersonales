@@ -237,6 +237,20 @@ export function getDashboardInsights() {
   return insights.slice(0, 3);
 }
 
+export function getUnreadNotifications() {
+  const recs = state.finanzas.recomendaciones || [];
+  const urgent = recs.filter((r) => {
+    const sev = String(r.severity || "").toLowerCase();
+    return sev === "danger" || sev === "warning";
+  });
+  const items = urgent.slice(0, 4).map((r) => ({
+    title: r.title || "Alerta",
+    body: r.body || "",
+    severity: String(r.severity || "warning").toLowerCase(),
+  }));
+  return { count: urgent.length, items };
+}
+
 export function getFilteredExpenses() {
   const { search, categoria, periodo, tipo, fechaDesde, fechaHasta } = state.finanzas.filtros;
   const normalizedSearch = search.trim().toLowerCase();

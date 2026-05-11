@@ -501,6 +501,14 @@ body.theme-dark .gd-topbar {
   padding: 0.54rem 0.56rem;
 }
 
+.gd-notification-item--danger {
+  border-left: 2px solid var(--gd-danger) !important;
+}
+
+.gd-notification-item--warning {
+  border-left: 2px solid var(--gd-warning) !important;
+}
+
 .gd-content {
   flex: 1;
   min-height: 0;

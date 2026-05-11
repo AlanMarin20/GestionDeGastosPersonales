@@ -32,7 +32,8 @@ function renderNotifItem(item) {
 
 function renderRecentItem(expense) {
   const esIngreso = expense.tipo === "ingreso";
-  const initials = escapeHtml((expense.comercio || "?").slice(0, 2).toUpperCase());
+  const displayName = esIngreso ? (expense.descripcion || "-") : (expense.comercio || "-");
+  const initials = escapeHtml((displayName || "?").slice(0, 2).toUpperCase());
   const amountClass = esIngreso ? "gd-monto-ingreso" : "gd-monto-egreso";
   const amountSign = esIngreso ? "+" : "-";
   const tipoBadge = esIngreso
@@ -44,7 +45,7 @@ function renderRecentItem(expense) {
       <div style="display:flex;align-items:center;gap:0.5rem;min-width:0">
         <span class="gd-avatar gd-avatar--${escapeHtml(esIngreso ? "in" : "out")}" style="font-size:0.6rem;flex-shrink:0" aria-hidden="true">${initials}</span>
         <div style="min-width:0">
-          <p class="gd-list-item-title" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(expense.comercio || "-")}</p>
+          <p class="gd-list-item-title" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(displayName)}</p>
           <p class="gd-list-item-sub">${escapeHtml(expense.fechaCorta)} · ${escapeHtml(expense.categoria || "Sin categoría")}</p>
         </div>
       </div>
@@ -137,6 +138,5 @@ export function renderDashboardPage({
     content,
     profileImage,
     profileName,
-    notificationCount: 3,
   });
 }
