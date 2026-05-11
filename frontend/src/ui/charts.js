@@ -320,38 +320,22 @@ export function initCharts(pathname) {
 
   if (pathname.startsWith("/cliente/") && !pathname.endsWith("/gastos")) {
     const detalleCliente = resolveDetalleClienteView(pathname, state);
-    const gastos = state.detalleCliente?.gastos ?? [];
+    const gastosPorMes = state.detalleCliente?.gastosPorMes ?? [];
+    const graficoCategorias = state.detalleCliente?.graficoCategorias ?? { porcentaje: 0, categorias: [] };
 
-    const categoryTotals = new Map();
-    gastos.forEach((g) => {
-      const cat = g.categoria || "Otros";
-      categoryTotals.set(cat, (categoryTotals.get(cat) || 0) + Number(g.monto || 0));
-    });
-    const categoryEntries = [...categoryTotals.entries()]
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5);
-    const totalEgresoCliente = categoryEntries.reduce((s, [, v]) => s + v, 0);
-
-    const monthlyMap = new Map();
-    gastos.forEach((g) => {
-      const key = g.fecha ? g.fecha.slice(0, 7) : "";
-      if (key) monthlyMap.set(key, (monthlyMap.get(key) || 0) + Number(g.monto || 0));
-    });
-    const monthlySeries = [...monthlyMap.entries()]
-      .sort((a, b) => a[0].localeCompare(b[0]))
-      .slice(-6)
-      .map(([key, total]) => ({ label: key.slice(5), total }));
-
-    const presupuesto = Number(detalleCliente?.presupuesto || 0);
-    const porcentajeGastado = presupuesto > 0 ? (totalEgresoCliente / presupuesto) * 100 : 0;
-
-    if (monthlySeries.length > 0) {
-      buildBarChart("detalleMonthlyBarChart", monthlySeries);
+    // Usar datos de gastos por mes desde el backend
+    if (gastosPorMes.length > 0) {
+      buildBarChart("detalleMonthlyBarChart", gastosPorMes);
     }
+
+    // Usar datos de categorías desde el backend
+    const categorias = graficoCategorias.categorias || [];
+    const totalEgresoCliente = categorias.reduce((s, c) => s + Number(c.total || 0), 0);
+    
     buildPieChart(
       "detallePieChart",
-      categoryEntries.length > 0 ? categoryEntries.map(([label]) => label) : ["Sin gastos"],
-      categoryEntries.length > 0 ? categoryEntries.map(([, v]) => v) : [1],
+      categorias.length > 0 ? categorias.map((c) => c.categoria) : ["Sin gastos"],
+      categorias.length > 0 ? categorias.map((c) => Number(c.total || 0)) : [1],
       totalEgresoCliente,
       [],
       "detalleCategoryLegend",

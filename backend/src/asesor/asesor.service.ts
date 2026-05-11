@@ -216,7 +216,7 @@ export class AsesorService {
             )
           GROUP BY mes
         ) t
-        ORDER BY t.mes ASC
+        ORDER BY t.mes DESC
         `,
         [clienteId, advisorId],
       );
