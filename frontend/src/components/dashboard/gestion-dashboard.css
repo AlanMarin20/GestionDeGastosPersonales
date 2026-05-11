@@ -1128,6 +1128,47 @@ body.theme-dark .gd-chart-summary-badge {
   max-width: 280px;
 }
 
+.gd-date-range {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: nowrap;
+}
+
+.gd-date-range-label {
+  margin: 0;
+  font-size: 0.72rem;
+  white-space: nowrap;
+  color: var(--gd-muted);
+}
+
+.gd-date-input {
+  min-width: 130px;
+  max-width: 155px;
+}
+
+.gd-btn-clear-dates {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid var(--gd-border);
+  background: transparent;
+  color: var(--gd-muted);
+  cursor: pointer;
+  font-size: 0.7rem;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+}
+
+.gd-btn-clear-dates:hover {
+  background: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+  border-color: rgba(220, 53, 69, 0.4);
+}
+
 .gd-csv-btn {
   margin-left: auto;
   border: 1px solid rgba(56, 189, 248, 0.45);

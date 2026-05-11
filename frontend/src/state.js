@@ -71,6 +71,8 @@ export const state = {
       categoria: "Todas",
       periodo: "",
       tipo: "Todos",
+      fechaDesde: "",
+      fechaHasta: "",
     },
     ui: {
       editingExpenseId: null,

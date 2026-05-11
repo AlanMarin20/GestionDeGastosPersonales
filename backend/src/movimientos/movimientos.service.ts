@@ -18,17 +18,13 @@ export class MovimientosService {
     private readonly categoryRepository: Repository<Category>,
   ) {}
 
-  private async syncBalance(userId: string, tipo: TipoMovimiento, delta: number) {
+  private async getOrCreateBalance(userId: string) {
     let balance = await this.balanceRepository.findOne({ where: { user: { id: userId } } });
     if (!balance) {
       balance = this.balanceRepository.create({ user: { id: userId }, ingreso: 0, egreso: 0, ahorro: 0 });
+      await this.balanceRepository.save(balance);
     }
-    if (tipo === 'ingreso') {
-      balance.ingreso = Number(balance.ingreso) + delta;
-    } else {
-      balance.egreso = Number(balance.egreso) + delta;
-    }
-    await this.balanceRepository.save(balance);
+    return balance;
   }
 
   private async findCategoryByName(name: string, userId: string): Promise<Category | undefined> {
@@ -56,15 +52,13 @@ export class MovimientosService {
       fecha: dto.fecha ? new Date(dto.fecha) : undefined,
       category,
     });
+    await this.getOrCreateBalance(userId);
     const saved = await this.movimientoRepository.save(movimiento);
-    await this.syncBalance(userId, dto.tipo, Number(dto.monto));
     return saved;
   }
 
   async update(id: string, userId: string, dto: UpdateMovimientoDto) {
     const existing = await this.findOne(id, userId);
-
-    await this.syncBalance(userId, existing.tipo, -Number(existing.monto));
 
     const category =
       dto.categoria !== undefined
@@ -83,9 +77,7 @@ export class MovimientosService {
       category,
     });
 
-    const saved = await this.movimientoRepository.save(existing);
-    await this.syncBalance(userId, saved.tipo, Number(saved.monto));
-    return saved;
+    return await this.movimientoRepository.save(existing);
   }
 
   async registrar(
@@ -108,9 +100,8 @@ export class MovimientosService {
       category: categoriaId ? ({ id: categoriaId } as any) : undefined,
       comercio,
     });
-    const saved = await this.movimientoRepository.save(movimiento);
-    await this.syncBalance(userId, tipo, monto);
-    return saved;
+    await this.getOrCreateBalance(userId);
+    return await this.movimientoRepository.save(movimiento);
   }
 
   async findAll(userId: string) {
@@ -157,7 +148,6 @@ export class MovimientosService {
 
   async remove(id: string, userId: string) {
     const movimiento = await this.findOne(id, userId);
-    await this.syncBalance(userId, movimiento.tipo, -Number(movimiento.monto));
     await this.movimientoRepository.remove(movimiento);
     return { message: 'Movimiento eliminado correctamente' };
   }

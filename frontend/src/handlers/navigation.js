@@ -231,7 +231,7 @@ export function attachGlobalNavigation({ navigate, render }) {
       }
 
       state.finanzas.ui.editingExpenseId = null;
-      render();
+      loadDashboardBalances().finally(() => render());
     },
     "open-delete-expense": ({ event, actionButton }) => {
       event.preventDefault();
@@ -263,10 +263,16 @@ export function attachGlobalNavigation({ navigate, render }) {
       if (deleted) {
         state.finanzas.ui.deletingExpenseId = null;
         state.finanzas.ui.editingExpenseId = null;
-        render();
+        loadDashboardBalances().finally(() => render());
       } else {
         showAppNotification("No se pudo eliminar el gasto.", "error");
       }
+    },
+    "clear-date-filter": ({ event }) => {
+      event.preventDefault();
+      state.finanzas.filtros.fechaDesde = "";
+      state.finanzas.filtros.fechaHasta = "";
+      render();
     },
     "toggle-dashboard-expenses": ({ actionButton }) => {
       state.dashboard.showAllRecentExpenses =

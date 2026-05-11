@@ -702,7 +702,8 @@ export function attachFormHandlers(pathname, { navigate, render }) {
     const searchInput = document.getElementById("expenseSearchInput");
     const typeFilter = document.getElementById("expenseTypeFilter");
     const categoryFilter = document.getElementById("expenseCategoryFilter");
-    const periodFilter = document.getElementById("expensePeriodFilter");
+    const fechaDesdeInput = document.getElementById("expenseFechaDesde");
+    const fechaHastaInput = document.getElementById("expenseFechaHasta");
 
     searchInput?.addEventListener("input", (event) => {
       state.finanzas.filtros.search = event.target.value;
@@ -719,8 +720,15 @@ export function attachFormHandlers(pathname, { navigate, render }) {
       render();
     });
 
-    periodFilter?.addEventListener("change", (event) => {
-      state.finanzas.filtros.periodo = event.target.value;
+    fechaDesdeInput?.addEventListener("change", (event) => {
+      state.finanzas.filtros.fechaDesde = event.target.value;
+      state.finanzas.filtros.periodo = "";
+      render();
+    });
+
+    fechaHastaInput?.addEventListener("change", (event) => {
+      state.finanzas.filtros.fechaHasta = event.target.value;
+      state.finanzas.filtros.periodo = "";
       render();
     });
   }

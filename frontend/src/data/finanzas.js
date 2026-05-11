@@ -187,13 +187,18 @@ export function getMisGastosPeriodOptions() {
 }
 
 export function getFilteredExpenses() {
-  const { search, categoria, periodo, tipo } = state.finanzas.filtros;
+  const { search, categoria, periodo, tipo, fechaDesde, fechaHasta } = state.finanzas.filtros;
   const normalizedSearch = search.trim().toLowerCase();
 
   return state.finanzas.gastos
     .filter((expense) => {
-      if (periodo !== "todos" && getMonthKeyFromDate(expense.fecha) !== periodo) {
-        return false;
+      // Filtro por rango de fechas (fecha puntual o fecha desde/hasta)
+      if (fechaDesde || fechaHasta) {
+        const expDate = expense.fecha ? expense.fecha.slice(0, 10) : "";
+        if (fechaDesde && expDate < fechaDesde) return false;
+        if (fechaHasta && expDate > fechaHasta) return false;
+      } else if (periodo && periodo !== "todos") {
+        if (getMonthKeyFromDate(expense.fecha) !== periodo) return false;
       }
 
       if (categoria !== "Todas" && expense.categoria !== categoria) {
@@ -205,8 +210,10 @@ export function getFilteredExpenses() {
         if (expense.tipo !== tipoEsperado) return false;
       }
 
-      if (normalizedSearch && !expense.comercio.toLowerCase().includes(normalizedSearch)) {
-        return false;
+      if (normalizedSearch) {
+        const inComercio = (expense.comercio || "").toLowerCase().includes(normalizedSearch);
+        const inDescripcion = (expense.descripcion || "").toLowerCase().includes(normalizedSearch);
+        if (!inComercio && !inDescripcion) return false;
       }
 
       return true;

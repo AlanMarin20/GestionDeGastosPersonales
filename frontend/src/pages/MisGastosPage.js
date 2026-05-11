@@ -82,7 +82,6 @@ export function renderMisGastosPage({
   pageSubtitle,
   filters,
   categoryOptions,
-  periodOptions,
   gastos,
   editingExpense,
   deletingExpense,
@@ -93,7 +92,7 @@ export function renderMisGastosPage({
         id="expenseSearchInput"
         class="gd-form-input"
         type="search"
-        placeholder="Buscar por comercio"
+        placeholder="Buscar por comercio o descripción"
         value="${escapeHtml(filters.search)}"
       >
 
@@ -113,15 +112,27 @@ export function renderMisGastosPage({
           .join("")}
       </select>
 
-      <select id="expensePeriodFilter" class="gd-form-select">
-        <option value="todos" ${filters.periodo === "todos" ? "selected" : ""}>Todos los meses</option>
-        ${periodOptions
-          .map(
-            (option) =>
-              `<option value="${escapeHtml(option.value)}" ${filters.periodo === option.value ? "selected" : ""}>${escapeHtml(option.label)}</option>`,
-          )
-          .join("")}
-      </select>
+      <div class="gd-date-range">
+        <label class="gd-form-label gd-date-range-label" for="expenseFechaDesde">Desde</label>
+        <input
+          id="expenseFechaDesde"
+          type="date"
+          class="gd-form-input gd-date-input"
+          value="${escapeHtml(filters.fechaDesde || "")}"
+        >
+        <label class="gd-form-label gd-date-range-label" for="expenseFechaHasta">Hasta</label>
+        <input
+          id="expenseFechaHasta"
+          type="date"
+          class="gd-form-input gd-date-input"
+          value="${escapeHtml(filters.fechaHasta || "")}"
+        >
+        ${(filters.fechaDesde || filters.fechaHasta) ? `
+          <button type="button" class="gd-btn-clear-dates" data-action="clear-date-filter" aria-label="Limpiar rango de fechas">
+            <i class="lni lni-close" aria-hidden="true"></i>
+          </button>
+        ` : ""}
+      </div>
 
       <button type="button" class="gd-csv-btn" data-action="export-expenses-csv">
         <i class="lni lni-download"></i>
