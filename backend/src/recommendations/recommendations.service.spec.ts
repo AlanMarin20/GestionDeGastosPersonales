@@ -48,11 +48,11 @@ describe('RecommendationsService', () => {
   // ─── getHistoria ──────────────────────────────────────────────────────────
 
   describe('getHistoria', () => {
-    const iaRow = {
-      emisor: 'IA',
-      contenido: 'Recomendación de la IA',
-      creado_en: new Date('2026-05-01'),
-    };
+    // const iaRow = {
+    //   emisor: 'IA',
+    //   contenido: 'Recomendación de la IA',
+    //   creado_en: new Date('2026-05-01'),
+    // };
     const asesorRow = {
       emisor: 'asesor',
       contenido: 'Recomendación del asesor',
@@ -60,8 +60,8 @@ describe('RecommendationsService', () => {
     };
 
     it('retorna todas las recomendaciones sin filtros', async () => {
-      mockQuery.mockResolvedValue([iaRow, asesorRow]);
-
+      // mockQuery.mockResolvedValue([iaRow, asesorRow]);
+      mockQuery.mockResolvedValue([ asesorRow]);
       const result = await service.getHistoria(USER_ID);
 
       expect(result).toHaveLength(2);
@@ -79,7 +79,7 @@ describe('RecommendationsService', () => {
     });
 
     it('pasa el emisor cuando se especifica', async () => {
-      mockQuery.mockResolvedValue([iaRow]);
+      // mockQuery.mockResolvedValue([iaRow]);
 
       await service.getHistoria(USER_ID, 'ia');
 

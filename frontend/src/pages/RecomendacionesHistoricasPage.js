@@ -217,7 +217,6 @@ export function renderRecomendacionesHistoricasPage({
         <select id="recEmitterFilter" class="gd-form-select">
           <option value="">Todos</option>
           <option value="asesor">Asesor</option>
-          <option value="ia">IA</option>
         </select>
       </div>
 

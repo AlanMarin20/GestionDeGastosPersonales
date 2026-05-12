@@ -42,7 +42,7 @@ export class RecommendationsService {
       advisor: createDto.advisorId
         ? ({ id: createDto.advisorId } as Recommendation['advisor'])
         : undefined,
-      contenido: createDto.content,
+      contenido: createDto.contenido,
       titulo: createDto.titulo,
       tipo: createDto.type ?? 'general',
       severidad: createDto.severidad,
