@@ -89,8 +89,8 @@ export class RecommendationsService {
   ) {
     const recommendation = await this.findOneForUser(id, userId);
 
-    if (updateDto.content !== undefined) {
-      recommendation.contenido = updateDto.content;
+    if (updateDto.contenido !== undefined) {
+      recommendation.contenido = updateDto.contenido;
     }
     if (updateDto.type !== undefined) {
       recommendation.tipo = updateDto.type;
