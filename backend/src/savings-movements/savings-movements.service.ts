@@ -26,9 +26,10 @@ export class SavingsMovementsService {
   ) {}
 
   private async findCategoriaAhorroId(): Promise<number | undefined> {
-    const rows: { id: number }[] = await this.movimientoRepository.manager.query(
-      `SELECT id FROM categorias WHERE LOWER(nombre) = 'ahorro' AND es_default = true LIMIT 1`,
-    );
+    const rows: { id: number }[] =
+      await this.movimientoRepository.manager.query(
+        `SELECT id FROM categorias WHERE LOWER(nombre) = 'ahorro' AND es_default = true LIMIT 1`,
+      );
     return rows[0]?.id;
   }
 
@@ -68,14 +69,15 @@ export class SavingsMovementsService {
     await this.getOrCreateBalance(userId);
 
     if (tipo === 'deposito') {
-      const rows: { neto: string }[] = await this.movimientoRepository.manager.query(
-        `SELECT
+      const rows: { neto: string }[] =
+        await this.movimientoRepository.manager.query(
+          `SELECT
           COALESCE(SUM(CASE WHEN tipo = 'ingreso' THEN monto ELSE 0 END), 0) -
           COALESCE(SUM(CASE WHEN tipo = 'egreso'  THEN monto ELSE 0 END), 0) AS neto
          FROM movimientos
          WHERE usuario_id = $1`,
-        [userId],
-      );
+          [userId],
+        );
       const neto = Number(rows[0]?.neto ?? 0);
       if (amount > neto) {
         throw new BadRequestException(
@@ -154,10 +156,17 @@ export class SavingsMovementsService {
     return movement;
   }
 
-  async update(id: string, userId: string, updateDto: UpdateSavingsMovementDto) {
+  async update(
+    id: string,
+    userId: string,
+    updateDto: UpdateSavingsMovementDto,
+  ) {
     const movement = await this.findOne(id, userId);
 
-    if (updateDto.goalId !== undefined && updateDto.goalId !== movement.goal.id) {
+    if (
+      updateDto.goalId !== undefined &&
+      updateDto.goalId !== movement.goal.id
+    ) {
       const newGoal = await this.goalRepository.findOne({
         where: { id: updateDto.goalId, user: { id: userId } },
       });
@@ -170,8 +179,10 @@ export class SavingsMovementsService {
     }
 
     if (updateDto.amount !== undefined) movement.monto = updateDto.amount;
-    if (updateDto.description !== undefined) movement.descripcion = updateDto.description;
-    if (updateDto.movementDate !== undefined) movement.fecha = new Date(updateDto.movementDate);
+    if (updateDto.description !== undefined)
+      movement.descripcion = updateDto.description;
+    if (updateDto.movementDate !== undefined)
+      movement.fecha = new Date(updateDto.movementDate);
 
     return await this.movementRepository.save(movement);
   }

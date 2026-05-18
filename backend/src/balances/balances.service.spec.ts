@@ -5,7 +5,7 @@ import { BalancesService } from './balances.service';
 import { Balance } from './entities/balance.entity';
 import { MovimientosService } from '../movimientos/movimientos.service';
 
-const USER_ID    = 'user-uuid';
+const USER_ID = 'user-uuid';
 const ADVISOR_ID = 'advisor-uuid';
 
 describe('BalancesService', () => {
@@ -16,9 +16,9 @@ describe('BalancesService', () => {
   let mockGetGastosMensuales: jest.Mock;
 
   beforeEach(async () => {
-    mockQuery              = jest.fn();
-    mockFindOne            = jest.fn();
-    mockFind               = jest.fn();
+    mockQuery = jest.fn();
+    mockFindOne = jest.fn();
+    mockFind = jest.fn();
     mockGetGastosMensuales = jest.fn();
 
     const module: TestingModule = await Test.createTestingModule({
@@ -29,10 +29,10 @@ describe('BalancesService', () => {
           useValue: {
             manager: { query: mockQuery },
             findOne: mockFindOne,
-            find:    mockFind,
-            create:  jest.fn(),
-            save:    jest.fn(),
-            remove:  jest.fn(),
+            find: mockFind,
+            create: jest.fn(),
+            save: jest.fn(),
+            remove: jest.fn(),
           },
         },
         {
@@ -49,27 +49,31 @@ describe('BalancesService', () => {
 
   describe('getResumenAsesor', () => {
     it('retorna los contadores mapeados como números', async () => {
-      mockQuery.mockResolvedValue([{
-        clientes_asignados: '10',
-        riesgo_medio:       '3',
-        riesgo_alto:        '1',
-      }]);
+      mockQuery.mockResolvedValue([
+        {
+          clientes_asignados: '10',
+          riesgo_medio: '3',
+          riesgo_alto: '1',
+        },
+      ]);
 
       const result = await service.getResumenAsesor(ADVISOR_ID);
 
       expect(result).toEqual({
         clientesAsignados: 10,
-        riesgoMedio:       3,
-        riesgoAlto:        1,
+        riesgoMedio: 3,
+        riesgoAlto: 1,
       });
     });
 
     it('retorna ceros cuando el asesor no tiene clientes', async () => {
-      mockQuery.mockResolvedValue([{
-        clientes_asignados: '0',
-        riesgo_medio:       '0',
-        riesgo_alto:        '0',
-      }]);
+      mockQuery.mockResolvedValue([
+        {
+          clientes_asignados: '0',
+          riesgo_medio: '0',
+          riesgo_alto: '0',
+        },
+      ]);
 
       const result = await service.getResumenAsesor(ADVISOR_ID);
 
@@ -79,7 +83,9 @@ describe('BalancesService', () => {
     });
 
     it('pasa el advisorId como parámetro SQL', async () => {
-      mockQuery.mockResolvedValue([{ clientes_asignados: '0', riesgo_medio: '0', riesgo_alto: '0' }]);
+      mockQuery.mockResolvedValue([
+        { clientes_asignados: '0', riesgo_medio: '0', riesgo_alto: '0' },
+      ]);
 
       await service.getResumenAsesor(ADVISOR_ID);
 
@@ -87,11 +93,13 @@ describe('BalancesService', () => {
     });
 
     it('los valores de riesgo_alto son menores o iguales que clientes_asignados', async () => {
-      mockQuery.mockResolvedValue([{
-        clientes_asignados: '8',
-        riesgo_medio:       '2',
-        riesgo_alto:        '5',
-      }]);
+      mockQuery.mockResolvedValue([
+        {
+          clientes_asignados: '8',
+          riesgo_medio: '2',
+          riesgo_alto: '5',
+        },
+      ]);
 
       const result = await service.getResumenAsesor(ADVISOR_ID);
       expect(result.riesgoAlto).toBeLessThanOrEqual(result.clientesAsignados);
@@ -102,15 +110,19 @@ describe('BalancesService', () => {
 
   describe('getDashboard', () => {
     it('retorna las tarjetas cuando existe balance', async () => {
-      mockFindOne.mockResolvedValue({ ingreso: 100000, egreso: 30000, ahorro: 15000 });
+      mockFindOne.mockResolvedValue({
+        ingreso: 100000,
+        egreso: 30000,
+        ahorro: 15000,
+      });
 
       const result = await service.getDashboard(USER_ID);
 
       expect(result).toEqual({
-        gastoMensual:     30000,
+        gastoMensual: 30000,
         dineroDisponible: 70000,
-        ingreso:          100000,
-        ahorroAcumulado:  15000,
+        ingreso: 100000,
+        ahorroAcumulado: 15000,
       });
     });
 
@@ -120,10 +132,10 @@ describe('BalancesService', () => {
       const result = await service.getDashboard(USER_ID);
 
       expect(result).toEqual({
-        gastoMensual:     0,
+        gastoMensual: 0,
         dineroDisponible: 0,
-        ingreso:          0,
-        ahorroAcumulado:  0,
+        ingreso: 0,
+        ahorroAcumulado: 0,
       });
     });
   });
@@ -176,8 +188,9 @@ describe('BalancesService', () => {
     it('lanza NotFoundException cuando no existe', async () => {
       mockFindOne.mockResolvedValue(null);
 
-      await expect(service.findCurrentBalance(USER_ID))
-        .rejects.toThrow(NotFoundException);
+      await expect(service.findCurrentBalance(USER_ID)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });

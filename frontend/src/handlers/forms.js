@@ -559,44 +559,101 @@ export function attachFormHandlers(pathname, { navigate, render }) {
     });
 
     ticketUploadInput?.addEventListener("change", async (event) => {
-      const file = event.target.files?.[0];
-      if (!file) {
+      const files = Array.from(event.target.files || []);
+      if (files.length === 0) {
         return;
       }
 
-      state.finanzas.cargar.ticketFileName = file.name;
-      state.finanzas.cargar.ocrLoading = true;
-      render();
-
-      try {
-        const formData = new FormData();
-        formData.append("ticket", file);
-
-        const response = await apiFetch("/api/ticket-ocr/analyze", {
-          method: "POST",
-          body: formData,
-        });
-
-        if (!response.ok) {
-          throw new Error(`Error ${response.status}`);
-        }
-
-        const data = await response.json();
-        state.finanzas.cargar.form = {
-          comercio: data.comercio ?? "",
-          fecha: data.fecha ?? "",
-          monto: data.monto ?? "",
-          categoria: data.categoria ?? "",
-          descripcion: data.descripcion ?? "",
-        };
-      } catch {
-        showAppNotification(
-          "No se pudo analizar el ticket. Completá los datos manualmente.",
-          "warn",
-        );
-      } finally {
-        state.finanzas.cargar.ocrLoading = false;
+      if (files.length === 1) {
+        // Single-file flow (unchanged behaviour)
+        const file = files[0];
+        state.finanzas.cargar.ticketFileName = file.name;
+        state.finanzas.cargar.ocrLoading = true;
+        state.finanzas.cargar.batchMode = false;
+        state.finanzas.cargar.batchTickets = [];
         render();
+
+        try {
+          const formData = new FormData();
+          formData.append("ticket", file);
+
+          const response = await apiFetch("/api/ticket-ocr/analyze", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (!response.ok) {
+            throw new Error(`Error ${response.status}`);
+          }
+
+          const data = await response.json();
+          state.finanzas.cargar.form = {
+            comercio: data.comercio ?? "",
+            fecha: data.fecha ?? "",
+            monto: data.monto ?? "",
+            categoria: data.categoria ?? "",
+            descripcion: data.descripcion ?? "",
+          };
+        } catch {
+          showAppNotification(
+            "No se pudo analizar el ticket. Completá los datos manualmente.",
+            "warn",
+          );
+        } finally {
+          state.finanzas.cargar.ocrLoading = false;
+          render();
+        }
+      } else {
+        // Multi-file batch flow
+        state.finanzas.cargar.batchMode = true;
+        state.finanzas.cargar.batchTickets = files.map((file) => ({
+          fileName: file.name,
+          status: "loading",
+          data: {},
+          error: "",
+        }));
+        render();
+
+        try {
+          const formData = new FormData();
+          files.forEach((file) => formData.append("tickets", file));
+
+          const response = await apiFetch("/api/ticket-ocr/analyze-batch", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (!response.ok) {
+            throw new Error(`Error ${response.status}`);
+          }
+
+          const results = await response.json();
+          results.forEach((result) => {
+            const entry = state.finanzas.cargar.batchTickets[result.index];
+            if (!entry) return;
+            if (result.status === "ok") {
+              entry.status = "ok";
+              entry.data = result.data || {};
+            } else {
+              entry.status = "error";
+              entry.error = result.error || "No se pudo interpretar el ticket.";
+            }
+          });
+        } catch {
+          // Mark all still-loading entries as errored
+          state.finanzas.cargar.batchTickets.forEach((entry) => {
+            if (entry.status === "loading") {
+              entry.status = "error";
+              entry.error = "Error al conectar con el servidor.";
+            }
+          });
+          showAppNotification(
+            "No se pudo analizar uno o mas tickets. Revisa los errores en la cola.",
+            "warn",
+          );
+        } finally {
+          render();
+        }
       }
     });
 

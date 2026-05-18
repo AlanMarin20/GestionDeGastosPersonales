@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../users/entities/user.entity';
@@ -15,7 +19,10 @@ export class AsesorService {
     private readonly recommendationRepository: Repository<Recommendation>,
   ) {}
 
-  async getClientesAsignados(advisorId: string, orden: OrdenClientes = 'riesgo') {
+  async getClientesAsignados(
+    advisorId: string,
+    orden: OrdenClientes = 'riesgo',
+  ) {
     let orderClause: string;
     switch (orden) {
       case 'nombre':
@@ -119,7 +126,9 @@ export class AsesorService {
     );
 
     if (!rows.length) {
-      throw new NotFoundException('Cliente no encontrado o no pertenece a este asesor');
+      throw new NotFoundException(
+        'Cliente no encontrado o no pertenece a este asesor',
+      );
     }
 
     const r = rows[0];
@@ -154,12 +163,17 @@ export class AsesorService {
       );
 
     if (!porcentajeRow) {
-      throw new NotFoundException('Cliente no encontrado o no pertenece a este asesor');
+      throw new NotFoundException(
+        'Cliente no encontrado o no pertenece a este asesor',
+      );
     }
 
-    const categorias: { categoria: string; total: string; porcentaje: string }[] =
-      await this.userRepository.manager.query(
-        `
+    const categorias: {
+      categoria: string;
+      total: string;
+      porcentaje: string;
+    }[] = await this.userRepository.manager.query(
+      `
         SELECT categoria, total,
           ROUND((total * 100.0) / SUM(total) OVER (), 2) AS porcentaje
         FROM (
@@ -176,8 +190,8 @@ export class AsesorService {
         ) t
         ORDER BY total DESC
         `,
-        [clienteId, advisorId],
-      );
+      [clienteId, advisorId],
+    );
 
     return {
       porcentaje: Number(porcentajeRow.porcentaje_gastado),
@@ -246,28 +260,33 @@ export class AsesorService {
     );
 
     if (!rows.length) {
-      throw new NotFoundException('Cliente no encontrado o no pertenece a este asesor');
+      throw new NotFoundException(
+        'Cliente no encontrado o no pertenece a este asesor',
+      );
     }
 
     const r = rows[0];
     return {
-      gastoMensual:    Number(r.gasto_mensual),
+      gastoMensual: Number(r.gasto_mensual),
       dineroDisponible: Number(r.dinero_disponible),
-      ingreso:          Number(r.ingreso),
-      ahorroAcumulado:  Number(r.ahorro_acumulado),
+      ingreso: Number(r.ingreso),
+      ahorroAcumulado: Number(r.ahorro_acumulado),
     };
   }
 
   async getUltimosMovimientosCliente(clienteId: string, advisorId: string) {
-    const exists: { exists: boolean }[] = await this.userRepository.manager.query(
-      `SELECT EXISTS (
+    const exists: { exists: boolean }[] =
+      await this.userRepository.manager.query(
+        `SELECT EXISTS (
          SELECT 1 FROM usuarios WHERE id = $1 AND asesor_id = $2
        ) AS exists`,
-      [clienteId, advisorId],
-    );
+        [clienteId, advisorId],
+      );
 
     if (!exists[0]?.exists) {
-      throw new NotFoundException('Cliente no encontrado o no pertenece a este asesor');
+      throw new NotFoundException(
+        'Cliente no encontrado o no pertenece a este asesor',
+      );
     }
 
     const rows: {
@@ -304,9 +323,8 @@ export class AsesorService {
 
   async getRecomendacionesEnviadas(clienteId: string, advisorId: string) {
     // Obtener últimas 2 recomendaciones sin filtrar por tipo
-    const rows: any[] =
-      await this.userRepository.manager.query(
-        `
+    const rows: any[] = await this.userRepository.manager.query(
+      `
         SELECT 
           titulo,
           contenido,
@@ -317,8 +335,8 @@ export class AsesorService {
         ORDER BY creado_en DESC
         LIMIT 2
         `,
-        [clienteId],
-      );
+      [clienteId],
+    );
 
     return rows.map((r) => ({
       titulo: r.titulo || '',
@@ -330,9 +348,8 @@ export class AsesorService {
 
   async getRecomendacionesHistoricas(clienteId: string, advisorId: string) {
     // Obtener todas las recomendaciones sin límite
-    const rows: any[] =
-      await this.userRepository.manager.query(
-        `
+    const rows: any[] = await this.userRepository.manager.query(
+      `
         SELECT 
           titulo,
           contenido,
@@ -342,8 +359,8 @@ export class AsesorService {
         WHERE usuario_id = $1
         ORDER BY creado_en DESC
         `,
-        [clienteId],
-      );
+      [clienteId],
+    );
 
     return rows.map((r) => ({
       titulo: r.titulo || '',
@@ -376,7 +393,9 @@ export class AsesorService {
     );
 
     if (!result || result.length === 0) {
-      throw new NotFoundException('Cliente no encontrado o no pertenece a este asesor');
+      throw new NotFoundException(
+        'Cliente no encontrado o no pertenece a este asesor',
+      );
     }
 
     return {
@@ -389,8 +408,9 @@ export class AsesorService {
   }
 
   async vincularCliente(advisorId: string, codigoVinculacion: string) {
-    const result: { rowCount: number } = await this.userRepository.manager.query(
-      `
+    const result: { rowCount: number } =
+      await this.userRepository.manager.query(
+        `
       UPDATE usuarios
       SET asesor_id = $1,
           codigo_vinculacion = NULL,
@@ -399,29 +419,34 @@ export class AsesorService {
         AND codigo_expira_en > NOW()
         AND asesor_id IS NULL
       `,
-      [advisorId, codigoVinculacion],
-    );
+        [advisorId, codigoVinculacion],
+      );
 
     if (result.rowCount === 0) {
-      throw new BadRequestException('Código inválido, expirado o cliente ya asignado a un asesor');
+      throw new BadRequestException(
+        'Código inválido, expirado o cliente ya asignado a un asesor',
+      );
     }
 
     return { message: 'Cliente vinculado correctamente' };
   }
 
   async desvincularCliente(clienteId: string, advisorId: string) {
-    const result: { rowCount: number } = await this.userRepository.manager.query(
-      `
+    const result: { rowCount: number } =
+      await this.userRepository.manager.query(
+        `
       UPDATE usuarios
       SET asesor_id = NULL
       WHERE id = $1
         AND asesor_id = $2
       `,
-      [clienteId, advisorId],
-    );
+        [clienteId, advisorId],
+      );
 
     if (result.rowCount === 0) {
-      throw new NotFoundException('Cliente no encontrado o no pertenece a este asesor');
+      throw new NotFoundException(
+        'Cliente no encontrado o no pertenece a este asesor',
+      );
     }
 
     return { message: 'Cliente desvinculado correctamente' };

@@ -21,7 +21,9 @@ export class IncomesService {
       createIncomeDto.amount,
       createIncomeDto.description ?? createIncomeDto.source,
       'ARS',
-      createIncomeDto.incomeDate ? new Date(createIncomeDto.incomeDate) : undefined,
+      createIncomeDto.incomeDate
+        ? new Date(createIncomeDto.incomeDate)
+        : undefined,
       createIncomeDto.categoryId,
     );
   }
@@ -63,7 +65,9 @@ export class IncomesService {
       income.incomeDate = new Date(updateIncomeDto.incomeDate);
     }
     if (updateIncomeDto.categoryId !== undefined) {
-      income.category = { id: updateIncomeDto.categoryId } as Income['category'];
+      income.category = {
+        id: updateIncomeDto.categoryId,
+      } as Income['category'];
     }
 
     return await this.incomeRepository.save(income);

@@ -30,6 +30,9 @@ export class Balance {
   @CreateDateColumn({ name: 'creado_en', type: 'timestamp without time zone' })
   createdAt!: Date;
 
-  @UpdateDateColumn({ name: 'actualizado_en', type: 'timestamp without time zone' })
+  @UpdateDateColumn({
+    name: 'actualizado_en',
+    type: 'timestamp without time zone',
+  })
   updatedAt!: Date;
 }

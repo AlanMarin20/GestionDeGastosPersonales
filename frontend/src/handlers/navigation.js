@@ -21,7 +21,7 @@ import {
   exportVisibleHistoricalRecommendationsAsCsv,
 } from "../data/csv";
 
-import { updateExpenseRecord, deleteExpenseRecord } from "../data/expenses";
+import { addExpenseRecord, updateExpenseRecord, deleteExpenseRecord } from "../data/expenses";
 import {
   openAdvisorNewClientModal,
   closeAdvisorNewClientModal,
@@ -175,6 +175,67 @@ export function attachGlobalNavigation({ navigate, render }) {
         state.finanzas.cargar.activeTab = tab;
         render();
       }
+    },
+    "save-batch-ticket": async ({ event, actionButton }) => {
+      event.preventDefault();
+      const indexStr = actionButton.getAttribute("data-batch-index");
+      const index = Number(indexStr);
+      if (Number.isNaN(index)) return;
+
+      const ticket = state.finanzas.cargar.batchTickets[index];
+      if (!ticket || ticket.status !== "ok") return;
+
+      // Read live form values from the DOM card
+      const card = document.querySelector(`[data-batch-card="${index}"]`);
+      const payload = {
+        comercio: (card?.querySelector(`#batchComercio${index}`)?.value || ticket.data.comercio || "").toString().trim(),
+        fecha: (card?.querySelector(`#batchFecha${index}`)?.value || ticket.data.fecha || "").toString(),
+        monto: (card?.querySelector(`#batchMonto${index}`)?.value || ticket.data.monto || "").toString(),
+        categoria: (card?.querySelector(`#batchCategoria${index}`)?.value || ticket.data.categoria || "").toString(),
+        descripcion: (card?.querySelector(`#batchDescripcion${index}`)?.value || ticket.data.descripcion || "").toString().trim(),
+      };
+
+      actionButton.disabled = true;
+
+      const saved = await addExpenseRecord(payload);
+
+      actionButton.disabled = false;
+
+      if (!saved) {
+        showAppNotification("No se pudo guardar el gasto. Revisa los datos.", "error");
+        return;
+      }
+
+      state.finanzas.cargar.batchTickets.splice(index, 1);
+
+      if (state.finanzas.cargar.batchTickets.length === 0) {
+        state.finanzas.cargar.batchMode = false;
+        state.finanzas.cargar.ticketFileName = "";
+      }
+
+      render();
+    },
+    "fill-batch-ticket-manually": ({ event, actionButton }) => {
+      event.preventDefault();
+      const indexStr = actionButton.getAttribute("data-batch-index");
+      const index = Number(indexStr);
+      if (Number.isNaN(index)) return;
+
+      const ticket = state.finanzas.cargar.batchTickets[index];
+      if (!ticket) return;
+
+      const d = ticket.data || {};
+      state.finanzas.cargar.form = {
+        comercio: d.comercio || "",
+        fecha: d.fecha || "",
+        monto: d.monto || "",
+        categoria: d.categoria || "",
+        descripcion: d.descripcion || "",
+      };
+      state.finanzas.cargar.batchMode = false;
+      state.finanzas.cargar.batchTickets = [];
+      state.finanzas.cargar.ticketFileName = ticket.fileName;
+      render();
     },
     "export-expenses-csv": ({ event }) => {
       event.preventDefault();

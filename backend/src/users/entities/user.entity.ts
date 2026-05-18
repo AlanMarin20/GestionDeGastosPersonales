@@ -26,10 +26,20 @@ export class User {
   @JoinColumn({ name: 'asesor_id' })
   advisor?: User;
 
-  @Column({ name: 'codigo_vinculacion', type: 'varchar', length: 20, nullable: true, unique: true })
+  @Column({
+    name: 'codigo_vinculacion',
+    type: 'varchar',
+    length: 20,
+    nullable: true,
+    unique: true,
+  })
   codigoVinculacion?: string;
 
-  @Column({ name: 'codigo_expira_en', type: 'timestamp without time zone', nullable: true })
+  @Column({
+    name: 'codigo_expira_en',
+    type: 'timestamp without time zone',
+    nullable: true,
+  })
   codigoExpiraEn?: Date;
 
   @Column({ name: 'esta_activo', type: 'boolean', default: true })

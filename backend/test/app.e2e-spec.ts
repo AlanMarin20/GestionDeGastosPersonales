@@ -62,10 +62,9 @@ const runRbacE2E = runE2E && process.env.RUN_RBAC_E2E === 'true';
       [adminEmail, userEmail],
     );
 
-    await dataSource.query(
-      `DELETE FROM public.roles WHERE nombre = $1`,
-      [`blocked-${timestamp}`],
-    );
+    await dataSource.query(`DELETE FROM public.roles WHERE nombre = $1`, [
+      `blocked-${timestamp}`,
+    ]);
   }
 
   beforeAll(async () => {

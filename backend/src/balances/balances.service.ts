@@ -97,7 +97,8 @@ export class BalancesService {
 
     const ingreso = Number(totalesRows[0]?.ingreso ?? 0);
     const egreso = Number(totalesRows[0]?.egreso ?? 0);
-    const porcentaje = ingreso > 0 ? Math.round((egreso / ingreso) * 100 * 100) / 100 : 0;
+    const porcentaje =
+      ingreso > 0 ? Math.round((egreso / ingreso) * 100 * 100) / 100 : 0;
 
     const meses = await this.movimientosService.getGastosMensuales(userId);
 
@@ -111,11 +112,7 @@ export class BalancesService {
     });
   }
 
-  async update(
-    id: string,
-    userId: string,
-    updateBalanceDto: UpdateBalanceDto,
-  ) {
+  async update(id: string, userId: string, updateBalanceDto: UpdateBalanceDto) {
     const balance = await this.balanceRepository.findOne({
       where: { id, user: { id: userId } },
     });
@@ -142,9 +139,12 @@ export class BalancesService {
     riesgoMedio: number;
     riesgoAlto: number;
   }> {
-    const rows: { clientes_asignados: string; riesgo_medio: string; riesgo_alto: string }[] =
-      await this.balanceRepository.manager.query(
-        `
+    const rows: {
+      clientes_asignados: string;
+      riesgo_medio: string;
+      riesgo_alto: string;
+    }[] = await this.balanceRepository.manager.query(
+      `
         SELECT
           COUNT(*) AS clientes_asignados,
           COUNT(*) FILTER (
@@ -160,8 +160,8 @@ export class BalancesService {
         LEFT JOIN balances b ON b.usuario_id = u.id
         WHERE u.asesor_id = $1
         `,
-        [advisorId],
-      );
+      [advisorId],
+    );
 
     const row = rows[0];
     return {

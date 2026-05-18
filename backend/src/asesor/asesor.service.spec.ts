@@ -6,7 +6,7 @@ import { User } from '../users/entities/user.entity';
 import { Recommendation } from '../recommendations/entities/recommendation.entity';
 
 const ADVISOR_ID = 'advisor-uuid';
-const CLIENT_ID  = 'client-uuid';
+const CLIENT_ID = 'client-uuid';
 
 describe('AsesorService', () => {
   let service: AsesorService;
@@ -15,9 +15,9 @@ describe('AsesorService', () => {
   let mockSave: jest.Mock;
 
   beforeEach(async () => {
-    mockQuery  = jest.fn();
+    mockQuery = jest.fn();
     mockCreate = jest.fn();
-    mockSave   = jest.fn();
+    mockSave = jest.fn();
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -64,7 +64,9 @@ describe('AsesorService', () => {
     });
 
     it('convierte ingreso/egreso null a null (cliente sin balance)', async () => {
-      mockQuery.mockResolvedValue([{ ...dbRow, ingreso: null, egreso: null, riesgo: '0' }]);
+      mockQuery.mockResolvedValue([
+        { ...dbRow, ingreso: null, egreso: null, riesgo: '0' },
+      ]);
 
       const result = await service.getClientesAsignados(ADVISOR_ID);
 
@@ -131,8 +133,9 @@ describe('AsesorService', () => {
     it('lanza NotFoundException cuando el cliente no existe o no pertenece al asesor', async () => {
       mockQuery.mockResolvedValue([]);
 
-      await expect(service.getDetalleCliente(CLIENT_ID, ADVISOR_ID))
-        .rejects.toThrow(NotFoundException);
+      await expect(
+        service.getDetalleCliente(CLIENT_ID, ADVISOR_ID),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -140,12 +143,14 @@ describe('AsesorService', () => {
 
   describe('getDashboardCliente', () => {
     it('retorna las tarjetas del dashboard correctamente', async () => {
-      mockQuery.mockResolvedValue([{
-        gasto_mensual: '30000',
-        dinero_disponible: '70000',
-        ingreso: '100000',
-        ahorro_acumulado: '15000',
-      }]);
+      mockQuery.mockResolvedValue([
+        {
+          gasto_mensual: '30000',
+          dinero_disponible: '70000',
+          ingreso: '100000',
+          ahorro_acumulado: '15000',
+        },
+      ]);
 
       const result = await service.getDashboardCliente(CLIENT_ID, ADVISOR_ID);
 
@@ -160,8 +165,9 @@ describe('AsesorService', () => {
     it('lanza NotFoundException cuando no hay filas', async () => {
       mockQuery.mockResolvedValue([]);
 
-      await expect(service.getDashboardCliente(CLIENT_ID, ADVISOR_ID))
-        .rejects.toThrow(NotFoundException);
+      await expect(
+        service.getDashboardCliente(CLIENT_ID, ADVISOR_ID),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -184,7 +190,10 @@ describe('AsesorService', () => {
         .mockResolvedValueOnce([{ exists: true }])
         .mockResolvedValueOnce([movRow]);
 
-      const result = await service.getUltimosMovimientosCliente(CLIENT_ID, ADVISOR_ID);
+      const result = await service.getUltimosMovimientosCliente(
+        CLIENT_ID,
+        ADVISOR_ID,
+      );
 
       expect(result).toHaveLength(1);
       expect(result[0].monto).toBe(5000);
@@ -194,15 +203,17 @@ describe('AsesorService', () => {
     it('lanza NotFoundException cuando el cliente no pertenece al asesor', async () => {
       mockQuery.mockResolvedValueOnce([{ exists: false }]);
 
-      await expect(service.getUltimosMovimientosCliente(CLIENT_ID, ADVISOR_ID))
-        .rejects.toThrow(NotFoundException);
+      await expect(
+        service.getUltimosMovimientosCliente(CLIENT_ID, ADVISOR_ID),
+      ).rejects.toThrow(NotFoundException);
     });
 
     it('no ejecuta la segunda query si el cliente no existe', async () => {
       mockQuery.mockResolvedValueOnce([{ exists: false }]);
 
-      await expect(service.getUltimosMovimientosCliente(CLIENT_ID, ADVISOR_ID))
-        .rejects.toThrow();
+      await expect(
+        service.getUltimosMovimientosCliente(CLIENT_ID, ADVISOR_ID),
+      ).rejects.toThrow();
 
       expect(mockQuery).toHaveBeenCalledTimes(1);
     });
@@ -224,15 +235,20 @@ describe('AsesorService', () => {
         .mockResolvedValueOnce([{ exists: true }])
         .mockResolvedValueOnce([recRow]);
 
-      const result = await service.getRecomendacionesEnviadas(CLIENT_ID, ADVISOR_ID);
+      const result = await service.getRecomendacionesEnviadas(
+        CLIENT_ID,
+        ADVISOR_ID,
+      );
 
-      expect(result).toEqual([{
-        id: 'rec-1',
-        contenido: 'Reducí gastos en entretenimiento',
-        tipo: 'general',
-        fueLeida: false,
-        creadoEn: recRow.creado_en,
-      }]);
+      expect(result).toEqual([
+        {
+          id: 'rec-1',
+          contenido: 'Reducí gastos en entretenimiento',
+          tipo: 'general',
+          fueLeida: false,
+          creadoEn: recRow.creado_en,
+        },
+      ]);
     });
 
     it('retorna arreglo vacío si no hay recomendaciones', async () => {
@@ -240,15 +256,19 @@ describe('AsesorService', () => {
         .mockResolvedValueOnce([{ exists: true }])
         .mockResolvedValueOnce([]);
 
-      const result = await service.getRecomendacionesEnviadas(CLIENT_ID, ADVISOR_ID);
+      const result = await service.getRecomendacionesEnviadas(
+        CLIENT_ID,
+        ADVISOR_ID,
+      );
       expect(result).toEqual([]);
     });
 
     it('lanza NotFoundException cuando el cliente no pertenece al asesor', async () => {
       mockQuery.mockResolvedValueOnce([{ exists: false }]);
 
-      await expect(service.getRecomendacionesEnviadas(CLIENT_ID, ADVISOR_ID))
-        .rejects.toThrow(NotFoundException);
+      await expect(
+        service.getRecomendacionesEnviadas(CLIENT_ID, ADVISOR_ID),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -267,7 +287,11 @@ describe('AsesorService', () => {
       mockCreate.mockReturnValue(savedRec);
       mockSave.mockResolvedValue(savedRec);
 
-      const result = await service.agregarRecomendacion(CLIENT_ID, ADVISOR_ID, 'Ahorrá más');
+      const result = await service.agregarRecomendacion(
+        CLIENT_ID,
+        ADVISOR_ID,
+        'Ahorrá más',
+      );
 
       expect(mockCreate).toHaveBeenCalledWith({
         user: { id: CLIENT_ID },
@@ -288,15 +312,21 @@ describe('AsesorService', () => {
       mockCreate.mockReturnValue({ ...savedRec, tipo: 'ahorro' });
       mockSave.mockResolvedValue({ ...savedRec, tipo: 'ahorro' });
 
-      const result = await service.agregarRecomendacion(CLIENT_ID, ADVISOR_ID, 'Ahorrá más', 'ahorro');
+      const result = await service.agregarRecomendacion(
+        CLIENT_ID,
+        ADVISOR_ID,
+        'Ahorrá más',
+        'ahorro',
+      );
       expect(result.tipo).toBe('ahorro');
     });
 
     it('lanza NotFoundException si el cliente no pertenece al asesor', async () => {
       mockQuery.mockResolvedValueOnce([{ exists: false }]);
 
-      await expect(service.agregarRecomendacion(CLIENT_ID, ADVISOR_ID, 'contenido'))
-        .rejects.toThrow(NotFoundException);
+      await expect(
+        service.agregarRecomendacion(CLIENT_ID, ADVISOR_ID, 'contenido'),
+      ).rejects.toThrow(NotFoundException);
 
       expect(mockCreate).not.toHaveBeenCalled();
     });
@@ -310,14 +340,18 @@ describe('AsesorService', () => {
         .mockResolvedValueOnce([{ porcentaje_gastado: '75.50' }])
         .mockResolvedValueOnce([
           { categoria: 'Alimentación', total: '15000', porcentaje: '60.00' },
-          { categoria: 'Transporte',   total: '10000', porcentaje: '40.00' },
+          { categoria: 'Transporte', total: '10000', porcentaje: '40.00' },
         ]);
 
       const result = await service.getGraficoCategorias(CLIENT_ID, ADVISOR_ID);
 
       expect(result.porcentaje).toBe(75.5);
       expect(result.categorias).toHaveLength(2);
-      expect(result.categorias[0]).toEqual({ categoria: 'Alimentación', total: 15000, porcentaje: 60 });
+      expect(result.categorias[0]).toEqual({
+        categoria: 'Alimentación',
+        total: 15000,
+        porcentaje: 60,
+      });
     });
 
     it('retorna categorías vacías si no hay egresos', async () => {
@@ -334,8 +368,9 @@ describe('AsesorService', () => {
     it('lanza NotFoundException si el cliente no existe o no tiene balance', async () => {
       mockQuery.mockResolvedValueOnce([]);
 
-      await expect(service.getGraficoCategorias(CLIENT_ID, ADVISOR_ID))
-        .rejects.toThrow(NotFoundException);
+      await expect(
+        service.getGraficoCategorias(CLIENT_ID, ADVISOR_ID),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -377,8 +412,9 @@ describe('AsesorService', () => {
     it('lanza BadRequestException cuando el código es inválido o expirado', async () => {
       mockQuery.mockResolvedValue({ rowCount: 0 });
 
-      await expect(service.vincularCliente(ADVISOR_ID, 'INVALIDO'))
-        .rejects.toThrow(BadRequestException);
+      await expect(
+        service.vincularCliente(ADVISOR_ID, 'INVALIDO'),
+      ).rejects.toThrow(BadRequestException);
     });
 
     it('pasa el advisorId y el código como parámetros SQL', async () => {
@@ -402,8 +438,9 @@ describe('AsesorService', () => {
     it('lanza NotFoundException cuando el cliente no pertenece al asesor', async () => {
       mockQuery.mockResolvedValue({ rowCount: 0 });
 
-      await expect(service.desvincularCliente(CLIENT_ID, ADVISOR_ID))
-        .rejects.toThrow(NotFoundException);
+      await expect(
+        service.desvincularCliente(CLIENT_ID, ADVISOR_ID),
+      ).rejects.toThrow(NotFoundException);
     });
 
     it('pasa clienteId y advisorId como parámetros SQL', async () => {

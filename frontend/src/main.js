@@ -407,6 +407,8 @@ function renderCargarGastoPage() {
     activeTab: state.finanzas.cargar.activeTab || "gasto",
     ingresoForm: state.finanzas.cargar.ingresoForm,
     ingresoCategories: state.finanzas.ingresoCategories || [],
+    batchTickets: state.finanzas.cargar.batchTickets || [],
+    batchMode: state.finanzas.cargar.batchMode || false,
   });
 }
 

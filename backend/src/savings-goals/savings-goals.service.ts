@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateSavingsGoalDto } from './dto/create-savings-goal.dto';
@@ -19,9 +23,10 @@ export class SavingsGoalsService {
   ) {}
 
   private async findCategoriaAhorroId(): Promise<number | undefined> {
-    const rows: { id: number }[] = await this.movimientoRepository.manager.query(
-      `SELECT id FROM categorias WHERE LOWER(nombre) = 'ahorro' AND es_default = true LIMIT 1`,
-    );
+    const rows: { id: number }[] =
+      await this.movimientoRepository.manager.query(
+        `SELECT id FROM categorias WHERE LOWER(nombre) = 'ahorro' AND es_default = true LIMIT 1`,
+      );
     return rows[0]?.id;
   }
 
@@ -45,7 +50,11 @@ export class SavingsGoalsService {
     const currentAmount = createSavingsGoalDto.currentAmount ?? 0;
     const targetAmount = createSavingsGoalDto.targetAmount ?? 0;
 
-    if (targetAmount > 0 && currentAmount > 0 && targetAmount <= currentAmount) {
+    if (
+      targetAmount > 0 &&
+      currentAmount > 0 &&
+      targetAmount <= currentAmount
+    ) {
       throw new BadRequestException('La meta debe ser mayor al monto inicial');
     }
 
@@ -118,14 +127,23 @@ export class SavingsGoalsService {
     return goal;
   }
 
-  async update(id: string, userId: string, updateSavingsGoalDto: UpdateSavingsGoalDto) {
+  async update(
+    id: string,
+    userId: string,
+    updateSavingsGoalDto: UpdateSavingsGoalDto,
+  ) {
     const goal = await this.findOne(id, userId);
 
-    if (updateSavingsGoalDto.name !== undefined) goal.nombre = updateSavingsGoalDto.name;
-    if (updateSavingsGoalDto.targetAmount !== undefined) goal.targetAmount = updateSavingsGoalDto.targetAmount;
-    if (updateSavingsGoalDto.currentAmount !== undefined) goal.currentAmount = updateSavingsGoalDto.currentAmount;
-    if (updateSavingsGoalDto.dueDate !== undefined) goal.dueDate = new Date(updateSavingsGoalDto.dueDate);
-    if (updateSavingsGoalDto.isActive !== undefined) goal.isActive = updateSavingsGoalDto.isActive;
+    if (updateSavingsGoalDto.name !== undefined)
+      goal.nombre = updateSavingsGoalDto.name;
+    if (updateSavingsGoalDto.targetAmount !== undefined)
+      goal.targetAmount = updateSavingsGoalDto.targetAmount;
+    if (updateSavingsGoalDto.currentAmount !== undefined)
+      goal.currentAmount = updateSavingsGoalDto.currentAmount;
+    if (updateSavingsGoalDto.dueDate !== undefined)
+      goal.dueDate = new Date(updateSavingsGoalDto.dueDate);
+    if (updateSavingsGoalDto.isActive !== undefined)
+      goal.isActive = updateSavingsGoalDto.isActive;
 
     return await this.goalRepository.save(goal);
   }

@@ -45,7 +45,11 @@ export class MovimientosController {
   }
 
   @Patch(':id')
-  update(@Request() req, @Param('id') id: string, @Body() dto: UpdateMovimientoDto) {
+  update(
+    @Request() req,
+    @Param('id') id: string,
+    @Body() dto: UpdateMovimientoDto,
+  ) {
     return this.movimientosService.update(id, req.user.sub, dto);
   }
 

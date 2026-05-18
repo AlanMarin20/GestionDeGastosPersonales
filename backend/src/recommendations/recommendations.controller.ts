@@ -62,7 +62,11 @@ export class RecommendationsController {
     @Param('id') id: string,
     @Body() updateDto: UpdateRecommendationDto,
   ) {
-    return this.recommendationsService.updateForUser(id, req.user.sub, updateDto);
+    return this.recommendationsService.updateForUser(
+      id,
+      req.user.sub,
+      updateDto,
+    );
   }
 
   @Patch(':id/read')

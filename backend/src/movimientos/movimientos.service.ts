@@ -19,15 +19,25 @@ export class MovimientosService {
   ) {}
 
   private async getOrCreateBalance(userId: string) {
-    let balance = await this.balanceRepository.findOne({ where: { user: { id: userId } } });
+    let balance = await this.balanceRepository.findOne({
+      where: { user: { id: userId } },
+    });
     if (!balance) {
-      balance = this.balanceRepository.create({ user: { id: userId }, ingreso: 0, egreso: 0, ahorro: 0 });
+      balance = this.balanceRepository.create({
+        user: { id: userId },
+        ingreso: 0,
+        egreso: 0,
+        ahorro: 0,
+      });
       await this.balanceRepository.save(balance);
     }
     return balance;
   }
 
-  private async findCategoryByName(name: string, userId: string): Promise<Category | undefined> {
+  private async findCategoryByName(
+    name: string,
+    userId: string,
+  ): Promise<Category | undefined> {
     const cat = await this.categoryRepository.findOne({
       where: [
         { name: ILike(name), isDefault: true },
@@ -62,14 +72,19 @@ export class MovimientosService {
       where: { id, user: { id: userId } },
       relations: ['category'],
     });
-    if (!existing) throw new NotFoundException(`Movimiento con id ${id} no encontrado`);
+    if (!existing)
+      throw new NotFoundException(`Movimiento con id ${id} no encontrado`);
 
     let category = existing.category;
     if (dto.categoria !== undefined) {
       if (dto.categoria) {
         let found = await this.findCategoryByName(dto.categoria, userId);
         if (!found) {
-          found = this.categoryRepository.create({ name: dto.categoria, isDefault: false, user: { id: userId } });
+          found = this.categoryRepository.create({
+            name: dto.categoria,
+            isDefault: false,
+            user: { id: userId },
+          });
           found = await this.categoryRepository.save(found);
         }
         category = found;
@@ -163,10 +178,18 @@ export class MovimientosService {
     return { message: 'Movimiento eliminado correctamente' };
   }
 
-  async getUltimosMovimientos(userId: string): Promise<{ categoria: string; tipo: string; fecha: Date; monto: number }[]> {
-    const rows: { categoria: string; tipo: string; fecha: Date; monto: string }[] =
-      await this.movimientoRepository.manager.query(
-        `
+  async getUltimosMovimientos(
+    userId: string,
+  ): Promise<
+    { categoria: string; tipo: string; fecha: Date; monto: number }[]
+  > {
+    const rows: {
+      categoria: string;
+      tipo: string;
+      fecha: Date;
+      monto: string;
+    }[] = await this.movimientoRepository.manager.query(
+      `
         SELECT
           COALESCE(c.nombre, 'Sin categoría') AS categoria,
           m.tipo,
@@ -178,13 +201,15 @@ export class MovimientosService {
         ORDER BY m.fecha DESC
         LIMIT 5
         `,
-        [userId],
-      );
+      [userId],
+    );
 
     return rows.map((r) => ({ ...r, monto: Number(r.monto) }));
   }
 
-  async getGastosPorMes(userId: string): Promise<{ mes: string; orden: Date; total: number }[]> {
+  async getGastosPorMes(
+    userId: string,
+  ): Promise<{ mes: string; orden: Date; total: number }[]> {
     const rows: { mes: string; orden: Date; total: string }[] =
       await this.movimientoRepository.manager.query(
         `
@@ -208,10 +233,16 @@ export class MovimientosService {
         [userId],
       );
 
-    return rows.map((r) => ({ mes: r.mes, orden: r.orden, total: Number(r.total) }));
+    return rows.map((r) => ({
+      mes: r.mes,
+      orden: r.orden,
+      total: Number(r.total),
+    }));
   }
 
-  async getGastosMensuales(userId: string): Promise<{ mes: Date; label: string; total: number }[]> {
+  async getGastosMensuales(
+    userId: string,
+  ): Promise<{ mes: Date; label: string; total: number }[]> {
     const rows: { mes: Date; label: string; total: string }[] =
       await this.movimientoRepository.manager.query(
         `
@@ -240,6 +271,10 @@ export class MovimientosService {
         [userId],
       );
 
-    return rows.map((r) => ({ mes: r.mes, label: r.label, total: Number(r.total) }));
+    return rows.map((r) => ({
+      mes: r.mes,
+      label: r.label,
+      total: Number(r.total),
+    }));
   }
 }

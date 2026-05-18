@@ -65,6 +65,8 @@ export const state = {
         categoria: "",
         descripcion: "",
       },
+      batchTickets: [],
+      batchMode: false,
     },
     filtros: {
       search: "",

@@ -58,7 +58,9 @@ export class BudgetsService {
       budget.year = updateBudgetDto.year;
     }
     if (updateBudgetDto.categoryId !== undefined) {
-      budget.category = { id: updateBudgetDto.categoryId } as Budget['category'];
+      budget.category = {
+        id: updateBudgetDto.categoryId,
+      } as Budget['category'];
     }
 
     return await this.budgetRepository.save(budget);

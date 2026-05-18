@@ -155,7 +155,9 @@ export class UserRolesService {
       const pgError = error as QueryFailedError & { code?: string };
 
       if (pgError.code === '23505') {
-        throw new ConflictException('Este usuario ya tiene el rol seleccionado');
+        throw new ConflictException(
+          'Este usuario ya tiene el rol seleccionado',
+        );
       }
     }
 
@@ -190,7 +192,9 @@ export class UserRolesService {
     }
 
     if (!adminRole) {
-      throw new NotFoundException('No se pudo inicializar el rol de administrador');
+      throw new NotFoundException(
+        'No se pudo inicializar el rol de administrador',
+      );
     }
 
     return adminRole;

@@ -64,7 +64,9 @@ export class UsersController {
 
   private assertSameUser(req: { user?: { sub?: string } }, userId: string) {
     if (req.user?.sub !== userId) {
-      throw new ForbiddenException('No tienes permisos para acceder a este recurso');
+      throw new ForbiddenException(
+        'No tienes permisos para acceder a este recurso',
+      );
     }
   }
 
@@ -83,7 +85,9 @@ export class UsersController {
   ) {
     const requesterId = req.user?.sub;
     if (!requesterId) {
-      throw new ForbiddenException('No tienes permisos para acceder a este recurso');
+      throw new ForbiddenException(
+        'No tienes permisos para acceder a este recurso',
+      );
     }
 
     if (requesterId === userId) {
@@ -100,7 +104,9 @@ export class UsersController {
     );
 
     if (!isAdmin) {
-      throw new ForbiddenException('No tienes permisos para editar este usuario');
+      throw new ForbiddenException(
+        'No tienes permisos para editar este usuario',
+      );
     }
   }
 }

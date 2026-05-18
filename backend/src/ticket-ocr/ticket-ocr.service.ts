@@ -1,4 +1,8 @@
-import { Injectable, BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Groq from 'groq-sdk';
 
@@ -36,9 +40,36 @@ export class TicketOcrService {
     }
   }
 
+  async analyzeTicketBatch(
+    files: Express.Multer.File[],
+  ): Promise<
+    Array<
+      | { status: 'ok'; index: number; data: TicketData }
+      | { status: 'error'; index: number; error: string }
+    >
+  > {
+    const results = await Promise.allSettled(
+      files.map((file) => this.analyzeTicket(file)),
+    );
+
+    return results.map((result, index) => {
+      if (result.status === 'fulfilled') {
+        return { status: 'ok' as const, index, data: result.value };
+      }
+      const err = result.reason as Error;
+      return {
+        status: 'error' as const,
+        index,
+        error: err?.message ?? 'Error desconocido',
+      };
+    });
+  }
+
   async analyzeTicket(file: Express.Multer.File): Promise<TicketData> {
     if (!this.groq) {
-      throw new InternalServerErrorException('Servicio de OCR no configurado. Configura GROQ_API_KEY en .env');
+      throw new InternalServerErrorException(
+        'Servicio de OCR no configurado. Configura GROQ_API_KEY en .env',
+      );
     }
 
     if (!file) {
@@ -47,7 +78,9 @@ export class TicketOcrService {
 
     const allowedMimes = ['image/jpeg', 'image/png', 'image/webp'];
     if (!allowedMimes.includes(file.mimetype)) {
-      throw new BadRequestException('Formato no soportado. Usá JPG, PNG o WebP.');
+      throw new BadRequestException(
+        'Formato no soportado. Usá JPG, PNG o WebP.',
+      );
     }
 
     const base64Image = file.buffer.toString('base64');
@@ -71,7 +104,10 @@ export class TicketOcrService {
     const rawText = completion.choices[0]?.message?.content ?? '';
 
     try {
-      const cleaned = rawText.replace(/```(?:json)?/g, '').replace(/```/g, '').trim();
+      const cleaned = rawText
+        .replace(/```(?:json)?/g, '')
+        .replace(/```/g, '')
+        .trim();
       const parsed = JSON.parse(cleaned) as Partial<TicketData>;
       return {
         comercio: parsed.comercio ?? '',

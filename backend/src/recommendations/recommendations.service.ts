@@ -153,7 +153,11 @@ export class RecommendationsService {
       [userId, emisor ?? null, mes ?? null, anio ?? null],
     );
 
-    const tipoSevMap: Record<string, string> = { alerta: 'danger', consejo: 'info', general: 'warning' };
+    const tipoSevMap: Record<string, string> = {
+      alerta: 'danger',
+      consejo: 'info',
+      general: 'warning',
+    };
 
     return rows.map((r) => ({
       id: r.id,

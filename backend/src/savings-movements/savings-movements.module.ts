@@ -9,7 +9,12 @@ import { Balance } from '../balances/entities/balance.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([SavingsMovement, SavingsGoal, Movimiento, Balance]),
+    TypeOrmModule.forFeature([
+      SavingsMovement,
+      SavingsGoal,
+      Movimiento,
+      Balance,
+    ]),
   ],
   controllers: [SavingsMovementsController],
   providers: [SavingsMovementsService],

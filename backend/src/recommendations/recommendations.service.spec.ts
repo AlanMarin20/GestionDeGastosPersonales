@@ -4,9 +4,9 @@ import { NotFoundException } from '@nestjs/common';
 import { RecommendationsService } from './recommendations.service';
 import { Recommendation } from './entities/recommendation.entity';
 
-const USER_ID    = 'user-uuid';
+const USER_ID = 'user-uuid';
 const ADVISOR_ID = 'advisor-uuid';
-const REC_ID     = 'rec-uuid';
+const REC_ID = 'rec-uuid';
 
 describe('RecommendationsService', () => {
   let service: RecommendationsService;
@@ -18,12 +18,12 @@ describe('RecommendationsService', () => {
   let mockRemove: jest.Mock;
 
   beforeEach(async () => {
-    mockQuery   = jest.fn();
-    mockFind    = jest.fn();
+    mockQuery = jest.fn();
+    mockFind = jest.fn();
     mockFindOne = jest.fn();
-    mockCreate  = jest.fn();
-    mockSave    = jest.fn();
-    mockRemove  = jest.fn();
+    mockCreate = jest.fn();
+    mockSave = jest.fn();
+    mockRemove = jest.fn();
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -32,11 +32,11 @@ describe('RecommendationsService', () => {
           provide: getRepositoryToken(Recommendation),
           useValue: {
             manager: { query: mockQuery },
-            find:    mockFind,
+            find: mockFind,
             findOne: mockFindOne,
-            create:  mockCreate,
-            save:    mockSave,
-            remove:  mockRemove,
+            create: mockCreate,
+            save: mockSave,
+            remove: mockRemove,
           },
         },
       ],
@@ -154,8 +154,9 @@ describe('RecommendationsService', () => {
     it('lanza NotFoundException cuando no existe', async () => {
       mockFindOne.mockResolvedValue(null);
 
-      await expect(service.findOneForUser(REC_ID, USER_ID))
-        .rejects.toThrow(NotFoundException);
+      await expect(service.findOneForUser(REC_ID, USER_ID)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -169,7 +170,9 @@ describe('RecommendationsService', () => {
 
       const result = await service.markAsReadForUser(REC_ID, USER_ID);
 
-      expect(mockSave).toHaveBeenCalledWith(expect.objectContaining({ wasRead: true }));
+      expect(mockSave).toHaveBeenCalledWith(
+        expect.objectContaining({ wasRead: true }),
+      );
       expect(result.wasRead).toBe(true);
     });
   });
@@ -185,14 +188,17 @@ describe('RecommendationsService', () => {
       const result = await service.removeForUser(REC_ID, USER_ID);
 
       expect(mockRemove).toHaveBeenCalledWith(rec);
-      expect(result).toEqual({ message: 'Recomendación eliminada correctamente' });
+      expect(result).toEqual({
+        message: 'Recomendación eliminada correctamente',
+      });
     });
 
     it('lanza NotFoundException si no existe', async () => {
       mockFindOne.mockResolvedValue(null);
 
-      await expect(service.removeForUser(REC_ID, USER_ID))
-        .rejects.toThrow(NotFoundException);
+      await expect(service.removeForUser(REC_ID, USER_ID)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });

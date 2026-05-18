@@ -21,7 +21,9 @@ export class ExpensesService {
       createExpenseDto.amount,
       createExpenseDto.description,
       'ARS',
-      createExpenseDto.expenseDate ? new Date(createExpenseDto.expenseDate) : undefined,
+      createExpenseDto.expenseDate
+        ? new Date(createExpenseDto.expenseDate)
+        : undefined,
       createExpenseDto.categoryId,
       createExpenseDto.merchant,
     );
@@ -67,7 +69,9 @@ export class ExpensesService {
       expense.ticketImageUrl = updateExpenseDto.ticketImageUrl;
     }
     if (updateExpenseDto.categoryId !== undefined) {
-      expense.category = { id: updateExpenseDto.categoryId } as Expense['category'];
+      expense.category = {
+        id: updateExpenseDto.categoryId,
+      } as Expense['category'];
     }
 
     return await this.expenseRepository.save(expense);

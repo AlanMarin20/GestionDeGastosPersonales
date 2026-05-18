@@ -1,4 +1,8 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
@@ -108,6 +112,9 @@ export class UsersService {
     }
 
     const databaseError = error as { code?: string; detail?: string };
-    return databaseError.code === '23505' && databaseError.detail?.includes('(email)');
+    return (
+      databaseError.code === '23505' &&
+      databaseError.detail?.includes('(email)')
+    );
   }
 }

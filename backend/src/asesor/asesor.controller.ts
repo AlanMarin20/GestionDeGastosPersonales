@@ -54,9 +54,9 @@ export class AsesorController {
     @Body() dto: AgregarRecomendacionDto,
   ) {
     return this.asesorService.agregarRecomendacion(
-      id, 
-      req.user.sub, 
-      dto.contenido, 
+      id,
+      req.user.sub,
+      dto.contenido,
       dto.tipo || 'asesor',
       dto.titulo,
     );
@@ -74,7 +74,10 @@ export class AsesorController {
 
   @Post('clientes')
   vincularCliente(@Request() req, @Body() dto: VincularClienteDto) {
-    return this.asesorService.vincularCliente(req.user.sub, dto.codigoVinculacion);
+    return this.asesorService.vincularCliente(
+      req.user.sub,
+      dto.codigoVinculacion,
+    );
   }
 
   @Delete('clientes/:id')
