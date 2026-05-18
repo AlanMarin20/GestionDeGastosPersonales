@@ -38,8 +38,12 @@ export function renderExpenseTable({
           ? `<td><span class="gd-pill ${esIngreso ? "gd-pill-tipo-ingreso" : "gd-pill-tipo-egreso"}">${esIngreso ? "INGRESO" : "GASTO"}</span></td>`
           : "";
 
+        const tagsHtml = Array.isArray(expense.etiquetas) && expense.etiquetas.length > 0
+          ? `<div class="gd-expense-tags">${expense.etiquetas.map((t) => `<span class="gd-tag-chip gd-tag-chip--sm">${escapeHtml(t.nombre)}</span>`).join("")}</div>`
+          : "";
+
         const descriptionCell = showDescription
-          ? `<td class="gd-muted">${escapeHtml(expense.descripcion || "-")}</td>`
+          ? `<td class="gd-muted">${escapeHtml(expense.descripcion || "-")}${tagsHtml}</td>`
           : "";
 
         const actionsCell = showActions

@@ -132,6 +132,8 @@ export function renderMisGastosPage({
   gastos,
   editingExpense,
   deletingExpense,
+  tags = [],
+  filtroEtiqueta = null,
 }) {
   const content = `
     <div class="gd-filters">
@@ -157,6 +159,11 @@ export function renderMisGastosPage({
               `<option value="${escapeHtml(category)}" ${filters.categoria === category ? "selected" : ""}>${escapeHtml(category)}</option>`,
           )
           .join("")}
+      </select>
+
+      <select id="expenseTagFilter" class="gd-form-select">
+        <option value="">Todas las etiquetas</option>
+        ${tags.map((t) => `<option value="${escapeHtml(t.id)}" ${filtroEtiqueta === t.id ? "selected" : ""}>${escapeHtml(t.nombre)}</option>`).join("")}
       </select>
 
       <div class="gd-date-range">

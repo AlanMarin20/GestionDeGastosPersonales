@@ -140,6 +140,7 @@ import {
   loadDashboardBalances,
   loadMovimientos,
 } from "./api/user";
+import { loadTags } from "./api/tags";
 import { loadAhorros } from "./api/ahorros";
 import { loadRecomendaciones } from "./api/recomendaciones";
 import { loadBudgets } from "./api/budgets";
@@ -409,6 +410,8 @@ function renderCargarGastoPage() {
     ingresoCategories: state.finanzas.ingresoCategories || [],
     batchTickets: state.finanzas.cargar.batchTickets || [],
     batchMode: state.finanzas.cargar.batchMode || false,
+    tags: state.finanzas.tags || [],
+    selectedTagIds: state.finanzas.cargar.form.selectedTagIds || [],
   });
 }
 
@@ -433,6 +436,8 @@ function renderMisGastosPage() {
     gastos: getFilteredExpenses(),
     editingExpense,
     deletingExpense,
+    tags: state.finanzas.tags || [],
+    filtroEtiqueta: state.finanzas.filtros.etiqueta,
   });
 }
 
@@ -805,6 +810,7 @@ loadCurrentUser().finally(() => {
       loadAsesorClientes(),
       loadBudgets(),
       loadCategories(),
+      loadTags(),
     ];
 
     if (clienteMatch) {

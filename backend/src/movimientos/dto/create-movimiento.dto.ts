@@ -1,9 +1,11 @@
 import {
+  IsArray,
   IsDateString,
   IsIn,
   IsNumber,
   IsOptional,
   IsString,
+  IsUUID,
   MaxLength,
   Min,
 } from 'class-validator';
@@ -38,4 +40,9 @@ export class CreateMovimientoDto {
   @IsOptional()
   @IsDateString()
   fecha?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsUUID('4', { each: true })
+  tagIds?: string[];
 }

@@ -107,6 +107,8 @@ export function renderCargarGastoPage({
   ingresoCategories = [],
   batchTickets = [],
   batchMode = false,
+  tags = [],
+  selectedTagIds = [],
 }) {
   const categoryIsNew = expenseForm.categoria === NEW_CATEGORY_VALUE;
   const incomeCategoryIsNew = (ingresoForm.categoria || "") === NEW_CATEGORY_VALUE;
@@ -172,6 +174,23 @@ export function renderCargarGastoPage({
         <div class="gd-form-full">
           <label class="gd-form-label" for="expenseDescripcion">Descripcion</label>
           <input class="gd-form-input" id="expenseDescripcion" name="descripcion" value="${escapeHtml(expenseForm.descripcion)}" placeholder="Detalle opcional">
+        </div>
+        <div class="gd-form-full">
+          <label class="gd-form-label">Etiquetas</label>
+          <div class="gd-tag-picker" id="tagPickerContainer">
+            ${tags.map((tag) => {
+              const isSelected = selectedTagIds.includes(tag.id);
+              return `<button type="button" class="gd-tag-chip${isSelected ? " gd-tag-chip--selected" : ""}" data-action="toggle-expense-tag" data-tag-id="${escapeHtml(tag.id)}">${escapeHtml(tag.nombre)}</button>`;
+            }).join("")}
+            <button type="button" class="gd-tag-chip gd-tag-chip--new" data-action="show-new-tag-input">+ Nueva</button>
+          </div>
+          <div class="d-none" id="newTagInputWrap">
+            <div class="d-flex gap-2 align-items-center mt-2">
+              <input class="gd-form-input flex-grow-1" id="newTagNameInput" maxlength="50" placeholder="Ej: vacaciones">
+              <button type="button" class="gd-btn-primary" data-action="create-and-select-tag">Agregar</button>
+              <button type="button" class="gd-btn-secondary" data-action="hide-new-tag-input">Cancelar</button>
+            </div>
+          </div>
         </div>
       </div>
       <button type="submit" class="gd-submit-btn">Guardar gasto</button>

@@ -661,15 +661,18 @@ export function attachFormHandlers(pathname, { navigate, render }) {
       event.preventDefault();
       const formData = new FormData(expenseForm);
 
+      const tagIds = [...(state.finanzas.cargar.form.selectedTagIds || [])];
+
       const payload = {
         comercio: (formData.get("comercio") || "").toString().trim(),
         fecha: (formData.get("fecha") || "").toString(),
         monto: (formData.get("monto") || "").toString(),
         categoria: (formData.get("categoria") || "").toString(),
         descripcion: (formData.get("descripcion") || "").toString().trim(),
+        tagIds,
       };
 
-      state.finanzas.cargar.form = payload;
+      state.finanzas.cargar.form = { ...payload, selectedTagIds: tagIds };
 
       const submitBtn = expenseForm.querySelector('[type="submit"]');
       if (submitBtn) submitBtn.disabled = true;
@@ -697,6 +700,7 @@ export function attachFormHandlers(pathname, { navigate, render }) {
         monto: "",
         categoria: "",
         descripcion: "",
+        selectedTagIds: [],
       };
       navigate("/dashboard/gastos");
     });
@@ -796,6 +800,12 @@ export function attachFormHandlers(pathname, { navigate, render }) {
     fechaHastaInput?.addEventListener("change", (event) => {
       state.finanzas.filtros.fechaHasta = event.target.value;
       state.finanzas.filtros.periodo = "";
+      render();
+    });
+
+    const tagFilter = document.getElementById("expenseTagFilter");
+    tagFilter?.addEventListener("change", (event) => {
+      state.finanzas.filtros.etiqueta = event.target.value || null;
       render();
     });
   }

@@ -385,7 +385,7 @@ export function getUnreadNotifications() {
 }
 
 export function getFilteredExpenses() {
-  const { search, categoria, periodo, tipo, fechaDesde, fechaHasta } = state.finanzas.filtros;
+  const { search, categoria, periodo, tipo, fechaDesde, fechaHasta, etiqueta } = state.finanzas.filtros;
   const normalizedSearch = search.trim().toLowerCase();
 
   return state.finanzas.gastos
@@ -412,6 +412,12 @@ export function getFilteredExpenses() {
         const inComercio = (expense.comercio || "").toLowerCase().includes(normalizedSearch);
         const inDescripcion = (expense.descripcion || "").toLowerCase().includes(normalizedSearch);
         if (!inComercio && !inDescripcion) return false;
+      }
+
+      if (etiqueta) {
+        if (!Array.isArray(expense.etiquetas) || !expense.etiquetas.some((t) => t.id === etiqueta)) {
+          return false;
+        }
       }
 
       return true;

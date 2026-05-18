@@ -47,6 +47,7 @@ export const state = {
     ],
     ingresoCategories: ["Transferencia", "Prestamo", "Bono", "Venta"],
     ticketGoalByPeriod: {},
+    tags: [],
     gastos: [],
     cargar: {
       activeTab: "gasto",
@@ -58,6 +59,7 @@ export const state = {
         monto: "",
         categoria: "",
         descripcion: "",
+        selectedTagIds: [],
       },
       ingresoForm: {
         fecha: "",
@@ -75,6 +77,7 @@ export const state = {
       tipo: "Todos",
       fechaDesde: "",
       fechaHasta: "",
+      etiqueta: null,
     },
     ui: {
       editingExpenseId: null,

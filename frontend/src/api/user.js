@@ -106,6 +106,7 @@ export async function loadMovimientos() {
         fecha: typeof m.fecha === "string" ? m.fecha.slice(0, 10) : m.fecha,
         monto: Number(m.monto),
         tipo: m.tipo,
+        etiquetas: Array.isArray(m.etiquetas) ? m.etiquetas : [],
       }));
     }
   } catch (error) {

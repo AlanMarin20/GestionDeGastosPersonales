@@ -4,6 +4,7 @@ import { ILike, Repository } from 'typeorm';
 import { Movimiento, TipoMovimiento } from './entities/movimiento.entity';
 import { Balance } from '../balances/entities/balance.entity';
 import { Category } from '../categories/entities/category.entity';
+import { Tag } from '../tags/entities/tag.entity';
 import { CreateMovimientoDto } from './dto/create-movimiento.dto';
 import { UpdateMovimientoDto } from './dto/update-movimiento.dto';
 
@@ -16,6 +17,8 @@ export class MovimientosService {
     private readonly balanceRepository: Repository<Balance>,
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
+    @InjectRepository(Tag)
+    private readonly tagRepository: Repository<Tag>,
   ) {}
 
   private async getOrCreateBalance(userId: string) {
@@ -64,13 +67,24 @@ export class MovimientosService {
     });
     await this.getOrCreateBalance(userId);
     const saved = await this.movimientoRepository.save(movimiento);
+
+    if (dto.tagIds?.length) {
+      const tags = await this.tagRepository
+        .createQueryBuilder('t')
+        .where('t.id IN (:...ids)', { ids: dto.tagIds })
+        .andWhere('t.user.id = :userId', { userId })
+        .getMany();
+      saved.etiquetas = tags;
+      return await this.movimientoRepository.save(saved);
+    }
+
     return saved;
   }
 
   async update(id: string, userId: string, dto: UpdateMovimientoDto) {
     const existing = await this.movimientoRepository.findOne({
       where: { id, user: { id: userId } },
-      relations: ['category'],
+      relations: ['category', 'etiquetas'],
     });
     if (!existing)
       throw new NotFoundException(`Movimiento con id ${id} no encontrado`);
@@ -103,6 +117,19 @@ export class MovimientosService {
       category,
     });
 
+    if (dto.tagIds !== undefined) {
+      if (dto.tagIds.length > 0) {
+        const tags = await this.tagRepository
+          .createQueryBuilder('t')
+          .where('t.id IN (:...ids)', { ids: dto.tagIds })
+          .andWhere('t.user.id = :userId', { userId })
+          .getMany();
+        existing.etiquetas = tags;
+      } else {
+        existing.etiquetas = [];
+      }
+    }
+
     return await this.movimientoRepository.save(existing);
   }
 
@@ -131,35 +158,26 @@ export class MovimientosService {
   }
 
   async findAll(userId: string) {
-    const rows: {
-      id: string;
-      comercio: string | null;
-      categoria: string;
-      descripcion: string | null;
-      fecha: Date;
-      monto: string;
-      tipo: string;
-      moneda: string;
-    }[] = await this.movimientoRepository.manager.query(
-      `
-      SELECT
-        m.id,
-        m.comercio,
-        COALESCE(c.nombre, 'Sin categoría') AS categoria,
-        m.descripcion,
-        m.fecha,
-        m.monto,
-        m.tipo,
-        m.moneda
-      FROM movimientos m
-      LEFT JOIN categorias c ON m.categoria_id = c.id
-      WHERE m.usuario_id = $1
-      ORDER BY m.fecha DESC, m.creado_en DESC
-      `,
-      [userId],
-    );
+    const rows = await this.movimientoRepository
+      .createQueryBuilder('m')
+      .leftJoinAndSelect('m.category', 'c')
+      .leftJoinAndSelect('m.etiquetas', 'e')
+      .where('m.user.id = :userId', { userId })
+      .orderBy('m.fecha', 'DESC')
+      .addOrderBy('m.creadoEn', 'DESC')
+      .getMany();
 
-    return rows.map((r) => ({ ...r, monto: Number(r.monto) }));
+    return rows.map((r) => ({
+      id: r.id,
+      comercio: r.comercio ?? null,
+      categoria: r.category?.name ?? 'Sin categoría',
+      descripcion: r.descripcion ?? null,
+      fecha: r.fecha,
+      monto: Number(r.monto),
+      tipo: r.tipo,
+      moneda: r.moneda,
+      etiquetas: (r.etiquetas ?? []).map((e) => ({ id: e.id, nombre: e.nombre })),
+    }));
   }
 
   async findOne(id: string, userId: string) {

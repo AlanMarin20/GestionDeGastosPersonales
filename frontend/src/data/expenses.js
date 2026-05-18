@@ -2,7 +2,7 @@ import { state } from "../state";
 import { getMonthKeyFromDate } from "../utils/date";
 import { apiCreateMovimiento, apiUpdateMovimiento, apiDeleteMovimiento } from "../api/movimientos";
 
-export async function addExpenseRecord({ comercio, fecha, monto, categoria, descripcion }) {
+export async function addExpenseRecord({ comercio, fecha, monto, categoria, descripcion, tagIds }) {
   const numericAmount = Number.parseFloat(String(monto));
 
   if (!comercio || !fecha || Number.isNaN(numericAmount) || numericAmount <= 0 || !categoria) {
@@ -17,9 +17,16 @@ export async function addExpenseRecord({ comercio, fecha, monto, categoria, desc
       categoria,
       descripcion,
       fecha,
+      tagIds,
     });
 
     const monthKey = getMonthKeyFromDate(fecha);
+    // Build etiquetas from the saved response or resolve from state.finanzas.tags
+    const savedEtiquetas = Array.isArray(saved.etiquetas)
+      ? saved.etiquetas
+      : (Array.isArray(tagIds) && tagIds.length > 0
+        ? (state.finanzas.tags || []).filter((t) => tagIds.includes(t.id))
+        : []);
 
     state.finanzas.gastos = [
       {
@@ -30,6 +37,7 @@ export async function addExpenseRecord({ comercio, fecha, monto, categoria, desc
         categoria,
         descripcion: descripcion || "",
         tipo: "egreso",
+        etiquetas: savedEtiquetas,
       },
       ...state.finanzas.gastos,
     ];

@@ -33,6 +33,7 @@ import { loadAhorros, updateAhorro, deleteAhorro, depositarAhorro, retirarAhorro
 import { apiDesvincularCliente, loadAsesorClientes } from "../api/asesor";
 import { loadBudgets, deleteBudget } from "../api/budgets";
 import { loadCategories, deleteCategory } from "../api/categories";
+import { createTag } from "../api/tags";
 
 export function attachGlobalNavigation({ navigate, render }) {
   function clearSessionAndRedirectToLogin() {
@@ -720,6 +721,46 @@ export function attachGlobalNavigation({ navigate, render }) {
         );
         showAppNotification("Sesion cerrada", "success");
         render();
+      }
+    },
+    "toggle-expense-tag": ({ event, actionButton }) => {
+      event.preventDefault();
+      const tagId = actionButton.getAttribute("data-tag-id");
+      if (!tagId) return;
+      const selected = state.finanzas.cargar.form.selectedTagIds;
+      const idx = selected.indexOf(tagId);
+      if (idx === -1) selected.push(tagId);
+      else selected.splice(idx, 1);
+      render();
+    },
+    "show-new-tag-input": ({ event }) => {
+      event.preventDefault();
+      const wrap = document.getElementById("newTagInputWrap");
+      if (wrap) wrap.classList.remove("d-none");
+    },
+    "hide-new-tag-input": ({ event }) => {
+      event.preventDefault();
+      const wrap = document.getElementById("newTagInputWrap");
+      if (wrap) wrap.classList.add("d-none");
+      const input = document.getElementById("newTagNameInput");
+      if (input) input.value = "";
+    },
+    "create-and-select-tag": async ({ event }) => {
+      event.preventDefault();
+      const nombre = (document.getElementById("newTagNameInput")?.value || "").trim();
+      if (!nombre) {
+        showAppNotification("Escribe un nombre para la etiqueta", "warning");
+        return;
+      }
+      try {
+        const tag = await createTag(nombre);
+        if (!Array.isArray(state.finanzas.cargar.form.selectedTagIds)) {
+          state.finanzas.cargar.form.selectedTagIds = [];
+        }
+        state.finanzas.cargar.form.selectedTagIds.push(tag.id);
+        render();
+      } catch (err) {
+        showAppNotification(err?.message || "No se pudo crear la etiqueta", "error");
       }
     },
   };

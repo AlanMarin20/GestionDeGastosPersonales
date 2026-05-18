@@ -4,10 +4,13 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   ManyToOne,
+  ManyToMany,
   JoinColumn,
+  JoinTable,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Category } from '../../categories/entities/category.entity';
+import { Tag } from '../../tags/entities/tag.entity';
 
 export type TipoMovimiento = 'ingreso' | 'egreso';
 
@@ -47,4 +50,12 @@ export class Movimiento {
 
   @CreateDateColumn({ name: 'creado_en', type: 'timestamp without time zone' })
   creadoEn!: Date;
+
+  @ManyToMany(() => Tag, { eager: false, cascade: false })
+  @JoinTable({
+    name: 'movimiento_etiquetas',
+    joinColumn: { name: 'movimiento_id' },
+    inverseJoinColumn: { name: 'etiqueta_id' },
+  })
+  etiquetas: Tag[];
 }

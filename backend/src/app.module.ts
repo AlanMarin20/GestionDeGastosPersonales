@@ -20,6 +20,7 @@ import { BalancesModule } from './balances/balances.module';
 import { MovimientosModule } from './movimientos/movimientos.module';
 import { AsesorModule } from './asesor/asesor.module';
 import { TicketOcrModule } from './ticket-ocr/ticket-ocr.module';
+import { TagsModule } from './tags/tags.module';
 import { RolesGuard } from './auth/roles.guard';
 
 @Module({
@@ -77,6 +78,7 @@ import { RolesGuard } from './auth/roles.guard';
     MovimientosModule,
     AsesorModule,
     TicketOcrModule,
+    TagsModule,
   ],
   controllers: [AppController],
   providers: [AppService, RolesGuard],
