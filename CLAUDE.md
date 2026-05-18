@@ -9,6 +9,18 @@ Full-stack personal finance app. Users register expenses/incomes, set budgets, m
 - **Backend:** NestJS 11 + TypeORM + PostgreSQL — in `backend/`
 - **Frontend:** Vanilla JS (ES modules) + Vite + Bootstrap 5 + Chart.js — in `frontend/`
 
+## Agents
+
+Three specialized subagents are defined in `.claude/agents/`. Use them via `/agents` or by naming them when delegating a task.
+
+| Agent | File | Responsibility |
+|---|---|---|
+| **Frontend Design** | `frontend-design.md` | UI/UX, CSS, dark/light mode, Bootstrap, Chart.js, responsividad |
+| **User Dashboard API** | `user-dashboard-api.md` | `expenses`, `incomes`, `categories`, `budgets`, `savings-*`, `balances`, `notifications`, `recommendations` (received), `ticket-ocr` |
+| **Advisor Dashboard API** | `advisor-dashboard-api.md` | `asesor`, `recommendations` (sent by advisor), `roles`, `user-roles`, RBAC |
+
+Every change must be tested in both the **user dashboard** (`/dashboard` and sub-routes) and the **advisor dashboard + client detail view** (`/dashboard/asesor` and `/cliente/:id`), since they load data through separate API calls and render through different page functions.
+
 ## Commands
 
 ### Backend (`cd backend`)
