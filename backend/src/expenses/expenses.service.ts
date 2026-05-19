@@ -10,6 +10,8 @@ import { Budget } from '../budgets/entities/budget.entity';
 
 const HIGH_EXPENSE_FALLBACK_THRESHOLD = 5000;
 const HIGH_EXPENSE_BUDGET_RATIO = 0.5;
+const ANOMALY_RATIO_THRESHOLD = 5;
+const ANOMALY_MIN_RECORDS = 3;
 
 @Injectable()
 export class ExpensesService {
@@ -68,6 +70,7 @@ export class ExpensesService {
     }
 
     await this.checkGastoAlto(userId, amount, budget);
+    await this.checkGastoAnomalo(userId, amount, categoryId, budget?.category?.name ?? undefined);
 
     if (budget) {
       await this.checkPresupuestoSuperado(userId, amount, budget);
@@ -122,6 +125,58 @@ export class ExpensesService {
         type: 'warning',
       });
     }
+  }
+
+  private async checkGastoAnomalo(
+    userId: string,
+    amount: number,
+    categoryId?: number,
+    categoryName?: string,
+  ) {
+    const manager = this.budgetRepository.manager;
+
+    const rows: [{ promedio: string; registros: string }] =
+      await manager.query(
+        categoryId
+          ? `SELECT COALESCE(AVG(monto), 0) AS promedio, COUNT(*) AS registros
+             FROM movimientos
+             WHERE usuario_id = $1
+               AND categoria_id = $2
+               AND tipo = 'egreso'
+               AND es_transferencia_interna = FALSE
+               AND fecha >= DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '3 months'
+               AND DATE_TRUNC('month', fecha) < DATE_TRUNC('month', CURRENT_DATE)`
+          : `SELECT COALESCE(AVG(monto), 0) AS promedio, COUNT(*) AS registros
+             FROM movimientos
+             WHERE usuario_id = $1
+               AND tipo = 'egreso'
+               AND es_transferencia_interna = FALSE
+               AND fecha >= DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '3 months'
+               AND DATE_TRUNC('month', fecha) < DATE_TRUNC('month', CURRENT_DATE)`,
+        categoryId ? [userId, categoryId] : [userId],
+      );
+
+    const promedio = Number(rows[0]?.promedio ?? 0);
+    const registros = Number(rows[0]?.registros ?? 0);
+
+    if (registros < ANOMALY_MIN_RECORDS || promedio === 0) return;
+
+    const ratio = amount / promedio;
+    if (ratio < ANOMALY_RATIO_THRESHOLD) return;
+
+    let label = categoryName;
+    if (!label && categoryId) {
+      const [cat]: [{ nombre: string } | undefined] = await manager.query(
+        `SELECT nombre FROM categorias WHERE id = $1 LIMIT 1`,
+        [categoryId],
+      );
+      label = cat?.nombre;
+    }
+
+    await this.notificationsService.create(userId, {
+      message: `Gasto anómalo detectado: $${Number(amount).toFixed(2)} en "${label ?? 'Sin categoría'}" — ${ratio.toFixed(1)}x mayor al promedio histórico ($${promedio.toFixed(2)}).`,
+      type: 'warning',
+    });
   }
 
   async findAll(userId: string) {
