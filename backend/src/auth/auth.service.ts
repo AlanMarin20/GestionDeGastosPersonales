@@ -322,7 +322,9 @@ export class AuthService {
 
   async requestPasswordReset(email: string) {
     const user = await this.usersService.findByEmail(email);
-    if (!user) return; // Respuesta silenciosa para no revelar si el email existe
+    if (!user) {
+      throw new BadRequestException('No existe una cuenta asociada a ese correo');
+    }
 
     const code = String(randomInt(100000, 999999));
     const codeHash = createHash('sha256').update(code).digest('hex');

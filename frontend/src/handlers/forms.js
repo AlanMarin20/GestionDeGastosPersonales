@@ -238,11 +238,12 @@ export function attachFormHandlers(pathname, { navigate, render }) {
       if (submitBtn) submitBtn.disabled = true;
       try {
         await requestPasswordReset(email);
-      } catch {
-        // Respuesta silenciosa: no revelamos si el email existe
-      } finally {
+      } catch (err) {
+        setAuthError(err?.message || "No se pudo enviar el código de verificación", [emailInput]);
         if (submitBtn) submitBtn.disabled = false;
+        return;
       }
+      if (submitBtn) submitBtn.disabled = false;
 
       state.authRecovery.email = email;
       state.authRecovery.code = "";
