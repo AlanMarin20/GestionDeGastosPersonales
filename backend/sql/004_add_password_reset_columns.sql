@@ -1,0 +1,3 @@
+ALTER TABLE usuarios
+  ADD COLUMN IF NOT EXISTS codigo_reset_hash  VARCHAR,
+  ADD COLUMN IF NOT EXISTS reset_expira_en    TIMESTAMP WITHOUT TIME ZONE;

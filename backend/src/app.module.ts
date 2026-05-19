@@ -41,6 +41,7 @@ import { RolesGuard } from './auth/roles.guard';
         SMTP_PASS: Joi.string().allow('').optional(),
         SMTP_FROM_NAME: Joi.string().allow('').optional(),
         SMTP_FROM_EMAIL: Joi.string().allow('').optional(),
+        RESEND_API_KEY: Joi.string().allow('').optional(),
         // OAuth de terceros deshabilitado temporalmente.
         // GOOGLE_CLIENT_ID: Joi.string().allow('').optional(),
         // GOOGLE_CLIENT_SECRET: Joi.string().allow('').optional(),
