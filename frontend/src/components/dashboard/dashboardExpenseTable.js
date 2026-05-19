@@ -33,9 +33,10 @@ export function renderExpenseTable({
     : rows
       .map((expense) => {
         const esIngreso = expense.tipo === "ingreso";
+        const esAhorro = expense.esTransferenciaInterna === true;
 
         const tipoCell = showTipo
-          ? `<td><span class="gd-pill ${esIngreso ? "gd-pill-tipo-ingreso" : "gd-pill-tipo-egreso"}">${esIngreso ? "INGRESO" : "GASTO"}</span></td>`
+          ? `<td><span class="gd-pill ${esAhorro ? "gd-pill-tipo-ahorro" : (esIngreso ? "gd-pill-tipo-ingreso" : "gd-pill-tipo-egreso")}">${esAhorro ? "AHORRO" : (esIngreso ? "INGRESO" : "GASTO")}</span></td>`
           : "";
 
         const tagsHtml = Array.isArray(expense.etiquetas) && expense.etiquetas.length > 0

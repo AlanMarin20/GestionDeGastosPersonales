@@ -41,11 +41,6 @@ export class BalancesService {
   }
 
   async getDashboard(userId: string) {
-    const balance = await this.balanceRepository.findOne({
-      where: { user: { id: userId } },
-      order: { createdAt: 'DESC' },
-    });
-
     // Stats del mes actual: excluye transferencias internas (depósitos/retiros de ahorro)
     const statsRows: { egreso: string; ingreso: string }[] =
       await this.balanceRepository.manager.query(
@@ -70,15 +65,25 @@ export class BalancesService {
         [userId],
       );
 
+    // Ahorro acumulado: suma de monto_actual de todas las metas activas del usuario
+    const ahorroRows: { total: string }[] =
+      await this.balanceRepository.manager.query(
+        `SELECT COALESCE(SUM(monto_actual), 0) AS total
+         FROM metas_ahorro
+         WHERE usuario_id = $1`,
+        [userId],
+      );
+
     const gastoMensual = Number(statsRows[0]?.egreso ?? 0);
     const ingresoMensual = Number(statsRows[0]?.ingreso ?? 0);
     const dineroDisponible = Number(netoRows[0]?.neto ?? 0);
+    const ahorroAcumulado = Number(ahorroRows[0]?.total ?? 0);
 
     return {
       gastoMensual,
       dineroDisponible,
       ingreso: ingresoMensual,
-      ahorroAcumulado: balance ? Number(balance.ahorro) : 0,
+      ahorroAcumulado,
     };
   }
 

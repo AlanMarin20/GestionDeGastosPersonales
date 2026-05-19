@@ -109,12 +109,14 @@ describe('BalancesService', () => {
   // ─── getDashboard ─────────────────────────────────────────────────────────
 
   describe('getDashboard', () => {
-    it('retorna las tarjetas cuando existe balance', async () => {
-      mockFindOne.mockResolvedValue({
-        ingreso: 100000,
-        egreso: 30000,
-        ahorro: 15000,
-      });
+    it('retorna las tarjetas con los valores calculados desde movimientos y metas', async () => {
+      // 1ª query: stats mensuales (egreso, ingreso)
+      // 2ª query: neto disponible
+      // 3ª query: ahorro acumulado desde metas_ahorro
+      mockQuery
+        .mockResolvedValueOnce([{ egreso: '30000', ingreso: '100000' }])
+        .mockResolvedValueOnce([{ neto: '70000' }])
+        .mockResolvedValueOnce([{ total: '15000' }]);
 
       const result = await service.getDashboard(USER_ID);
 
@@ -126,8 +128,11 @@ describe('BalancesService', () => {
       });
     });
 
-    it('retorna ceros cuando no existe balance', async () => {
-      mockFindOne.mockResolvedValue(null);
+    it('retorna ceros cuando no hay movimientos ni metas', async () => {
+      mockQuery
+        .mockResolvedValueOnce([{ egreso: '0', ingreso: '0' }])
+        .mockResolvedValueOnce([{ neto: '0' }])
+        .mockResolvedValueOnce([{ total: '0' }]);
 
       const result = await service.getDashboard(USER_ID);
 
@@ -137,6 +142,19 @@ describe('BalancesService', () => {
         ingreso: 0,
         ahorroAcumulado: 0,
       });
+    });
+
+    it('pasa userId a las tres queries SQL', async () => {
+      mockQuery
+        .mockResolvedValueOnce([{ egreso: '0', ingreso: '0' }])
+        .mockResolvedValueOnce([{ neto: '0' }])
+        .mockResolvedValueOnce([{ total: '0' }]);
+
+      await service.getDashboard(USER_ID);
+
+      expect(mockQuery.mock.calls[0][1]).toEqual([USER_ID]);
+      expect(mockQuery.mock.calls[1][1]).toEqual([USER_ID]);
+      expect(mockQuery.mock.calls[2][1]).toEqual([USER_ID]);
     });
   });
 
@@ -148,7 +166,7 @@ describe('BalancesService', () => {
     ];
 
     it('calcula el porcentaje correctamente', async () => {
-      mockFindOne.mockResolvedValue({ ingreso: 100000, egreso: 75000 });
+      mockQuery.mockResolvedValueOnce([{ ingreso: '100000', egreso: '75000' }]);
       mockGetGastosMensuales.mockResolvedValue(meses);
 
       const result = await service.getGraficoGastos(USER_ID);
@@ -158,15 +176,15 @@ describe('BalancesService', () => {
     });
 
     it('retorna porcentaje 0 cuando ingreso es 0 (evita división por cero)', async () => {
-      mockFindOne.mockResolvedValue({ ingreso: 0, egreso: 0 });
+      mockQuery.mockResolvedValueOnce([{ ingreso: '0', egreso: '0' }]);
       mockGetGastosMensuales.mockResolvedValue([]);
 
       const result = await service.getGraficoGastos(USER_ID);
       expect(result.porcentaje).toBe(0);
     });
 
-    it('retorna porcentaje 0 cuando no hay balance', async () => {
-      mockFindOne.mockResolvedValue(null);
+    it('retorna porcentaje 0 cuando no hay resultado de query', async () => {
+      mockQuery.mockResolvedValueOnce([{ ingreso: '0', egreso: '0' }]);
       mockGetGastosMensuales.mockResolvedValue([]);
 
       const result = await service.getGraficoGastos(USER_ID);

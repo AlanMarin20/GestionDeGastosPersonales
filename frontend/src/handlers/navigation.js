@@ -474,7 +474,7 @@ export function attachGlobalNavigation({ navigate, render }) {
 
       try {
         await depositarAhorro(ahorroId, amount, description);
-        await Promise.all([loadAhorros(), loadDashboardBalances()]);
+        await Promise.all([loadAhorros(), loadDashboardBalances(), loadMovimientos()]);
         state.finanzas.ui.depositandoAhorroId = null;
         showAppNotification("Deposito realizado correctamente", "success");
         render();
@@ -507,7 +507,7 @@ export function attachGlobalNavigation({ navigate, render }) {
 
       try {
         await retirarAhorro(ahorroId, amount, description);
-        await Promise.all([loadAhorros(), loadDashboardBalances()]);
+        await Promise.all([loadAhorros(), loadDashboardBalances(), loadMovimientos()]);
         state.finanzas.ui.retirhandoAhorroId = null;
         showAppNotification("Retiro realizado correctamente", "success");
         render();

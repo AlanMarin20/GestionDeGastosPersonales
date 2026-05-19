@@ -32,13 +32,16 @@ function renderNotifItem(item) {
 
 function renderRecentItem(expense) {
   const esIngreso = expense.tipo === "ingreso";
+  const esAhorro = expense.esTransferenciaInterna === true;
   const displayName = esIngreso ? (expense.descripcion || "-") : (expense.comercio || "-");
   const initials = escapeHtml((displayName || "?").slice(0, 2).toUpperCase());
-  const amountClass = esIngreso ? "gd-monto-ingreso" : "gd-monto-egreso";
+  const amountClass = esAhorro ? "" : (esIngreso ? "gd-monto-ingreso" : "gd-monto-egreso");
   const amountSign = esIngreso ? "+" : "-";
-  const tipoBadge = esIngreso
-    ? `<span class="gd-tipo-badge gd-tipo-badge--in">Ingreso</span>`
-    : `<span class="gd-tipo-badge gd-tipo-badge--out">Gasto</span>`;
+  const tipoBadge = esAhorro
+    ? `<span class="gd-tipo-badge gd-tipo-badge--ahorro">Ahorro</span>`
+    : esIngreso
+      ? `<span class="gd-tipo-badge gd-tipo-badge--in">Ingreso</span>`
+      : `<span class="gd-tipo-badge gd-tipo-badge--out">Gasto</span>`;
 
   return `
     <div class="gd-list-item gd-list-item--compact">
