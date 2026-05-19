@@ -52,6 +52,9 @@ export class User {
   })
   resetCodeExpiresAt?: Date;
 
+  @Column({ name: 'email_verificado', type: 'boolean', default: false })
+  emailVerified: boolean;
+
   @Column({ name: 'esta_activo', type: 'boolean', default: true })
   isActive: boolean;
 

@@ -151,6 +151,43 @@ export async function resetPassword(email, code, newPassword) {
   }
 }
 
+export async function registerUser(name, email, password) {
+  const response = await apiFetch("/api/auth/register", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, email, password }),
+  });
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    const message = Array.isArray(body.message) ? body.message[0] : body.message;
+    throw new Error(message || "No se pudo crear la cuenta");
+  }
+}
+
+export async function verifyRegistrationEmail(email, code) {
+  const response = await apiFetch("/api/auth/verify-registration-email", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, code }),
+  });
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    throw new Error(body.message || "Código inválido o expirado");
+  }
+}
+
+export async function resendRegistrationCode(email) {
+  const response = await apiFetch("/api/auth/resend-registration-code", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  });
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    throw new Error(body.message || "No se pudo reenviar el código");
+  }
+}
+
 export async function changePassword(currentPassword, newPassword) {
   const response = await apiFetch("/api/auth/change-password", {
     method: "POST",

@@ -24,6 +24,9 @@ import {
   verifyResetCode,
   resetPassword,
   changePassword,
+  registerUser,
+  verifyRegistrationEmail,
+  resendRegistrationCode,
 } from "../api/user";
 import { createAhorro, loadAhorros } from "../api/ahorros";
 import {
@@ -511,24 +514,10 @@ export function attachFormHandlers(pathname, { navigate, render }) {
       if (submitBtn) submitBtn.disabled = true;
 
       try {
-        const response = await fetch(`${API_BASE_URL}/api/users`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name: nombre, email, password }),
-        });
-
-        if (!response.ok) {
-          const errData = await response.json().catch(() => ({}));
-          const message = Array.isArray(errData.message)
-            ? errData.message[0]
-            : errData.message;
-          const fallbackMessage = response.status === 409
-            ? "El email ya está en uso"
-            : "Error al registrar el usuario";
-          throw new Error(message || fallbackMessage);
-        }
-
-        navigate("/registro/exitoso", true);
+        await registerUser(nombre, email, password);
+        state.authRegistration.email = email;
+        state.authRegistration.codeVerified = false;
+        navigate("/registro/verificar");
       } catch (error) {
         const message =
           error instanceof Error
@@ -539,6 +528,81 @@ export function attachFormHandlers(pathname, { navigate, render }) {
         if (submitBtn) submitBtn.disabled = false;
       }
     });
+  }
+
+  if (pathname === "/registro/verificar") {
+    const verifyForm = document.getElementById("verificarRegistroForm");
+    const codeInput = document.getElementById("codigoRegistro");
+    const errorDiv = document.getElementById("verificarRegistroError");
+
+    const removeFieldErrorState = () => {
+      codeInput?.classList.remove("auth-input-error");
+    };
+
+    const setAuthError = (message, fieldsToHighlight = []) => {
+      if (errorDiv) {
+        errorDiv.textContent = message;
+        errorDiv.classList.remove("d-none");
+      }
+      removeFieldErrorState();
+      fieldsToHighlight.forEach((field) => {
+        field?.classList.add("auth-input-error");
+      });
+    };
+
+    const clearAuthError = () => {
+      if (errorDiv) errorDiv.classList.add("d-none");
+      removeFieldErrorState();
+    };
+
+    codeInput?.addEventListener("input", () => {
+      const sanitized = (codeInput.value || "").replace(/\D/g, "").slice(0, 6);
+      if (sanitized !== codeInput.value) codeInput.value = sanitized;
+      codeInput.classList.remove("auth-input-error");
+    });
+
+    verifyForm?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const normalizedCode = (codeInput?.value || "").trim().replace(/\s+/g, "");
+      const submitBtn = verifyForm.querySelector('[type="submit"]');
+
+      clearAuthError();
+
+      if (!normalizedCode) {
+        setAuthError("Ingresá el código de verificación", [codeInput]);
+        return;
+      }
+
+      if (!/^\d{6}$/.test(normalizedCode)) {
+        setAuthError("El código debe tener 6 dígitos", [codeInput]);
+        return;
+      }
+
+      if (submitBtn) submitBtn.disabled = true;
+      try {
+        await verifyRegistrationEmail(state.authRegistration.email, normalizedCode);
+        state.authRegistration.codeVerified = true;
+        navigate("/registro/exitoso", true);
+      } catch (err) {
+        setAuthError(err?.message || "Código inválido o expirado", [codeInput]);
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+      }
+    });
+
+    document.addEventListener("click", async (event) => {
+      const target = event.target?.closest("[data-action='resend-registration-code']");
+      if (!target) return;
+      event.preventDefault();
+
+      try {
+        await resendRegistrationCode(state.authRegistration.email);
+        showAppNotification("Código reenviado. Revisá tu correo.", "success");
+      } catch (err) {
+        showAppNotification(err?.message || "No se pudo reenviar el código", "danger");
+      }
+    }, { once: true });
   }
 
   if (pathname === "/registro/exitoso") {

@@ -18,6 +18,31 @@ import { AuthGuard } from './auth.guard';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @HttpCode(HttpStatus.OK)
+  @Post('register')
+  register(
+    @Body('name') name: string,
+    @Body('email') email: string,
+    @Body('password') password: string,
+  ) {
+    return this.authService.register(name, email, password);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('verify-registration-email')
+  verifyRegistrationEmail(
+    @Body('email') email: string,
+    @Body('code') code: string,
+  ) {
+    return this.authService.verifyRegistrationEmail(email, code);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('resend-registration-code')
+  resendRegistrationCode(@Body('email') email: string) {
+    return this.authService.resendRegistrationCode(email);
+  }
+
   @HttpCode(HttpStatus.OK) // Devolvemos 200 OK en lugar del 201 Created (por defecto en los POST)
   @Post('login')
   login(@Body() signInDto: Record<string, string>) {

@@ -46,6 +46,7 @@ import { renderRecuperarContrasenaPage as renderRecuperarContrasenaPageView } fr
 import { renderVerificarCodigoRecuperacionPage as renderVerificarCodigoRecuperacionPageView } from "./pages/VerificarCodigoRecuperacionPage";
 import { renderNuevaContrasenaPage as renderNuevaContrasenaPageView } from "./pages/NuevaContrasenaPage";
 import { renderRegistroExitosoPage as renderRegistroExitosoPageView } from "./pages/RegistroExitosoPage";
+import { renderRegistroVerificarEmailPage as renderRegistroVerificarEmailPageView } from "./pages/RegistroVerificarEmailPage";
 import { escapeHtml } from "./utils/sanitize";
 import {
   API_BASE_URL,
@@ -361,6 +362,16 @@ function renderRegistroExitosoPage() {
   });
 }
 
+function renderRegistroVerificarEmailPage() {
+  return renderRegistroVerificarEmailPageView({
+    encabezadoExterno,
+    botonIniciarCrearCuenta,
+    campoAuthInput,
+    fondoDecorativoAuth,
+    renderAuthPublicPage,
+  });
+}
+
 function renderDashboardPage() {
   const currentPeriod = getFinanzasCurrentPeriod();
 
@@ -636,6 +647,10 @@ function buildRouteView(pathname) {
 
   if (pathname === "/registro") {
     return renderRegistroPage();
+  }
+
+  if (pathname === "/registro/verificar") {
+    return renderRegistroVerificarEmailPage();
   }
 
   if (pathname === "/registro/exitoso") {

@@ -124,6 +124,10 @@ export class UsersService {
     await this.userRepository.update(userId, { passwordHash: newHash });
   }
 
+  async setEmailVerified(userId: string) {
+    await this.userRepository.update(userId, { emailVerified: true });
+  }
+
   private isEmailAlreadyInUseError(error: unknown) {
     if (!error || typeof error !== 'object') {
       return false;

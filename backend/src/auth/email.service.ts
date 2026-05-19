@@ -55,6 +55,43 @@ export class EmailService implements OnModuleInit {
     }
   }
 
+  async sendRegistrationVerificationCode(to: string, code: string) {
+    const subject = 'Activá tu cuenta — GestiónGastos';
+    const html = `
+      <div style="font-family:sans-serif;max-width:480px;margin:auto;padding:24px;border:1px solid #e5e7eb;border-radius:8px">
+        <h2 style="color:#1e293b;margin-bottom:8px">Activá tu cuenta</h2>
+        <p style="color:#475569;margin-bottom:24px">Usá este código para activar tu cuenta en <strong>GestiónGastos</strong>.</p>
+        <div style="background:#f1f5f9;border-radius:8px;padding:20px;text-align:center;letter-spacing:8px;font-size:32px;font-weight:700;color:#0f172a">
+          ${code}
+        </div>
+        <p style="color:#94a3b8;font-size:13px;margin-top:20px">Expira en 15 minutos. Si no creaste esta cuenta, ignorá este mensaje.</p>
+      </div>
+    `;
+
+    if (this.resend) {
+      await this.resend.emails.send({
+        from: this.fromAddress,
+        to: [to],
+        subject,
+        html,
+      });
+      return;
+    }
+
+    const info = await this.transporter!.sendMail({
+      from: this.fromAddress,
+      to,
+      subject,
+      text: `Tu código de activación es: ${code}\n\nEste código expira en 15 minutos.`,
+      html,
+    });
+
+    const previewUrl = nodemailer.getTestMessageUrl(info);
+    if (previewUrl) {
+      this.logger.log(`Preview del email (Ethereal): ${previewUrl}`);
+    }
+  }
+
   async sendPasswordResetCode(to: string, code: string) {
     const subject = 'Tu código de verificación — GestiónGastos';
     const html = `

@@ -21,20 +21,72 @@ export class AuthService {
   ) {}
 
   async login(email: string, pass: string) {
-    // 1. Buscamos al usuario por su correo
     const user = await this.usersService.findByEmail(email);
     if (!user) {
       throw new UnauthorizedException('Correo o contraseña incorrectos');
     }
 
-    // 2. Comparamos la contraseña encriptada
     const isMatch = await bcrypt.compare(pass, user.passwordHash);
     if (!isMatch) {
       throw new UnauthorizedException('Correo o contraseña incorrectos');
     }
 
-    // 3. Si todo es correcto, creamos el "Payload" (los datos del token)
+    if (!user.emailVerified) {
+      throw new UnauthorizedException('Verificá tu correo antes de iniciar sesión');
+    }
+
     return this.buildAuthResponse(user.id, user.email);
+  }
+
+  async register(name: string, email: string, password: string) {
+    const user = await this.usersService.create({ name, email, password });
+    const code = String(randomInt(100000, 999999));
+    const codeHash = createHash('sha256').update(code).digest('hex');
+    const expiresAt = new Date(Date.now() + RESET_CODE_TTL_MINUTES * 60 * 1000);
+    await this.usersService.saveResetCode(user!.id, codeHash, expiresAt);
+    await this.emailService.sendRegistrationVerificationCode(user!.email, code);
+    return { message: 'Cuenta creada. Verificá tu correo para activarla.' };
+  }
+
+  async verifyRegistrationEmail(email: string, code: string) {
+    const user = await this.usersService.findByEmail(email);
+    if (!user?.resetCodeHash || !user.resetCodeExpiresAt) {
+      throw new BadRequestException('Código inválido o expirado');
+    }
+
+    if (new Date() > user.resetCodeExpiresAt) {
+      await this.usersService.clearResetCode(user.id);
+      throw new BadRequestException('El código expiró. Solicitá uno nuevo.');
+    }
+
+    const hash = createHash('sha256').update(code.trim()).digest('hex');
+    if (hash !== user.resetCodeHash) {
+      throw new BadRequestException('Código incorrecto');
+    }
+
+    await this.usersService.setEmailVerified(user.id);
+    await this.usersService.clearResetCode(user.id);
+
+    return { message: 'Correo verificado. Ya podés iniciar sesión.' };
+  }
+
+  async resendRegistrationCode(email: string) {
+    const user = await this.usersService.findByEmail(email);
+    if (!user) {
+      throw new BadRequestException('No existe una cuenta asociada a ese correo');
+    }
+
+    if (user.emailVerified) {
+      throw new BadRequestException('Esta cuenta ya está verificada');
+    }
+
+    const code = String(randomInt(100000, 999999));
+    const codeHash = createHash('sha256').update(code).digest('hex');
+    const expiresAt = new Date(Date.now() + RESET_CODE_TTL_MINUTES * 60 * 1000);
+    await this.usersService.saveResetCode(user.id, codeHash, expiresAt);
+    await this.emailService.sendRegistrationVerificationCode(user.email, code);
+
+    return { message: 'Nuevo código enviado.' };
   }
 
   async getProfile(userId: string) {

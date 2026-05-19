@@ -135,6 +135,10 @@ export const state = {
     code: "",
     codeVerified: false,
   },
+  authRegistration: {
+    email: "",
+    codeVerified: false,
+  },
   configuracion: {
     moneda: "ARS",
     idioma: "es",
