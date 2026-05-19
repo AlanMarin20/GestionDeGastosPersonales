@@ -36,6 +36,7 @@ import { syncProfileFromUser } from "../api/user";
 import { loadBudgets, createBudget } from "../api/budgets";
 import { loadCategories, createCategory } from "../api/categories";
 import { initDatePicker } from "../ui/datepicker";
+import { generateAiRecommendations } from "../api/recomendaciones";
 
 let registroExitosoRedirectTimeoutId = null;
 let registroExitosoCountdownIntervalId = null;
@@ -1680,6 +1681,26 @@ export function attachFormHandlers(pathname, { navigate, render }) {
     const guardarBtn = document.getElementById("guardarPreferenciasBtn");
     guardarBtn?.addEventListener("click", () => {
       showAppNotification("Preferencias actualizadas correctamente", "success");
+    });
+  }
+
+  if (pathname === "/dashboard/recomendaciones") {
+    const btnGenerar = document.getElementById("btnGenerarRecomendacionesIA");
+    btnGenerar?.addEventListener("click", async () => {
+      btnGenerar.disabled = true;
+      const originalHtml = btnGenerar.innerHTML;
+      btnGenerar.innerHTML = '<i class="lni lni-spinner-arrow" aria-hidden="true"></i> Analizando...';
+
+      try {
+        await generateAiRecommendations();
+        showAppNotification("Recomendaciones generadas correctamente", "success");
+        render();
+      } catch (error) {
+        showAppNotification(error.message || "Error al generar recomendaciones", "error");
+      } finally {
+        btnGenerar.disabled = false;
+        btnGenerar.innerHTML = originalHtml;
+      }
     });
   }
 }

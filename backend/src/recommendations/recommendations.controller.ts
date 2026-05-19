@@ -22,6 +22,11 @@ export class RecommendationsController {
     private readonly recommendationsService: RecommendationsService,
   ) {}
 
+  @Post('generate-ai')
+  generateAi(@Request() req) {
+    return this.recommendationsService.generateAiRecommendations(req.user.sub);
+  }
+
   @Post()
   create(@Request() req, @Body() createDto: CreateRecommendationDto) {
     return this.recommendationsService.create(req.user.sub, createDto);

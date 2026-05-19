@@ -234,10 +234,16 @@ export function renderRecomendacionesPage({
         ${warningCount > 0 ? `<span class="gd-rec-badge gd-rec-badge-warning"><i class="lni lni-warning"></i> ${escapeHtml(String(warningCount))} aviso${warningCount !== 1 ? "s" : ""}</span>` : ""}
         ${dangerCount === 0 && warningCount === 0 && latestMonthRecommendations.length > 0 ? `<span class="gd-rec-badge gd-rec-badge-good"><i class="lni lni-checkmark-circle"></i> Todo en orden</span>` : ""}
       </div>
-      <a href="/dashboard/recomendaciones/historicas" data-link class="gd-top-btn">
-        <i class="lni lni-list" aria-hidden="true"></i>
-        Ver historial
-      </a>
+      <div class="d-flex gap-2 flex-wrap">
+        <button id="btnGenerarRecomendacionesIA" class="gd-top-btn" type="button">
+          <i class="lni lni-bolt-alt" aria-hidden="true"></i>
+          Analizar con IA
+        </button>
+        <a href="/dashboard/recomendaciones/historicas" data-link class="gd-top-btn">
+          <i class="lni lni-list" aria-hidden="true"></i>
+          Ver historial
+        </a>
+      </div>
     </div>
 
     ${latestMonthRecommendations.length > 0

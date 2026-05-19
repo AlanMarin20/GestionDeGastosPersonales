@@ -4,12 +4,14 @@ import { Repository } from 'typeorm';
 import { CreateRecommendationDto } from './dto/create-recommendation.dto';
 import { UpdateRecommendationDto } from './dto/update-recommendation.dto';
 import { Recommendation } from './entities/recommendation.entity';
+import { AiRecommendationsService } from './ai-recommendations.service';
 
 @Injectable()
 export class RecommendationsService {
   constructor(
     @InjectRepository(Recommendation)
     private readonly recommendationRepository: Repository<Recommendation>,
+    private readonly aiService: AiRecommendationsService,
   ) {}
 
   private mapToFrontend(r: Recommendation) {
@@ -114,6 +116,27 @@ export class RecommendationsService {
     await this.recommendationRepository.remove(recommendation);
 
     return { message: 'Recomendación eliminada correctamente' };
+  }
+
+  async generateAiRecommendations(userId: string) {
+    const raws = await this.aiService.generateForUser(userId);
+
+    const saved = await Promise.all(
+      raws.map((r) =>
+        this.recommendationRepository.save(
+          this.recommendationRepository.create({
+            user: { id: userId },
+            titulo: r.titulo,
+            contenido: r.contenido,
+            tipo: r.tipo ?? 'general',
+            severidad: r.severidad ?? 'info',
+            categoria: r.categoria,
+          }),
+        ),
+      ),
+    );
+
+    return saved.map((r) => this.mapToFrontend(r));
   }
 
   async getHistoria(

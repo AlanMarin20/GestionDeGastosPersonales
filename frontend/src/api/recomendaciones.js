@@ -17,3 +17,21 @@ export async function loadRecomendaciones() {
     console.warn("Error cargando recomendaciones:", error);
   }
 }
+
+export async function generateAiRecommendations() {
+  const response = await apiFetch("/api/recommendations/generate-ai", {
+    method: "POST",
+  });
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    throw new Error(body.message || "No se pudieron generar recomendaciones");
+  }
+  const newRecs = await response.json();
+  if (Array.isArray(newRecs)) {
+    state.finanzas.recomendaciones = [
+      ...newRecs,
+      ...(state.finanzas.recomendaciones || []),
+    ];
+  }
+  return newRecs;
+}
