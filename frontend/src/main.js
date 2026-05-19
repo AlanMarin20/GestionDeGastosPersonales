@@ -142,7 +142,7 @@ import {
 } from "./api/user";
 import { loadTags } from "./api/tags";
 import { loadAhorros } from "./api/ahorros";
-import { loadRecomendaciones } from "./api/recomendaciones";
+import { loadRecomendaciones, loadHistoricalRecommendations } from "./api/recomendaciones";
 import { loadBudgets } from "./api/budgets";
 import { loadCategories } from "./api/categories";
 import {

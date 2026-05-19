@@ -18,6 +18,22 @@ export async function loadRecomendaciones() {
   }
 }
 
+export async function loadHistoricalRecommendations() {
+  if (!getAccessToken()) return;
+
+  try {
+    const response = await apiFetch("/api/recommendations/historia");
+    if (!response.ok) return;
+
+    const data = await response.json();
+    if (Array.isArray(data)) {
+      state.finanzas.recomendaciones = data;
+    }
+  } catch (error) {
+    console.warn("Error cargando historial de recomendaciones:", error);
+  }
+}
+
 export async function generateAiRecommendations() {
   const response = await apiFetch("/api/recommendations/generate-ai", {
     method: "POST",
