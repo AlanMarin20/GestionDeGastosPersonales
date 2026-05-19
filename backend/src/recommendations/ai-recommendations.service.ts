@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
-import { GoogleGenAI } from '@google/genai';
+import Groq from 'groq-sdk';
 import { Recommendation } from './entities/recommendation.entity';
 
 interface AiRecommendationRaw {
@@ -16,33 +16,33 @@ interface AiRecommendationRaw {
 @Injectable()
 export class AiRecommendationsService {
   private readonly logger = new Logger(AiRecommendationsService.name);
-  private readonly genai: GoogleGenAI | null;
+  private readonly groq: Groq | null;
 
   constructor(
     @InjectRepository(Recommendation)
     private readonly recRepository: Repository<Recommendation>,
     private readonly configService: ConfigService,
   ) {
-    const apiKey = this.configService.get<string>('GEMINI_API_KEY');
-    this.genai = apiKey?.trim()
-      ? new GoogleGenAI({ apiKey: apiKey.trim() })
-      : null;
+    const apiKey = this.configService.get<string>('GROQ_API_KEY');
+    this.groq = apiKey?.trim() ? new Groq({ apiKey: apiKey.trim() }) : null;
   }
 
   async generateForUser(userId: string): Promise<AiRecommendationRaw[]> {
-    if (!this.genai) {
-      throw new Error('GEMINI_API_KEY no está configurado.');
+    if (!this.groq) {
+      throw new Error('GROQ_API_KEY no está configurado.');
     }
 
     const context = await this.gatherFinancialContext(userId);
     const prompt = this.buildPrompt(context);
 
-    const response = await this.genai.models.generateContent({
-      model: 'gemini-2.0-flash',
-      contents: prompt,
+    const completion = await this.groq.chat.completions.create({
+      model: 'llama-3.3-70b-versatile',
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.7,
+      max_tokens: 1500,
     });
 
-    const raw = response.text ?? '';
+    const raw = completion.choices[0]?.message?.content ?? '';
     return this.parseResponse(raw);
   }
 
@@ -232,7 +232,7 @@ Reglas:
     const start = cleaned.indexOf('[');
     const end = cleaned.lastIndexOf(']');
     if (start === -1 || end === -1) {
-      this.logger.warn('Respuesta de Gemini sin array JSON válido');
+      this.logger.warn('Respuesta de Groq sin array JSON válido');
       return [];
     }
 
@@ -240,11 +240,10 @@ Reglas:
       const parsed = JSON.parse(cleaned.slice(start, end + 1));
       if (!Array.isArray(parsed)) return [];
       return parsed.slice(0, 5).filter(
-        (r) =>
-          typeof r.titulo === 'string' && typeof r.contenido === 'string',
+        (r) => typeof r.titulo === 'string' && typeof r.contenido === 'string',
       );
     } catch (err) {
-      this.logger.error('Error parseando respuesta de Gemini', err);
+      this.logger.error('Error parseando respuesta de Groq', err);
       return [];
     }
   }
