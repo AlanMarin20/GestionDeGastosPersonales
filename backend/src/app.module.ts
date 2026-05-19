@@ -35,6 +35,12 @@ import { RolesGuard } from './auth/roles.guard';
         GEMINI_API_KEY: Joi.string().allow('').optional(),
         GROQ_API_KEY: Joi.string().allow('').optional(),
         FRONTEND_URL: Joi.string().uri().optional(),
+        SMTP_HOST: Joi.string().allow('').optional(),
+        SMTP_PORT: Joi.number().optional(),
+        SMTP_USER: Joi.string().allow('').optional(),
+        SMTP_PASS: Joi.string().allow('').optional(),
+        SMTP_FROM_NAME: Joi.string().allow('').optional(),
+        SMTP_FROM_EMAIL: Joi.string().allow('').optional(),
         // OAuth de terceros deshabilitado temporalmente.
         // GOOGLE_CLIENT_ID: Joi.string().allow('').optional(),
         // GOOGLE_CLIENT_SECRET: Joi.string().allow('').optional(),

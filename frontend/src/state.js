@@ -132,6 +132,7 @@ export const state = {
   profileLoaded: false,
   authRecovery: {
     email: "",
+    code: "",
     codeVerified: false,
   },
   configuracion: {

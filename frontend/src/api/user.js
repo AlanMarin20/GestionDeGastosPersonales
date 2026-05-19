@@ -113,3 +113,51 @@ export async function loadMovimientos() {
     console.warn("Error cargando movimientos:", error);
   }
 }
+
+export async function requestPasswordReset(email) {
+  const response = await apiFetch("/api/auth/request-password-reset", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  });
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    throw new Error(body.message || "No se pudo enviar el código");
+  }
+}
+
+export async function verifyResetCode(email, code) {
+  const response = await apiFetch("/api/auth/verify-reset-code", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, code }),
+  });
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    throw new Error(body.message || "Código inválido o expirado");
+  }
+}
+
+export async function resetPassword(email, code, newPassword) {
+  const response = await apiFetch("/api/auth/reset-password", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, code, newPassword }),
+  });
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    throw new Error(body.message || "No se pudo actualizar la contraseña");
+  }
+}
+
+export async function changePassword(currentPassword, newPassword) {
+  const response = await apiFetch("/api/auth/change-password", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ currentPassword, newPassword }),
+  });
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    throw new Error(body.message || "No se pudo cambiar la contraseña");
+  }
+}

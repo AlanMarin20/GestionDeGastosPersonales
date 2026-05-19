@@ -106,6 +106,24 @@ export class UsersService {
     return { message: 'Usuario eliminado correctamente' };
   }
 
+  async saveResetCode(userId: string, codeHash: string, expiresAt: Date) {
+    await this.userRepository.update(userId, {
+      resetCodeHash: codeHash,
+      resetCodeExpiresAt: expiresAt,
+    });
+  }
+
+  async clearResetCode(userId: string) {
+    await this.userRepository.update(userId, {
+      resetCodeHash: undefined,
+      resetCodeExpiresAt: undefined,
+    });
+  }
+
+  async updatePasswordHash(userId: string, newHash: string) {
+    await this.userRepository.update(userId, { passwordHash: newHash });
+  }
+
   private isEmailAlreadyInUseError(error: unknown) {
     if (!error || typeof error !== 'object') {
       return false;

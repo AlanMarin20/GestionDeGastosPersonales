@@ -17,7 +17,14 @@ import { showAppNotification } from "../ui/notifications";
 import { saveAppPreferences } from "../ui/theme";
 import { addExpenseRecord, addIncomeRecord } from "../data/expenses";
 import { apiCreateMovimiento } from "../api/movimientos";
-import { loadDashboardBalances, loadMovimientos } from "../api/user";
+import {
+  loadDashboardBalances,
+  loadMovimientos,
+  requestPasswordReset,
+  verifyResetCode,
+  resetPassword,
+  changePassword,
+} from "../api/user";
 import { createAhorro, loadAhorros } from "../api/ahorros";
 import {
   apiVincularCliente,
@@ -206,10 +213,11 @@ export function attachFormHandlers(pathname, { navigate, render }) {
       emailInput.classList.remove("auth-input-error");
     });
 
-    recoveryForm?.addEventListener("submit", (event) => {
+    recoveryForm?.addEventListener("submit", async (event) => {
       event.preventDefault();
 
       const email = emailInput?.value?.trim() ?? "";
+      const submitBtn = recoveryForm.querySelector('[type="submit"]');
 
       clearAuthError();
 
@@ -227,7 +235,17 @@ export function attachFormHandlers(pathname, { navigate, render }) {
         return;
       }
 
+      if (submitBtn) submitBtn.disabled = true;
+      try {
+        await requestPasswordReset(email);
+      } catch {
+        // Respuesta silenciosa: no revelamos si el email existe
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+      }
+
       state.authRecovery.email = email;
+      state.authRecovery.code = "";
       state.authRecovery.codeVerified = false;
       showAppNotification(
         "Si el correo pertenece a una cuenta, enviaremos un codigo de verificacion.",
@@ -275,11 +293,12 @@ export function attachFormHandlers(pathname, { navigate, render }) {
       codeInput.classList.remove("auth-input-error");
     });
 
-    verifyForm?.addEventListener("submit", (event) => {
+    verifyForm?.addEventListener("submit", async (event) => {
       event.preventDefault();
 
       const code = (codeInput?.value || "").trim();
       const normalizedCode = code.replace(/\s+/g, "");
+      const submitBtn = verifyForm.querySelector('[type="submit"]');
 
       clearAuthError();
 
@@ -293,8 +312,17 @@ export function attachFormHandlers(pathname, { navigate, render }) {
         return;
       }
 
-      state.authRecovery.codeVerified = true;
-      navigate("/recuperar-contrasena/nueva");
+      if (submitBtn) submitBtn.disabled = true;
+      try {
+        await verifyResetCode(state.authRecovery.email, normalizedCode);
+        state.authRecovery.code = normalizedCode;
+        state.authRecovery.codeVerified = true;
+        navigate("/recuperar-contrasena/nueva");
+      } catch (err) {
+        setAuthError(err?.message || "Codigo invalido o expirado", [codeInput]);
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+      }
     });
   }
 
@@ -341,11 +369,12 @@ export function attachFormHandlers(pathname, { navigate, render }) {
       });
     });
 
-    updateForm?.addEventListener("submit", (event) => {
+    updateForm?.addEventListener("submit", async (event) => {
       event.preventDefault();
 
       const password = passwordInput?.value ?? "";
       const confirmPassword = confirmPasswordInput?.value ?? "";
+      const submitBtn = updateForm.querySelector('[type="submit"]');
 
       clearAuthError();
 
@@ -370,10 +399,18 @@ export function attachFormHandlers(pathname, { navigate, render }) {
         return;
       }
 
-      state.authRecovery.email = "";
-      state.authRecovery.codeVerified = false;
-      showAppNotification("Contrasena actualizada. Inicia sesion.", "success");
-      navigate("/login", true);
+      if (submitBtn) submitBtn.disabled = true;
+      try {
+        await resetPassword(state.authRecovery.email, state.authRecovery.code, password);
+        state.authRecovery.email = "";
+        state.authRecovery.code = "";
+        state.authRecovery.codeVerified = false;
+        showAppNotification("Contrasena actualizada. Inicia sesion.", "success");
+        navigate("/login", true);
+      } catch (err) {
+        setAuthError(err?.message || "No se pudo actualizar la contrasena");
+        if (submitBtn) submitBtn.disabled = false;
+      }
     });
   }
 
@@ -1632,18 +1669,34 @@ export function attachFormHandlers(pathname, { navigate, render }) {
 
     // Guardar seguridad (contraseña)
     const guardarSeguridadBtn = document.getElementById("guardarSeguridadBtn");
-    guardarSeguridadBtn?.addEventListener("click", () => {
+    guardarSeguridadBtn?.addEventListener("click", async () => {
+      const actual = document.getElementById("passwordActual")?.value || "";
       const nueva = document.getElementById("passwordNueva")?.value || "";
       const confirmar = document.getElementById("passwordConfirmar")?.value || "";
-      if (!nueva || !confirmar) {
-        showAppNotification("Completá la nueva contraseña y la confirmación", "warning");
+      if (!actual || !nueva || !confirmar) {
+        showAppNotification("Completá todos los campos de contraseña", "warning");
+        return;
+      }
+      if (!isStrongPassword(nueva)) {
+        showAppNotification(PASSWORD_POLICY_MESSAGE, "warning");
         return;
       }
       if (nueva !== confirmar) {
         showAppNotification("Las contraseñas no coinciden", "error");
         return;
       }
-      showAppNotification("Contraseña actualizada correctamente", "success");
+      guardarSeguridadBtn.disabled = true;
+      try {
+        await changePassword(actual, nueva);
+        document.getElementById("passwordActual").value = "";
+        document.getElementById("passwordNueva").value = "";
+        document.getElementById("passwordConfirmar").value = "";
+        showAppNotification("Contraseña actualizada correctamente", "success");
+      } catch (err) {
+        showAppNotification(err?.message || "No se pudo cambiar la contraseña", "error");
+      } finally {
+        guardarSeguridadBtn.disabled = false;
+      }
     });
 
     // Notificaciones

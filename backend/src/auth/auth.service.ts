@@ -1,26 +1,23 @@
 import {
-  // BadRequestException,
+  BadRequestException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-// import { randomBytes } from 'crypto';
-// import { createRemoteJWKSet, jwtVerify } from 'jose';
+import { randomInt } from 'crypto';
+import { createHash } from 'crypto';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
+import { EmailService } from './email.service';
+
+const RESET_CODE_TTL_MINUTES = 15;
 
 @Injectable()
 export class AuthService {
-  // OAuth de terceros deshabilitado temporalmente.
-  // private readonly frontendUrl =
-  //   process.env.FRONTEND_URL || 'http://localhost:5173';
-  // private readonly appleJwks = createRemoteJWKSet(
-  //   new URL('https://appleid.apple.com/auth/keys'),
-  // );
-
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    private emailService: EmailService,
   ) {}
 
   async login(email: string, pass: string) {
@@ -322,6 +319,81 @@ export class AuthService {
     };
   }
   */
+
+  async requestPasswordReset(email: string) {
+    const user = await this.usersService.findByEmail(email);
+    if (!user) return; // Respuesta silenciosa para no revelar si el email existe
+
+    const code = String(randomInt(100000, 999999));
+    const codeHash = createHash('sha256').update(code).digest('hex');
+    const expiresAt = new Date(Date.now() + RESET_CODE_TTL_MINUTES * 60 * 1000);
+
+    await this.usersService.saveResetCode(user.id, codeHash, expiresAt);
+    await this.emailService.sendPasswordResetCode(email, code);
+  }
+
+  async verifyResetCode(email: string, code: string) {
+    const user = await this.usersService.findByEmail(email);
+    if (!user?.resetCodeHash || !user.resetCodeExpiresAt) {
+      throw new BadRequestException('Código inválido o expirado');
+    }
+
+    if (new Date() > user.resetCodeExpiresAt) {
+      await this.usersService.clearResetCode(user.id);
+      throw new BadRequestException('El código expiró. Solicitá uno nuevo.');
+    }
+
+    const hash = createHash('sha256').update(code.trim()).digest('hex');
+    if (hash !== user.resetCodeHash) {
+      throw new BadRequestException('Código incorrecto');
+    }
+
+    return { valid: true };
+  }
+
+  async resetPassword(email: string, code: string, newPassword: string) {
+    const user = await this.usersService.findByEmail(email);
+    if (!user?.resetCodeHash || !user.resetCodeExpiresAt) {
+      throw new BadRequestException('Código inválido o expirado');
+    }
+
+    if (new Date() > user.resetCodeExpiresAt) {
+      await this.usersService.clearResetCode(user.id);
+      throw new BadRequestException('El código expiró. Solicitá uno nuevo.');
+    }
+
+    const hash = createHash('sha256').update(code.trim()).digest('hex');
+    if (hash !== user.resetCodeHash) {
+      throw new BadRequestException('Código incorrecto');
+    }
+
+    const newHash = await bcrypt.hash(newPassword, 10);
+    await this.usersService.updatePasswordHash(user.id, newHash);
+    await this.usersService.clearResetCode(user.id);
+
+    return { message: 'Contraseña actualizada correctamente' };
+  }
+
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+  ) {
+    const user = await this.usersService.findByEmail(
+      (await this.usersService.findPublicById(userId))!.email,
+    );
+    if (!user) throw new UnauthorizedException('Usuario no encontrado');
+
+    const isMatch = await bcrypt.compare(currentPassword, user.passwordHash);
+    if (!isMatch) {
+      throw new BadRequestException('La contraseña actual es incorrecta');
+    }
+
+    const newHash = await bcrypt.hash(newPassword, 10);
+    await this.usersService.updatePasswordHash(userId, newHash);
+
+    return { message: 'Contraseña actualizada correctamente' };
+  }
 
   private async buildAuthResponse(userId: string, email: string) {
     const payload = { sub: userId, email };

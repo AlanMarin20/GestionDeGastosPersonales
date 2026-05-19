@@ -42,6 +42,16 @@ export class User {
   })
   codigoExpiraEn?: Date;
 
+  @Column({ name: 'codigo_reset_hash', type: 'varchar', nullable: true })
+  resetCodeHash?: string;
+
+  @Column({
+    name: 'reset_expira_en',
+    type: 'timestamp without time zone',
+    nullable: true,
+  })
+  resetCodeExpiresAt?: Date;
+
   @Column({ name: 'esta_activo', type: 'boolean', default: true })
   isActive: boolean;
 

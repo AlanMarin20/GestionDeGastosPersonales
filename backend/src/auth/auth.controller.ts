@@ -75,6 +75,47 @@ export class AuthController {
   }
   */
 
+  @HttpCode(HttpStatus.OK)
+  @Post('request-password-reset')
+  async requestPasswordReset(@Body('email') email: string) {
+    await this.authService.requestPasswordReset(email);
+    return { message: 'Si el correo está registrado, recibirás un código.' };
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('verify-reset-code')
+  verifyResetCode(
+    @Body('email') email: string,
+    @Body('code') code: string,
+  ) {
+    return this.authService.verifyResetCode(email, code);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('reset-password')
+  resetPassword(
+    @Body('email') email: string,
+    @Body('code') code: string,
+    @Body('newPassword') newPassword: string,
+  ) {
+    return this.authService.resetPassword(email, code, newPassword);
+  }
+
+  @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @Post('change-password')
+  changePassword(
+    @Request() req,
+    @Body('currentPassword') currentPassword: string,
+    @Body('newPassword') newPassword: string,
+  ) {
+    return this.authService.changePassword(
+      req.user.sub,
+      currentPassword,
+      newPassword,
+    );
+  }
+
   // El @UseGuards activa nuestro "cadenero". Si no hay token válido, rechaza la petición.
   @UseGuards(AuthGuard)
   @Get('me')
