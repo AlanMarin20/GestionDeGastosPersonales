@@ -11,6 +11,7 @@ import { UpdateSavingsMovementDto } from './dto/update-savings-movement.dto';
 import { SavingsMovement } from './entities/savings-movement.entity';
 import { Movimiento } from '../movimientos/entities/movimiento.entity';
 import { Balance } from '../balances/entities/balance.entity';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class SavingsMovementsService {
@@ -23,6 +24,7 @@ export class SavingsMovementsService {
     private readonly movimientoRepository: Repository<Movimiento>,
     @InjectRepository(Balance)
     private readonly balanceRepository: Repository<Balance>,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   private async findCategoriaAhorroId(): Promise<number | undefined> {
@@ -99,8 +101,19 @@ export class SavingsMovementsService {
       });
       await this.movimientoRepository.save(movimiento);
 
-      goal.currentAmount = Number(goal.currentAmount) + amount;
+      const prevAmount = Number(goal.currentAmount);
+      goal.currentAmount = prevAmount + amount;
       await this.goalRepository.save(goal); // trigger recalcula balances.ahorro
+
+      const target = Number(goal.targetAmount);
+      if (prevAmount < target && goal.currentAmount >= target) {
+        this.notificationsService
+          .create(userId, {
+            message: `¡Felicitaciones! Alcanzaste tu meta de ahorro "${goal.nombre}" por $${target.toFixed(2)}.`,
+            type: 'success',
+          })
+          .catch(() => {});
+      }
     } else {
       // retiro
       if (amount > Number(goal.currentAmount)) {

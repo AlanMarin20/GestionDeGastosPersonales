@@ -5,17 +5,25 @@ import { UpdateExpenseDto } from './dto/update-expense.dto';
 import { Expense } from './entities/expense.entity';
 import { Repository } from 'typeorm';
 import { MovimientosService } from '../movimientos/movimientos.service';
+import { NotificationsService } from '../notifications/notifications.service';
+import { Budget } from '../budgets/entities/budget.entity';
+
+const HIGH_EXPENSE_FALLBACK_THRESHOLD = 5000;
+const HIGH_EXPENSE_BUDGET_RATIO = 0.5;
 
 @Injectable()
 export class ExpensesService {
   constructor(
     @InjectRepository(Expense)
     private readonly expenseRepository: Repository<Expense>,
+    @InjectRepository(Budget)
+    private readonly budgetRepository: Repository<Budget>,
     private readonly movimientosService: MovimientosService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async create(userId: string, createExpenseDto: CreateExpenseDto) {
-    return await this.movimientosService.registrar(
+    const saved = await this.movimientosService.registrar(
       userId,
       'egreso',
       createExpenseDto.amount,
@@ -27,6 +35,93 @@ export class ExpensesService {
       createExpenseDto.categoryId,
       createExpenseDto.merchant,
     );
+
+    this.triggerAutoNotifications(
+      userId,
+      createExpenseDto.amount,
+      createExpenseDto.categoryId,
+    ).catch(() => {});
+
+    return saved;
+  }
+
+  private async triggerAutoNotifications(
+    userId: string,
+    amount: number,
+    categoryId?: number,
+  ) {
+    const now = new Date();
+    const month = now.getMonth() + 1;
+    const year = now.getFullYear();
+
+    let budget: Budget | null = null;
+    if (categoryId) {
+      budget = await this.budgetRepository.findOne({
+        where: {
+          user: { id: userId },
+          category: { id: categoryId },
+          month,
+          year,
+        },
+        relations: { category: true },
+      });
+    }
+
+    await this.checkGastoAlto(userId, amount, budget);
+
+    if (budget) {
+      await this.checkPresupuestoSuperado(userId, amount, budget);
+    }
+  }
+
+  private async checkGastoAlto(
+    userId: string,
+    amount: number,
+    budget: Budget | null,
+  ) {
+    let isHigh: boolean;
+    if (budget) {
+      isHigh = amount >= Number(budget.amountLimit) * HIGH_EXPENSE_BUDGET_RATIO;
+    } else {
+      isHigh = amount >= HIGH_EXPENSE_FALLBACK_THRESHOLD;
+    }
+
+    if (isHigh) {
+      const categoryLabel = budget?.category?.name ?? 'Sin categoría';
+      await this.notificationsService.create(userId, {
+        message: `Gasto alto registrado: $${Number(amount).toFixed(2)} en "${categoryLabel}".`,
+        type: 'warning',
+      });
+    }
+  }
+
+  private async checkPresupuestoSuperado(
+    userId: string,
+    amount: number,
+    budget: Budget,
+  ) {
+    const now = new Date();
+    const [{ prevTotal }]: [{ prevTotal: string }] =
+      await this.budgetRepository.manager.query(
+        `SELECT COALESCE(SUM(monto), 0) AS "prevTotal"
+         FROM movimientos
+         WHERE usuario_id = $1
+           AND categoria_id = $2
+           AND tipo = 'egreso'
+           AND es_transferencia_interna = FALSE
+           AND DATE_TRUNC('month', fecha) = DATE_TRUNC('month', $3::date)`,
+        [userId, budget.category.id, now],
+      );
+
+    const prev = Number(prevTotal) - Number(amount);
+    const limit = Number(budget.amountLimit);
+
+    if (prev < limit && Number(prevTotal) > limit) {
+      await this.notificationsService.create(userId, {
+        message: `Superaste el presupuesto de "${budget.category.name}" para este mes. Límite: $${limit.toFixed(2)}, gastado: $${Number(prevTotal).toFixed(2)}.`,
+        type: 'warning',
+      });
+    }
   }
 
   async findAll(userId: string) {
