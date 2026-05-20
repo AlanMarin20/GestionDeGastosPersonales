@@ -230,7 +230,7 @@ function renderBudgetRow(budget, spentAmount, notifEnabled, isEditing, isReadOnl
       <div class="gd-settings-budget-actions">
         <button type="button" class="gd-ahorro-ctrl-btn gd-ahorro-ctrl-btn--edit"
           data-action="edit-budget" data-budget-id="${escapeHtml(budget.id)}" aria-label="Editar presupuesto">
-          <i class="lni lni-pencil" aria-hidden="true"></i>
+          <i class="lni lni-pencil-alt" aria-hidden="true"></i>
         </button>
         <button type="button" class="gd-ahorro-ctrl-btn gd-ahorro-ctrl-btn--danger"
           data-action="delete-budget" data-budget-id="${escapeHtml(budget.id)}" aria-label="Eliminar presupuesto">

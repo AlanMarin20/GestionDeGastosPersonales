@@ -52,10 +52,10 @@ export function renderExpenseTable({
             <td class="gd-right">
               <span class="gd-action-cell">
                 <button type="button" class="gd-action-btn" data-action="open-edit-expense" data-expense-id="${escapeHtml(expense.id)}" aria-label="Editar gasto">
-                  Editar
+                  <i class="lni lni-pencil-alt" aria-hidden="true"></i> Editar
                 </button>
                 <button type="button" class="gd-action-btn danger" data-action="open-delete-expense" data-expense-id="${escapeHtml(expense.id)}" aria-label="Eliminar gasto">
-                  Eliminar
+                  <i class="lni lni-trash-can" aria-hidden="true"></i> Eliminar
                 </button>
               </span>
             </td>
