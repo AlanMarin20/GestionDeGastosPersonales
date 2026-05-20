@@ -31,9 +31,11 @@ import { apiFetch } from "../api/client";
 import { loadDashboardBalances, loadMovimientos } from "../api/user";
 import { loadAhorros, updateAhorro, deleteAhorro, depositarAhorro, retirarAhorro } from "../api/ahorros";
 import { apiDesvincularCliente, loadAsesorClientes } from "../api/asesor";
-import { loadBudgets, deleteBudget } from "../api/budgets";
+import { loadBudgets, deleteBudget, createBudget, updateBudget } from "../api/budgets";
 import { loadCategories, deleteCategory } from "../api/categories";
 import { createTag } from "../api/tags";
+import { parseMonthKey, compareMonthKeys } from "../utils/date";
+import { getFinanzasCurrentPeriod } from "../data/finanzas";
 
 export function attachGlobalNavigation({ navigate, render }) {
   function clearSessionAndRedirectToLogin() {
@@ -608,6 +610,101 @@ export function attachGlobalNavigation({ navigate, render }) {
         render();
       } catch {
         showAppNotification("No se pudo eliminar el presupuesto", "error");
+      }
+    },
+    "budget-prev-month": ({ event }) => {
+      event.preventDefault();
+      const current = state.finanzas.ui.budgetViewPeriod || getFinanzasCurrentPeriod();
+      const { year, month } = parseMonthKey(current);
+      const prevMonth = month === 1 ? 12 : month - 1;
+      const prevYear = month === 1 ? year - 1 : year;
+      state.finanzas.ui.budgetViewPeriod = `${prevYear}-${String(prevMonth).padStart(2, "0")}`;
+      state.finanzas.ui.editingBudgetId = null;
+      render();
+    },
+    "budget-next-month": ({ event }) => {
+      event.preventDefault();
+      const current = state.finanzas.ui.budgetViewPeriod || getFinanzasCurrentPeriod();
+      const globalPeriod = getFinanzasCurrentPeriod();
+      if (compareMonthKeys(current, globalPeriod) >= 0) return;
+      const { year, month } = parseMonthKey(current);
+      const nextMonth = month === 12 ? 1 : month + 1;
+      const nextYear = month === 12 ? year + 1 : year;
+      state.finanzas.ui.budgetViewPeriod = `${nextYear}-${String(nextMonth).padStart(2, "0")}`;
+      state.finanzas.ui.editingBudgetId = null;
+      render();
+    },
+    "edit-budget": ({ event, actionButton }) => {
+      event.preventDefault();
+      const budgetId = actionButton.getAttribute("data-budget-id");
+      if (!budgetId) return;
+      state.finanzas.ui.editingBudgetId = budgetId;
+      render();
+    },
+    "cancel-budget-edit": ({ event }) => {
+      event.preventDefault();
+      state.finanzas.ui.editingBudgetId = null;
+      render();
+    },
+    "save-budget-edit": async ({ event, actionButton }) => {
+      event.preventDefault();
+      const budgetId = actionButton.getAttribute("data-budget-id");
+      if (!budgetId) return;
+      const input = document.getElementById(`editBudgetInput-${budgetId}`);
+      const amountLimit = Number.parseFloat(input?.value || "");
+      if (Number.isNaN(amountLimit) || amountLimit <= 0) {
+        showAppNotification("Ingresá un límite válido", "warning");
+        return;
+      }
+      actionButton.disabled = true;
+      try {
+        await updateBudget(budgetId, { amountLimit });
+        await loadBudgets();
+        state.finanzas.ui.editingBudgetId = null;
+        showAppNotification("Presupuesto actualizado", "success");
+        render();
+      } catch (err) {
+        showAppNotification(err?.message || "No se pudo actualizar el presupuesto", "error");
+      } finally {
+        actionButton.disabled = false;
+      }
+    },
+    "copy-budgets-from-prev": async ({ event, actionButton }) => {
+      event.preventDefault();
+      const prevPeriod = actionButton.getAttribute("data-prev-period");
+      if (!prevPeriod) return;
+      const { year: prevY, month: prevM } = parseMonthKey(prevPeriod);
+      const prevBudgets = (state.finanzas.budgets || []).filter(
+        (b) => b.month === prevM && b.year === prevY
+      );
+      if (prevBudgets.length === 0) return;
+
+      const targetPeriod = state.finanzas.ui.budgetViewPeriod || getFinanzasCurrentPeriod();
+      const { year: tY, month: tM } = parseMonthKey(targetPeriod);
+
+      actionButton.disabled = true;
+      try {
+        const results = await Promise.allSettled(
+          prevBudgets.map((b) =>
+            createBudget({
+              categoryId: b.categoryId,
+              amountLimit: b.amountLimit,
+              month: tM,
+              year: tY,
+            })
+          )
+        );
+        const succeeded = results.filter((r) => r.status === "fulfilled").length;
+        await loadBudgets();
+        showAppNotification(
+          `${succeeded} presupuesto${succeeded !== 1 ? "s" : ""} copiado${succeeded !== 1 ? "s" : ""}`,
+          succeeded > 0 ? "success" : "error"
+        );
+        render();
+      } catch {
+        showAppNotification("No se pudieron copiar los presupuestos", "error");
+      } finally {
+        actionButton.disabled = false;
       }
     },
     "delete-category": async ({ event, actionButton }) => {
