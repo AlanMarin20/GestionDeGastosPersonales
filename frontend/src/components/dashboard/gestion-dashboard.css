@@ -2154,7 +2154,7 @@ body.theme-dark .gd-sparkline-row-evolution .gd-spark-label {
 
 .gd-settings-budget-row {
   display: grid;
-  grid-template-columns: auto minmax(110px, 1fr) minmax(130px, 2fr) auto auto;
+  grid-template-columns: auto minmax(110px, 1fr) minmax(130px, 2fr) auto;
   align-items: center;
   gap: 0.56rem;
   border-bottom: 1px solid var(--gd-border);
@@ -2470,6 +2470,88 @@ body.theme-dark .gd-sparkline-row-evolution .gd-spark-label {
 .gd-settings-budget-form {
   padding-top: 1rem;
   border-top: 1px solid var(--gd-border);
+}
+
+/* Bloque de porcentaje + monto gastado */
+.gd-settings-budget-pct-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.1rem;
+}
+
+.gd-settings-budget-spent {
+  font-size: 0.62rem;
+  color: var(--gd-muted);
+  white-space: nowrap;
+  line-height: 1.2;
+}
+
+/* Grupo de botones de acción (editar + eliminar) */
+.gd-settings-budget-actions {
+  display: flex;
+  gap: 0.22rem;
+  flex-shrink: 0;
+}
+
+/* Wrapper del input de edición inline */
+.gd-settings-budget-inline-edit {
+  display: flex;
+  align-items: center;
+}
+
+/* Resumen general de presupuestos */
+.gd-settings-budget-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1.25rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--gd-border);
+  border-radius: 11px;
+  background: var(--gd-surface-strong);
+  margin-bottom: 0.75rem;
+}
+
+.gd-settings-budget-summary-bar {
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(100, 116, 139, 0.18);
+  overflow: hidden;
+  flex: 1 1 100%;
+  margin-top: 0.1rem;
+}
+
+.gd-settings-budget-summary-stat {
+  font-size: 0.72rem;
+  color: var(--gd-muted);
+}
+
+.gd-settings-budget-summary-stat strong {
+  color: var(--gd-text);
+  font-weight: 700;
+}
+
+/* Navegador de meses */
+.gd-settings-budget-monthpicker {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.gd-settings-budget-monthpicker-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--gd-text);
+  min-width: 130px;
+  text-align: center;
+}
+
+.gd-settings-budget-monthpicker .gd-ahorro-ctrl-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 /* Category section labels */
