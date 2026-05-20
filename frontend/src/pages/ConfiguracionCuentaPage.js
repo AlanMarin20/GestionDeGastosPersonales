@@ -3,7 +3,6 @@ import { escapeHtml } from "../utils/sanitize";
 import { formatMoney } from "../utils/money";
 import { getFinancialScore, getBudgetAlertsForPeriod, getFinanzasCurrentPeriod } from "../data/finanzas";
 import { parseMonthKey, formatMonthLabelLong, compareMonthKeys } from "../utils/date";
-import { state } from "../state";
 
 const SETTINGS_NAV_GROUPS = [
   {
@@ -303,7 +302,7 @@ export function renderConfiguracionCuentaPage({ state, profileImage, profileName
       spentByCategory[e.categoria] = (spentByCategory[e.categoria] || 0) + Number(e.monto || 0);
     });
 
-  const isCurrentOrFuture = viewPeriod >= currentPeriod;
+  const isCurrentOrFuture = !currentPeriod || compareMonthKeys(viewPeriod || currentPeriod, currentPeriod) >= 0;
 
   // Mes anterior para botón "copiar"
   const { year: vpY, month: vpM } = parseMonthKey(viewPeriod);
