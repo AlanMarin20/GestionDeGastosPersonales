@@ -1,6 +1,7 @@
 import { renderExpenseTable } from "../dashboard/dashboardExpenseTable";
 import { escapeHtml } from "../../utils/sanitize";
 import { formatMoney } from "../../utils/money";
+import { t } from "../../i18n";
 
 export function encabezadoInterno({
   pageTitle = '',
@@ -13,7 +14,7 @@ export function encabezadoInterno({
   showAdvisorClientLink = false,
   transparent = false,
 } = {}) {
-  const roleLabel = isAsesor ? 'Asesor' : 'Usuario';
+  const roleLabel = isAsesor ? t('header.role.advisor') : t('header.role.user');
   const brandAction = brandTarget === 'scroll-top' ? 'brand-scroll-top' : 'brand-navigation';
   const headerClasses = [
     'py-3',
@@ -34,14 +35,14 @@ export function encabezadoInterno({
     <header class="${escapeHtml(headerClasses.join(' '))}">
       <div class="d-flex align-items-center gap-3">
         ${showAdvisorClientLink
-          ? `<button type="button" class="btn btn-outline-secondary btn-sm fw-semibold d-inline-flex align-items-center gap-2" data-nav="${escapeHtml(advisorClientHref)}" aria-label="Volver al dashboard asesor">
+          ? `<button type="button" class="btn btn-outline-secondary btn-sm fw-semibold d-inline-flex align-items-center gap-2" data-nav="${escapeHtml(advisorClientHref)}" aria-label="${t('header.backToAdvisorDashboard')}">
               <i class="lni lni-arrow-left" aria-hidden="true"></i>
-              <span class="d-none d-md-inline">Volver</span>
+              <span class="d-none d-md-inline">${t('common.back')}</span>
             </button>`
           : ''}
-        <button type="button" class="btn p-0 border-0 bg-transparent d-inline-flex align-items-center gap-2 d-none d-sm-inline-flex ms-1 text-decoration-none fp-brand-trigger" data-action="${escapeHtml(brandAction)}" data-target="${escapeHtml(brandTarget)}" aria-label="Ir a FinanzasPro">
+        <button type="button" class="btn p-0 border-0 bg-transparent d-inline-flex align-items-center gap-2 d-none d-sm-inline-flex ms-1 text-decoration-none fp-brand-trigger" data-action="${escapeHtml(brandAction)}" data-target="${escapeHtml(brandTarget)}" aria-label="${t('header.goToFinanzasPro')}">
           <span class="d-inline-flex align-items-center justify-content-center rounded-circle shadow-sm overflow-hidden flex-shrink-0 fp-brand-icon-shell">
-            <img src="/assets/img/logo/iconoSfondo.webp" alt="Icono FinanzasPro" class="fp-brand-icon-image">
+            <img src="/assets/img/logo/iconoSfondo.webp" alt="${t('header.brandIconAlt')}" class="fp-brand-icon-image">
           </span>
           <h4 class="mb-0 fw-bold text-dark fs-5 fp-brand-text-dark">FinanzasPro</h4>
           ${pageTitle
@@ -58,37 +59,37 @@ export function encabezadoInterno({
           <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-3 fp-role-menu" aria-labelledby="roleSwitcher">
             <li>
               <a class="dropdown-item py-2 fw-semibold text-dark ${!isAsesor ? 'bg-primary bg-opacity-10 text-primary' : ''}" href="/dashboard" data-link>
-                <i class="lni lni-user me-2"></i> Usuario
+                <i class="lni lni-user me-2"></i> ${t('header.user')}
               </a>
             </li>
             <li>
               <a class="dropdown-item py-2 fw-semibold text-dark ${isAsesor ? 'bg-primary bg-opacity-10 text-primary' : ''}" href="/dashboard/asesor" data-link>
-                <i class="lni lni-briefcase me-2"></i> Asesor
+                <i class="lni lni-briefcase me-2"></i> ${t('header.advisor')}
               </a>
             </li>
           </ul>
         </div>
 
         <div class="dropdown">
-          <a href="#" class="d-block text-decoration-none" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Abrir menú de usuario">
-            <img src="${escapeHtml(profileImage)}" class="rounded-circle border border-2 border-primary shadow-sm fp-profile-avatar" alt="Perfil">
+          <a href="#" class="d-block text-decoration-none" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false" aria-label="${t('header.openUserMenu')}">
+            <img src="${escapeHtml(profileImage)}" class="rounded-circle border border-2 border-primary shadow-sm fp-profile-avatar" alt="${t('header.profileAlt')}">
           </a>
           <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-3 fp-user-menu" aria-labelledby="dropdownUser">
             <li class="px-3 py-2 border-bottom mb-1">
               <div class="d-flex align-items-center gap-3">
-                <img src="${escapeHtml(profileImage)}" class="rounded-circle fp-user-menu-avatar" alt="Perfil">
+                <img src="${escapeHtml(profileImage)}" class="rounded-circle fp-user-menu-avatar" alt="${t('header.profileAlt')}">
                 <div>
                   <p class="mb-0 fw-bold text-dark lh-sm fp-user-menu-name">${escapeHtml(profileName)}</p>
                   <small class="text-muted fw-semibold fp-user-menu-role">${escapeHtml(currentRole)}</small>
                 </div>
               </div>
             </li>
-            <li><a class="dropdown-item py-2 fw-semibold text-dark" href="/dashboard" data-link><i class="lni lni-grid-alt me-2"></i> Mi Dasboard</a></li>
-            ${showAdvisorClientLink ? `<li><a class="dropdown-item py-2 fw-semibold text-dark" href="${escapeHtml(advisorClientHref)}" data-link><i class="lni lni-users me-2"></i> Ver otro cliente</a></li>` : ''}
-            <li><a class="dropdown-item py-2 fw-semibold text-dark" href="/perfil/editar" data-link><i class="lni lni-user me-2"></i> Editar perfil</a></li>
-            <li><a class="dropdown-item py-2 fw-semibold text-dark" href="/perfil/notificaciones" data-link><i class="lni lni-alarm me-2"></i> Notificaciones</a></li>
+            <li><a class="dropdown-item py-2 fw-semibold text-dark" href="/dashboard" data-link><i class="lni lni-grid-alt me-2"></i> ${t('header.myDashboard')}</a></li>
+            ${showAdvisorClientLink ? `<li><a class="dropdown-item py-2 fw-semibold text-dark" href="${escapeHtml(advisorClientHref)}" data-link><i class="lni lni-users me-2"></i> ${t('header.viewOtherClient')}</a></li>` : ''}
+            <li><a class="dropdown-item py-2 fw-semibold text-dark" href="/perfil/editar" data-link><i class="lni lni-user me-2"></i> ${t('header.editProfile')}</a></li>
+            <li><a class="dropdown-item py-2 fw-semibold text-dark" href="/perfil/notificaciones" data-link><i class="lni lni-alarm me-2"></i> ${t('header.notifications')}</a></li>
             <li><hr class="dropdown-divider"></li>
-            <li><button type="button" class="dropdown-item py-2 fw-bold text-danger border-0 bg-transparent text-start" data-action="logout"><i class="lni lni-exit me-2"></i> Cerrar Sesión</button></li>
+            <li><button type="button" class="dropdown-item py-2 fw-bold text-danger border-0 bg-transparent text-start" data-action="logout"><i class="lni lni-exit me-2"></i> ${t('header.logout')}</button></li>
           </ul>
         </div>
       </div>
@@ -98,7 +99,7 @@ export function encabezadoInterno({
 
 export function encabezadoExterno({
   rightHref = '/',
-  rightText = 'Volver al Inicio',
+  rightText = t('header.backToHome'),
   rightClass = '',
   withLightBackground = false,
   rightMarkup = '',
@@ -121,7 +122,7 @@ export function encabezadoExterno({
               <nav class="navbar navbar-expand-lg d-flex justify-content-between py-3">
                 <a class="navbar-brand d-inline-flex align-items-center gap-2 fp-brand-link" href="/" data-link>
                   <span class="d-inline-flex align-items-center justify-content-center rounded-circle shadow-sm overflow-hidden flex-shrink-0 fp-brand-icon-shell">
-                          <img src="/assets/img/logo/iconoSfondo.webp" alt="Icono FinanzasPro" class="fp-brand-icon-image">
+                          <img src="/assets/img/logo/iconoSfondo.webp" alt="${t('header.brandIconAlt')}" class="fp-brand-icon-image">
                   </span>
                   <span class="fw-bold text-white fs-5 fp-brand-text-light">FinanzasPro</span>
                 </a>
@@ -146,9 +147,9 @@ export function encabezadoAuthPublico({
   includeMobileToggle = false,
 } = {}) {
   const navItems = [
-    { href: '/', label: 'Inicio' },
-    { href: '/faqs', label: "FAQ's" },
-    { href: '/sobre-nosotros', label: 'Sobre nosotros' },
+    { href: '/', label: t('header.home') },
+    { href: '/faqs', label: t('header.faqs') },
+    { href: '/sobre-nosotros', label: t('header.about') },
   ];
 
   const navLinksMarkup = navItems
@@ -181,7 +182,7 @@ export function encabezadoAuthPublico({
         data-action="toggle-landing-mobile-menu"
         aria-expanded="false"
         aria-controls="landing-mobile-navigation"
-        aria-label="Abrir menú de navegación"
+        aria-label="${t('header.openNavMenu')}"
       >
         <span class="landing-mobile-menu-toggle-line" aria-hidden="true"></span>
         <span class="landing-mobile-menu-toggle-line" aria-hidden="true"></span>
@@ -195,16 +196,16 @@ export function encabezadoAuthPublico({
       <div class="landing-nav-links d-none d-lg-flex align-items-center gap-4 pe-2">
         ${navLinksMarkup}
       </div>
-      <span class="landing-auth-copy">Hace valer más tu dinero</span>
+      <span class="landing-auth-copy">${t('header.tagline')}</span>
       ${botonEncabezadoExterno({
         href: '/login',
-        text: 'Iniciar sesión',
+        text: t('header.login'),
         className: 'landing-access-btn landing-login-btn',
         sizeClass: 'btn-sm',
       })}
       ${botonEncabezadoExterno({
         href: '/registro',
-        text: 'Registrarse',
+        text: t('header.register'),
         className: 'landing-access-btn landing-register-btn',
         sizeClass: 'btn-sm',
       })}
@@ -236,7 +237,7 @@ export function renderAuthPublicPage({
     <div class="login-page min-vh-100 position-relative overflow-hidden fp-auth-page-shell">
       ${fondoDecorativoAuth()}
 
-      ${encabezadoExterno({ rightHref: '/', rightText: 'Volver al Inicio', rightClass: 'landing-access-btn', withLightBackground: true })}
+      ${encabezadoExterno({ rightHref: '/', rightText: t('header.backToHome'), rightClass: 'landing-access-btn', withLightBackground: true })}
 
       <section class="login-section pt-150 pb-120 position-relative fp-auth-content-section">
         <div class="container">
@@ -348,7 +349,7 @@ export function tarjetaPublicaConTitulo({
 
 export function botonScrollTop() {
   return `
-    <button type="button" class="scroll-top btn-hover" data-action="scroll-top-page" aria-label="Volver al comienzo">
+    <button type="button" class="scroll-top btn-hover" data-action="scroll-top-page" aria-label="${t('header.scrollTop')}">
       <span class="scroll-top-triangle" aria-hidden="true"></span>
     </button>
   `;
@@ -357,7 +358,7 @@ export function botonScrollTop() {
 // Se utiliza para Acceder, Volver al Inicio
 export function botonEncabezadoExterno({
   href = '/',
-  text = 'Acceder',
+  text = t('header.access'),
   className = '',
   sizeClass = 'btn-sm',
   wowDelay = '',
@@ -596,8 +597,8 @@ export function tarjetaValor({
     ? botonMasAccion({
         className: 'btn btn-light btn-sm fw-bold shadow-sm border-0 fp-circle-action-btn fp-circle-action-btn-kpi',
         dataAttributes: { action: buttonAction, id: buttonId },
-        ariaLabel: `Accion para ${title}`,
-        title: `Accion para ${title}`,
+        ariaLabel: t('reusable.actionFor', { title }),
+        title: t('reusable.actionFor', { title }),
       })
     : '';
 
@@ -657,8 +658,8 @@ export function tarjetaAhorro({ ahorro }) {
           ${botonMasAccion({
             className: 'btn btn-primary btn-sm fw-bold shadow-sm border-0 fp-circle-action-btn',
             dataAttributes: { action: 'open-destino-modal', 'ahorro-id': ahorro.id },
-            ariaLabel: `Destinar fondos a ${ahorro.nombre}`,
-            title: 'Destinar fondos desde Saldo Actual',
+            ariaLabel: t('reusable.allocateFundsTo', { name: ahorro.nombre }),
+            title: t('reusable.allocateFunds'),
           })}
         </div>
         ${
@@ -666,8 +667,8 @@ export function tarjetaAhorro({ ahorro }) {
             ? `
               <div>
                 <div class="d-flex justify-content-between mb-1">
-                  <small class="text-muted fw-semibold fp-savings-progress-label">Progreso</small>
-                  <small class="text-muted fw-semibold fp-savings-progress-label">Meta: ${escapeHtml(formatMoney(ahorro.meta))}</small>
+                  <small class="text-muted fw-semibold fp-savings-progress-label">${t('reusable.progress')}</small>
+                  <small class="text-muted fw-semibold fp-savings-progress-label">${t('reusable.goal', { amount: escapeHtml(formatMoney(ahorro.meta)) })}</small>
                 </div>
                 <div class="progress fp-savings-progress">
                   <div class="progress-bar bg-success fp-savings-progress-bar" role="progressbar" style="width: ${progress}%;"></div>
@@ -806,24 +807,27 @@ export function graficoGastos({
 }
 
 export function renderDashboardExpenseCard({
-  title = 'Ultimos movimientos',
+  title = null,
   actionHref = '',
-  actionText = 'Ver todos los gastos',
+  actionText = null,
   actionClassName = 'gd-top-btn',
   actionIconClass = 'lni lni-chevron-right',
   expenses = [],
   showDescription = false,
   showActions = false,
-  emptyMessage = 'No hay gastos recientes',
+  emptyMessage = null,
   cardClass = '',
   cardStyle = '',
   rowMapper = null,
 } = {}) {
+  const resolvedTitle = title ?? t('reusable.lastMovements');
+  const resolvedActionText = actionText ?? t('reusable.viewAllExpenses');
+  const resolvedEmptyMessage = emptyMessage ?? t('reusable.noRecentExpenses');
   const cardClasses = ['gd-card', cardClass].filter(Boolean).join(' ');
   const cardStyleAttr = cardStyle ? ` style="${escapeHtml(cardStyle)}"` : '';
   const iconMarkup = actionIconClass ? `<i class="${escapeHtml(actionIconClass)}"></i>` : '';
   const actionMarkup = actionHref
-    ? `<a href="${escapeHtml(actionHref)}" data-link class="${escapeHtml(actionClassName)}">${iconMarkup}${escapeHtml(actionText)}</a>`
+    ? `<a href="${escapeHtml(actionHref)}" data-link class="${escapeHtml(actionClassName)}">${iconMarkup}${escapeHtml(resolvedActionText)}</a>`
     : '';
   const tableExpenses = typeof rowMapper === 'function'
     ? expenses.map((expense) => rowMapper(expense))
@@ -832,7 +836,7 @@ export function renderDashboardExpenseCard({
   return `
     <article class="${escapeHtml(cardClasses)}"${cardStyleAttr}>
       <div class="gd-card-header">
-        <h2 class="gd-card-title">${escapeHtml(title)}</h2>
+        <h2 class="gd-card-title">${escapeHtml(resolvedTitle)}</h2>
         ${actionMarkup}
       </div>
 
@@ -840,16 +844,16 @@ export function renderDashboardExpenseCard({
         expenses: tableExpenses,
         showDescription,
         showActions,
-        emptyMessage,
+        emptyMessage: resolvedEmptyMessage,
       })}
     </article>
   `;
 }
 
 export function contenedorRecomendaciones({
-  title = 'Recomendaciones',
+  title = null,
   recommendations = [],
-  emptyText = 'No hay recomendaciones aun',
+  emptyText = null,
   maxHeight = '',
   padding = '16px',
   titleIcon = 'bi bi-lightbulb',
@@ -861,6 +865,8 @@ export function contenedorRecomendaciones({
   itemsWrapperClass = 'd-flex flex-column gap-2',
   itemRenderer = null,
 } = {}) {
+  const resolvedTitle = title ?? t('reusable.recommendations');
+  const resolvedEmptyText = emptyText ?? t('reusable.noRecommendationsYet');
   const items = recommendations ?? [];
   const hasScrollableArea = Boolean(maxHeight);
   const scrollStyle = hasScrollableArea
@@ -881,11 +887,11 @@ export function contenedorRecomendaciones({
   return `
     <article class="gd-card ${escapeHtml(cardClass)}"${cardStyleAttr}>
       <div class="card-body" style="padding: ${escapeHtml(padding)};${bodyStyle ? ` ${escapeHtml(bodyStyle)}` : ''}${scrollStyle ? ` ${scrollStyle}` : ''}">
-        <h2 class="${escapeHtml(titleClass)}"${titleStyleAttr}><i class="${escapeHtml(titleIcon)} me-2"></i>${escapeHtml(title)}</h2>
+        <h2 class="${escapeHtml(titleClass)}"${titleStyleAttr}><i class="${escapeHtml(titleIcon)} me-2"></i>${escapeHtml(resolvedTitle)}</h2>
         <div class="${escapeHtml(itemsWrapperClass)}">
           ${
             items.length === 0
-              ? `<p class="text-muted small mb-0">${escapeHtml(emptyText)}</p>`
+              ? `<p class="text-muted small mb-0">${escapeHtml(resolvedEmptyText)}</p>`
               : items
                   .map(
                     (item, index) => renderItem(item, index),
@@ -917,7 +923,7 @@ export function listaUltimosGastos({ title, expenses, showAll, toggleAction, for
         <h2 class="h5 mb-4 fw-bold text-dark">${title}</h2>
         <div class="d-flex flex-column gap-3">
           ${displayExpenses.length === 0
-            ? '<p class="text-muted text-center py-3">No hay gastos recientes</p>'
+            ? `<p class="text-muted text-center py-3">${t('reusable.noRecentExpenses')}</p>`
             : displayExpenses.map(expense => {
                 const config = categoryConfig[expense.categoria] || categoryConfig['Otros'];
                 return `
@@ -943,7 +949,7 @@ export function listaUltimosGastos({ title, expenses, showAll, toggleAction, for
           ? `
             <div class="text-center mt-4 pt-3 border-top">
               <button class="btn btn-link text-primary text-decoration-none fw-semibold p-0" data-action="${toggleAction}" data-value="${showAll ? 'hide' : 'show'}">
-                ${showAll ? 'Ver menos' : 'Ver todos los gastos'} <i class="lni ${showAll ? 'lni-chevron-up' : 'lni-chevron-down'} ms-1"></i>
+                ${showAll ? t('reusable.viewLess') : t('reusable.viewAllExpenses')} <i class="lni ${showAll ? 'lni-chevron-up' : 'lni-chevron-down'} ms-1"></i>
               </button>
             </div>
           `

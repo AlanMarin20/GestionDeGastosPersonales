@@ -1,3 +1,5 @@
+import { t } from '../i18n';
+
 const FAQ_ARTICLES = {
   "crear-cuenta": {
     title: "Crear una cuenta en FinanzasPro",
@@ -465,7 +467,7 @@ export function renderFaqDetailPage({
     bodyMarkup: `
       <div class="d-flex flex-column align-items-start gap-2 mb-3">
         <a href="/faqs" data-link class="text-decoration-none faq-link small fw-semibold d-inline-flex align-items-center mb-0">
-          <i class="lni lni-arrow-left me-2"></i>Volver al portal de FAQ
+          <i class="lni lni-arrow-left me-2"></i>${t('faq.backToPortal')}
         </a>
         <span class="badge rounded-pill text-bg-primary">${article.category} · ${article.readTime}</span>
       </div>
@@ -491,7 +493,7 @@ export function renderFaqDetailPage({
   });
 
   const tipsCard = tarjetaPublicaConTitulo({
-    title: 'Recomendaciones rápidas',
+    title: t('faq.quickTips'),
     bodyClass: 'card-body p-4 p-md-5',
     contentMarkup: `
       <ul class="list-unstyled mb-0">
@@ -510,17 +512,17 @@ export function renderFaqDetailPage({
   });
 
   const faqNavigationCard = tarjetaPublicaConTitulo({
-    title: 'Navegación FAQ',
+    title: t('faq.faqNavigation'),
     contentMarkup: `
       <ul class="list-unstyled mb-0">
-        <li class="mb-2"><a href="/faqs" data-link class="text-decoration-none text-muted faq-link">Portal principal</a></li>
-        <li class="mb-0"><a href="/login" data-link class="text-decoration-none text-muted faq-link">Mis reclamos</a></li>
+        <li class="mb-2"><a href="/faqs" data-link class="text-decoration-none text-muted faq-link">${t('faq.mainPortal')}</a></li>
+        <li class="mb-0"><a href="/login" data-link class="text-decoration-none text-muted faq-link">${t('faq.myClaims')}</a></li>
       </ul>
     `,
   });
 
   const relatedArticlesCard = tarjetaPublicaConTitulo({
-    title: 'Artículos relacionados',
+    title: t('faq.relatedArticles'),
     contentMarkup: `
       <ul class="list-unstyled mb-0">
         ${renderArticleLinks(article.related)}
@@ -532,7 +534,7 @@ export function renderFaqDetailPage({
     <div class="min-vh-100 d-flex flex-column public-page-shell public-faq-detail-page fp-public-surface">
       ${encabezadoExterno({
         rightHref: "/login",
-        rightText: "Iniciar sesión",
+        rightText: t('landing.authLogin'),
         rightClass: "landing-access-btn landing-login-btn",
         rightMarkup: headerAuthMarkup,
       })}

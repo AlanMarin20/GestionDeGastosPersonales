@@ -7,6 +7,7 @@ import {
   tarjetaValor,
 } from "../components/common/reusablePageComponents";
 import { escapeHtml } from "../utils/sanitize";
+import { t } from '../i18n';
 
 export function resolveDetalleCliente(pathname, state) {
   const match = pathname.match(/^\/cliente\/([^/]+)(?:\/(?:gastos|recomendaciones\/historicas))?$/);
@@ -52,7 +53,7 @@ export function resolveDetalleCliente(pathname, state) {
 
   return {
     id: clienteId,
-    nombre: String(clienteAsesor.nombre ?? clienteAsesor.name ?? "Cliente"),
+    nombre: String(clienteAsesor.nombre ?? clienteAsesor.name ?? t('cliente.defaultName')),
     presupuesto,
     saldoActual,
     gastadoMes,
@@ -77,41 +78,41 @@ function buildDetalleClienteSidebarSections({ clienteId }) {
 
   return [
     {
-      section: "Principal",
+      section: t('nav.section.main'),
       items: [
         {
           href: "/dashboard",
-          label: "Mi Dashboard",
+          label: t('nav.myDashboard'),
           icon: "lni lni-grid-alt",
         },
         {
           href: detalleHref,
-          label: "Dashboard Cliente",
+          label: t('nav.clientDashboard'),
           icon: "lni lni-user",
         },
       ],
     },
     {
-      section: "Analisis",
+      section: t('nav.section.analysis'),
       items: [
         {
           href: recomendacionesHref,
-          label: "Recomendaciones historicas",
+          label: t('nav.historicalRecommendations'),
           icon: "lni lni-bulb",
         },
       ],
     },
     {
-      section: "Asesor",
+      section: t('nav.section.advisor'),
       items: [
         {
           href: "/dashboard/asesor",
-          label: "Dashboard asesor",
+          label: t('nav.advisorDashboard'),
           icon: "lni lni-grid-alt",
         },
         {
           href: gastosHref,
-          label: "Movimientos cliente",
+          label: t('nav.clientMovements'),
           icon: "lni lni-list",
         },
       ],
@@ -128,28 +129,28 @@ function renderDetalleClienteGastosPage({ cliente, detalle, formatCurrency, prof
 
   return renderDashboardAppLayout({
     activePath: gastosHref,
-    pageTitle: `Movimientos de ${cliente.nombre}`,
-    pageSubtitle: "Listado completo de movimientos del cliente",
+    pageTitle: t('cliente.movementsOf', { name: cliente.nombre }),
+    pageSubtitle: t('cliente.movementsSubtitle'),
     content: `
       <section class="gd-metrics gd-metrics-2 mb-4">
         ${[
           {
-            title: "Resumen rapido",
+            title: t('cliente.quickSummary'),
             value: "",
             delta: "",
-            dashboardActionMarkup: `<a href="/cliente/${escapeHtml(encodeURIComponent(String(cliente.id)))}" data-link class="gd-metric-link-btn">Volver al detalle</a>`,
+            dashboardActionMarkup: `<a href="/cliente/${escapeHtml(encodeURIComponent(String(cliente.id)))}" data-link class="gd-metric-link-btn">${t('cliente.backToDetail')}</a>`,
             dashboardExtraMarkup: `
               <div class="d-flex flex-column gap-1 mt-2">
-                <div class="d-flex justify-content-between gap-2"><span class="gd-muted">Ingreso</span><strong>${escapeHtml(formatCurrency(cliente.presupuesto))}</strong></div>
-                <div class="d-flex justify-content-between gap-2"><span class="gd-muted">Egresos</span><strong>${escapeHtml(formatCurrency(cliente.gastadoMes))}</strong></div>
-                <div class="d-flex justify-content-between gap-2"><span class="gd-muted">Ahorros</span><strong>${escapeHtml(formatCurrency(cliente.ahorros))}</strong></div>
+                <div class="d-flex justify-content-between gap-2"><span class="gd-muted">${t('cliente.income')}</span><strong>${escapeHtml(formatCurrency(cliente.presupuesto))}</strong></div>
+                <div class="d-flex justify-content-between gap-2"><span class="gd-muted">${t('cliente.expenses')}</span><strong>${escapeHtml(formatCurrency(cliente.gastadoMes))}</strong></div>
+                <div class="d-flex justify-content-between gap-2"><span class="gd-muted">${t('cliente.savings')}</span><strong>${escapeHtml(formatCurrency(cliente.ahorros))}</strong></div>
               </div>
             `,
           },
           {
-            title: "Gastado",
+            title: t('cliente.spent'),
             value: `${Math.round(porcentajeGastado)}%`,
-            delta: `Gastado ${formatCurrency(cliente.gastadoMes)} de ${formatCurrency(cliente.presupuesto)}`,
+            delta: t('cliente.spentOf', { spent: formatCurrency(cliente.gastadoMes), budget: formatCurrency(cliente.presupuesto) }),
             dashboardExtraMarkup: `
               <div class="mt-2">
                 <div class="progress" style="height: 8px; border-radius: 999px; background: rgba(148, 163, 184, 0.18);">
@@ -173,10 +174,10 @@ function renderDetalleClienteGastosPage({ cliente, detalle, formatCurrency, prof
       </section>
 
       ${renderDashboardExpenseCard({
-        title: "Todos los movimientos",
+        title: t('cliente.allMovements'),
         expenses: detalle.gastos,
         formatMoney: formatCurrency,
-        emptyMessage: "Todavia no hay movimientos registrados para este cliente.",
+        emptyMessage: t('cliente.noClientMovements'),
         rowMapper: mapGastoClienteToRow,
       })}
     `,
@@ -218,36 +219,36 @@ export function renderDetalleClientePage({
 
   return renderDashboardAppLayout({
     activePath: detalleHref,
-    pageTitle: `Cliente: ${cliente.nombre}`,
-    pageSubtitle: "Resumen financiero y seguimiento personalizado",
+    pageTitle: t('cliente.pageTitle', { name: cliente.nombre }),
+    pageSubtitle: t('cliente.pageSubtitle'),
     content: `
       <section class="gd-metrics">
         ${[
           {
-            title: "Saldo Actual",
+            title: t('cliente.currentBalance'),
             value: formatCurrency(cliente.saldoActual),
-            delta: "Disponible hoy",
+            delta: t('cliente.availableToday'),
             color: "primary",
             icon: "lni-wallet",
           },
           {
-            title: "Gastos del Mes",
+            title: t('cliente.monthExpenses'),
             value: formatCurrency(cliente.gastadoMes),
-            delta: "Acumulado en el periodo",
+            delta: t('cliente.accumulatedPeriod'),
             color: "danger",
             icon: "lni-stats-down",
           },
           {
-            title: "Presupuesto Total",
+            title: t('cliente.totalBudget'),
             value: formatCurrency(presupuestoDisponible),
-            delta: "Tope mensual asignado",
+            delta: t('cliente.monthlyCap'),
             color: "success",
             icon: "lni-coin",
           },
           {
-            title: "Total Ahorrado",
+            title: t('cliente.totalSaved'),
             value: formatCurrency(cliente.ahorros),
-            delta: "Ahorro acumulado",
+            delta: t('cliente.accumulatedSaving'),
             color: "info",
             icon: "lni-wallet",
           },
@@ -265,17 +266,17 @@ export function renderDetalleClientePage({
 
       <section class="gd-grid-3">
         ${graficoGastos({
-          title: "Gastos por mes",
+          title: t('cliente.expensesByMonth'),
           canvasId: "detalleMonthlyBarChart",
-          ariaLabel: "Gastos por mes del cliente",
+          ariaLabel: t('cliente.expensesByMonthAria'),
           height: "220px",
           dashboardStyle: true,
         })}
 
         ${graficoTorta({
-          title: "Por categoria",
+          title: t('cliente.byCategory'),
           canvasId: "detallePieChart",
-          ariaLabel: "Distribucion por categoria del cliente",
+          ariaLabel: t('cliente.categoryDistributionAria'),
           height: "220px",
           dashboardStyle: true,
         })}
@@ -283,13 +284,13 @@ export function renderDetalleClientePage({
 
       <section class="w-100">
         ${renderDashboardExpenseCard({
-          title: "Ultimos movimientos",
+          title: t('cliente.lastMovements'),
           actionHref: gastosHref,
-          actionText: "ver todo",
+          actionText: t('cliente.viewAll'),
           expenses: detalle.gastos,
           formatMoney: formatCurrency,
           rowMapper: mapGastoClienteToRow,
-          emptyMessage: "No hay gastos recientes",
+          emptyMessage: t('cliente.noRecentExpenses'),
         })}
       </section>
 
@@ -297,7 +298,7 @@ export function renderDetalleClientePage({
         <div class="col-12 col-lg-6">
           <div class="gd-card gd-client-detail-fixed-card">
             <div class="card-body p-0 gd-client-recommend-form-body">
-              <h5 class="card-title mb-2">Agregar recomendacion para ${escapeHtml(cliente.nombre)}</h5>
+              <h5 class="card-title mb-2">${t('cliente.addRecommendationFor', { name: escapeHtml(cliente.nombre) })}</h5>
               <form id="agregarRecomendacionForm" class="gd-client-recommend-form">
                 <div class="mb-2">
                   <input
@@ -305,15 +306,15 @@ export function renderDetalleClientePage({
                     id="recomendacionTitulo"
                     type="text"
                     maxlength="60"
-                    placeholder="Titulo de la recomendacion"
+                    placeholder="${t('cliente.recommendationTitle')}"
                     value="${escapeHtml(detalle.nuevaRecomendacionTitulo || "")}"
                     required
                   >
                 </div>
                 <div class="mb-2 gd-client-recommend-input-wrap">
-                  <textarea class="form-control" id="recomendacionTexto" rows="3" placeholder="Escribe una recomendacion personalizada para este cliente..." required>${escapeHtml(detalle.nuevaRecomendacionTexto || "")}</textarea>
+                  <textarea class="form-control" id="recomendacionTexto" rows="3" placeholder="${t('cliente.recommendationPlaceholder')}" required>${escapeHtml(detalle.nuevaRecomendacionTexto || "")}</textarea>
                 </div>
-                <button type="submit" class="btn btn-primary w-100 btn-sm">Enviar Recomendacion</button>
+                <button type="submit" class="btn btn-primary w-100 btn-sm">${t('cliente.sendRecommendation')}</button>
               </form>
             </div>
           </div>
@@ -321,9 +322,9 @@ export function renderDetalleClientePage({
 
         <div class="col-12 col-lg-6">
           ${contenedorRecomendaciones({
-            title: "Recomendaciones Enviadas",
+            title: t('cliente.sentRecommendations'),
             recommendations: detalle.recomendaciones,
-            emptyText: "No hay recomendaciones aun",
+            emptyText: t('cliente.noRecommendationsYet'),
             cardClass: "gd-client-detail-fixed-card",
             maxHeight: "100%",
             bodyStyle: "height: 100%; padding: 0;",

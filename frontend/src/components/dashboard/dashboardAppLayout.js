@@ -1,70 +1,39 @@
 import { escapeHtml } from "../../utils/sanitize";
 import { getUnreadNotifications } from "../../data/finanzas";
+import { t } from "../../i18n";
 
-const ASESOR_NAV_SECTION = {
-  section: "Asesor",
-  items: [
+function getNavItems() {
+  return [
     {
-      href: "/dashboard/asesor",
-      label: "Dashboard asesor",
-      icon: "lni lni-grid-alt",
+      section: t('nav.section.main'),
+      items: [
+        { href: "/dashboard",                 label: t('nav.dashboard'),    icon: "lni lni-grid-alt"   },
+        { href: "/dashboard/cargar",          label: t('nav.newMovement'),  icon: "lni lni-upload"     },
+        { href: "/dashboard/gastos",          label: t('nav.myMovements'),  icon: "lni lni-list"       },
+        { href: "/dashboard/ahorros",         label: t('nav.savings'),      icon: "lni lni-investment" },
+      ],
     },
-  ],
-};
-
-const USER_NAV_ITEMS = [
-  {
-    section: "Principal",
-    items: [
-      { href: "/dashboard", label: "Dashboard", icon: "lni lni-grid-alt" },
-      {
-        href: "/dashboard/cargar",
-        label: "Nuevo movimiento",
-        icon: "lni lni-upload",
-      },
-      {
-        href: "/dashboard/gastos",
-        label: "Mis movimientos",
-        icon: "lni lni-list",
-      },
-      {
-        href: "/dashboard/ahorros",
-        label: "Ahorros",
-        icon: "lni lni-investment",
-      },
-    ],
-  },
-  {
-    section: "Analisis",
-    items: [
-      {
-        href: "/dashboard/recomendaciones",
-        label: "Recomendaciones",
-        icon: "lni lni-bulb",
-      },
-      {
-        href: "/dashboard/patrones",
-        label: "Patrones",
-        icon: "lni lni-bar-chart",
-      },
-    ],
-  },
-  {
-    section: "Cuenta",
-    items: [
-      {
-        href: "/perfil/configuracion",
-        label: "Configuracion",
-        icon: "lni lni-cog",
-      },
-    ],
-  },
-  ASESOR_NAV_SECTION,
-];
-
-const ADVISOR_NAV_ITEMS = [
-  ...USER_NAV_ITEMS,
-];
+    {
+      section: t('nav.section.analysis'),
+      items: [
+        { href: "/dashboard/recomendaciones", label: t('nav.recommendations'), icon: "lni lni-bulb"      },
+        { href: "/dashboard/patrones",        label: t('nav.patterns'),        icon: "lni lni-bar-chart" },
+      ],
+    },
+    {
+      section: t('nav.section.account'),
+      items: [
+        { href: "/perfil/configuracion", label: t('nav.configuration'), icon: "lni lni-cog" },
+      ],
+    },
+    {
+      section: t('nav.section.advisor'),
+      items: [
+        { href: "/dashboard/asesor", label: t('nav.advisorDashboard'), icon: "lni lni-grid-alt" },
+      ],
+    },
+  ];
+}
 
 function buildInitials(name) {
   const words = String(name)
@@ -83,10 +52,8 @@ function buildInitials(name) {
   return `${words[0][0]}${words[1][0]}`.toUpperCase();
 }
 
-function renderNavGroups({ activePath, isAsesor }) {
-  const navConfig = isAsesor ? ADVISOR_NAV_ITEMS : USER_NAV_ITEMS;
-
-  return navConfig
+function renderNavGroups({ activePath }) {
+  return getNavItems()
     .map(
       (group) => `
         <div class="gd-nav-section">
@@ -139,7 +106,7 @@ function resolveNavMarkup({ activePath, isAsesor, sidebarSections }) {
     return renderCustomNavGroups({ activePath, sidebarSections });
   }
 
-  return renderNavGroups({ activePath, isAsesor });
+  return renderNavGroups({ activePath });
 }
 
 export function renderDashboardAppLayout({
@@ -154,7 +121,7 @@ export function renderDashboardAppLayout({
   sidebarSections = null,
 }) {
   const initials = buildInitials(profileName);
-  const roleLabel = isAsesor ? "asesor" : "usuario";
+  const roleLabel = isAsesor ? t('header.role.advisor') : t('header.role.user');
   const notificationsRoute = isAsesor
     ? "/dashboard/asesor"
     : "/dashboard/recomendaciones";
@@ -165,7 +132,7 @@ export function renderDashboardAppLayout({
   const primaryAction = isAsesor
     ? null
     : {
-        label: "Nuevo movimiento",
+        label: t('nav.newMovement'),
         path: "/dashboard/cargar",
         icon: "lni lni-plus",
       };
@@ -174,15 +141,15 @@ export function renderDashboardAppLayout({
     <div class="gd-shell">
       <aside class="gd-sidebar">
         <div class="gd-logo-wrap">
-          <a href="/dashboard" data-link class="gd-logo-link" aria-label="Ir al dashboard">
+          <a href="/dashboard" data-link class="gd-logo-link" aria-label="${t('layout.goToDashboard')}">
             <span class="gd-logo-icon" aria-hidden="true">
               <img src="/assets/img/logo/iconoSfondo.webp" alt="">
             </span>
-            <span class="gd-logo-text">FinanzasPro<span>gestion de gastos</span></span>
+            <span class="gd-logo-text">FinanzasPro<span>${t('layout.brandTagline')}</span></span>
           </a>
         </div>
 
-        <nav class="gd-nav" aria-label="Navegacion del dashboard">
+        <nav class="gd-nav" aria-label="${t('layout.dashboardNav')}">
           ${resolveNavMarkup({ activePath, isAsesor, sidebarSections })}
         </nav>
 
@@ -192,14 +159,14 @@ export function renderDashboardAppLayout({
               type="button"
               class="gd-user-chip"
               data-action="toggle-user-chip-menu"
-              aria-label="Abrir menu de cuenta"
+              aria-label="${t('layout.openAccountMenu')}"
               aria-expanded="false"
               aria-haspopup="true"
               aria-controls="gd-user-chip-dropdown"
             >
               <img
-                src="${escapeHtml(profileImage || "/assets/img/user-avatar-default.svg")}" 
-                alt="Avatar de ${escapeHtml(profileName)}"
+                src="${escapeHtml(profileImage || "/assets/img/user-avatar-default.svg")}"
+                alt="${escapeHtml(t('layout.avatarOf', { name: profileName }))}"
                 class="gd-avatar-image"
                 data-image-error-mode="toggle-next"
               >
@@ -211,10 +178,10 @@ export function renderDashboardAppLayout({
               <i class="lni lni-chevron-down gd-user-chip-caret" aria-hidden="true"></i>
             </button>
 
-            <div id="gd-user-chip-dropdown" class="gd-user-chip-dropdown" role="menu" aria-label="Opciones de cuenta">
+            <div id="gd-user-chip-dropdown" class="gd-user-chip-dropdown" role="menu" aria-label="${t('layout.accountOptions')}">
               <button type="button" class="gd-user-chip-dropdown-item gd-user-chip-dropdown-item-danger" data-action="logout" role="menuitem">
                 <i class="lni lni-exit" aria-hidden="true"></i>
-                <span>Cerrar sesion</span>
+                <span>${t('layout.logout')}</span>
               </button>
             </div>
           </div>
@@ -230,15 +197,15 @@ export function renderDashboardAppLayout({
 
           <div class="gd-topbar-actions">
             <div class="gd-top-notifications">
-              <button type="button" class="gd-top-btn gd-top-notifications-trigger" data-action="toggle-notifications-menu" aria-expanded="false" aria-haspopup="true" aria-label="Abrir notificaciones">
+              <button type="button" class="gd-top-btn gd-top-notifications-trigger" data-action="toggle-notifications-menu" aria-expanded="false" aria-haspopup="true" aria-label="${t('layout.openNotifications')}">
                 <i class="lni lni-alarm" aria-hidden="true"></i>
-                <span>Notificaciones</span>
-                ${resolvedCount > 0 ? `<span class="gd-alert-dot" aria-label="${resolvedCount} alertas pendientes"></span>` : ""}
+                <span>${t('layout.notifications')}</span>
+                ${resolvedCount > 0 ? `<span class="gd-alert-dot" aria-label="${escapeHtml(t('layout.pendingAlerts', { count: resolvedCount }))}"></span>` : ""}
               </button>
 
-              <section class="gd-notifications-menu" aria-label="Notificaciones">
+              <section class="gd-notifications-menu" aria-label="${t('layout.notifications')}">
                 <header class="gd-notifications-head">
-                  <h2 class="gd-notifications-title">Notificaciones</h2>
+                  <h2 class="gd-notifications-title">${t('layout.notifications')}</h2>
                   ${resolvedCount > 0 ? `<span class="gd-notifications-count">${escapeHtml(String(resolvedCount))}</span>` : ""}
                 </header>
 
@@ -250,15 +217,15 @@ export function renderDashboardAppLayout({
                           ${item.body ? `<span class="gd-notification-item-sub">${escapeHtml(item.body.length > 80 ? item.body.slice(0, 80) + "…" : item.body)}</span>` : ""}
                         </a>
                       `).join("")
-                    : `<p class="gd-notifications-empty">No hay alertas activas.</p>`
+                    : `<p class="gd-notifications-empty">${t('layout.noActiveAlerts')}</p>`
                   }
                   ${resolvedCount > 4 ? `
                     <a href="${escapeHtml(notificationsRoute)}" data-link class="gd-notification-item">
-                      <span class="gd-notification-item-title">Ver ${resolvedCount - 4} alertas más →</span>
+                      <span class="gd-notification-item-title">${t('layout.viewMoreAlerts', { count: resolvedCount - 4 })}</span>
                     </a>` : ""}
                   <a href="/perfil/notificaciones" data-link class="gd-notification-item">
-                    <span class="gd-notification-item-title">Preferencias de notificacion</span>
-                    <span class="gd-notification-item-sub">Configura alertas y recordatorios</span>
+                    <span class="gd-notification-item-title">${t('layout.notificationPreferences')}</span>
+                    <span class="gd-notification-item-sub">${t('layout.notificationPreferencesSub')}</span>
                   </a>
                 </div>
               </section>

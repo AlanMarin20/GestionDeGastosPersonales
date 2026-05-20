@@ -1,3 +1,5 @@
+import { t } from '../i18n';
+
 export function renderNuevaContrasenaPage({
   encabezadoExterno,
   botonIniciarCrearCuenta,
@@ -10,9 +12,9 @@ export function renderNuevaContrasenaPage({
       <div class="col-md-6 mb-4">
         ${campoAuthInput({
           id: 'nuevaContrasena',
-          label: 'Nueva contraseña',
+          label: t('auth.newPasswordLabel'),
           type: 'password',
-          placeholder: '********',
+          placeholder: t('auth.passwordPlaceholder'),
           wrapperClass: null,
         })}
       </div>
@@ -20,9 +22,9 @@ export function renderNuevaContrasenaPage({
       <div class="col-md-6 mb-4">
         ${campoAuthInput({
           id: 'confirmarContrasena',
-          label: 'Confirmar contraseña',
+          label: t('auth.confirmPasswordLabel'),
           type: 'password',
-          placeholder: '********',
+          placeholder: t('auth.passwordPlaceholder'),
           wrapperClass: null,
         })}
       </div>
@@ -31,7 +33,7 @@ export function renderNuevaContrasenaPage({
 
   const helperMarkup = `
     <p class="small text-muted mb-4">
-      Usa al menos 8 caracteres con mayuscula, minuscula, numero y caracter especial.
+      ${t('auth.passwordHelper')}
     </p>
   `;
 
@@ -39,20 +41,20 @@ export function renderNuevaContrasenaPage({
 
   const footerMarkup = `
     <p class="text-muted mb-0">
-      Volver a <a href="/login" data-link class="text-primary fw-bold text-decoration-none">Iniciar sesion</a>
+      ${t('auth.backTo')} <a href="/login" data-link class="text-primary fw-bold text-decoration-none">${t('auth.loginLinkLower')}</a>
     </p>
   `;
 
   return renderAuthPublicPage({
     encabezadoExterno,
     fondoDecorativoAuth,
-    heading: 'Crea una nueva contraseña',
-    description: 'Actualiza tu acceso para volver a iniciar sesion.',
+    heading: t('auth.newPasswordHeading'),
+    description: t('auth.newPasswordDescription'),
     formId: 'actualizarContrasenaForm',
     errorId: 'actualizarContrasenaError',
     formFieldsMarkup: fieldsMarkup,
     submitButtonMarkup: botonIniciarCrearCuenta({
-      text: 'Actualizar contraseña',
+      text: t('auth.updatePassword'),
       type: 'submit',
       className: 'main-btn btn-hover w-100 mb-3',
     }),

@@ -1,3 +1,5 @@
+import { t } from '../i18n';
+
 export function renderRegistroExitosoPage({
   encabezadoExterno,
   fondoDecorativoAuth,
@@ -12,17 +14,17 @@ export function renderRegistroExitosoPage({
         <span aria-hidden="true" class="fp-registro-exito-mark">✓</span>
       </div>
 
-      <h3 class="mb-3">Cuenta creada con éxito</h3>
-      <p class="text-muted mb-4">Tu cuenta ya está lista. Ahora puedes iniciar sesión y comenzar a gestionar tus finanzas.</p>
+      <h3 class="mb-3">${t('auth.accountCreated')}</h3>
+      <p class="text-muted mb-4">${t('auth.accountCreatedDesc')}</p>
       <p class="small text-muted mb-4">
-        Serás redirigido automáticamente en <span id="registroExitosoCountdown" class="fw-bold">5</span> segundos.
+        ${t('auth.autoRedirect', { seconds: '<span id="registroExitosoCountdown" class="fw-bold">5</span>' })}
       </p>
 
       <a href="/login" data-link class="main-btn btn-hover w-100 mb-3 fp-auth-primary-btn">
-        Ir a Iniciar Sesión
+        ${t('auth.goToLogin')}
       </a>
       <a href="/" data-link class="btn btn-outline-secondary w-100 fw-semibold fp-auth-secondary-btn">
-        Volver al Inicio
+        ${t('auth.backToHome')}
       </a>
     `,
   });

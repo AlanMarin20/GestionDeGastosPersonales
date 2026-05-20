@@ -1,4 +1,5 @@
 import { state } from "../state";
+import { t } from "../i18n";
 import {
   API_BASE_URL,
   ACCESS_TOKEN_KEY,
@@ -125,13 +126,13 @@ export function attachFormHandlers(pathname, { navigate, render }) {
       clearAuthError();
 
       if (!email || !password) {
-        setAuthError("Completa correo y contraseña", [emailInput, passwordInput]);
+        setAuthError(t('forms.completeEmailPassword'), [emailInput, passwordInput]);
         return;
       }
 
       if (!email.includes("@")) {
         setAuthError(
-          "El correo debe incluir '@' para ser válido",
+          t('forms.emailMustHaveAt'),
           [emailInput],
           "email-format",
         );
@@ -149,7 +150,7 @@ export function attachFormHandlers(pathname, { navigate, render }) {
 
         if (!response.ok) {
           const errData = await response.json().catch(() => ({}));
-          throw new Error(errData.message || "Correo o contraseña incorrectos");
+          throw new Error(errData.message || t('forms.invalidCredentials'));
         }
 
         const data = await response.json();
@@ -160,7 +161,7 @@ export function attachFormHandlers(pathname, { navigate, render }) {
         const message =
           error instanceof Error
             ? error.message
-            : "No se pudo iniciar sesión";
+            : t('forms.couldNotLogin');
         setAuthError(message, [emailInput, passwordInput]);
       } finally {
         if (submitBtn) submitBtn.disabled = false;
@@ -226,13 +227,13 @@ export function attachFormHandlers(pathname, { navigate, render }) {
       clearAuthError();
 
       if (!email) {
-        setAuthError("Completa el correo para continuar", [emailInput]);
+        setAuthError(t('forms.completeEmail'), [emailInput]);
         return;
       }
 
       if (!email.includes("@")) {
         setAuthError(
-          "El correo debe incluir '@' para ser valido",
+          t('forms.emailMustHaveAtLower'),
           [emailInput],
           "email-format",
         );
@@ -243,7 +244,7 @@ export function attachFormHandlers(pathname, { navigate, render }) {
       try {
         await requestPasswordReset(email);
       } catch (err) {
-        setAuthError(err?.message || "No se pudo enviar el código de verificación", [emailInput]);
+        setAuthError(err?.message || t('forms.couldNotSendCode'), [emailInput]);
         if (submitBtn) submitBtn.disabled = false;
         return;
       }
@@ -252,10 +253,7 @@ export function attachFormHandlers(pathname, { navigate, render }) {
       state.authRecovery.email = email;
       state.authRecovery.code = "";
       state.authRecovery.codeVerified = false;
-      showAppNotification(
-        "Si el correo pertenece a una cuenta, enviaremos un codigo de verificacion.",
-        "info",
-      );
+      showAppNotification(t('forms.recoveryCodeSent'), "info");
       navigate("/recuperar-contrasena/verificar");
     });
   }
@@ -308,12 +306,12 @@ export function attachFormHandlers(pathname, { navigate, render }) {
       clearAuthError();
 
       if (!normalizedCode) {
-        setAuthError("Ingresa el codigo de verificacion", [codeInput]);
+        setAuthError(t('forms.enterVerificationCode'), [codeInput]);
         return;
       }
 
       if (!/^\d{6}$/.test(normalizedCode)) {
-        setAuthError("El codigo debe tener 6 digitos", [codeInput]);
+        setAuthError(t('forms.codeMustHave6'), [codeInput]);
         return;
       }
 
@@ -324,7 +322,7 @@ export function attachFormHandlers(pathname, { navigate, render }) {
         state.authRecovery.codeVerified = true;
         navigate("/recuperar-contrasena/nueva");
       } catch (err) {
-        setAuthError(err?.message || "Codigo invalido o expirado", [codeInput]);
+        setAuthError(err?.message || t('forms.invalidOrExpiredCode'), [codeInput]);
       } finally {
         if (submitBtn) submitBtn.disabled = false;
       }
@@ -384,7 +382,7 @@ export function attachFormHandlers(pathname, { navigate, render }) {
       clearAuthError();
 
       if (!password || !confirmPassword) {
-        setAuthError("Completa los campos para continuar", [
+        setAuthError(t('forms.completeFields'), [
           passwordInput,
           confirmPasswordInput,
         ]);
@@ -397,7 +395,7 @@ export function attachFormHandlers(pathname, { navigate, render }) {
       }
 
       if (password !== confirmPassword) {
-        setAuthError("Las contrasenas no coinciden", [
+        setAuthError(t('forms.passwordsDoNotMatchLower'), [
           passwordInput,
           confirmPasswordInput,
         ]);
@@ -410,10 +408,10 @@ export function attachFormHandlers(pathname, { navigate, render }) {
         state.authRecovery.email = "";
         state.authRecovery.code = "";
         state.authRecovery.codeVerified = false;
-        showAppNotification("Contrasena actualizada. Inicia sesion.", "success");
+        showAppNotification(t('forms.passwordUpdatedLogin'), "success");
         navigate("/login", true);
       } catch (err) {
-        setAuthError(err?.message || "No se pudo actualizar la contrasena");
+        setAuthError(err?.message || t('forms.couldNotUpdatePassword'));
         if (submitBtn) submitBtn.disabled = false;
       }
     });
@@ -481,7 +479,7 @@ export function attachFormHandlers(pathname, { navigate, render }) {
       clearAuthError();
 
       if (!nombre || !email || !password || !confirmPassword) {
-        setAuthError("Completa todos los campos obligatorios", [
+        setAuthError(t('forms.completeRequiredFields'), [
           nombreInput,
           emailInput,
           passwordInput,
@@ -492,7 +490,7 @@ export function attachFormHandlers(pathname, { navigate, render }) {
 
       if (!email.includes("@")) {
         setAuthError(
-          "El correo debe incluir '@' para ser válido",
+          t('forms.emailMustHaveAt'),
           [emailInput],
           "email-format",
         );
@@ -505,7 +503,7 @@ export function attachFormHandlers(pathname, { navigate, render }) {
       }
 
       if (password !== confirmPassword) {
-        setAuthError("Las contraseñas no coinciden", [
+        setAuthError(t('forms.passwordsDoNotMatch'), [
           passwordInput,
           confirmPasswordInput,
         ]);
@@ -523,7 +521,7 @@ export function attachFormHandlers(pathname, { navigate, render }) {
         const message =
           error instanceof Error
             ? error.message
-            : "No se pudo registrar el usuario";
+            : t('forms.couldNotRegister');
         setAuthError(message, [emailInput, passwordInput, confirmPasswordInput]);
       } finally {
         if (submitBtn) submitBtn.disabled = false;
@@ -571,12 +569,12 @@ export function attachFormHandlers(pathname, { navigate, render }) {
       clearAuthError();
 
       if (!normalizedCode) {
-        setAuthError("Ingresá el código de verificación", [codeInput]);
+        setAuthError(t('forms.enterVerificationCodeAccent'), [codeInput]);
         return;
       }
 
       if (!/^\d{6}$/.test(normalizedCode)) {
-        setAuthError("El código debe tener 6 dígitos", [codeInput]);
+        setAuthError(t('forms.codeMustHave6Accent'), [codeInput]);
         return;
       }
 
@@ -586,7 +584,7 @@ export function attachFormHandlers(pathname, { navigate, render }) {
         state.authRegistration.codeVerified = true;
         navigate("/registro/exitoso", true);
       } catch (err) {
-        setAuthError(err?.message || "Código inválido o expirado", [codeInput]);
+        setAuthError(err?.message || t('forms.invalidOrExpiredCodeAccent'), [codeInput]);
       } finally {
         if (submitBtn) submitBtn.disabled = false;
       }
@@ -599,9 +597,9 @@ export function attachFormHandlers(pathname, { navigate, render }) {
 
       try {
         await resendRegistrationCode(state.authRegistration.email);
-        showAppNotification("Código reenviado. Revisá tu correo.", "success");
+        showAppNotification(t('forms.codeResent'), "success");
       } catch (err) {
-        showAppNotification(err?.message || "No se pudo reenviar el código", "danger");
+        showAppNotification(err?.message || t('forms.couldNotResendCode'), "danger");
       }
     }, { once: true });
   }
@@ -699,10 +697,7 @@ export function attachFormHandlers(pathname, { navigate, render }) {
             descripcion: data.descripcion ?? "",
           };
         } catch {
-          showAppNotification(
-            "No se pudo analizar el ticket. Completá los datos manualmente.",
-            "warn",
-          );
+          showAppNotification(t('forms.couldNotAnalyzeTicket'), "warn");
         } finally {
           state.finanzas.cargar.ocrLoading = false;
           render();
@@ -740,7 +735,7 @@ export function attachFormHandlers(pathname, { navigate, render }) {
               entry.data = result.data || {};
             } else {
               entry.status = "error";
-              entry.error = result.error || "No se pudo interpretar el ticket.";
+              entry.error = result.error || t('cargar.ticketParseError');
             }
           });
         } catch {
@@ -748,13 +743,10 @@ export function attachFormHandlers(pathname, { navigate, render }) {
           state.finanzas.cargar.batchTickets.forEach((entry) => {
             if (entry.status === "loading") {
               entry.status = "error";
-              entry.error = "Error al conectar con el servidor.";
+              entry.error = t('forms.serverConnectionError');
             }
           });
-          showAppNotification(
-            "No se pudo analizar uno o mas tickets. Revisa los errores en la cola.",
-            "warn",
-          );
+          showAppNotification(t('forms.couldNotAnalyzeTickets'), "warn");
         } finally {
           render();
         }
@@ -786,10 +778,7 @@ export function attachFormHandlers(pathname, { navigate, render }) {
       if (submitBtn) submitBtn.disabled = false;
 
       if (!saved) {
-        showAppNotification(
-          "No se pudo guardar el gasto. Revisa los datos.",
-          "error",
-        );
+        showAppNotification(t('forms.couldNotSaveExpense'), "error");
         return;
       }
 
@@ -847,10 +836,7 @@ export function attachFormHandlers(pathname, { navigate, render }) {
       if (submitBtn) submitBtn.disabled = false;
 
       if (!saved) {
-        showAppNotification(
-          "No se pudo guardar el ingreso. Revisa los datos.",
-          "error",
-        );
+        showAppNotification(t('forms.couldNotSaveIncome'), "error");
         return;
       }
 
@@ -977,7 +963,7 @@ export function attachFormHandlers(pathname, { navigate, render }) {
         ];
         await loadDashboardBalances();
       } catch {
-        showAppNotification("No se pudo guardar el gasto.", "error");
+        showAppNotification(t('forms.couldNotSaveExpenseShort'), "error");
       }
 
       if (submitBtn) submitBtn.disabled = false;
@@ -1030,7 +1016,7 @@ export function attachFormHandlers(pathname, { navigate, render }) {
         });
         await loadDashboardBalances();
       } catch {
-        showAppNotification("No se pudo registrar el ingreso.", "error");
+        showAppNotification(t('forms.couldNotRegisterIncome'), "error");
         if (submitBtn) submitBtn.disabled = false;
         return;
       }
@@ -1082,13 +1068,13 @@ export function attachFormHandlers(pathname, { navigate, render }) {
 
       const wasAdded = addSavingsGoalRecord({ nombre, montoInicial, meta });
       if (!wasAdded) {
-        showAppNotification("Completa al menos el nombre del ahorro", "warning");
+        showAppNotification(t('forms.completeSavingName'), "warning");
         return;
       }
 
       dashboard.nuevoAhorroForm = { nombre: "", montoInicial: "", meta: "" };
       dashboard.modals.ahorro = false;
-      showAppNotification("Ahorro creado correctamente", "success");
+      showAppNotification(t('forms.savingCreated'), "success");
       render();
     });
 
@@ -1160,28 +1146,28 @@ export function attachFormHandlers(pathname, { navigate, render }) {
       const meta = Number.parseFloat(document.getElementById("detalleAhorroMeta")?.value || "") || 0;
 
       if (!nombre) {
-        showAppNotification("Completa al menos el nombre del ahorro", "warning");
+        showAppNotification(t('forms.completeSavingName'), "warning");
         return;
       }
 
       if (meta > 0 && meta <= montoInicial) {
-        showAppNotification("La meta debe ser mayor al monto inicial", "warning");
+        showAppNotification(t('forms.goalMustBeGreaterInitial'), "warning");
         return;
       }
 
       const disponible = state.finanzas.balancesData?.disponible ?? 0;
       if (montoInicial > 0 && montoInicial > disponible) {
-        showAppNotification(`El monto inicial supera el dinero disponible (${disponible.toFixed(2)})`, "warning");
+        showAppNotification(t('forms.initialAmountExceeds', { amount: disponible.toFixed(2) }), "warning");
         return;
       }
 
       try {
         await createAhorro({ nombre, montoInicial, meta });
         await loadAhorros();
-        showAppNotification("Nuevo ahorro agregado", "success");
+        showAppNotification(t('forms.newSavingAdded'), "success");
         render();
       } catch (error) {
-        showAppNotification(error.message || "Error al crear el ahorro", "error");
+        showAppNotification(error.message || t('forms.errorCreatingSaving'), "error");
       }
     });
   }
@@ -1202,7 +1188,7 @@ export function attachFormHandlers(pathname, { navigate, render }) {
       updateAdvisorNewClientField("codigo", codigo);
 
       if (!codigo) {
-        showAppNotification("Ingresa el codigo de vinculacion del cliente", "warning");
+        showAppNotification(t('forms.enterClientLinkCode'), "warning");
         return;
       }
 
@@ -1213,10 +1199,10 @@ export function attachFormHandlers(pathname, { navigate, render }) {
         await apiVincularCliente(codigo);
         await loadAsesorClientes();
         closeAdvisorNewClientModal();
-        showAppNotification("Cliente vinculado correctamente", "success");
+        showAppNotification(t('forms.clientLinked'), "success");
         render();
       } catch (error) {
-        showAppNotification(error.message || "Codigo invalido o expirado", "error");
+        showAppNotification(error.message || t('forms.invalidOrExpiredCode'), "error");
       } finally {
         if (submitBtn) submitBtn.disabled = false;
       }
@@ -1272,11 +1258,11 @@ export function attachFormHandlers(pathname, { navigate, render }) {
         await loadClienteRecomendaciones(clienteId);
         state.detalleCliente.nuevaRecomendacionTitulo = "";
         state.detalleCliente.nuevaRecomendacionTexto = "";
-        showAppNotification("Recomendacion enviada correctamente", "success");
+        showAppNotification(t('forms.recommendationSent'), "success");
         render();
       } catch (error) {
         console.error("Error al enviar recomendacion:", error);
-        showAppNotification("No se pudo enviar la recomendacion", "error");
+        showAppNotification(t('forms.couldNotSendRecommendation'), "error");
       } finally {
         if (submitBtn) submitBtn.disabled = false;
       }
@@ -1303,10 +1289,7 @@ export function attachFormHandlers(pathname, { navigate, render }) {
       const submitBtn = perfilForm.querySelector('button[type="submit"]');
 
       if (!state.currentUser?.id) {
-        showAppNotification(
-          "No se pudo identificar el usuario autenticado",
-          "error",
-        );
+        showAppNotification(t('forms.couldNotIdentifyUser'), "error");
         return;
       }
 
@@ -1322,18 +1305,15 @@ export function attachFormHandlers(pathname, { navigate, render }) {
 
         if (!response.ok) {
           const errData = await response.json().catch(() => ({}));
-          throw new Error(errData.message || "No se pudo actualizar el perfil");
+          throw new Error(errData.message || t('forms.couldNotUpdateProfile'));
         }
 
         const updatedUser = await response.json();
         syncProfileFromUser(updatedUser);
-        showAppNotification("Perfil actualizado correctamente", "success");
+        showAppNotification(t('forms.profileUpdated'), "success");
         render();
       } catch (error) {
-        showAppNotification(
-          error?.message || "No se pudo actualizar el perfil",
-          "error",
-        );
+        showAppNotification(error?.message || t('forms.couldNotUpdateProfile'), "error");
       } finally {
         if (submitBtn) {
           submitBtn.disabled = false;
@@ -1379,11 +1359,11 @@ export function attachFormHandlers(pathname, { navigate, render }) {
       state.perfil.passwordData = { actual, nueva, confirmar };
 
       if (nueva !== confirmar) {
-        showAppNotification("Las contrasenas no coinciden", "error");
+        showAppNotification(t('forms.passwordsDoNotMatchLower'), "error");
         return;
       }
 
-      showAppNotification("Contrasena actualizada correctamente", "success");
+      showAppNotification(t('forms.passwordUpdated'), "success");
       state.perfil.passwordData = { actual: "", nueva: "", confirmar: "" };
       render();
     });
@@ -1496,7 +1476,7 @@ export function attachFormHandlers(pathname, { navigate, render }) {
       const especialidad = (document.getElementById("asesorEspecialidad")?.value ?? "").trim();
 
       if (!nombre || !email) {
-        showAppNotification("Completa el nombre y el email del asesor", "warning");
+        showAppNotification(t('forms.completeAdvisorFields'), "warning");
         return;
       }
 
@@ -1519,7 +1499,7 @@ export function attachFormHandlers(pathname, { navigate, render }) {
       };
 
       saveAppPreferences();
-      showAppNotification("Asesor agregado y codigo generado", "success");
+      showAppNotification(t('forms.advisorAdded'), "success");
       render();
     });
 
@@ -1531,7 +1511,7 @@ export function attachFormHandlers(pathname, { navigate, render }) {
       }
 
       if (file.type && !file.type.startsWith("image/")) {
-        showAppNotification("Selecciona un archivo de imagen valido", "warning");
+        showAppNotification(t('forms.selectValidImage'), "warning");
         return;
       }
 
@@ -1545,7 +1525,7 @@ export function attachFormHandlers(pathname, { navigate, render }) {
         state.perfil.imagePreview = preview;
         state.perfil.imagen = preview;
         saveAppPreferences();
-        showAppNotification("Foto de perfil actualizada", "success");
+        showAppNotification(t('forms.profilePhotoUpdated'), "success");
         render();
       };
       reader.readAsDataURL(file);
@@ -1581,13 +1561,6 @@ export function attachFormHandlers(pathname, { navigate, render }) {
       render();
     });
 
-    const reducirAnimacionesInput = document.getElementById("reducirAnimaciones");
-    reducirAnimacionesInput?.addEventListener("change", (event) => {
-      state.configuracion.reducirAnimaciones = event.target.checked;
-      saveAppPreferences();
-      render();
-    });
-
     const mostrarCentavosInput = document.getElementById("mostrarCentavos");
     mostrarCentavosInput?.addEventListener("change", (event) => {
       state.configuracion.mostrarCentavos = event.target.checked;
@@ -1605,7 +1578,7 @@ export function attachFormHandlers(pathname, { navigate, render }) {
     const guardarBtn = document.getElementById("guardarConfiguracionBtn");
     guardarBtn?.addEventListener("click", () => {
       saveAppPreferences();
-      showAppNotification("Preferencias guardadas", "success");
+      showAppNotification(t('forms.preferencesSaved'), "success");
     });
 
     const cerrarTodasBtn = document.getElementById("cerrarTodasSesionesBtn");
@@ -1613,7 +1586,7 @@ export function attachFormHandlers(pathname, { navigate, render }) {
       if (state.configuracion.sesiones.length > 0) {
         state.configuracion.sesiones = [state.configuracion.sesiones[0]];
       }
-      showAppNotification("Todas las sesiones excepto esta han sido cerradas", "success");
+      showAppNotification(t('forms.allSessionsClosed'), "success");
       render();
     });
 
@@ -1630,7 +1603,7 @@ export function attachFormHandlers(pathname, { navigate, render }) {
       const amountLimit = Number.parseFloat(limiteInput?.value || "");
 
       if (!categoryId || Number.isNaN(amountLimit) || amountLimit <= 0) {
-        showAppNotification("Seleccioná una categoría y un límite válido", "warning");
+        showAppNotification(t('forms.selectCategoryAndLimit'), "warning");
         return;
       }
 
@@ -1649,10 +1622,10 @@ export function attachFormHandlers(pathname, { navigate, render }) {
         await loadBudgets();
         if (limiteInput) limiteInput.value = "";
         if (categoriaSelect) categoriaSelect.value = "";
-        showAppNotification(`Presupuesto de ${categoryName} creado`, "success");
+        showAppNotification(t('forms.budgetCreated', { name: categoryName }), "success");
         render();
       } catch (err) {
-        showAppNotification(err?.message || "No se pudo crear el presupuesto", "error");
+        showAppNotification(err?.message || t('forms.couldNotCreateBudget'), "error");
       } finally {
         if (submitBtn) submitBtn.disabled = false;
       }
@@ -1669,7 +1642,7 @@ export function attachFormHandlers(pathname, { navigate, render }) {
       const icon = (emojiInput?.value || "").trim();
 
       if (!name) {
-        showAppNotification("Escribí el nombre de la categoría", "warning");
+        showAppNotification(t('forms.writeCategoryNameAccent'), "warning");
         return;
       }
 
@@ -1681,10 +1654,10 @@ export function attachFormHandlers(pathname, { navigate, render }) {
         await loadCategories();
         if (nameInput) nameInput.value = "";
         if (emojiInput) emojiInput.value = "";
-        showAppNotification(`Categoría "${name}" creada`, "success");
+        showAppNotification(t('forms.categoryCreated', { name }), "success");
         render();
       } catch (err) {
-        showAppNotification(err?.message || "No se pudo crear la categoría", "error");
+        showAppNotification(err?.message || t('forms.couldNotCreateCategory'), "error");
       } finally {
         if (submitBtn) submitBtn.disabled = false;
       }
@@ -1697,20 +1670,20 @@ export function attachFormHandlers(pathname, { navigate, render }) {
       const ahorro = (document.getElementById("configAhorro")?.value || "").trim();
       state.configuracion.perfilFinanciero = { ingresoEstimado: ingreso, objetivoAhorro: ahorro };
       saveAppPreferences();
-      showAppNotification("Perfil financiero guardado", "success");
+      showAppNotification(t('forms.financialProfileSaved'), "success");
     });
 
     // Guardar perfil básico (nombre, email)
     const guardarPerfilConfigBtn = document.getElementById("guardarPerfilConfigBtn");
     guardarPerfilConfigBtn?.addEventListener("click", async () => {
       if (!state.currentUser?.id) {
-        showAppNotification("No se pudo identificar el usuario", "error");
+        showAppNotification(t('forms.couldNotIdentifyUserShort'), "error");
         return;
       }
       const nombre = `${(document.getElementById("configNombre")?.value || "").trim()} ${(document.getElementById("configApellido")?.value || "").trim()}`.trim();
       const email = (document.getElementById("configEmail")?.value || "").trim();
       if (!nombre || !email) {
-        showAppNotification("Nombre y email son requeridos", "warning");
+        showAppNotification(t('forms.nameAndEmailRequired'), "warning");
         return;
       }
       guardarPerfilConfigBtn.disabled = true;
@@ -1721,14 +1694,14 @@ export function attachFormHandlers(pathname, { navigate, render }) {
         });
         if (!res.ok) {
           const err = await res.json().catch(() => ({}));
-          throw new Error(err.message || "Error al guardar");
+          throw new Error(err.message || t('forms.errorSaving'));
         }
         const user = await res.json();
         syncProfileFromUser(user);
-        showAppNotification("Perfil actualizado", "success");
+        showAppNotification(t('forms.profileUpdatedShort'), "success");
         render();
       } catch (err) {
-        showAppNotification(err?.message || "No se pudo actualizar el perfil", "error");
+        showAppNotification(err?.message || t('forms.couldNotUpdateProfile'), "error");
       } finally {
         guardarPerfilConfigBtn.disabled = false;
       }
@@ -1741,7 +1714,7 @@ export function attachFormHandlers(pathname, { navigate, render }) {
       const nueva = document.getElementById("passwordNueva")?.value || "";
       const confirmar = document.getElementById("passwordConfirmar")?.value || "";
       if (!actual || !nueva || !confirmar) {
-        showAppNotification("Completá todos los campos de contraseña", "warning");
+        showAppNotification(t('forms.completePasswordFields'), "warning");
         return;
       }
       if (!isStrongPassword(nueva)) {
@@ -1749,7 +1722,7 @@ export function attachFormHandlers(pathname, { navigate, render }) {
         return;
       }
       if (nueva !== confirmar) {
-        showAppNotification("Las contraseñas no coinciden", "error");
+        showAppNotification(t('forms.passwordsDoNotMatch'), "error");
         return;
       }
       guardarSeguridadBtn.disabled = true;
@@ -1758,9 +1731,9 @@ export function attachFormHandlers(pathname, { navigate, render }) {
         document.getElementById("passwordActual").value = "";
         document.getElementById("passwordNueva").value = "";
         document.getElementById("passwordConfirmar").value = "";
-        showAppNotification("Contraseña actualizada correctamente", "success");
+        showAppNotification(t('forms.passwordUpdatedShort'), "success");
       } catch (err) {
-        showAppNotification(err?.message || "No se pudo cambiar la contraseña", "error");
+        showAppNotification(err?.message || t('forms.couldNotChangePassword'), "error");
       } finally {
         guardarSeguridadBtn.disabled = false;
       }
@@ -1770,7 +1743,7 @@ export function attachFormHandlers(pathname, { navigate, render }) {
     const guardarPreferenciasNotifBtn = document.getElementById("guardarPreferenciasNotifBtn");
     guardarPreferenciasNotifBtn?.addEventListener("click", () => {
       saveAppPreferences();
-      showAppNotification("Preferencias de notificaciones guardadas", "success");
+      showAppNotification(t('forms.notifPreferencesSaved'), "success");
     });
 
     ["resumenSemanal", "alertaPresupuesto", "recomendacionesIA", "movimientosGrandes"].forEach((key) => {
@@ -1800,7 +1773,7 @@ export function attachFormHandlers(pathname, { navigate, render }) {
 
     const guardarBtn = document.getElementById("guardarPreferenciasBtn");
     guardarBtn?.addEventListener("click", () => {
-      showAppNotification("Preferencias actualizadas correctamente", "success");
+      showAppNotification(t('forms.preferencesUpdated'), "success");
     });
   }
 
@@ -1809,14 +1782,14 @@ export function attachFormHandlers(pathname, { navigate, render }) {
     btnGenerar?.addEventListener("click", async () => {
       btnGenerar.disabled = true;
       const originalHtml = btnGenerar.innerHTML;
-      btnGenerar.innerHTML = '<i class="lni lni-spinner-arrow" aria-hidden="true"></i> Analizando...';
+      btnGenerar.innerHTML = `<i class="lni lni-spinner-arrow" aria-hidden="true"></i> ${t('forms.analyzing')}`;
 
       try {
         await generateAiRecommendations();
-        showAppNotification("Recomendaciones generadas correctamente", "success");
+        showAppNotification(t('forms.recommendationsGenerated'), "success");
         render();
       } catch (error) {
-        showAppNotification(error.message || "Error al generar recomendaciones", "error");
+        showAppNotification(error.message || t('forms.errorGeneratingRecommendations'), "error");
       } finally {
         btnGenerar.disabled = false;
         btnGenerar.innerHTML = originalHtml;

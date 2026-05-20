@@ -148,7 +148,6 @@ export const state = {
     temaOscuro: false,
     tamanioFuente: "md",
     densidad: "comfortable",
-    reducirAnimaciones: false,
     mostrarCentavos: false,
     autenticacionDos: false,
     sesionesActivas: true,

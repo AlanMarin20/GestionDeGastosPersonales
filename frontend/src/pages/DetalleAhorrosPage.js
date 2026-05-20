@@ -2,6 +2,7 @@ import { renderDashboardAppLayout } from "../components/dashboard/dashboardAppLa
 import { tarjetaValor } from "../components/common/reusablePageComponents";
 import { escapeHtml } from "../utils/sanitize";
 import { formatMoney } from "../utils/money";
+import { t } from '../i18n';
 
 const STATUS_META = {
   "no-goal": { accent: "#7c3aed", bg: "rgba(124,58,237,0.12)", text: "#7c3aed", icon: "lni-investment" },
@@ -47,7 +48,7 @@ function renderAhorroCard(ahorro) {
           </span>
           <div class="gd-ahorro-card-info">
             <p class="gd-ahorro-card-name">${escapeHtml(ahorro.nombre)}</p>
-            <p class="gd-ahorro-card-meta">${hasGoal ? `Meta: ${escapeHtml(formatMoney(ahorro.meta))}` : "Sin meta configurada"}</p>
+            <p class="gd-ahorro-card-meta">${hasGoal ? t('ahorros.goal', { amount: escapeHtml(formatMoney(ahorro.meta)) }) : t('ahorros.noGoalSet')}</p>
           </div>
           <div class="gd-ahorro-card-controls">
             <button
@@ -55,14 +56,14 @@ function renderAhorroCard(ahorro) {
               class="gd-ahorro-ctrl-btn gd-ahorro-ctrl-btn--edit"
               data-action="open-edit-ahorro"
               data-ahorro-id="${escapeHtml(ahorro.id)}"
-              aria-label="Editar ahorro"
+              aria-label="${t('ahorros.editSaving')}"
             ><i class="lni lni-pencil-alt" aria-hidden="true"></i></button>
             <button
               type="button"
               class="gd-ahorro-ctrl-btn gd-ahorro-ctrl-btn--danger"
               data-action="open-delete-ahorro"
               data-ahorro-id="${escapeHtml(ahorro.id)}"
-              aria-label="Eliminar ahorro"
+              aria-label="${t('ahorros.deleteSaving')}"
             ><i class="lni lni-close" aria-hidden="true"></i></button>
           </div>
         </div>
@@ -72,7 +73,7 @@ function renderAhorroCard(ahorro) {
         ${isDone ? `
           <div class="gd-ahorro-achieved">
             <i class="lni lni-checkmark-circle" aria-hidden="true"></i>
-            ¡Objetivo cumplido!
+            ${t('ahorros.objectiveCompleted')}
           </div>
         ` : hasGoal ? `
           <div class="gd-ahorro-progress">
@@ -80,8 +81,8 @@ function renderAhorroCard(ahorro) {
               <div class="gd-ahorro-progress-fill" style="width:${pct}%"></div>
             </div>
             <div class="gd-ahorro-progress-info">
-              <span>${pct}% completado</span>
-              <span>Falta ${escapeHtml(formatMoney(remaining))}</span>
+              <span>${t('ahorros.pctCompleted', { pct })}</span>
+              <span>${t('ahorros.remaining', { amount: escapeHtml(formatMoney(remaining)) })}</span>
             </div>
           </div>
         ` : ""}
@@ -94,7 +95,7 @@ function renderAhorroCard(ahorro) {
             data-ahorro-id="${escapeHtml(ahorro.id)}"
           >
             <i class="lni lni-arrow-down" aria-hidden="true"></i>
-            Depositar
+            ${t('ahorros.deposit')}
           </button>
           <button
             type="button"
@@ -104,7 +105,7 @@ function renderAhorroCard(ahorro) {
             ${Number(ahorro.monto) <= 0 ? "disabled" : ""}
           >
             <i class="lni lni-arrow-up" aria-hidden="true"></i>
-            Retirar
+            ${t('ahorros.withdraw')}
           </button>
         </div>
       </div>
@@ -116,26 +117,26 @@ function renderDepositarModal({ depositandoAhorro }) {
   if (!depositandoAhorro) return "";
   return `
     <div class="gd-modal-backdrop" data-action="close-depositar-ahorro-modal"></div>
-    <section class="gd-modal" role="dialog" aria-modal="true" aria-label="Depositar a ahorro">
+    <section class="gd-modal" role="dialog" aria-modal="true" aria-label="${t('ahorros.depositToSaving')}">
       <div class="gd-modal-card">
         <div class="gd-modal-icon-header gd-modal-icon-header--success">
           <i class="lni lni-arrow-down" aria-hidden="true"></i>
         </div>
-        <h3 class="gd-modal-title">Depositar en "${escapeHtml(depositandoAhorro.nombre)}"</h3>
-        <p class="gd-modal-sub">El monto se descontará de tu dinero disponible.</p>
+        <h3 class="gd-modal-title">${t('ahorros.depositTitle', { name: escapeHtml(depositandoAhorro.nombre) })}</h3>
+        <p class="gd-modal-sub">${t('ahorros.depositSub')}</p>
         <div class="gd-form-grid">
           <div class="gd-form-full">
-            <label class="gd-form-label" for="depositarMonto">Monto a depositar</label>
+            <label class="gd-form-label" for="depositarMonto">${t('ahorros.amountToDeposit')}</label>
             <input id="depositarMonto" type="number" min="0.01" step="0.01" class="gd-form-input" placeholder="0.00" autofocus>
           </div>
           <div class="gd-form-full">
-            <label class="gd-form-label" for="depositarDescripcion">Descripción <span class="gd-form-optional">(opcional)</span></label>
-            <input id="depositarDescripcion" class="gd-form-input" placeholder="Ej: Ahorro mensual">
+            <label class="gd-form-label" for="depositarDescripcion">${t('ahorros.description')} <span class="gd-form-optional">${t('common.optional')}</span></label>
+            <input id="depositarDescripcion" class="gd-form-input" placeholder="${t('ahorros.placeholderMonthlySaving')}">
           </div>
         </div>
         <div class="gd-modal-actions">
-          <button type="button" class="gd-btn-secondary" data-action="close-depositar-ahorro-modal">Cancelar</button>
-          <button type="button" class="gd-btn-primary" data-action="confirm-depositar-ahorro" data-ahorro-id="${escapeHtml(depositandoAhorro.id)}">Depositar</button>
+          <button type="button" class="gd-btn-secondary" data-action="close-depositar-ahorro-modal">${t('common.cancel')}</button>
+          <button type="button" class="gd-btn-primary" data-action="confirm-depositar-ahorro" data-ahorro-id="${escapeHtml(depositandoAhorro.id)}">${t('ahorros.deposit')}</button>
         </div>
       </div>
     </section>
@@ -146,26 +147,26 @@ function renderRetirarModal({ retirhandoAhorro }) {
   if (!retirhandoAhorro) return "";
   return `
     <div class="gd-modal-backdrop" data-action="close-retirar-ahorro-modal"></div>
-    <section class="gd-modal" role="dialog" aria-modal="true" aria-label="Retirar de ahorro">
+    <section class="gd-modal" role="dialog" aria-modal="true" aria-label="${t('ahorros.withdrawFromSaving')}">
       <div class="gd-modal-card">
         <div class="gd-modal-icon-header gd-modal-icon-header--warning">
           <i class="lni lni-arrow-up" aria-hidden="true"></i>
         </div>
-        <h3 class="gd-modal-title">Retirar de "${escapeHtml(retirhandoAhorro.nombre)}"</h3>
-        <p class="gd-modal-sub">Disponible: <strong>${escapeHtml(formatMoney(retirhandoAhorro.monto))}</strong>. El monto se sumará a tu dinero disponible.</p>
+        <h3 class="gd-modal-title">${t('ahorros.withdrawTitle', { name: escapeHtml(retirhandoAhorro.nombre) })}</h3>
+        <p class="gd-modal-sub">${t('ahorros.withdrawSub', { amount: escapeHtml(formatMoney(retirhandoAhorro.monto)) })}</p>
         <div class="gd-form-grid">
           <div class="gd-form-full">
-            <label class="gd-form-label" for="retirarMonto">Monto a retirar</label>
+            <label class="gd-form-label" for="retirarMonto">${t('ahorros.amountToWithdraw')}</label>
             <input id="retirarMonto" type="number" min="0.01" step="0.01" max="${escapeHtml(String(retirhandoAhorro.monto))}" class="gd-form-input" placeholder="0.00" autofocus>
           </div>
           <div class="gd-form-full">
-            <label class="gd-form-label" for="retirarDescripcion">Descripción <span class="gd-form-optional">(opcional)</span></label>
-            <input id="retirarDescripcion" class="gd-form-input" placeholder="Ej: Gasto imprevisto">
+            <label class="gd-form-label" for="retirarDescripcion">${t('ahorros.description')} <span class="gd-form-optional">${t('common.optional')}</span></label>
+            <input id="retirarDescripcion" class="gd-form-input" placeholder="${t('ahorros.placeholderUnexpected')}">
           </div>
         </div>
         <div class="gd-modal-actions">
-          <button type="button" class="gd-btn-secondary" data-action="close-retirar-ahorro-modal">Cancelar</button>
-          <button type="button" class="gd-btn-primary" data-action="confirm-retirar-ahorro" data-ahorro-id="${escapeHtml(retirhandoAhorro.id)}">Retirar</button>
+          <button type="button" class="gd-btn-secondary" data-action="close-retirar-ahorro-modal">${t('common.cancel')}</button>
+          <button type="button" class="gd-btn-primary" data-action="confirm-retirar-ahorro" data-ahorro-id="${escapeHtml(retirhandoAhorro.id)}">${t('ahorros.withdraw')}</button>
         </div>
       </div>
     </section>
@@ -176,30 +177,30 @@ function renderEditAhorroModal({ editingAhorro }) {
   if (!editingAhorro) return "";
   return `
     <div class="gd-modal-backdrop" data-action="close-edit-ahorro-modal"></div>
-    <section class="gd-modal" role="dialog" aria-modal="true" aria-label="Editar ahorro">
+    <section class="gd-modal" role="dialog" aria-modal="true" aria-label="${t('ahorros.editSaving')}">
       <div class="gd-modal-card">
         <div class="gd-modal-icon-header gd-modal-icon-header--info">
           <i class="lni lni-pencil-alt" aria-hidden="true"></i>
         </div>
-        <h3 class="gd-modal-title">Editar objetivo</h3>
-        <p class="gd-modal-sub">Actualizá el nombre, monto acumulado y meta del objetivo.</p>
+        <h3 class="gd-modal-title">${t('ahorros.editObjective')}</h3>
+        <p class="gd-modal-sub">${t('ahorros.editObjectiveSub')}</p>
         <div class="gd-form-grid">
           <div class="gd-form-full">
-            <label class="gd-form-label" for="editAhorroNombre">Nombre</label>
+            <label class="gd-form-label" for="editAhorroNombre">${t('ahorros.name')}</label>
             <input id="editAhorroNombre" class="gd-form-input" value="${escapeHtml(editingAhorro.nombre)}">
           </div>
           <div>
-            <label class="gd-form-label" for="editAhorroMonto">Monto acumulado</label>
+            <label class="gd-form-label" for="editAhorroMonto">${t('ahorros.accumulatedAmount')}</label>
             <input id="editAhorroMonto" type="number" min="0" step="0.01" class="gd-form-input" value="${escapeHtml(String(editingAhorro.monto))}">
           </div>
           <div>
-            <label class="gd-form-label" for="editAhorroMeta">Meta <span class="gd-form-optional">(opcional)</span></label>
+            <label class="gd-form-label" for="editAhorroMeta">${t('ahorros.goalLabel')} <span class="gd-form-optional">${t('common.optional')}</span></label>
             <input id="editAhorroMeta" type="number" min="0" step="0.01" class="gd-form-input" value="${escapeHtml(String(editingAhorro.meta ?? ""))}">
           </div>
         </div>
         <div class="gd-modal-actions">
-          <button type="button" class="gd-btn-secondary" data-action="close-edit-ahorro-modal">Cancelar</button>
-          <button type="button" class="gd-btn-primary" data-action="save-edit-ahorro" data-ahorro-id="${escapeHtml(editingAhorro.id)}">Guardar cambios</button>
+          <button type="button" class="gd-btn-secondary" data-action="close-edit-ahorro-modal">${t('common.cancel')}</button>
+          <button type="button" class="gd-btn-primary" data-action="save-edit-ahorro" data-ahorro-id="${escapeHtml(editingAhorro.id)}">${t('common.saveChanges')}</button>
         </div>
       </div>
     </section>
@@ -210,16 +211,16 @@ function renderDeleteAhorroModal({ deletingAhorro }) {
   if (!deletingAhorro) return "";
   return `
     <div class="gd-modal-backdrop" data-action="close-delete-ahorro-modal"></div>
-    <section class="gd-modal" role="dialog" aria-modal="true" aria-label="Eliminar ahorro">
+    <section class="gd-modal" role="dialog" aria-modal="true" aria-label="${t('ahorros.deleteSaving')}">
       <div class="gd-modal-card">
         <div class="gd-modal-icon-header gd-modal-icon-header--danger">
           <i class="lni lni-trash-can" aria-hidden="true"></i>
         </div>
-        <h3 class="gd-modal-title">Eliminar objetivo</h3>
-        <p class="gd-modal-sub">Se eliminará <strong>"${escapeHtml(deletingAhorro.nombre)}"</strong> y los <strong>${escapeHtml(formatMoney(deletingAhorro.monto))}</strong> acumulados se devolverán a tu dinero disponible. Esta acción no se puede deshacer.</p>
+        <h3 class="gd-modal-title">${t('ahorros.deleteObjective')}</h3>
+        <p class="gd-modal-sub">${t('ahorros.deleteObjectiveSub', { name: escapeHtml(deletingAhorro.nombre), amount: escapeHtml(formatMoney(deletingAhorro.monto)) })}</p>
         <div class="gd-modal-actions">
-          <button type="button" class="gd-btn-secondary" data-action="close-delete-ahorro-modal">Cancelar</button>
-          <button type="button" class="gd-btn-danger" data-action="confirm-delete-ahorro" data-ahorro-id="${escapeHtml(deletingAhorro.id)}">Eliminar objetivo</button>
+          <button type="button" class="gd-btn-secondary" data-action="close-delete-ahorro-modal">${t('common.cancel')}</button>
+          <button type="button" class="gd-btn-danger" data-action="confirm-delete-ahorro" data-ahorro-id="${escapeHtml(deletingAhorro.id)}">${t('ahorros.deleteObjective')}</button>
         </div>
       </div>
     </section>
@@ -246,18 +247,26 @@ export function renderDetalleAhorrosPage({
     return p !== null && p >= 100;
   }).length;
 
+  const completadosLabel = completados !== 1
+    ? t('ahorros.completedCount', { count: completados })
+    : t('ahorros.completedCountOne', { count: completados });
+
   const summaryMetrics = [
-    { label: "Total ahorrado",    value: formatMoney(totalAhorrado), delta: "", trend: "up" },
-    { label: "Objetivos activos", value: String(ahorros.length),     delta: "", trend: "up" },
-    { label: "Meta total",        value: ahorrosConMeta.length > 0 ? formatMoney(totalMeta) : "—", delta: ahorrosConMeta.length > 0 ? `${completados} completado${completados !== 1 ? "s" : ""}` : "", trend: "up" },
+    { label: t('ahorros.totalSaved'),    value: formatMoney(totalAhorrado), delta: "", trend: "up" },
+    { label: t('ahorros.activeObjectives'), value: String(ahorros.length), delta: "", trend: "up" },
+    { label: t('ahorros.totalGoal'), value: ahorrosConMeta.length > 0 ? formatMoney(totalMeta) : "—", delta: ahorrosConMeta.length > 0 ? completadosLabel : "", trend: "up" },
   ];
+
+  const objectiveCountLabel = ahorros.length !== 1
+    ? t('ahorros.objectiveCount', { count: ahorros.length })
+    : t('ahorros.objectiveCountOne', { count: ahorros.length });
 
   const goalsGrid = ahorros.length === 0
     ? `
       <div class="gd-ahorro-empty">
         <i class="lni lni-investment" aria-hidden="true"></i>
-        <p>Todavía no creaste objetivos de ahorro.</p>
-        <span>Usá el formulario de abajo para crear tu primer objetivo.</span>
+        <p>${t('ahorros.emptyTitle')}</p>
+        <span>${t('ahorros.emptySub')}</span>
       </div>
     `
     : `<div class="gd-ahorro-grid">${ahorros.map(renderAhorroCard).join("")}</div>`;
@@ -276,8 +285,8 @@ export function renderDetalleAhorrosPage({
 
     <article class="gd-card">
       <header class="gd-card-header">
-        <h2 class="gd-card-title">Mis objetivos</h2>
-        <span class="gd-muted gd-muted-sm">${ahorros.length} objetivo${ahorros.length !== 1 ? "s" : ""}</span>
+        <h2 class="gd-card-title">${t('ahorros.myObjectives')}</h2>
+        <span class="gd-muted gd-muted-sm">${objectiveCountLabel}</span>
       </header>
       ${goalsGrid}
     </article>
@@ -288,28 +297,28 @@ export function renderDetalleAhorrosPage({
           <i class="lni lni-target"></i>
         </span>
         <div>
-          <h2 class="gd-card-title" style="margin:0 0 0.18rem">Nuevo objetivo de ahorro</h2>
-          <p class="gd-muted gd-muted-sm" style="margin:0">Definí un nombre y una meta para hacer seguimiento de tu progreso.</p>
+          <h2 class="gd-card-title" style="margin:0 0 0.18rem">${t('ahorros.newObjectiveTitle')}</h2>
+          <p class="gd-muted gd-muted-sm" style="margin:0">${t('ahorros.newObjectiveSub')}</p>
         </div>
       </header>
       <form id="detalleAhorroForm" class="gd-ahorro-new-body">
         <div class="gd-ahorro-new-fields">
           <div>
-            <label class="gd-form-label" for="detalleAhorroNombre">Nombre del objetivo</label>
-            <input id="detalleAhorroNombre" class="gd-form-input" placeholder="Ej: Fondo de emergencia" required>
+            <label class="gd-form-label" for="detalleAhorroNombre">${t('ahorros.objectiveName')}</label>
+            <input id="detalleAhorroNombre" class="gd-form-input" placeholder="${t('ahorros.placeholderEmergency')}" required>
           </div>
           <div>
-            <label class="gd-form-label" for="detalleAhorroMonto">Monto inicial</label>
+            <label class="gd-form-label" for="detalleAhorroMonto">${t('ahorros.initialAmount')}</label>
             <input id="detalleAhorroMonto" type="number" min="0" step="0.01" class="gd-form-input" placeholder="0.00">
           </div>
           <div>
-            <label class="gd-form-label" for="detalleAhorroMeta">Meta objetivo <span class="gd-form-optional">(opcional)</span></label>
+            <label class="gd-form-label" for="detalleAhorroMeta">${t('ahorros.targetGoal')} <span class="gd-form-optional">${t('common.optional')}</span></label>
             <input id="detalleAhorroMeta" type="number" min="0" step="0.01" class="gd-form-input" placeholder="0.00">
           </div>
         </div>
         <button type="submit" class="gd-ahorro-cta-btn">
           <i class="lni lni-plus" aria-hidden="true"></i>
-          Crear objetivo de ahorro
+          ${t('ahorros.createObjective')}
         </button>
       </form>
     </article>

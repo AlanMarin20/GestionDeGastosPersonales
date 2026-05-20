@@ -1,4 +1,5 @@
 import { renderRecomendacionesHistoricasPage as renderRecomendacionesHistoricasPageView } from "./RecomendacionesHistoricasPage";
+import { t } from '../i18n';
 
 function buildRecHistoricasClienteSidebarSections({ clienteId }) {
   const detalleHref = `/cliente/${encodeURIComponent(String(clienteId))}`;
@@ -7,41 +8,41 @@ function buildRecHistoricasClienteSidebarSections({ clienteId }) {
 
   return [
     {
-      section: "Principal",
+      section: t('nav.section.main'),
       items: [
         {
           href: "/dashboard",
-          label: "Mi Dashboard",
+          label: t('nav.myDashboard'),
           icon: "lni lni-grid-alt",
         },
         {
           href: detalleHref,
-          label: "Dashboard Cliente",
+          label: t('nav.clientDashboard'),
           icon: "lni lni-user",
         },
       ],
     },
     {
-      section: "Analisis",
+      section: t('nav.section.analysis'),
       items: [
         {
           href: recomendacionesHref,
-          label: "Recomendaciones historicas",
+          label: t('nav.historicalRecommendations'),
           icon: "lni lni-bulb",
         },
       ],
     },
     {
-      section: "Asesor",
+      section: t('nav.section.advisor'),
       items: [
         {
           href: "/dashboard/asesor",
-          label: "Dashboard asesor",
+          label: t('nav.advisorDashboard'),
           icon: "lni lni-grid-alt",
         },
         {
           href: gastosHref,
-          label: "Movimientos cliente",
+          label: t('nav.clientMovements'),
           icon: "lni lni-list",
         },
       ],
@@ -61,8 +62,8 @@ export function renderRecHistoricasClientePage({
     profileImage,
     profileName,
     activePath,
-    pageTitle: `Recomendaciones historicas de ${clienteNombre}`,
-    pageSubtitle: "Todas las recomendaciones enviadas a este cliente",
+    pageTitle: t('recHist.clientTitle', { name: clienteNombre }),
+    pageSubtitle: t('recHist.clientSubtitle'),
     recomendaciones,
     sidebarSections: buildRecHistoricasClienteSidebarSections({ clienteId }),
     notificationCount: recomendaciones.length,

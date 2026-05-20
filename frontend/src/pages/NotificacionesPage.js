@@ -1,30 +1,31 @@
 import { renderDashboardAppLayout } from "../components/dashboard/dashboardAppLayout";
 import { escapeHtml } from "../utils/sanitize";
+import { t } from "../i18n";
 
 const SEVERITY_CONFIG = {
   danger: {
-    groupLabel: "Alertas criticas",
+    groupLabelKey: 'notif.criticalAlerts',
     className: "gd-notif-danger",
     iconClass: "lni lni-alarm",
-    badgeLabel: "Alerta",
+    badgeLabelKey: 'notif.badgeAlert',
   },
   warning: {
-    groupLabel: "Avisos",
+    groupLabelKey: 'notif.warnings',
     className: "gd-notif-warning",
     iconClass: "lni lni-warning",
-    badgeLabel: "Aviso",
+    badgeLabelKey: 'notif.badgeWarning',
   },
   good: {
-    groupLabel: "Logros",
+    groupLabelKey: 'notif.achievements',
     className: "gd-notif-good",
     iconClass: "lni lni-checkmark-circle",
-    badgeLabel: "Logro",
+    badgeLabelKey: 'notif.badgeAchievement',
   },
   info: {
-    groupLabel: "Informacion",
+    groupLabelKey: 'notif.information',
     className: "gd-notif-info",
     iconClass: "lni lni-information",
-    badgeLabel: "Info",
+    badgeLabelKey: 'notif.badgeInfo',
   },
 };
 
@@ -49,7 +50,7 @@ function renderNotifItem(notif) {
         </div>
       </div>
       ${notif.actionHref ? `
-        <a href="${escapeHtml(notif.actionHref)}" data-link class="gd-notif-action">Ver</a>
+        <a href="${escapeHtml(notif.actionHref)}" data-link class="gd-notif-action">${t('common.view')}</a>
       ` : ""}
     </div>
   `;
@@ -74,18 +75,18 @@ export function renderNotificacionesPage({
   const content = `
     <div class="d-flex justify-content-between align-items-center mb-3">
       <div class="d-flex align-items-center gap-2">
-        ${totalCount > 0 ? `<span class="gd-notif-total-badge">${escapeHtml(String(totalCount))} notificaciones</span>` : ""}
+        ${totalCount > 0 ? `<span class="gd-notif-total-badge">${t('notif.totalCount', { count: totalCount })}</span>` : ""}
       </div>
       <a href="/dashboard/recomendaciones" data-link class="gd-top-btn">
         <i class="lni lni-bulb" aria-hidden="true"></i>
-        Ver recomendaciones
+        ${t('notif.viewRecommendations')}
       </a>
     </div>
 
     ${grouped.length > 0
       ? grouped.map((group) => `
           <div class="gd-notif-group">
-            <h3 class="gd-notif-group-label">${escapeHtml(group.cfg.groupLabel)}</h3>
+            <h3 class="gd-notif-group-label">${t(group.cfg.groupLabelKey)}</h3>
             ${group.items.map(renderNotifItem).join("")}
           </div>
         `).join("")
@@ -93,7 +94,7 @@ export function renderNotificacionesPage({
         <div class="gd-card">
           <div class="gd-card-body" style="padding: 2rem; text-align: center;">
             <i class="lni lni-checkmark-circle" style="font-size: 2rem; color: #16a34a; display: block; margin-bottom: 0.5rem;"></i>
-            <p class="gd-muted mb-0">Todo en orden. No hay notificaciones pendientes.</p>
+            <p class="gd-muted mb-0">${t('notif.allClear')}</p>
           </div>
         </div>
       `

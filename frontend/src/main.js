@@ -48,6 +48,7 @@ import { renderNuevaContrasenaPage as renderNuevaContrasenaPageView } from "./pa
 import { renderRegistroExitosoPage as renderRegistroExitosoPageView } from "./pages/RegistroExitosoPage";
 import { renderRegistroVerificarEmailPage as renderRegistroVerificarEmailPageView } from "./pages/RegistroVerificarEmailPage";
 import { escapeHtml } from "./utils/sanitize";
+import { t } from "./i18n";
 import {
   API_BASE_URL,
   ACCESS_TOKEN_KEY,
@@ -379,8 +380,8 @@ function renderDashboardPage() {
     profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
     profileName: state.perfil.nombre || "Usuario",
     activePath: "/dashboard",
-    pageTitle: "Dashboard",
-    pageSubtitle: `Resumen financiero · ${formatMonthLabelLong(currentPeriod)}`,
+    pageTitle: t('dashboard.pageTitle'),
+    pageSubtitle: t('dashboard.pageSubtitle', { period: formatMonthLabelLong(currentPeriod) }),
     metrics: getDashboardMetrics(),
     recentExpenses: getDashboardRecentExpenses(4),
     insights: getDashboardInsights(),
@@ -395,8 +396,8 @@ function renderDetalleAhorrosPage() {
     profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
     profileName: state.perfil.nombre || "Usuario",
     activePath: "/dashboard/ahorros",
-    pageTitle: "Detalle de ahorros",
-    pageSubtitle: "Resumen completo de objetivos y fondos acumulados",
+    pageTitle: t('ahorros.pageTitle'),
+    pageSubtitle: t('ahorros.pageSubtitle'),
     ahorros,
     editingAhorro: editingAhorroId ? (ahorros.find((a) => a.id === editingAhorroId) ?? null) : null,
     deletingAhorro: deletingAhorroId ? (ahorros.find((a) => a.id === deletingAhorroId) ?? null) : null,
@@ -410,8 +411,8 @@ function renderCargarGastoPage() {
     profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
     profileName: state.perfil.nombre || "Usuario",
     activePath: "/dashboard/cargar",
-    pageTitle: "Registro de Gastos e Ingresos",
-    pageSubtitle: "Registra un gasto o ingreso manual o mediante ticket con IA",
+    pageTitle: t('cargar.pageTitle'),
+    pageSubtitle: t('cargar.pageSubtitle'),
     ticketFileName: state.finanzas.cargar.ticketFileName,
     ocrLoading: state.finanzas.cargar.ocrLoading,
     expenseForm: state.finanzas.cargar.form,
@@ -438,8 +439,8 @@ function renderMisGastosPage() {
     profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
     profileName: state.perfil.nombre || "Usuario",
     activePath: "/dashboard/gastos",
-    pageTitle: "Mis movimientos",
-    pageSubtitle: "Listado completo con filtros y exportacion a CSV",
+    pageTitle: t('expenses.pageTitle'),
+    pageSubtitle: t('expenses.pageSubtitle'),
     filters: state.finanzas.filtros,
     categoryOptions: getMisGastosCategoryOptions(),
     ingresoCategories: state.finanzas.ingresoCategories || [],
@@ -454,8 +455,8 @@ function renderMisGastosPage() {
 
 function renderRecomendacionesPage({
   activePath = "/dashboard/recomendaciones",
-  pageTitle = "Recomendaciones",
-  pageSubtitle = "Inbox financiero con alertas y sugerencias priorizadas",
+  pageTitle = t('rec.pageTitle'),
+  pageSubtitle = t('rec.pageSubtitle'),
   isAsesor = false,
 } = {}) {
   return renderRecomendacionesPageView({
@@ -517,8 +518,8 @@ function renderPatronesPage() {
     profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
     profileName: state.perfil.nombre || "Usuario",
     activePath: "/dashboard/patrones",
-    pageTitle: "Patrones de gasto",
-    pageSubtitle: "Analisis de habitos, evolucion y comportamiento financiero",
+    pageTitle: t('patrones.pageTitle'),
+    pageSubtitle: t('patrones.pageSubtitle'),
     metrics,
     categorySummary,
     merchantRanking,
@@ -547,8 +548,8 @@ function renderRecHistoricasClientePage(pathname) {
 
 function renderDashboardAsesorPage({
   activePath = "/dashboard/asesor",
-  pageTitle = "Dashboard asesor",
-  pageSubtitle = "Vista global de clientes con indicadores de riesgo",
+  pageTitle = t('asesor.pageTitle'),
+  pageSubtitle = t('asesor.pageSubtitle'),
 } = {}) {
   return renderDashboardAsesorPageView({
     profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,

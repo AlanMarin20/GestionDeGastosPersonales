@@ -1,4 +1,5 @@
 import { state } from "../state";
+import { t } from "../i18n";
 import { ACCESS_TOKEN_KEY } from "../config";
 
 import {
@@ -110,7 +111,7 @@ export function attachGlobalNavigation({ navigate, render }) {
       const newCategory = (input?.value || "").trim();
 
       if (!newCategory) {
-        showAppNotification("Escribe el nombre de la nueva categoria", "warning");
+        showAppNotification(t('forms.writeCategoryName'), "warning");
         return;
       }
 
@@ -136,7 +137,7 @@ export function attachGlobalNavigation({ navigate, render }) {
         input.value = "";
       }
 
-      showAppNotification("Categoria guardada correctamente", "success");
+      showAppNotification(t('forms.categorySaved'), "success");
       render();
     },
     "save-new-income-category": ({ event }) => {
@@ -147,7 +148,7 @@ export function attachGlobalNavigation({ navigate, render }) {
       const newCategory = (input?.value || "").trim();
 
       if (!newCategory) {
-        showAppNotification("Escribe el nombre de la nueva categoria", "warning");
+        showAppNotification(t('forms.writeCategoryName'), "warning");
         return;
       }
 
@@ -168,7 +169,7 @@ export function attachGlobalNavigation({ navigate, render }) {
       if (select) select.value = newCategory;
       if (input) input.value = "";
 
-      showAppNotification("Categoria guardada correctamente", "success");
+      showAppNotification(t('forms.categorySaved'), "success");
       render();
     },
     "switch-cargar-tab": ({ event, actionButton }) => {
@@ -205,7 +206,7 @@ export function attachGlobalNavigation({ navigate, render }) {
       actionButton.disabled = false;
 
       if (!saved) {
-        showAppNotification("No se pudo guardar el gasto. Revisa los datos.", "error");
+        showAppNotification(t('forms.couldNotSaveExpense'), "error");
         return;
       }
 
@@ -295,10 +296,7 @@ export function attachGlobalNavigation({ navigate, render }) {
       actionButton.disabled = false;
 
       if (!updated) {
-        showAppNotification(
-          "No se pudo actualizar el gasto. Revisa los campos.",
-          "error",
-        );
+        showAppNotification(t('forms.couldNotUpdateExpense'), "error");
         return;
       }
 
@@ -337,7 +335,7 @@ export function attachGlobalNavigation({ navigate, render }) {
         state.finanzas.ui.editingExpenseId = null;
         loadDashboardBalances().finally(() => render());
       } else {
-        showAppNotification("No se pudo eliminar el gasto.", "error");
+        showAppNotification(t('forms.couldNotDeleteExpense'), "error");
       }
     },
     "clear-date-filter": ({ event }) => {
@@ -407,12 +405,12 @@ export function attachGlobalNavigation({ navigate, render }) {
       const meta = Number.parseFloat(document.getElementById("editAhorroMeta")?.value || "") || 0;
 
       if (!nombre) {
-        showAppNotification("El nombre es requerido", "warning");
+        showAppNotification(t('forms.nameRequired'), "warning");
         return;
       }
 
       if (meta > 0 && meta <= montoInicial) {
-        showAppNotification("La meta debe ser mayor al monto", "warning");
+        showAppNotification(t('forms.goalMustBeGreater'), "warning");
         return;
       }
 
@@ -420,10 +418,10 @@ export function attachGlobalNavigation({ navigate, render }) {
         await updateAhorro(ahorroId, { nombre, montoInicial, meta });
         await loadAhorros();
         state.finanzas.ui.editingAhorroId = null;
-        showAppNotification("Ahorro actualizado", "success");
+        showAppNotification(t('forms.savingUpdated'), "success");
         render();
       } catch (error) {
-        showAppNotification(error.message || "Error al actualizar el ahorro", "error");
+        showAppNotification(error.message || t('forms.errorUpdatingSaving'), "error");
       }
     },
     "open-delete-ahorro": ({ actionButton }) => {
@@ -445,10 +443,10 @@ export function attachGlobalNavigation({ navigate, render }) {
         await deleteAhorro(ahorroId);
         await Promise.all([loadAhorros(), loadDashboardBalances(), loadMovimientos()]);
         state.finanzas.ui.deletingAhorroId = null;
-        showAppNotification("Ahorro eliminado y saldo devuelto", "success");
+        showAppNotification(t('forms.savingDeleted'), "success");
         render();
       } catch (error) {
-        showAppNotification(error.message || "Error al eliminar el ahorro", "error");
+        showAppNotification(error.message || t('forms.errorDeletingSaving'), "error");
       }
     },
     "open-depositar-ahorro": ({ actionButton }) => {
@@ -470,7 +468,7 @@ export function attachGlobalNavigation({ navigate, render }) {
       const description = (document.getElementById("depositarDescripcion")?.value || "").trim() || undefined;
 
       if (Number.isNaN(amount) || amount <= 0) {
-        showAppNotification("Ingresa un monto valido", "error");
+        showAppNotification(t('forms.enterValidAmount'), "error");
         return;
       }
 
@@ -478,10 +476,10 @@ export function attachGlobalNavigation({ navigate, render }) {
         await depositarAhorro(ahorroId, amount, description);
         await Promise.all([loadAhorros(), loadDashboardBalances(), loadMovimientos()]);
         state.finanzas.ui.depositandoAhorroId = null;
-        showAppNotification("Deposito realizado correctamente", "success");
+        showAppNotification(t('forms.depositDone'), "success");
         render();
       } catch (error) {
-        showAppNotification(error.message || "Error al depositar", "error");
+        showAppNotification(error.message || t('forms.errorDepositing'), "error");
       }
     },
     "open-retirar-ahorro": ({ actionButton }) => {
@@ -503,7 +501,7 @@ export function attachGlobalNavigation({ navigate, render }) {
       const description = (document.getElementById("retirarDescripcion")?.value || "").trim() || undefined;
 
       if (Number.isNaN(amount) || amount <= 0) {
-        showAppNotification("Ingresa un monto valido", "error");
+        showAppNotification(t('forms.enterValidAmount'), "error");
         return;
       }
 
@@ -511,10 +509,10 @@ export function attachGlobalNavigation({ navigate, render }) {
         await retirarAhorro(ahorroId, amount, description);
         await Promise.all([loadAhorros(), loadDashboardBalances(), loadMovimientos()]);
         state.finanzas.ui.retirhandoAhorroId = null;
-        showAppNotification("Retiro realizado correctamente", "success");
+        showAppNotification(t('forms.withdrawDone'), "success");
         render();
       } catch (error) {
-        showAppNotification(error.message || "Error al retirar", "error");
+        showAppNotification(error.message || t('forms.errorWithdrawing'), "error");
       }
     },
     "open-add-client-modal": ({ event }) => {
@@ -542,7 +540,7 @@ export function attachGlobalNavigation({ navigate, render }) {
       const detail = (detailInput?.value || "").trim();
 
       if (Number.isNaN(amount) || amount <= 0 || !detail) {
-        showAppNotification("Completa moneda, monto y detalle para registrar el ingreso", "warning");
+        showAppNotification(t('forms.completeIncomeFields'), "warning");
         return;
       }
 
@@ -553,16 +551,16 @@ export function attachGlobalNavigation({ navigate, render }) {
         });
 
         if (!response.ok) {
-          showAppNotification("Error al registrar el ingreso", "error");
+          showAppNotification(t('forms.errorRegisteringIncome'), "error");
           return;
         }
 
         await Promise.all([loadDashboardBalances(), loadMovimientos()]);
-        showAppNotification("Ingreso registrado correctamente", "success");
+        showAppNotification(t('forms.incomeRegistered'), "success");
         closeDashboardDropdowns();
         render();
       } catch {
-        showAppNotification("Error al registrar el ingreso", "error");
+        showAppNotification(t('forms.errorRegisteringIncome'), "error");
       }
     },
     "desvincular-cliente": async ({ event, actionButton }) => {
@@ -571,10 +569,10 @@ export function attachGlobalNavigation({ navigate, render }) {
       if (!clienteId) return;
 
       const shouldUnlink = await showAppConfirm({
-        title: "Desvincular cliente",
-        message: "Esta accion quitara al cliente de tu panel de asesor.",
-        confirmText: "Desvincular",
-        cancelText: "Cancelar",
+        title: t('forms.unlinkClientTitle'),
+        message: t('forms.unlinkClientMsg'),
+        confirmText: t('forms.unlink'),
+        cancelText: t('forms.cancel'),
         danger: true,
       });
 
@@ -583,10 +581,10 @@ export function attachGlobalNavigation({ navigate, render }) {
       try {
         await apiDesvincularCliente(clienteId);
         state.asesor.clientes = state.asesor.clientes.filter((c) => c.id !== clienteId);
-        showAppNotification("Cliente desvinculado", "success");
+        showAppNotification(t('forms.clientUnlinked'), "success");
         render();
       } catch {
-        showAppNotification("No se pudo desvincular el cliente", "error");
+        showAppNotification(t('forms.couldNotUnlinkClient'), "error");
       }
     },
     "delete-budget": async ({ event, actionButton }) => {
@@ -595,10 +593,10 @@ export function attachGlobalNavigation({ navigate, render }) {
       if (!budgetId) return;
 
       const ok = await showAppConfirm({
-        title: "Eliminar presupuesto",
-        message: "¿Eliminás este presupuesto? No se borran los gastos asociados.",
-        confirmText: "Eliminar",
-        cancelText: "Cancelar",
+        title: t('forms.deleteBudgetTitle'),
+        message: t('forms.deleteBudgetMsg'),
+        confirmText: t('forms.delete'),
+        cancelText: t('forms.cancel'),
         danger: true,
       });
       if (!ok) return;
@@ -606,10 +604,10 @@ export function attachGlobalNavigation({ navigate, render }) {
       try {
         await deleteBudget(budgetId);
         await loadBudgets();
-        showAppNotification("Presupuesto eliminado", "success");
+        showAppNotification(t('forms.budgetDeleted'), "success");
         render();
       } catch {
-        showAppNotification("No se pudo eliminar el presupuesto", "error");
+        showAppNotification(t('forms.couldNotDeleteBudget'), "error");
       }
     },
     "budget-prev-month": ({ event }) => {
@@ -653,7 +651,7 @@ export function attachGlobalNavigation({ navigate, render }) {
       const input = document.getElementById(`editBudgetInput-${budgetId}`);
       const amountLimit = Number.parseFloat(input?.value || "");
       if (Number.isNaN(amountLimit) || amountLimit <= 0) {
-        showAppNotification("Ingresá un límite válido", "warning");
+        showAppNotification(t('forms.enterValidLimit'), "warning");
         return;
       }
       actionButton.disabled = true;
@@ -661,10 +659,10 @@ export function attachGlobalNavigation({ navigate, render }) {
         await updateBudget(budgetId, { amountLimit });
         await loadBudgets();
         state.finanzas.ui.editingBudgetId = null;
-        showAppNotification("Presupuesto actualizado", "success");
+        showAppNotification(t('forms.budgetUpdated'), "success");
         render();
       } catch (err) {
-        showAppNotification(err?.message || "No se pudo actualizar el presupuesto", "error");
+        showAppNotification(err?.message || t('forms.couldNotUpdateBudget'), "error");
       } finally {
         actionButton.disabled = false;
       }
@@ -697,12 +695,14 @@ export function attachGlobalNavigation({ navigate, render }) {
         const succeeded = results.filter((r) => r.status === "fulfilled").length;
         await loadBudgets();
         showAppNotification(
-          `${succeeded} presupuesto${succeeded !== 1 ? "s" : ""} copiado${succeeded !== 1 ? "s" : ""}`,
+          succeeded !== 1
+            ? t('forms.budgetsCopied', { count: succeeded })
+            : t('forms.budgetsCopiedOne', { count: succeeded }),
           succeeded > 0 ? "success" : "error"
         );
         render();
       } catch {
-        showAppNotification("No se pudieron copiar los presupuestos", "error");
+        showAppNotification(t('forms.couldNotCopyBudgets'), "error");
       } finally {
         actionButton.disabled = false;
       }
@@ -713,10 +713,10 @@ export function attachGlobalNavigation({ navigate, render }) {
       if (!categoryId) return;
 
       const ok = await showAppConfirm({
-        title: "Eliminar categoría",
-        message: "¿Eliminás esta categoría? Los gastos con esta categoría no se borran.",
-        confirmText: "Eliminar",
-        cancelText: "Cancelar",
+        title: t('forms.deleteCategoryTitle'),
+        message: t('forms.deleteCategoryMsg'),
+        confirmText: t('forms.delete'),
+        cancelText: t('forms.cancel'),
         danger: true,
       });
       if (!ok) return;
@@ -724,10 +724,10 @@ export function attachGlobalNavigation({ navigate, render }) {
       try {
         await deleteCategory(Number(categoryId));
         await loadCategories();
-        showAppNotification("Categoría eliminada", "success");
+        showAppNotification(t('forms.categoryDeleted'), "success");
         render();
       } catch (err) {
-        showAppNotification(err?.message || "No se pudo eliminar la categoría", "error");
+        showAppNotification(err?.message || t('forms.couldNotDeleteCategory'), "error");
       }
     },
     "export-gastos-csv": ({ event }) => {
@@ -737,10 +737,10 @@ export function attachGlobalNavigation({ navigate, render }) {
     "borrar-historial": async ({ event }) => {
       event.preventDefault();
       const ok = await showAppConfirm({
-        title: "Borrar historial de movimientos",
-        message: "Esta acción eliminará todos tus movimientos del servidor. No se puede deshacer.",
-        confirmText: "Borrar todo",
-        cancelText: "Cancelar",
+        title: t('forms.deleteHistoryTitle'),
+        message: t('forms.deleteHistoryMsg'),
+        confirmText: t('forms.deleteAll'),
+        cancelText: t('forms.cancel'),
         danger: true,
       });
       if (!ok) return;
@@ -749,26 +749,26 @@ export function attachGlobalNavigation({ navigate, render }) {
         const gastos = [...(state.finanzas.gastos || [])];
         await Promise.all(gastos.map((g) => apiFetch(`/api/movimientos/${g.id}`, { method: "DELETE" }).catch(() => {})));
         await Promise.all([loadMovimientos(), loadDashboardBalances()]);
-        showAppNotification("Historial de movimientos eliminado", "success");
+        showAppNotification(t('forms.historyDeleted'), "success");
         render();
       } catch {
-        showAppNotification("Error al borrar el historial", "error");
+        showAppNotification(t('forms.errorDeletingHistory'), "error");
       }
     },
     "eliminar-cuenta": async ({ event }) => {
       event.preventDefault();
       const ok = await showAppConfirm({
-        title: "Eliminar cuenta",
-        message: "Esta acción eliminará permanentemente tu cuenta y todos tus datos. No se puede deshacer.",
-        confirmText: "Eliminar mi cuenta",
-        cancelText: "Cancelar",
+        title: t('forms.deleteAccountTitle'),
+        message: t('forms.deleteAccountMsg'),
+        confirmText: t('forms.deleteMyAccount'),
+        cancelText: t('forms.cancel'),
         danger: true,
       });
       if (!ok) return;
 
       const userId = state.currentUser?.id;
       if (!userId) {
-        showAppNotification("No se pudo identificar la cuenta", "error");
+        showAppNotification(t('forms.couldNotIdentifyAccount'), "error");
         return;
       }
 
@@ -777,20 +777,20 @@ export function attachGlobalNavigation({ navigate, render }) {
         localStorage.removeItem(ACCESS_TOKEN_KEY);
         state.currentUser = null;
         state.profileLoaded = true;
-        showAppNotification("Cuenta eliminada. Hasta luego.", "info");
+        showAppNotification(t('forms.accountDeleted'), "info");
         navigate("/login", true);
       } catch {
-        showAppNotification("No se pudo eliminar la cuenta", "error");
+        showAppNotification(t('forms.couldNotDeleteAccount'), "error");
       }
     },
     "desvincular-asesor": async ({ event }) => {
       event.preventDefault();
 
       const shouldUnlink = await showAppConfirm({
-        title: "Desvincular asesor",
-        message: "Esta accion eliminara el asesor vinculado y su codigo de verificacion.",
-        confirmText: "Desvincular",
-        cancelText: "Cancelar",
+        title: t('forms.unlinkAdvisorTitle'),
+        message: t('forms.unlinkAdvisorMsg'),
+        confirmText: t('forms.unlink'),
+        cancelText: t('forms.cancel'),
         danger: true,
       });
 
@@ -807,7 +807,7 @@ export function attachGlobalNavigation({ navigate, render }) {
         },
       };
       saveAppPreferences();
-      showAppNotification("Asesor desvinculado", "success");
+      showAppNotification(t('forms.advisorUnlinked'), "success");
       render();
     },
     "cerrar-sesion": ({ actionButton }) => {
@@ -816,7 +816,7 @@ export function attachGlobalNavigation({ navigate, render }) {
         state.configuracion.sesiones = state.configuracion.sesiones.filter(
           (sesion) => sesion.id !== sesionId,
         );
-        showAppNotification("Sesion cerrada", "success");
+        showAppNotification(t('forms.sessionClosed'), "success");
         render();
       }
     },
@@ -846,7 +846,7 @@ export function attachGlobalNavigation({ navigate, render }) {
       event.preventDefault();
       const nombre = (document.getElementById("newTagNameInput")?.value || "").trim();
       if (!nombre) {
-        showAppNotification("Escribe un nombre para la etiqueta", "warning");
+        showAppNotification(t('forms.writeTagName'), "warning");
         return;
       }
       try {
@@ -857,7 +857,7 @@ export function attachGlobalNavigation({ navigate, render }) {
         state.finanzas.cargar.form.selectedTagIds.push(tag.id);
         render();
       } catch (err) {
-        showAppNotification(err?.message || "No se pudo crear la etiqueta", "error");
+        showAppNotification(err?.message || t('forms.couldNotCreateTag'), "error");
       }
     },
   };
@@ -872,7 +872,7 @@ export function attachGlobalNavigation({ navigate, render }) {
 
       if (href.startsWith("/cliente/") && !registerAdvisorClientSelection(href)) {
         event.preventDefault();
-        showAppNotification("No tienes permiso para abrir ese cliente", "warning");
+        showAppNotification(t('forms.couldNotOpenClient'), "warning");
         return;
       }
 
@@ -889,7 +889,7 @@ export function attachGlobalNavigation({ navigate, render }) {
       if (path) {
         if (path.startsWith("/cliente/") && !registerAdvisorClientSelection(path)) {
           event.preventDefault();
-          showAppNotification("No tienes permiso para abrir ese cliente", "warning");
+          showAppNotification(t('forms.couldNotOpenClient'), "warning");
           return;
         }
 

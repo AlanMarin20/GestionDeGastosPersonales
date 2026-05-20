@@ -2,13 +2,14 @@ import { renderDashboardAppLayout } from "../components/dashboard/dashboardAppLa
 import { tarjetaValor, graficoGastos, graficoTorta } from "../components/common/reusablePageComponents";
 import { escapeHtml } from "../utils/sanitize";
 import { formatMoney } from "../utils/money";
+import { t } from '../i18n';
 
 function renderMerchantRanking(merchantRanking) {
   if (!merchantRanking.length) {
     return `
       <div class="gd-patron-empty">
         <i class="lni lni-store" aria-hidden="true"></i>
-        <p>Sin gastos con comercio registrado este mes.</p>
+        <p>${t('patrones.noMerchantSpending')}</p>
       </div>
     `;
   }
@@ -33,7 +34,7 @@ function renderUnusualSpending(unusualItems) {
     return `
       <div class="gd-unusual-empty">
         <i class="lni lni-checkmark-circle gd-unusual-empty-icon" aria-hidden="true"></i>
-        <p>Sin gastos inusuales este periodo</p>
+        <p>${t('patrones.noUnusualSpending')}</p>
       </div>
     `;
   }
@@ -47,11 +48,11 @@ function renderUnusualSpending(unusualItems) {
       <div class="gd-unusual-card gd-unusual-card--${severity}">
         <div class="gd-unusual-card-head">
           <span class="gd-unusual-category">${escapeHtml(item.category)}</span>
-          <span class="gd-unusual-ratio gd-unusual-ratio--${severity}">${ratioLabel} sobre promedio</span>
+          <span class="gd-unusual-ratio gd-unusual-ratio--${severity}">${t('patrones.ratioOverAverage', { ratio: ratioLabel })}</span>
         </div>
         <div class="gd-unusual-compare">
           <span class="gd-unusual-amount">${escapeHtml(formatMoney(item.amount))}</span>
-          <span class="gd-unusual-vs">vs promedio ${escapeHtml(formatMoney(item.historicalAvg))}/mes · +${escapeHtml(formatMoney(excess))}</span>
+          <span class="gd-unusual-vs">${t('patrones.vsAverage', { amount: escapeHtml(formatMoney(item.historicalAvg)), excess: escapeHtml(formatMoney(excess)) })}</span>
         </div>
         ${item.comercio ? `<p class="gd-unusual-merchant"><i class="lni lni-map-marker" aria-hidden="true"></i> ${escapeHtml(item.comercio)}</p>` : ""}
       </div>
@@ -64,7 +65,7 @@ function renderEvolutionRows(evolutionRows) {
     return `
       <div class="gd-patron-empty">
         <i class="lni lni-calendar" aria-hidden="true"></i>
-        <p>Sin historial de gastos.</p>
+        <p>${t('patrones.noExpenseHistory')}</p>
       </div>
     `;
   }
@@ -100,9 +101,12 @@ export function renderPatronesPage({
   evolutionRows,
 }) {
   const unusualCount = unusualMessages.length;
+  const unusualCountLabel = unusualCount !== 1
+    ? t('patrones.detectedCount', { count: unusualCount })
+    : t('patrones.detectedCountOne', { count: unusualCount });
 
   const content = `
-    <section class="gd-metrics gd-metrics-3" aria-label="Metricas de patrones">
+    <section class="gd-metrics gd-metrics-3" aria-label="${t('patrones.metricsLabel')}">
       ${metrics.map((metric) => tarjetaValor({
         title: metric.label,
         value: metric.value,
@@ -113,33 +117,33 @@ export function renderPatronesPage({
       })).join("")}
     </section>
 
-    <section class="gd-grid-3" aria-label="Graficos de analisis">
+    <section class="gd-grid-3" aria-label="${t('patrones.chartsLabel')}">
       ${graficoGastos({
-        title: "Evolucion mensual",
+        title: t('patrones.monthlyEvolution'),
         canvasId: "patronesBarChart",
-        ariaLabel: "Evolucion mensual del gasto",
+        ariaLabel: t('patrones.monthlyEvolutionAria'),
         height: "220px",
         dashboardStyle: true,
       })}
 
       ${graficoTorta({
-        title: "Por categoria",
+        title: t('patrones.byCategory'),
         canvasId: "patronesCategoryDonut",
-        ariaLabel: "Distribucion de gastos por categoria",
+        ariaLabel: t('patrones.categoryDistributionAria'),
         height: "220px",
         dashboardStyle: true,
         legendContainerId: "patronesCategoryLegend",
       })}
     </section>
 
-    <section class="gd-grid-2" aria-label="Detalle de patrones">
+    <section class="gd-grid-2" aria-label="${t('patrones.detailLabel')}">
       <div class="gd-card">
         <div class="gd-card-header">
           <h3 class="gd-card-title">
             <i class="lni lni-calendar gd-card-title-icon" aria-hidden="true"></i>
-            Evolucion historica
+            ${t('patrones.historicalEvolution')}
           </h3>
-          <span class="gd-rec-tag">ultimos meses</span>
+          <span class="gd-rec-tag">${t('patrones.lastMonths')}</span>
         </div>
         ${renderEvolutionRows(evolutionRows)}
       </div>
@@ -148,9 +152,9 @@ export function renderPatronesPage({
         <div class="gd-card-header">
           <h3 class="gd-card-title">
             <i class="lni lni-store gd-card-title-icon" aria-hidden="true"></i>
-            Comercios principales
+            ${t('patrones.topMerchants')}
           </h3>
-          <span class="gd-rec-tag">solo egresos · este mes</span>
+          <span class="gd-rec-tag">${t('patrones.expensesThisMonth')}</span>
         </div>
         ${renderMerchantRanking(merchantRanking)}
       </div>
@@ -160,10 +164,10 @@ export function renderPatronesPage({
       <div class="gd-card-header">
         <h3 class="gd-card-title">
           <i class="lni lni-warning gd-card-title-icon${unusualCount > 0 ? " gd-card-title-icon--warn" : ""}" aria-hidden="true"></i>
-          Gastos inusuales detectados
+          ${t('patrones.unusualExpensesDetected')}
         </h3>
         <span class="gd-rec-tag${unusualCount > 0 ? " gd-unusual-count-tag" : ""}">
-          ${unusualCount > 0 ? `<i class="lni lni-warning" aria-hidden="true"></i> ` : ""}${escapeHtml(String(unusualCount))} detectado${unusualCount !== 1 ? "s" : ""}
+          ${unusualCount > 0 ? `<i class="lni lni-warning" aria-hidden="true"></i> ` : ""}${escapeHtml(unusualCountLabel)}
         </span>
       </div>
       <div class="gd-unusual-list">

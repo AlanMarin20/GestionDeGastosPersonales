@@ -1,3 +1,5 @@
+import { t } from '../i18n';
+
 export function renderFaqPage({
   encabezadoExterno,
   encabezadoAuthPublico,
@@ -10,45 +12,45 @@ export function renderFaqPage({
   });
 
   const reclamosCard = tarjetaPublicaConTitulo({
-    title: 'Reclamos',
+    title: t('faq.claims'),
     contentMarkup: `
       <ul class="list-unstyled mb-0">
-        <li class="mb-2"><a href="/login" data-link class="text-decoration-none text-muted faq-link">Mis reclamos</a></li>
-        <li class="mb-0"><a href="/login" data-link class="text-decoration-none text-muted faq-link">Crear nuevo reclamo</a></li>
+        <li class="mb-2"><a href="/login" data-link class="text-decoration-none text-muted faq-link">${t('faq.myClaims')}</a></li>
+        <li class="mb-0"><a href="/login" data-link class="text-decoration-none text-muted faq-link">${t('faq.newClaim')}</a></li>
       </ul>
     `,
   });
 
   const categoriasCard = tarjetaPublicaConTitulo({
-    title: 'Categorías',
+    title: t('faq.categories'),
     contentMarkup: `
       <ul class="list-unstyled mb-0">
-        <li class="mb-2"><a href="/faqs/crear-cuenta" data-link class="text-decoration-none text-muted faq-link">Primeros pasos</a></li>
-        <li class="mb-2"><a href="/faqs/asesores-como-funciona" data-link class="text-decoration-none text-muted faq-link">Asesores</a></li>
-        <li class="mb-2"><a href="/faqs/conectar-entidades" data-link class="text-decoration-none text-muted faq-link">Entidades conectadas</a></li>
-        <li class="mb-0"><a href="/faqs/dar-de-baja" data-link class="text-decoration-none text-muted faq-link">Artículos populares</a></li>
+        <li class="mb-2"><a href="/faqs/crear-cuenta" data-link class="text-decoration-none text-muted faq-link">${t('faq.firstSteps')}</a></li>
+        <li class="mb-2"><a href="/faqs/asesores-como-funciona" data-link class="text-decoration-none text-muted faq-link">${t('faq.advisors')}</a></li>
+        <li class="mb-2"><a href="/faqs/conectar-entidades" data-link class="text-decoration-none text-muted faq-link">${t('faq.connectedEntities')}</a></li>
+        <li class="mb-0"><a href="/faqs/dar-de-baja" data-link class="text-decoration-none text-muted faq-link">${t('faq.popularArticles')}</a></li>
       </ul>
     `,
   });
 
   const popularesCard = tarjetaPublicaConTitulo({
-    title: 'Artículos populares',
+    title: t('faq.popularArticles'),
     cardClass: 'flex-grow-1',
     contentMarkup: `
       <ul class="list-unstyled mb-0 text-start">
         <li class="mb-3">
           <a href="/faqs/dar-de-baja" data-link class="text-decoration-none text-muted faq-link d-block lh-sm">
-            <i class="lni lni-chevron-right me-1" style="font-size: 0.8em;"></i> ¿Cómo puedo darme de baja?
+            <i class="lni lni-chevron-right me-1" style="font-size: 0.8em;"></i> ${t('faq.howUnsubscribe')}
           </a>
         </li>
         <li class="mb-3">
           <a href="/faqs/recuperar-clave" data-link class="text-decoration-none text-muted faq-link d-block lh-sm">
-            <i class="lni lni-chevron-right me-1" style="font-size: 0.8em;"></i> ¿Cómo recupero mi clave?
+            <i class="lni lni-chevron-right me-1" style="font-size: 0.8em;"></i> ${t('faq.howRecoverKey')}
           </a>
         </li>
         <li class="mb-0">
           <a href="/faqs/servicio-incluye" data-link class="text-decoration-none text-muted faq-link d-block lh-sm">
-            <i class="lni lni-chevron-right me-1" style="font-size: 0.8em;"></i> ¿Qué incluye el servicio?
+            <i class="lni lni-chevron-right me-1" style="font-size: 0.8em;"></i> ${t('faq.whatIncludes')}
           </a>
         </li>
       </ul>
@@ -68,7 +70,7 @@ export function renderFaqPage({
     <div class="min-vh-100 d-flex flex-column public-page-shell public-faq-page fp-public-surface">
       ${encabezadoExterno({
         rightHref: '/login',
-        rightText: 'Iniciar sesión',
+        rightText: t('landing.authLogin'),
         rightClass: 'landing-access-btn landing-login-btn',
         rightMarkup: headerAuthMarkup,
       })}
@@ -77,7 +79,7 @@ export function renderFaqPage({
         <div class="row g-4">
 
           <div class="col-12 col-lg-9 d-flex flex-column">
-            <h1 class="fw-bold mb-4 fp-public-title">Portal de Preguntas Frecuentes</h1>
+            <h1 class="fw-bold mb-4 fp-public-title">${t('faq.portalTitle')}</h1>
 
             <div class="card border-0 shadow-sm mb-4 faq-search-card">
               <div class="card-body p-0 d-flex align-items-center">
@@ -87,8 +89,8 @@ export function renderFaqPage({
                 <input
                   type="text"
                   class="form-control border-0 px-3 py-3 flex-grow-1 faq-search-input"
-                  placeholder="Escribe tu duda aquí..."
-                  aria-label="Buscar en preguntas frecuentes"
+                  placeholder="${t('faq.searchPlaceholder')}"
+                  aria-label="${t('faq.searchAria')}"
                 />
               </div>
             </div>
@@ -96,28 +98,28 @@ export function renderFaqPage({
             <div class="p-4 public-glass-block faq-categories-block">
               <div class="row g-4">
                 <div class="col-12 col-md-4">
-                  <h6 class="fw-bold mb-3 border-bottom pb-2 faq-category-divider">Primeros pasos</h6>
+                  <h6 class="fw-bold mb-3 border-bottom pb-2 faq-category-divider">${t('faq.firstSteps')}</h6>
                   <ul class="list-unstyled mb-0">
-                    <li class="mb-2"><a href="/faqs/crear-cuenta" data-link class="text-decoration-none text-muted faq-link">Crear una cuenta en FinanzasPro</a></li>
-                    <li class="mb-2"><a href="/faqs/iniciar-sesion" data-link class="text-decoration-none text-muted faq-link">Iniciar sesión</a></li>
-                    <li class="mb-0"><a href="/faqs/tu-perfil" data-link class="text-decoration-none text-muted faq-link">Tu perfil</a></li>
+                    <li class="mb-2"><a href="/faqs/crear-cuenta" data-link class="text-decoration-none text-muted faq-link">${t('faq.createAccount')}</a></li>
+                    <li class="mb-2"><a href="/faqs/iniciar-sesion" data-link class="text-decoration-none text-muted faq-link">${t('faq.login')}</a></li>
+                    <li class="mb-0"><a href="/faqs/tu-perfil" data-link class="text-decoration-none text-muted faq-link">${t('faq.yourProfile')}</a></li>
                   </ul>
                 </div>
                 <div class="col-12 col-md-4">
-                  <h6 class="fw-bold mb-3 border-bottom pb-2 faq-category-divider">Asesores</h6>
+                  <h6 class="fw-bold mb-3 border-bottom pb-2 faq-category-divider">${t('faq.advisors')}</h6>
                   <ul class="list-unstyled mb-0">
-                    <li class="mb-2"><a href="/faqs/asesores-como-funciona" data-link class="text-decoration-none text-muted faq-link">Cómo funciona</a></li>
-                    <li class="mb-2"><a href="/faqs/convertite-en-asesor" data-link class="text-decoration-none text-muted faq-link">Convertite en asesor</a></li>
-                    <li class="mb-2"><a href="/faqs/precio-asesor" data-link class="text-decoration-none text-muted faq-link">Precio</a></li>
-                    <li class="mb-0"><a href="/faqs/herramientas-asesor" data-link class="text-decoration-none text-muted faq-link">Herramientas de asesoría</a></li>
+                    <li class="mb-2"><a href="/faqs/asesores-como-funciona" data-link class="text-decoration-none text-muted faq-link">${t('faq.howItWorks')}</a></li>
+                    <li class="mb-2"><a href="/faqs/convertite-en-asesor" data-link class="text-decoration-none text-muted faq-link">${t('faq.becomeAdvisor')}</a></li>
+                    <li class="mb-2"><a href="/faqs/precio-asesor" data-link class="text-decoration-none text-muted faq-link">${t('faq.price')}</a></li>
+                    <li class="mb-0"><a href="/faqs/herramientas-asesor" data-link class="text-decoration-none text-muted faq-link">${t('faq.advisorTools')}</a></li>
                   </ul>
                 </div>
                 <div class="col-12 col-md-4">
-                  <h6 class="fw-bold mb-3 border-bottom pb-2 faq-category-divider">Entidades conectadas</h6>
+                  <h6 class="fw-bold mb-3 border-bottom pb-2 faq-category-divider">${t('faq.connectedEntities')}</h6>
                   <ul class="list-unstyled mb-0">
-                    <li class="mb-2"><a href="/faqs/conectar-entidades" data-link class="text-decoration-none text-muted faq-link">Conectar entidades y productos</a></li>
-                    <li class="mb-2"><a href="/faqs/mis-movimientos" data-link class="text-decoration-none text-muted faq-link">Mis movimientos</a></li>
-                    <li class="mb-0"><a href="/faqs/seccion-analisis" data-link class="text-decoration-none text-muted faq-link">Sección de "Análisis"</a></li>
+                    <li class="mb-2"><a href="/faqs/conectar-entidades" data-link class="text-decoration-none text-muted faq-link">${t('faq.connectEntities')}</a></li>
+                    <li class="mb-2"><a href="/faqs/mis-movimientos" data-link class="text-decoration-none text-muted faq-link">${t('faq.myMovements')}</a></li>
+                    <li class="mb-0"><a href="/faqs/seccion-analisis" data-link class="text-decoration-none text-muted faq-link">${t('faq.analysisSection')}</a></li>
                   </ul>
                 </div>
               </div>

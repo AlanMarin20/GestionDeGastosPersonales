@@ -1,9 +1,16 @@
 import { state } from "../state";
 
+const LOCALE_MAP = {
+  es: "es-AR",
+  en: "en-US",
+  pt: "pt-BR",
+};
+
 export function createMoneyFormatter() {
   const shouldShowDecimals = Boolean(state.configuracion.mostrarCentavos);
+  const locale = LOCALE_MAP[state.configuracion.idioma] || "es-AR";
 
-  return new Intl.NumberFormat("es-AR", {
+  return new Intl.NumberFormat(locale, {
     style: "currency",
     currency: "ARS",
     maximumFractionDigits: shouldShowDecimals ? 2 : 0,

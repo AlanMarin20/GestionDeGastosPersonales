@@ -3,42 +3,43 @@ import { escapeHtml } from "../utils/sanitize";
 import { formatMoney } from "../utils/money";
 import { getFinancialScore, getBudgetAlertsForPeriod, getFinanzasCurrentPeriod } from "../data/finanzas";
 import { parseMonthKey, formatMonthLabelLong, compareMonthKeys } from "../utils/date";
+import { t } from "../i18n";
 
 const SETTINGS_NAV_GROUPS = [
   {
-    label: "Cuenta",
+    labelKey: "config.nav.account",
     items: [
-      { id: "perfil", label: "Mi perfil", icon: "lni lni-user" },
-      { id: "seguridad", label: "Seguridad", icon: "lni lni-lock-alt" },
-      { id: "sesiones", label: "Sesiones", icon: "lni lni-tab" },
+      { id: "perfil", labelKey: "config.nav.profile", icon: "lni lni-user" },
+      { id: "seguridad", labelKey: "config.nav.security", icon: "lni lni-lock-alt" },
+      { id: "sesiones", labelKey: "config.nav.sessions", icon: "lni lni-tab" },
     ],
   },
   {
-    label: "Finanzas",
+    labelKey: "config.nav.finances",
     items: [
-      { id: "presupuestos", label: "Presupuestos", icon: "lni lni-wallet" },
-      { id: "categorias", label: "Categorias", icon: "lni lni-tag" },
+      { id: "presupuestos", labelKey: "config.nav.budgets", icon: "lni lni-wallet" },
+      { id: "categorias", labelKey: "config.nav.categories", icon: "lni lni-tag" },
     ],
   },
   {
-    label: "Asesoria",
+    labelKey: "config.nav.advisory",
     items: [
-      { id: "asesoria", label: "Asesor", icon: "lni lni-user" },
+      { id: "asesoria", labelKey: "config.nav.advisor", icon: "lni lni-user" },
     ],
   },
   {
-    label: "Preferencias",
+    labelKey: "config.nav.preferences",
     items: [
-      { id: "notificaciones", label: "Notificaciones", icon: "lni lni-alarm" },
-      { id: "apariencia", label: "Apariencia", icon: "lni lni-night" },
-      { id: "datos", label: "Mis datos", icon: "lni lni-database" },
+      { id: "notificaciones", labelKey: "config.nav.notifications", icon: "lni lni-alarm" },
+      { id: "apariencia", labelKey: "config.nav.appearance", icon: "lni lni-night" },
+      { id: "datos", labelKey: "config.nav.myData", icon: "lni lni-database" },
     ],
   },
   {
-    label: "Plan",
+    labelKey: "config.nav.plan",
     items: [
-      { id: "plan", label: "Plan actual", icon: "lni lni-rocket" },
-      { id: "danger", label: "Zona peligrosa", icon: "lni lni-warning" },
+      { id: "plan", labelKey: "config.nav.currentPlan", icon: "lni lni-rocket" },
+      { id: "danger", labelKey: "config.nav.dangerZone", icon: "lni lni-warning" },
     ],
   },
 ];
@@ -65,10 +66,10 @@ function resolveActiveSettingsSection() {
 }
 
 function scoreLabel(score) {
-  if (score >= 80) return "Excelente";
-  if (score >= 60) return "Bueno";
-  if (score >= 40) return "Regular";
-  return "Bajo";
+  if (score >= 80) return t('config.scoreExcellent');
+  if (score >= 60) return t('config.scoreGood');
+  if (score >= 40) return t('config.scoreFair');
+  return t('config.scoreLow');
 }
 
 function scoreTier(score) {
@@ -95,7 +96,7 @@ function renderSettingsNav(activeSection, alertsCount = 0) {
           aria-selected="${isActive ? "true" : "false"}"
         >
           <i class="${escapeHtml(item.icon)}" aria-hidden="true"></i>
-          <span>${escapeHtml(item.label)}</span>
+          <span>${t(item.labelKey)}</span>
           ${badge}
         </button>
       `;
@@ -103,7 +104,7 @@ function renderSettingsNav(activeSection, alertsCount = 0) {
 
     return `
       <div class="gd-settings-nav-group">
-        <p class="gd-settings-nav-label">${escapeHtml(group.label)}</p>
+        <p class="gd-settings-nav-label">${t(group.labelKey)}</p>
         ${items}
       </div>
     `;
@@ -111,7 +112,7 @@ function renderSettingsNav(activeSection, alertsCount = 0) {
 }
 
 function renderProxBadge() {
-  return `<span class="gd-settings-prox-badge">Próximamente</span>`;
+  return `<span class="gd-settings-prox-badge">${t('config.comingSoon')}</span>`;
 }
 
 function renderScoreRing(score) {
@@ -122,7 +123,7 @@ function renderScoreRing(score) {
 
   return `
     <div class="gd-score-ring-wrap">
-      <svg class="gd-score-ring gd-score-ring--${escapeHtml(tier)}" viewBox="0 0 64 64" aria-label="Score financiero: ${score}">
+      <svg class="gd-score-ring gd-score-ring--${escapeHtml(tier)}" viewBox="0 0 64 64" aria-label="${t('config.scoreFinancialAria', { score })}">
         <circle class="gd-score-ring-track" cx="32" cy="32" r="28" fill="none" stroke-width="6"/>
         <circle
           class="gd-score-ring-fill"
@@ -145,12 +146,12 @@ function renderBudgetMonthPicker(viewPeriod, currentPeriod) {
   const isAtMax = compareMonthKeys(viewPeriod, currentPeriod) >= 0;
   return `
     <div class="gd-settings-budget-monthpicker">
-      <button type="button" class="gd-ahorro-ctrl-btn" data-action="budget-prev-month" aria-label="Mes anterior">
+      <button type="button" class="gd-ahorro-ctrl-btn" data-action="budget-prev-month" aria-label="${t('config.prevMonth')}">
         <i class="lni lni-chevron-left" aria-hidden="true"></i>
       </button>
       <span class="gd-settings-budget-monthpicker-label">${escapeHtml(formatMonthLabelLong(viewPeriod))}</span>
       <button type="button" class="gd-ahorro-ctrl-btn" data-action="budget-next-month"
-        ${isAtMax ? "disabled" : ""} aria-label="Mes siguiente">
+        ${isAtMax ? "disabled" : ""} aria-label="${t('config.nextMonth')}">
         <i class="lni lni-chevron-right" aria-hidden="true"></i>
       </button>
     </div>
@@ -169,9 +170,9 @@ function renderBudgetSummary(budgets, spentByCategory) {
 
   return `
     <div class="gd-settings-budget-summary mb-3">
-      <span class="gd-settings-budget-summary-stat"><strong>${n}</strong> ${n === 1 ? "presupuesto activo" : "presupuestos activos"}</span>
-      <span class="gd-settings-budget-summary-stat">Presupuestado: <strong>${formatMoney(totalLimit)}</strong></span>
-      <span class="gd-settings-budget-summary-stat">Gastado: <strong>${formatMoney(totalSpent)}</strong></span>
+      <span class="gd-settings-budget-summary-stat"><strong>${n}</strong> ${n === 1 ? t('config.activeBudget') : t('config.activeBudgets')}</span>
+      <span class="gd-settings-budget-summary-stat">${t('config.budgeted')}: <strong>${formatMoney(totalLimit)}</strong></span>
+      <span class="gd-settings-budget-summary-stat">${t('config.spent')}: <strong>${formatMoney(totalSpent)}</strong></span>
       <div class="gd-settings-budget-summary-bar">
         <span class="gd-settings-budget-fill ${exceeded ? "gd-settings-budget-fill--danger" : nearLimit ? "gd-settings-budget-fill--warn" : ""}"
           style="--gd-budget-fill: ${pct}%;"></span>
@@ -203,11 +204,11 @@ function renderBudgetRow(budget, spentAmount, notifEnabled, isEditing, isReadOnl
         </div>
         <div class="gd-settings-budget-actions">
           <button type="button" class="gd-ahorro-ctrl-btn gd-ahorro-ctrl-btn--edit"
-            data-action="save-budget-edit" data-budget-id="${escapeHtml(budget.id)}" aria-label="Guardar cambios">
+            data-action="save-budget-edit" data-budget-id="${escapeHtml(budget.id)}" aria-label="${t('config.saveChanges')}">
             <i class="lni lni-checkmark" aria-hidden="true"></i>
           </button>
           <button type="button" class="gd-ahorro-ctrl-btn"
-            data-action="cancel-budget-edit" aria-label="Cancelar edición">
+            data-action="cancel-budget-edit" aria-label="${t('config.cancelEdit')}">
             <i class="lni lni-close" aria-hidden="true"></i>
           </button>
         </div>
@@ -229,11 +230,11 @@ function renderBudgetRow(budget, spentAmount, notifEnabled, isEditing, isReadOnl
       ${!isReadOnly ? `
       <div class="gd-settings-budget-actions">
         <button type="button" class="gd-ahorro-ctrl-btn gd-ahorro-ctrl-btn--edit"
-          data-action="edit-budget" data-budget-id="${escapeHtml(budget.id)}" aria-label="Editar presupuesto">
+          data-action="edit-budget" data-budget-id="${escapeHtml(budget.id)}" aria-label="${t('config.editBudget')}">
           <i class="lni lni-pencil-alt" aria-hidden="true"></i>
         </button>
         <button type="button" class="gd-ahorro-ctrl-btn gd-ahorro-ctrl-btn--danger"
-          data-action="delete-budget" data-budget-id="${escapeHtml(budget.id)}" aria-label="Eliminar presupuesto">
+          data-action="delete-budget" data-budget-id="${escapeHtml(budget.id)}" aria-label="${t('config.deleteBudget')}">
           <i class="lni lni-close" aria-hidden="true"></i>
         </button>
       </div>` : ""}
@@ -243,7 +244,7 @@ function renderBudgetRow(budget, spentAmount, notifEnabled, isEditing, isReadOnl
 
 function renderCategoryRow(cat) {
   const label = cat.icon ? `${cat.icon} ${cat.name}` : cat.name;
-  const kindLabel = cat.isDefault ? "Sistema" : "Personal";
+  const kindLabel = cat.isDefault ? t('config.system') : t('config.personal');
   const canDelete = !cat.isDefault;
 
   return `
@@ -251,7 +252,7 @@ function renderCategoryRow(cat) {
       <span class="gd-settings-budget-cat">${escapeHtml(label)}</span>
       <span class="gd-settings-category-pill ${cat.isDefault ? "" : "gd-settings-category-pill--personal"}">${escapeHtml(kindLabel)}</span>
       ${canDelete
-        ? `<button type="button" class="gd-ahorro-ctrl-btn gd-ahorro-ctrl-btn--danger" data-action="delete-category" data-category-id="${escapeHtml(String(cat.id))}" aria-label="Eliminar categoria">
+        ? `<button type="button" class="gd-ahorro-ctrl-btn gd-ahorro-ctrl-btn--danger" data-action="delete-category" data-category-id="${escapeHtml(String(cat.id))}" aria-label="${t('config.deleteCategory')}">
              <i class="lni lni-close" aria-hidden="true"></i>
            </button>`
         : `<span></span>`}
@@ -263,9 +264,9 @@ export function renderConfiguracionCuentaPage({ state, profileImage, profileName
   const config = state.configuracion;
   const recomendacionesPendientes = state.finanzas?.recomendaciones?.length || 0;
   const activeSection = resolveActiveSettingsSection();
-  const safeName = String(profileName || "Usuario").trim() || "Usuario";
+  const safeName = String(profileName || t('config.defaultUser')).trim() || t('config.defaultUser');
   const nameParts = safeName.split(/\s+/).filter(Boolean);
-  const firstName = nameParts[0] || "Usuario";
+  const firstName = nameParts[0] || t('config.defaultUser');
   const lastName = nameParts.slice(1).join(" ");
   const profileEmail = String(state.perfil?.email || "");
   const roleValue = String(state.currentUser?.role || state.currentUser?.rol || "").toLowerCase();
@@ -278,10 +279,10 @@ export function renderConfiguracionCuentaPage({ state, profileImage, profileName
   const score = getFinancialScore();
   const tier = scoreTier(score);
   const scoreDescriptions = {
-    excellent: "Tus hábitos financieros son excelentes. Mantenés un buen nivel de ahorro y diversificación.",
-    good: "Buen control financiero. Hay margen para mejorar tu tasa de ahorro mensual.",
-    fair: "Podés mejorar. Revisá tus gastos y considerá crear objetivos de ahorro.",
-    low: "Requiere atención. Tus gastos superan o igualan tus ingresos registrados.",
+    excellent: t('config.scoreDescExcellent'),
+    good: t('config.scoreDescGood'),
+    fair: t('config.scoreDescFair'),
+    low: t('config.scoreDescLow'),
   };
   const scoreDesc = scoreDescriptions[tier];
 
@@ -319,9 +320,10 @@ export function renderConfiguracionCuentaPage({ state, profileImage, profileName
   const personalCategories = customCategories.filter((c) => !c.isDefault);
 
   // Apariencia
-  const themeLabel = { light: "Claro", dark: "Oscuro", system: "Sistema" }[config.tema] || "Sistema";
-  const fontSizeLabel = { sm: "Pequeño", md: "Normal", lg: "Grande" }[config.tamanioFuente] || "Normal";
-  const densityLabel = { comfortable: "Cómoda", compact: "Compacta" }[config.densidad] || "Cómoda";
+  const idiomaLabel = { es: t('config.langEs'), en: t('config.langEn') }[config.idioma] || t('config.langEs');
+  const themeLabel = { light: t('config.themeLight'), dark: t('config.themeDark'), system: t('config.themeSystem') }[config.tema] || t('config.themeSystem');
+  const fontSizeLabel = { sm: t('config.fontSm'), md: t('config.fontMd'), lg: t('config.fontLg') }[config.tamanioFuente] || t('config.fontMd');
+  const densityLabel = { comfortable: t('config.densityComfortable'), compact: t('config.densityCompact') }[config.densidad] || t('config.densityComfortable');
 
   // Asesor
   const advisorLink = config.asesoria?.asesor || null;
@@ -353,7 +355,7 @@ export function renderConfiguracionCuentaPage({ state, profileImage, profileName
 
   const content = `
     <section class="gd-settings-shell">
-      <aside class="gd-settings-nav" aria-label="Subsecciones de configuracion">
+      <aside class="gd-settings-nav" aria-label="${t('config.subsectionsAria')}">
         ${renderSettingsNav(activeSection, recomendacionesPendientes)}
       </aside>
 
@@ -365,84 +367,84 @@ export function renderConfiguracionCuentaPage({ state, profileImage, profileName
           <article class="gd-card">
             <div class="gd-settings-profile-head">
               <div class="gd-settings-avatar-wrap">
-                <label for="configProfileImageInput" class="gd-settings-avatar-image-trigger" aria-label="Cambiar foto de perfil">
-                  <img src="${escapeHtml(profileImage || "/assets/img/user-avatar-default.svg")}" alt="Avatar" class="gd-settings-avatar-image" data-image-error-mode="toggle-next">
+                <label for="configProfileImageInput" class="gd-settings-avatar-image-trigger" aria-label="${t('config.changePhoto')}">
+                  <img src="${escapeHtml(profileImage || "/assets/img/user-avatar-default.svg")}" alt="${t('config.avatarAlt')}" class="gd-settings-avatar-image" data-image-error-mode="toggle-next">
                   <span class="gd-settings-avatar-fallback d-none" aria-hidden="true">${escapeHtml(initials)}</span>
                 </label>
               </div>
               <div class="gd-settings-profile-copy">
-                <p class="gd-card-title">Mi perfil</p>
+                <p class="gd-card-title">${t('config.myProfile')}</p>
                 <p class="gd-settings-profile-name">${escapeHtml(safeName)}</p>
                 <p class="gd-muted mb-0">${escapeHtml(profileEmail)}</p>
               </div>
               <div class="gd-settings-profile-right">
                 ${renderScoreRing(score)}
                 <div class="gd-settings-avatar-actions">
-                  <label for="configProfileImageInput" class="gd-action-btn">Cambiar foto</label>
+                  <label for="configProfileImageInput" class="gd-action-btn">${t('config.changePhotoBtn')}</label>
                   <input id="configProfileImageInput" type="file" class="d-none" accept="image/*">
                 </div>
               </div>
             </div>
 
             <div class="gd-settings-score-desc">
-              <p class="gd-muted mb-0"><strong>Score ${score}/100 · ${escapeHtml(scoreLabel(score))}</strong> — ${escapeHtml(scoreDesc)}</p>
-              <p class="gd-muted mb-0 mt-1" style="font-size: 0.78rem;">Se calcula en base a tu tasa de ahorro, objetivos activos, diversificación de gastos e historial disponible.</p>
+              <p class="gd-muted mb-0"><strong>${t('config.scoreSummary', { score, label: scoreLabel(score) })}</strong> — ${escapeHtml(scoreDesc)}</p>
+              <p class="gd-muted mb-0 mt-1" style="font-size: 0.78rem;">${t('config.scoreCalc')}</p>
             </div>
 
             <div class="gd-form-grid mt-3">
               <div>
-                <label class="gd-form-label" for="configNombre">Nombre</label>
+                <label class="gd-form-label" for="configNombre">${t('config.firstName')}</label>
                 <input id="configNombre" class="gd-form-input" value="${escapeHtml(firstName)}">
               </div>
               <div>
-                <label class="gd-form-label" for="configApellido">Apellido</label>
+                <label class="gd-form-label" for="configApellido">${t('config.lastName')}</label>
                 <input id="configApellido" class="gd-form-input" value="${escapeHtml(lastName)}">
               </div>
               <div class="gd-form-full">
-                <label class="gd-form-label" for="configEmail">Email</label>
+                <label class="gd-form-label" for="configEmail">${t('config.email')}</label>
                 <input id="configEmail" class="gd-form-input" value="${escapeHtml(profileEmail)}">
               </div>
               <div>
-                <label class="gd-form-label" for="configMoneda">Moneda</label>
+                <label class="gd-form-label" for="configMoneda">${t('config.currency')}</label>
                 <select id="moneda" name="moneda" class="gd-form-select">
-                  <option value="ARS" ${config.moneda === "ARS" ? "selected" : ""}>Peso argentino (ARS)</option>
-                  <option value="USD" disabled>Dolar USD (próximamente)</option>
-                  <option value="EUR" disabled>Euro (próximamente)</option>
+                  <option value="ARS" ${config.moneda === "ARS" ? "selected" : ""}>${t('config.currencyArs')}</option>
+                  <option value="USD" disabled>${t('config.currencyUsd')}</option>
+                  <option value="EUR" disabled>${t('config.currencyEur')}</option>
                 </select>
               </div>
               <div>
                 <label class="gd-form-label" for="configTelefono">
-                  Telefono ${renderProxBadge()}
+                  ${t('config.phone')} ${renderProxBadge()}
                 </label>
-                <input id="configTelefono" class="gd-form-input" placeholder="Sin verificación disponible" disabled style="opacity:0.5;cursor:not-allowed;">
+                <input id="configTelefono" class="gd-form-input" placeholder="${t('config.phonePlaceholder')}" disabled style="opacity:0.5;cursor:not-allowed;">
               </div>
             </div>
 
             <div class="d-flex justify-content-end gap-2 mt-3">
-              <button type="button" class="gd-btn-secondary">Cancelar</button>
-              <button type="button" class="gd-btn-primary" id="guardarPerfilConfigBtn">Guardar cambios</button>
+              <button type="button" class="gd-btn-secondary">${t('config.cancel')}</button>
+              <button type="button" class="gd-btn-primary" id="guardarPerfilConfigBtn">${t('config.saveChanges')}</button>
             </div>
           </article>
 
           <article class="gd-card">
-            <h2 class="gd-card-title mb-1">Perfil financiero</h2>
-            <p class="gd-muted mb-3">Información usada para recomendaciones personalizadas. Se guarda localmente.</p>
+            <h2 class="gd-card-title mb-1">${t('config.financialProfile')}</h2>
+            <p class="gd-muted mb-3">${t('config.financialProfileSub')}</p>
             <div class="gd-form-grid">
               <div>
-                <label class="gd-form-label" for="configIngreso">Ingreso mensual estimado</label>
-                <input id="configIngreso" type="number" min="0" class="gd-form-input" value="${escapeHtml(ingresoEstimado)}" placeholder="Ej: 350000">
+                <label class="gd-form-label" for="configIngreso">${t('config.estimatedIncome')}</label>
+                <input id="configIngreso" type="number" min="0" class="gd-form-input" value="${escapeHtml(ingresoEstimado)}" placeholder="${t('config.placeholderIncome')}">
               </div>
               <div>
-                <label class="gd-form-label" for="configAhorro">Objetivo de ahorro mensual</label>
-                <input id="configAhorro" type="number" min="0" class="gd-form-input" value="${escapeHtml(objetivoAhorro)}" placeholder="Ej: 80000">
+                <label class="gd-form-label" for="configAhorro">${t('config.savingGoal')}</label>
+                <input id="configAhorro" type="number" min="0" class="gd-form-input" value="${escapeHtml(objetivoAhorro)}" placeholder="${t('config.placeholderSavingGoal')}">
               </div>
               <div class="gd-form-full">
-                <label class="gd-form-label" for="configPerfilGasto">Perfil de gasto IA</label>
-                <input id="configPerfilGasto" class="gd-form-input" value="Basado en tus registros del mes" disabled style="opacity:0.6;">
+                <label class="gd-form-label" for="configPerfilGasto">${t('config.aiSpendProfile')}</label>
+                <input id="configPerfilGasto" class="gd-form-input" value="${t('config.aiSpendProfileValue')}" disabled style="opacity:0.6;">
               </div>
             </div>
             <div class="d-flex justify-content-end mt-3">
-              <button type="button" class="gd-btn-primary" id="guardarPerfilFinancieroBtn">Guardar perfil financiero</button>
+              <button type="button" class="gd-btn-primary" id="guardarPerfilFinancieroBtn">${t('config.saveFinancialProfile')}</button>
             </div>
           </article>
         </section>
@@ -450,48 +452,48 @@ export function renderConfiguracionCuentaPage({ state, profileImage, profileName
         <!-- SEGURIDAD -->
         <section id="config-section-seguridad" class="gd-settings-panel ${activeSection === "seguridad" ? "active" : ""}" data-config-section="seguridad" ${activeSection === "seguridad" ? "" : "hidden"}>
           <article class="gd-card">
-            <h2 class="gd-card-title mb-1">Contraseña y acceso</h2>
-            <p class="gd-muted mb-3">Actualizá tus credenciales y fortalecé la seguridad de tu cuenta.</p>
+            <h2 class="gd-card-title mb-1">${t('config.passwordAccess')}</h2>
+            <p class="gd-muted mb-3">${t('config.passwordAccessSub')}</p>
 
             <div class="gd-form-grid">
               <div class="gd-form-full">
-                <label class="gd-form-label" for="passwordActual">Contraseña actual</label>
+                <label class="gd-form-label" for="passwordActual">${t('config.currentPassword')}</label>
                 <input id="passwordActual" type="password" class="gd-form-input" placeholder="••••••••">
               </div>
               <div>
-                <label class="gd-form-label" for="passwordNueva">Nueva contraseña</label>
+                <label class="gd-form-label" for="passwordNueva">${t('config.newPassword')}</label>
                 <input id="passwordNueva" type="password" class="gd-form-input" placeholder="••••••••">
               </div>
               <div>
-                <label class="gd-form-label" for="passwordConfirmar">Confirmar contraseña</label>
+                <label class="gd-form-label" for="passwordConfirmar">${t('config.confirmPassword')}</label>
                 <input id="passwordConfirmar" type="password" class="gd-form-input" placeholder="••••••••">
               </div>
             </div>
 
-            <div class="gd-settings-toggle-row mt-3" style="opacity:0.55;" title="No disponible en esta versión">
+            <div class="gd-settings-toggle-row mt-3" style="opacity:0.55;" title="${t('config.twoFactorUnavailable')}">
               <div>
                 <p class="gd-card-title gd-card-title-xs mb-0">
-                  Autenticación en dos pasos ${renderProxBadge()}
+                  ${t('config.twoFactor')} ${renderProxBadge()}
                 </p>
-                <small class="gd-muted">Agrega un segundo factor al iniciar sesión.</small>
+                <small class="gd-muted">${t('config.twoFactorSub')}</small>
               </div>
               <input class="form-check-input mt-0" type="checkbox" id="autenticacionDos" disabled>
             </div>
 
             <div class="d-flex justify-content-end gap-2 mt-3">
-              <button type="button" class="gd-btn-secondary">Cancelar</button>
-              <button type="button" class="gd-btn-primary" id="guardarSeguridadBtn">Actualizar seguridad</button>
+              <button type="button" class="gd-btn-secondary">${t('config.cancel')}</button>
+              <button type="button" class="gd-btn-primary" id="guardarSeguridadBtn">${t('config.updateSecurity')}</button>
             </div>
           </article>
 
           <article class="gd-card">
-            <h2 class="gd-card-title mb-1">Buenas prácticas recomendadas</h2>
+            <h2 class="gd-card-title mb-1">${t('config.bestPractices')}</h2>
             <ul class="gd-policy-list mb-0">
-              <li>Usá contraseñas únicas para cada servicio. No reutilices claves de otras plataformas.</li>
-              <li>Una contraseña fuerte tiene al menos 8 caracteres, incluye mayúsculas, números y símbolos.</li>
-              <li>Activá autenticación en dos pasos (disponible próximamente) para mayor protección.</li>
-              <li>Nunca compartas tu contraseña por chat, correo ni con terceros.</li>
-              <li>Revisá periódicamente las sesiones activas para detectar accesos no autorizados.</li>
+              <li>${t('config.practice1')}</li>
+              <li>${t('config.practice2')}</li>
+              <li>${t('config.practice3')}</li>
+              <li>${t('config.practice4')}</li>
+              <li>${t('config.practice5')}</li>
             </ul>
           </article>
         </section>
@@ -501,14 +503,14 @@ export function renderConfiguracionCuentaPage({ state, profileImage, profileName
           <article class="gd-card">
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 mb-3">
               <div>
-                <h2 class="gd-card-title mb-1">Sesiones activas ${renderProxBadge()}</h2>
-                <p class="gd-muted mb-0">La gestión avanzada de sesiones no está disponible en esta versión.</p>
+                <h2 class="gd-card-title mb-1">${t('config.activeSessions')} ${renderProxBadge()}</h2>
+                <p class="gd-muted mb-0">${t('config.sessionsSub')}</p>
               </div>
             </div>
             <div class="gd-settings-prox-block">
               <i class="lni lni-tab" aria-hidden="true"></i>
-              <p class="mb-1 fw-semibold">Gestión de dispositivos</p>
-              <p class="gd-muted mb-0">Próximamente podrás ver y cerrar sesiones en dispositivos remotos desde aquí.</p>
+              <p class="mb-1 fw-semibold">${t('config.deviceManagement')}</p>
+              <p class="gd-muted mb-0">${t('config.deviceManagementSub')}</p>
             </div>
           </article>
         </section>
@@ -520,11 +522,11 @@ export function renderConfiguracionCuentaPage({ state, profileImage, profileName
 
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 mb-3">
               <div>
-                <h2 class="gd-card-title mb-1">Presupuestos mensuales</h2>
-                <p class="gd-muted mb-0">Definí límites por categoría. Recibís alertas en el dashboard al alcanzar el 80%.</p>
+                <h2 class="gd-card-title mb-1">${t('config.monthlyBudgets')}</h2>
+                <p class="gd-muted mb-0">${t('config.monthlyBudgetsSub')}</p>
               </div>
               ${budgetAlerts.length > 0
-                ? `<span class="gd-settings-alert-chip">${budgetAlerts.length} ${budgetAlerts.length === 1 ? "alerta activa" : "alertas activas"}</span>`
+                ? `<span class="gd-settings-alert-chip">${budgetAlerts.length} ${budgetAlerts.length === 1 ? t('config.activeAlert') : t('config.activeAlerts')}</span>`
                 : ""}
             </div>
 
@@ -533,8 +535,8 @@ export function renderConfiguracionCuentaPage({ state, profileImage, profileName
             ${budgets.length === 0
               ? `<div class="gd-settings-prox-block mb-3">
                    <i class="lni lni-wallet" aria-hidden="true"></i>
-                   <p class="mb-1 fw-semibold">Sin presupuestos ${isCurrentOrFuture ? "para este mes" : "para este período"}</p>
-                   <p class="gd-muted mb-0">${isCurrentOrFuture ? "Agregá un presupuesto para monitorear el gasto por categoría." : "No hay presupuestos registrados para este período."}</p>
+                   <p class="mb-1 fw-semibold">${isCurrentOrFuture ? t('config.noBudgetsMonth') : t('config.noBudgetsPeriod')}</p>
+                   <p class="gd-muted mb-0">${isCurrentOrFuture ? t('config.noBudgetsMonthSub') : t('config.noBudgetsPeriodSub')}</p>
                  </div>`
               : `<div class="gd-settings-budget-list mb-3">
                    ${budgets.map((b) => renderBudgetRow(b, spentByCategory[b.categoryName] || 0, notifEnabled, b.id === state.finanzas.ui.editingBudgetId, !isCurrentOrFuture)).join("")}
@@ -547,7 +549,7 @@ export function renderConfiguracionCuentaPage({ state, profileImage, profileName
                      data-action="copy-budgets-from-prev"
                      data-prev-period="${escapeHtml(prevPeriodKey)}">
                      <i class="lni lni-copy" aria-hidden="true"></i>
-                     Copiar presupuestos de ${escapeHtml(formatMonthLabelLong(prevPeriodKey))}
+                     ${t('config.copyBudgets', { month: formatMonthLabelLong(prevPeriodKey) })}
                    </button>
                  </div>`
               : ""}
@@ -555,21 +557,21 @@ export function renderConfiguracionCuentaPage({ state, profileImage, profileName
             ${isCurrentOrFuture
               ? `<form id="nuevoBudgetForm" class="gd-form-grid gd-settings-budget-form">
                    <div>
-                     <label class="gd-form-label" for="budgetCategoria">Categoría</label>
+                     <label class="gd-form-label" for="budgetCategoria">${t('config.category')}</label>
                      <select id="budgetCategoria" class="gd-form-select">
-                       <option value="">Seleccionar categoría</option>
+                       <option value="">${t('config.selectCategory')}</option>
                        ${allCategoryOptions.map((c) => `<option value="${escapeHtml(String(c.id ?? c.name))}" data-name="${escapeHtml(c.name)}">${escapeHtml(c.name)}</option>`).join("")}
                      </select>
                    </div>
                    <div>
-                     <label class="gd-form-label" for="budgetLimite">Límite mensual</label>
-                     <input id="budgetLimite" type="number" min="1" class="gd-form-input" placeholder="Ej: 30000">
+                     <label class="gd-form-label" for="budgetLimite">${t('config.monthlyLimit')}</label>
+                     <input id="budgetLimite" type="number" min="1" class="gd-form-input" placeholder="${t('config.placeholderLimit')}">
                    </div>
                    <div class="d-flex align-items-end">
-                     <button type="submit" class="gd-btn-primary w-100">Agregar presupuesto</button>
+                     <button type="submit" class="gd-btn-primary w-100">${t('config.addBudget')}</button>
                    </div>
                  </form>`
-              : `<p class="gd-muted small text-center mt-2">Vista de solo lectura — navegá al mes actual para agregar presupuestos.</p>`
+              : `<p class="gd-muted small text-center mt-2">${t('config.readOnlyHint')}</p>`
             }
           </article>
         </section>
@@ -577,36 +579,36 @@ export function renderConfiguracionCuentaPage({ state, profileImage, profileName
         <!-- CATEGORÍAS -->
         <section id="config-section-categorias" class="gd-settings-panel ${activeSection === "categorias" ? "active" : ""}" data-config-section="categorias" ${activeSection === "categorias" ? "" : "hidden"}>
           <article class="gd-card">
-            <h2 class="gd-card-title mb-1">Categorías personalizadas</h2>
-            <p class="gd-muted mb-3">Creá etiquetas para clasificar mejor tus gastos. Las categorías personales se pueden eliminar.</p>
+            <h2 class="gd-card-title mb-1">${t('config.customCategories')}</h2>
+            <p class="gd-muted mb-3">${t('config.customCategoriesSub')}</p>
 
             ${customCategories.length === 0
               ? `<div class="gd-settings-prox-block mb-3">
                    <i class="lni lni-tag" aria-hidden="true"></i>
-                   <p class="mb-1 fw-semibold">Sin categorías cargadas</p>
-                   <p class="gd-muted mb-0">Las categorías se cargan desde el servidor al iniciar la app.</p>
+                   <p class="mb-1 fw-semibold">${t('config.noCategoriesLoaded')}</p>
+                   <p class="gd-muted mb-0">${t('config.noCategoriesLoadedSub')}</p>
                  </div>`
               : `<div class="gd-settings-category-list mb-3">
                    ${systemCategories.length > 0
-                     ? `<p class="gd-settings-category-section-label">Sistema</p>${systemCategories.map(renderCategoryRow).join("")}`
+                     ? `<p class="gd-settings-category-section-label">${t('config.systemSection')}</p>${systemCategories.map(renderCategoryRow).join("")}`
                      : ""}
                    ${personalCategories.length > 0
-                     ? `<p class="gd-settings-category-section-label mt-3">Personales</p>${personalCategories.map(renderCategoryRow).join("")}`
+                     ? `<p class="gd-settings-category-section-label mt-3">${t('config.personalSection')}</p>${personalCategories.map(renderCategoryRow).join("")}`
                      : ""}
                  </div>`
             }
 
             <form id="nuevaCategoriaForm" class="gd-form-grid gd-settings-budget-form">
               <div>
-                <label class="gd-form-label" for="nuevaCategoria">Nombre de categoría</label>
-                <input id="nuevaCategoria" class="gd-form-input" placeholder="Ej: Mascotas">
+                <label class="gd-form-label" for="nuevaCategoria">${t('config.categoryName')}</label>
+                <input id="nuevaCategoria" class="gd-form-input" placeholder="${t('config.placeholderPets')}">
               </div>
               <div>
-                <label class="gd-form-label" for="nuevoCategoriaEmoji">Emoji <span class="gd-form-optional">(opcional)</span></label>
+                <label class="gd-form-label" for="nuevoCategoriaEmoji">${t('config.emoji')} <span class="gd-form-optional">${t('common.optional')}</span></label>
                 <input id="nuevoCategoriaEmoji" class="gd-form-input" placeholder="🐾" maxlength="8">
               </div>
               <div class="d-flex align-items-end">
-                <button type="submit" class="gd-btn-primary w-100">Agregar categoría</button>
+                <button type="submit" class="gd-btn-primary w-100">${t('config.addCategory')}</button>
               </div>
             </form>
           </article>
@@ -617,27 +619,27 @@ export function renderConfiguracionCuentaPage({ state, profileImage, profileName
           <div class="row g-3 align-items-stretch">
             <div class="col-12 col-xl-6">
               <article class="gd-card h-100">
-                <h2 class="gd-card-title mb-1">Agregar asesor</h2>
-                <p class="gd-muted mb-3">Generá un código único de verificación para que el asesor lo ingrese y quede vinculado a tu cuenta.</p>
+                <h2 class="gd-card-title mb-1">${t('config.addAdvisor')}</h2>
+                <p class="gd-muted mb-3">${t('config.addAdvisorSub')}</p>
 
                 <form id="agregarAsesorForm">
                   <div class="gd-form-grid">
                     <div>
-                      <label class="gd-form-label" for="asesorNombre">Nombre del asesor</label>
-                      <input id="asesorNombre" class="gd-form-input" value="${escapeHtml(String(advisorRequest.nombre || ""))}" placeholder="Ej: Laura Gómez" required>
+                      <label class="gd-form-label" for="asesorNombre">${t('config.advisorName')}</label>
+                      <input id="asesorNombre" class="gd-form-input" value="${escapeHtml(String(advisorRequest.nombre || ""))}" placeholder="${t('config.placeholderAdvisorName')}" required>
                     </div>
                     <div>
-                      <label class="gd-form-label" for="asesorEmail">Email del asesor</label>
-                      <input id="asesorEmail" type="email" class="gd-form-input" value="${escapeHtml(String(advisorRequest.email || ""))}" placeholder="asesor@correo.com" required>
+                      <label class="gd-form-label" for="asesorEmail">${t('config.advisorEmail')}</label>
+                      <input id="asesorEmail" type="email" class="gd-form-input" value="${escapeHtml(String(advisorRequest.email || ""))}" placeholder="${t('config.placeholderAdvisorEmail')}" required>
                     </div>
                     <div class="gd-form-full">
-                      <label class="gd-form-label" for="asesorEspecialidad">Especialidad <span class="gd-form-optional">(opcional)</span></label>
-                      <input id="asesorEspecialidad" class="gd-form-input" value="${escapeHtml(String(advisorRequest.especialidad || ""))}" placeholder="Ej: Ahorro, presupuesto, inversiones">
+                      <label class="gd-form-label" for="asesorEspecialidad">${t('config.specialty')} <span class="gd-form-optional">${t('common.optional')}</span></label>
+                      <input id="asesorEspecialidad" class="gd-form-input" value="${escapeHtml(String(advisorRequest.especialidad || ""))}" placeholder="${t('config.placeholderSpecialty')}">
                     </div>
                   </div>
                   <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-2 mt-3">
-                    <small class="gd-muted">Al guardar se crea automáticamente el código de verificación.</small>
-                    <button type="submit" class="gd-btn-primary">Generar código y vincular</button>
+                    <small class="gd-muted">${t('config.advisorCodeHint')}</small>
+                    <button type="submit" class="gd-btn-primary">${t('config.generateCode')}</button>
                   </div>
                 </form>
               </article>
@@ -647,11 +649,11 @@ export function renderConfiguracionCuentaPage({ state, profileImage, profileName
               <article class="gd-card h-100">
                 <div class="d-flex align-items-start justify-content-between gap-2 mb-3">
                   <div>
-                    <h2 class="gd-card-title mb-1">Perfil del asesor</h2>
-                    <p class="gd-muted mb-0">${advisorHasProfile ? "Revisá los datos vinculados y compartí el código de verificación." : "Aún no tenés un asesor vinculado."}</p>
+                    <h2 class="gd-card-title mb-1">${t('config.advisorProfile')}</h2>
+                    <p class="gd-muted mb-0">${advisorHasProfile ? t('config.advisorProfileLinked') : t('config.advisorProfileEmpty')}</p>
                   </div>
                   ${advisorHasProfile
-                    ? `<button type="button" class="gd-ahorro-ctrl-btn gd-ahorro-ctrl-btn--danger" data-action="desvincular-asesor" aria-label="Desvincular asesor">
+                    ? `<button type="button" class="gd-ahorro-ctrl-btn gd-ahorro-ctrl-btn--danger" data-action="desvincular-asesor" aria-label="${t('config.unlinkAdvisor')}">
                          <i class="lni lni-close" aria-hidden="true"></i>
                        </button>`
                     : ""}
@@ -663,22 +665,22 @@ export function renderConfiguracionCuentaPage({ state, profileImage, profileName
                        <div class="gd-settings-advisor-copy">
                          <p class="gd-settings-session-title mb-1">${escapeHtml(advisorName)}</p>
                          <p class="gd-settings-session-sub mb-1">${escapeHtml(advisorEmail)}</p>
-                         <p class="gd-settings-session-sub mb-0">${escapeHtml(advisorSpecialty || "Sin especialidad definida")}</p>
+                         <p class="gd-settings-session-sub mb-0">${escapeHtml(advisorSpecialty || t('config.noSpecialty'))}</p>
                        </div>
                      </div>
                      <div class="gd-settings-advisor-code-box mt-3">
-                       <span class="gd-muted d-block mb-1">Código de verificación</span>
-                       <strong class="gd-settings-advisor-code">${escapeHtml(advisorCode || "Pendiente de generar")}</strong>
-                       <p class="gd-muted mb-0 mt-2">El asesor debe ingresar este código para completar la vinculación.</p>
+                       <span class="gd-muted d-block mb-1">${t('config.verificationCode')}</span>
+                       <strong class="gd-settings-advisor-code">${escapeHtml(advisorCode || t('config.codePending'))}</strong>
+                       <p class="gd-muted mb-0 mt-2">${t('config.advisorMustEnterCode')}</p>
                      </div>
                      <div class="gd-settings-advisor-meta mt-3">
-                       <span class="gd-settings-category-pill">Vinculado</span>
-                       <span class="gd-settings-advisor-meta-text">Vínculo activo en la sección de Asesoría.</span>
+                       <span class="gd-settings-category-pill">${t('config.linked')}</span>
+                       <span class="gd-settings-advisor-meta-text">${t('config.linkActive')}</span>
                      </div>`
                   : `<div class="gd-settings-advisor-empty">
                        <i class="lni lni-user fs-1"></i>
-                       <p class="mb-1 fw-semibold">Sin asesor vinculado</p>
-                       <p class="gd-muted mb-0">Completá el formulario para generar el código y activar el perfil del asesor.</p>
+                       <p class="mb-1 fw-semibold">${t('config.noAdvisorLinked')}</p>
+                       <p class="gd-muted mb-0">${t('config.noAdvisorLinkedSub')}</p>
                      </div>`
                 }
               </article>
@@ -689,43 +691,43 @@ export function renderConfiguracionCuentaPage({ state, profileImage, profileName
         <!-- NOTIFICACIONES -->
         <section id="config-section-notificaciones" class="gd-settings-panel ${activeSection === "notificaciones" ? "active" : ""}" data-config-section="notificaciones" ${activeSection === "notificaciones" ? "" : "hidden"}>
           <article class="gd-card">
-            <h2 class="gd-card-title mb-1">Alertas de gastos</h2>
-            <p class="gd-muted mb-3">Controlá cuándo y cómo querés recibir avisos en el dashboard.</p>
+            <h2 class="gd-card-title mb-1">${t('config.expenseAlerts')}</h2>
+            <p class="gd-muted mb-3">${t('config.expenseAlertsSub')}</p>
 
             <label class="gd-settings-toggle-row">
               <div>
-                <p class="gd-card-title gd-card-title-xs mb-0">Gasto inusual detectado</p>
-                <small class="gd-muted">Cuando un gasto supere tu patrón habitual histórico.</small>
+                <p class="gd-card-title gd-card-title-xs mb-0">${t('config.unusualExpense')}</p>
+                <small class="gd-muted">${t('config.unusualExpenseSub')}</small>
               </div>
               <input class="form-check-input mt-0" type="checkbox" id="resumenSemanal" ${state.notificaciones?.resumenSemanal !== false ? "checked" : ""}>
             </label>
 
             <label class="gd-settings-toggle-row">
               <div>
-                <p class="gd-card-title gd-card-title-xs mb-0">Presupuesto al 80%</p>
-                <small class="gd-muted">Aviso al acercarte al límite mensual de presupuesto.</small>
+                <p class="gd-card-title gd-card-title-xs mb-0">${t('config.budget80')}</p>
+                <small class="gd-muted">${t('config.budget80Sub')}</small>
               </div>
               <input class="form-check-input mt-0" type="checkbox" id="alertaPresupuesto" ${state.notificaciones?.alertaPresupuesto !== false ? "checked" : ""}>
             </label>
 
             <label class="gd-settings-toggle-row">
               <div>
-                <p class="gd-card-title gd-card-title-xs mb-0">Recomendaciones del asesor</p>
-                <small class="gd-muted">Notifica cada nuevo análisis publicado.</small>
+                <p class="gd-card-title gd-card-title-xs mb-0">${t('config.advisorRecommendations')}</p>
+                <small class="gd-muted">${t('config.advisorRecommendationsSub')}</small>
               </div>
               <input class="form-check-input mt-0" type="checkbox" id="recomendacionesIA" ${state.notificaciones?.recomendacionesIA !== false ? "checked" : ""}>
             </label>
 
             <label class="gd-settings-toggle-row">
               <div>
-                <p class="gd-card-title gd-card-title-xs mb-0">Movimientos grandes</p>
-                <small class="gd-muted">Cuando se registre un gasto mayor al habitual del mes.</small>
+                <p class="gd-card-title gd-card-title-xs mb-0">${t('config.largeMovements')}</p>
+                <small class="gd-muted">${t('config.largeMovementsSub')}</small>
               </div>
               <input class="form-check-input mt-0" type="checkbox" id="movimientosGrandes" ${state.notificaciones?.movimientosGrandes !== false ? "checked" : ""}>
             </label>
 
             <div class="d-flex justify-content-end mt-3">
-              <button type="button" class="gd-btn-primary" id="guardarPreferenciasNotifBtn">Guardar preferencias</button>
+              <button type="button" class="gd-btn-primary" id="guardarPreferenciasNotifBtn">${t('config.savePreferences')}</button>
             </div>
           </article>
         </section>
@@ -733,70 +735,62 @@ export function renderConfiguracionCuentaPage({ state, profileImage, profileName
         <!-- APARIENCIA -->
         <section id="config-section-apariencia" class="gd-settings-panel ${activeSection === "apariencia" ? "active" : ""}" data-config-section="apariencia" ${activeSection === "apariencia" ? "" : "hidden"}>
           <article class="gd-card">
-            <h2 class="gd-card-title mb-1">Apariencia y accesibilidad</h2>
-            <p class="gd-muted mb-3">Controlá idioma, tema y densidad visual del dashboard.</p>
+            <h2 class="gd-card-title mb-1">${t('config.appearanceTitle')}</h2>
+            <p class="gd-muted mb-3">${t('config.appearanceSub')}</p>
 
             <div class="gd-form-grid">
               <div>
-                <label class="gd-form-label" for="idioma">Idioma</label>
+                <label class="gd-form-label" for="idioma">${t('config.language')}</label>
                 <select id="idioma" name="idioma" class="gd-form-select">
-                  <option value="es" ${config.idioma === "es" ? "selected" : ""}>Español</option>
-                  <option value="en" ${config.idioma === "en" ? "selected" : ""}>English</option>
-                  <option value="pt" ${config.idioma === "pt" ? "selected" : ""}>Português</option>
+                  <option value="es" ${config.idioma === "es" ? "selected" : ""}>${t('config.langEs')}</option>
+                  <option value="en" ${config.idioma === "en" ? "selected" : ""}>${t('config.langEn')}</option>
                 </select>
               </div>
               <div>
-                <label class="gd-form-label" for="temaModo">Tema</label>
+                <label class="gd-form-label" for="temaModo">${t('config.theme')}</label>
                 <select id="temaModo" name="temaModo" class="gd-form-select">
-                  <option value="system" ${config.tema === "system" ? "selected" : ""}>Sistema</option>
-                  <option value="light" ${config.tema === "light" ? "selected" : ""}>Claro</option>
-                  <option value="dark" ${config.tema === "dark" ? "selected" : ""}>Oscuro</option>
+                  <option value="system" ${config.tema === "system" ? "selected" : ""}>${t('config.themeSystem')}</option>
+                  <option value="light" ${config.tema === "light" ? "selected" : ""}>${t('config.themeLight')}</option>
+                  <option value="dark" ${config.tema === "dark" ? "selected" : ""}>${t('config.themeDark')}</option>
                 </select>
               </div>
               <div>
-                <label class="gd-form-label" for="tamanioFuente">Tamaño de fuente</label>
+                <label class="gd-form-label" for="tamanioFuente">${t('config.fontSize')}</label>
                 <select id="tamanioFuente" name="tamanioFuente" class="gd-form-select">
-                  <option value="sm" ${config.tamanioFuente === "sm" ? "selected" : ""}>Pequeño</option>
-                  <option value="md" ${config.tamanioFuente === "md" ? "selected" : ""}>Normal</option>
-                  <option value="lg" ${config.tamanioFuente === "lg" ? "selected" : ""}>Grande</option>
+                  <option value="sm" ${config.tamanioFuente === "sm" ? "selected" : ""}>${t('config.fontSm')}</option>
+                  <option value="md" ${config.tamanioFuente === "md" ? "selected" : ""}>${t('config.fontMd')}</option>
+                  <option value="lg" ${config.tamanioFuente === "lg" ? "selected" : ""}>${t('config.fontLg')}</option>
                 </select>
               </div>
               <div>
-                <label class="gd-form-label" for="densidad">Densidad</label>
+                <label class="gd-form-label" for="densidad">${t('config.density')}</label>
                 <select id="densidad" name="densidad" class="gd-form-select">
-                  <option value="comfortable" ${config.densidad === "comfortable" ? "selected" : ""}>Cómoda</option>
-                  <option value="compact" ${config.densidad === "compact" ? "selected" : ""}>Compacta</option>
+                  <option value="comfortable" ${config.densidad === "comfortable" ? "selected" : ""}>${t('config.densityComfortable')}</option>
+                  <option value="compact" ${config.densidad === "compact" ? "selected" : ""}>${t('config.densityCompact')}</option>
                 </select>
               </div>
 
               <label class="gd-form-full gd-setting-row" for="mostrarCentavos">
                 <div>
-                  <p class="gd-card-title gd-card-title-xs mb-0">Mostrar centavos</p>
-                  <small class="gd-muted">Visualizá montos con dos decimales en tablas y métricas.</small>
+                  <p class="gd-card-title gd-card-title-xs mb-0">${t('config.showCents')}</p>
+                  <small class="gd-muted">${t('config.showCentsSub')}</small>
                 </div>
                 <input class="form-check-input mt-0" type="checkbox" id="mostrarCentavos" ${config.mostrarCentavos ? "checked" : ""}>
               </label>
 
-              <label class="gd-form-full gd-setting-row" for="reducirAnimaciones">
-                <div>
-                  <p class="gd-card-title gd-card-title-xs mb-0">Reducir animaciones</p>
-                  <small class="gd-muted">Desactivá transiciones para una experiencia más estable.</small>
-                </div>
-                <input class="form-check-input mt-0" type="checkbox" id="reducirAnimaciones" ${config.reducirAnimaciones ? "checked" : ""}>
-              </label>
-
               <div class="gd-form-full gd-settings-preview">
-                <p class="gd-card-title gd-card-title-xs mb-2">Vista previa</p>
+                <p class="gd-card-title gd-card-title-xs mb-2">${t('config.preview')}</p>
                 <div class="gd-settings-preview-list">
-                  <div class="gd-settings-preview-item"><span>Tema</span><strong>${escapeHtml(themeLabel)}</strong></div>
-                  <div class="gd-settings-preview-item"><span>Fuente</span><strong>${escapeHtml(fontSizeLabel)}</strong></div>
-                  <div class="gd-settings-preview-item"><span>Densidad</span><strong>${escapeHtml(densityLabel)}</strong></div>
+                  <div class="gd-settings-preview-item"><span>${t('config.previewLanguage')}</span><strong>${escapeHtml(idiomaLabel)}</strong></div>
+                  <div class="gd-settings-preview-item"><span>${t('config.previewTheme')}</span><strong>${escapeHtml(themeLabel)}</strong></div>
+                  <div class="gd-settings-preview-item"><span>${t('config.previewFont')}</span><strong>${escapeHtml(fontSizeLabel)}</strong></div>
+                  <div class="gd-settings-preview-item"><span>${t('config.previewDensity')}</span><strong>${escapeHtml(densityLabel)}</strong></div>
                 </div>
               </div>
             </div>
 
             <div class="d-flex justify-content-end mt-3">
-              <button type="button" class="gd-btn-primary" id="guardarConfiguracionBtn">Guardar configuración</button>
+              <button type="button" class="gd-btn-primary" id="guardarConfiguracionBtn">${t('config.saveConfiguration')}</button>
             </div>
           </article>
         </section>
@@ -804,27 +798,27 @@ export function renderConfiguracionCuentaPage({ state, profileImage, profileName
         <!-- MIS DATOS -->
         <section id="config-section-datos" class="gd-settings-panel ${activeSection === "datos" ? "active" : ""}" data-config-section="datos" ${activeSection === "datos" ? "" : "hidden"}>
           <article class="gd-card">
-            <h2 class="gd-card-title mb-1">Exportar mis datos</h2>
-            <p class="gd-muted mb-3">Descargá información financiera y reportes de tu cuenta.</p>
+            <h2 class="gd-card-title mb-1">${t('config.exportMyData')}</h2>
+            <p class="gd-muted mb-3">${t('config.exportMyDataSub')}</p>
 
             <div class="gd-settings-export-list">
               <div class="gd-settings-export-row">
                 <div>
-                  <p class="gd-settings-session-title">Historial de movimientos</p>
-                  <p class="gd-settings-session-sub">Incluye monto, fecha, categoría, tipo y descripción. (${ticketCount} registros)</p>
+                  <p class="gd-settings-session-title">${t('config.movementHistory')}</p>
+                  <p class="gd-settings-session-sub">${t('config.movementHistorySub', { count: ticketCount })}</p>
                 </div>
                 <div class="d-flex gap-2">
-                  <button type="button" class="gd-btn-secondary" data-action="export-gastos-csv">CSV</button>
-                  <button type="button" class="gd-btn-secondary" disabled title="Próximamente" style="opacity:0.5;">Excel</button>
+                  <button type="button" class="gd-btn-secondary" data-action="export-gastos-csv">${t('config.csv')}</button>
+                  <button type="button" class="gd-btn-secondary" disabled title="${t('config.comingSoon')}" style="opacity:0.5;">${t('config.excel')}</button>
                 </div>
               </div>
 
               <div class="gd-settings-export-row">
                 <div>
-                  <p class="gd-settings-session-title">Reportes mensuales ${renderProxBadge()}</p>
-                  <p class="gd-settings-session-sub">Resumen de los últimos seis meses en PDF.</p>
+                  <p class="gd-settings-session-title">${t('config.monthlyReports')} ${renderProxBadge()}</p>
+                  <p class="gd-settings-session-sub">${t('config.monthlyReportsSub')}</p>
                 </div>
-                <button type="button" class="gd-btn-secondary" disabled style="opacity:0.5;">PDF</button>
+                <button type="button" class="gd-btn-secondary" disabled style="opacity:0.5;">${t('config.pdf')}</button>
               </div>
             </div>
           </article>
@@ -833,28 +827,28 @@ export function renderConfiguracionCuentaPage({ state, profileImage, profileName
         <!-- PLAN -->
         <section id="config-section-plan" class="gd-settings-panel ${activeSection === "plan" ? "active" : ""}" data-config-section="plan" ${activeSection === "plan" ? "" : "hidden"}>
           <article class="gd-card">
-            <h2 class="gd-card-title mb-1">Plan actual</h2>
-            <p class="gd-muted mb-3">Gestioná tu suscripción y revisá el consumo del período.</p>
+            <h2 class="gd-card-title mb-1">${t('config.currentPlanTitle')}</h2>
+            <p class="gd-muted mb-3">${t('config.currentPlanSub')}</p>
 
             <div class="gd-settings-plan-card current">
               <div>
-                <p class="gd-settings-session-title">Plan gratuito</p>
-                <p class="gd-settings-session-sub">Hasta ${ticketLimit} movimientos por mes y reportes básicos.</p>
+                <p class="gd-settings-session-title">${t('config.freePlan')}</p>
+                <p class="gd-settings-session-sub">${t('config.freePlanSub', { limit: ticketLimit })}</p>
               </div>
-              <span class="gd-settings-category-pill">Actual</span>
+              <span class="gd-settings-category-pill">${t('config.current')}</span>
             </div>
 
             <div class="gd-settings-plan-card">
               <div>
-                <p class="gd-settings-session-title">Plan Pro ${renderProxBadge()}</p>
-                <p class="gd-settings-session-sub">Movimientos ilimitados, análisis IA avanzado y panel asesor ampliado.</p>
+                <p class="gd-settings-session-title">${t('config.proPlan')} ${renderProxBadge()}</p>
+                <p class="gd-settings-session-sub">${t('config.proPlanSub')}</p>
               </div>
-              <button type="button" class="gd-btn-primary" disabled style="opacity:0.5;">Próximamente</button>
+              <button type="button" class="gd-btn-primary" disabled style="opacity:0.5;">${t('config.comingSoon')}</button>
             </div>
 
             <div class="gd-settings-usage-list mt-3">
               <div class="gd-settings-budget-row">
-                <span class="gd-settings-budget-cat">Movimientos subidos</span>
+                <span class="gd-settings-budget-cat">${t('config.uploadedMovements')}</span>
                 <div class="gd-settings-budget-bar">
                   <span class="gd-settings-budget-fill${ticketPct >= 100 ? " gd-settings-budget-fill--danger" : ticketPct >= 80 ? " gd-settings-budget-fill--warn" : ""}"
                     style="--gd-budget-fill: ${ticketPct}%;"></span>
@@ -868,23 +862,23 @@ export function renderConfiguracionCuentaPage({ state, profileImage, profileName
         <!-- ZONA PELIGROSA -->
         <section id="config-section-danger" class="gd-settings-panel ${activeSection === "danger" ? "active" : ""}" data-config-section="danger" ${activeSection === "danger" ? "" : "hidden"}>
           <article class="gd-card gd-settings-danger-card">
-            <h2 class="gd-card-title mb-1">Zona peligrosa</h2>
-            <p class="gd-muted mb-3">Estas acciones son irreversibles. Procedé con precaución.</p>
+            <h2 class="gd-card-title mb-1">${t('config.dangerZoneTitle')}</h2>
+            <p class="gd-muted mb-3">${t('config.dangerZoneSub')}</p>
 
             <div class="gd-settings-danger-row">
               <div>
-                <p class="gd-settings-session-title">Borrar historial de movimientos</p>
-                <p class="gd-settings-session-sub">Elimina todos los registros de tu cuenta en el servidor. No se puede deshacer.</p>
+                <p class="gd-settings-session-title">${t('config.deleteHistory')}</p>
+                <p class="gd-settings-session-sub">${t('config.deleteHistorySub')}</p>
               </div>
-              <button type="button" class="gd-btn-danger" data-action="borrar-historial">Borrar historial</button>
+              <button type="button" class="gd-btn-danger" data-action="borrar-historial">${t('config.deleteHistoryBtn')}</button>
             </div>
 
             <div class="gd-settings-danger-row">
               <div>
-                <p class="gd-settings-session-title">Eliminar cuenta</p>
-                <p class="gd-settings-session-sub">Borra permanentemente tu cuenta y todos tus datos del servidor.</p>
+                <p class="gd-settings-session-title">${t('config.deleteAccount')}</p>
+                <p class="gd-settings-session-sub">${t('config.deleteAccountSub')}</p>
               </div>
-              <button type="button" class="gd-btn-danger" data-action="eliminar-cuenta">Eliminar cuenta</button>
+              <button type="button" class="gd-btn-danger" data-action="eliminar-cuenta">${t('config.deleteAccountBtn')}</button>
             </div>
           </article>
         </section>
@@ -895,8 +889,8 @@ export function renderConfiguracionCuentaPage({ state, profileImage, profileName
 
   return renderDashboardAppLayout({
     activePath: "/perfil/configuracion",
-    pageTitle: "Configuración",
-    pageSubtitle: "Administrá tu perfil, finanzas y preferencias",
+    pageTitle: t('config.pageTitle'),
+    pageSubtitle: t('config.pageSubtitle'),
     content,
     profileImage,
     profileName,

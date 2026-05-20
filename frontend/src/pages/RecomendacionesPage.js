@@ -1,17 +1,18 @@
 import { renderDashboardAppLayout } from "../components/dashboard/dashboardAppLayout";
 import { escapeHtml } from "../utils/sanitize";
 import { formatMoney } from "../utils/money";
+import { t } from '../i18n';
 
 const SOURCE_CONFIG = {
-  asesor: { label: "Asesor", className: "gd-rec-source-asesor", iconClass: "lni lni-user" },
-  ia:     { label: "IA",     className: "gd-rec-source-ia",     iconClass: "lni lni-bolt-alt" },
+  asesor: { labelKey: 'rec.sourceAdvisor', className: "gd-rec-source-asesor", iconClass: "lni lni-user" },
+  ia:     { labelKey: 'rec.sourceIa',      className: "gd-rec-source-ia",     iconClass: "lni lni-bolt-alt" },
 };
 
 const SEVERITY_CONFIG = {
-  danger:  { className: "gd-rec-severity-danger",  badgeClass: "gd-rec-badge-danger",  badgeLabel: "Alerta critica", impactLabel: "Impacto alto" },
-  warning: { className: "gd-rec-severity-warning", badgeClass: "gd-rec-badge-warning", badgeLabel: "Revision",       impactLabel: "Impacto medio" },
-  good:    { className: "gd-rec-severity-good",    badgeClass: "gd-rec-badge-good",    badgeLabel: "Logro",          impactLabel: "Positivo" },
-  info:    { className: "gd-rec-severity-info",    badgeClass: "gd-rec-badge-info",    badgeLabel: "Sugerencia",     impactLabel: "Impacto medio" },
+  danger:  { className: "gd-rec-severity-danger",  badgeClass: "gd-rec-badge-danger",  badgeLabelKey: "rec.badgeCritical",    impactLabelKey: "rec.impactHigh" },
+  warning: { className: "gd-rec-severity-warning", badgeClass: "gd-rec-badge-warning", badgeLabelKey: "rec.badgeReview",      impactLabelKey: "rec.impactMedium" },
+  good:    { className: "gd-rec-severity-good",    badgeClass: "gd-rec-badge-good",    badgeLabelKey: "rec.badgeAchievement", impactLabelKey: "rec.impactPositive" },
+  info:    { className: "gd-rec-severity-info",    badgeClass: "gd-rec-badge-info",    badgeLabelKey: "rec.badgeSuggestion",  impactLabelKey: "rec.impactMedium" },
 };
 
 const CATEGORY_ICON_MAP = {
@@ -63,11 +64,11 @@ function parseRecommendationDate(value) {
 
   const tokens = raw.toLowerCase().replace(/[.,]/g, " ").split(/\s+/).filter(Boolean);
   if (!tokens.length) return null;
-  const yearToken = tokens.find((t) => /^\d{4}$/.test(t));
+  const yearToken = tokens.find((tk) => /^\d{4}$/.test(tk));
   const year = yearToken ? Number(yearToken) : fallbackYear;
-  const monthIndex = tokens.map((t) => getMonthIndex(t)).find((i) => i !== null);
+  const monthIndex = tokens.map((tk) => getMonthIndex(tk)).find((i) => i !== null);
   if (monthIndex === undefined || monthIndex === null) return null;
-  const pos = tokens.findIndex((t) => getMonthIndex(t) === monthIndex);
+  const pos = tokens.findIndex((tk) => getMonthIndex(tk) === monthIndex);
   const prev = tokens[pos - 1];
   const next = tokens[pos + 1];
   const dayToken = /^\d{1,2}$/.test(prev) ? prev : /^\d{1,2}$/.test(next) ? next : "1";
@@ -114,14 +115,14 @@ function buildVisualElement(item) {
     if (mult !== null && mult > 1) {
       const normalWidth = Math.max(Math.min((1 / mult) * 100, 95), 8);
       return `
-        <div class="gd-rec-visual" aria-label="Comparacion de gasto vs promedio">
+        <div class="gd-rec-visual" aria-label="${t('rec.compareLabel')}">
           <div class="gd-rec-ratio-wrap">
             <div class="gd-rec-ratio-row">
-              <span class="gd-rec-ratio-label">Promedio</span>
+              <span class="gd-rec-ratio-label">${t('rec.average')}</span>
               <div class="gd-rec-ratio-bar gd-rec-ratio-normal" style="width: ${escapeHtml(normalWidth.toFixed(1))}%"></div>
             </div>
             <div class="gd-rec-ratio-row">
-              <span class="gd-rec-ratio-label">Este mes</span>
+              <span class="gd-rec-ratio-label">${t('rec.thisMonth')}</span>
               <div class="gd-rec-ratio-bar gd-rec-ratio-excess" style="width: 100%">
                 <span class="gd-rec-ratio-badge">${escapeHtml(mult.toFixed(1))}x</span>
               </div>
@@ -137,11 +138,11 @@ function buildVisualElement(item) {
     if (pct !== null && pct >= 0 && pct <= 110) {
       const clampedPct = Math.min(pct, 100);
       return `
-        <div class="gd-rec-visual" aria-label="Porcentaje de presupuesto utilizado">
+        <div class="gd-rec-visual" aria-label="${t('rec.budgetUsedLabel')}">
           <div class="gd-rec-progress-bar" role="progressbar" aria-valuenow="${escapeHtml(String(clampedPct))}" aria-valuemin="0" aria-valuemax="100">
             <div class="gd-rec-progress-fill gd-rec-progress-warning" style="width: ${escapeHtml(clampedPct.toFixed(1))}%"></div>
           </div>
-          <span class="gd-rec-progress-label">${escapeHtml(pct.toFixed(0))}% del presupuesto utilizado</span>
+          <span class="gd-rec-progress-label">${t('rec.budgetUsed', { pct: pct.toFixed(0) })}</span>
         </div>
       `;
     }
@@ -152,7 +153,7 @@ function buildVisualElement(item) {
       <div class="gd-rec-visual">
         <div class="gd-rec-achievement">
           <i class="lni lni-checkmark-circle gd-rec-achievement-icon" aria-hidden="true"></i>
-          <span class="gd-rec-achievement-label">Objetivo cumplido este periodo</span>
+          <span class="gd-rec-achievement-label">${t('rec.objectiveAchievedPeriod')}</span>
         </div>
       </div>
     `;
@@ -165,7 +166,7 @@ function buildVisualElement(item) {
         <div class="gd-rec-visual">
           <div class="gd-rec-savings-chip">
             <i class="lni lni-coin" aria-hidden="true"></i>
-            <span>Ahorro potencial: ${escapeHtml(formatMoney(amount))}/mes</span>
+            <span>${t('rec.potentialSaving', { amount: escapeHtml(formatMoney(amount)) })}</span>
           </div>
         </div>
       `;
@@ -193,10 +194,10 @@ function renderRecommendationCard(item) {
           <i class="${escapeHtml(catIcon)}"></i>
         </span>
         <h2 class="gd-rec-title">${escapeHtml(item.title || "")}</h2>
-        <span class="gd-rec-badge ${escapeHtml(sev.badgeClass)}">${escapeHtml(sev.badgeLabel)}</span>
+        <span class="gd-rec-badge ${escapeHtml(sev.badgeClass)}">${escapeHtml(t(sev.badgeLabelKey))}</span>
         <span class="gd-rec-type ${escapeHtml(source.className)}">
           <i class="${escapeHtml(source.iconClass)}" aria-hidden="true"></i>
-          ${escapeHtml(source.label)}
+          ${escapeHtml(t(source.labelKey))}
         </span>
       </header>
 
@@ -205,7 +206,7 @@ function renderRecommendationCard(item) {
       ${visual}
 
       <div class="gd-rec-meta">
-        <span class="gd-rec-impact">${escapeHtml(sev.impactLabel)}</span>
+        <span class="gd-rec-impact">${escapeHtml(t(sev.impactLabelKey))}</span>
         ${item.date ? `<span class="gd-rec-tag">${escapeHtml(item.date)}</span>` : ""}
         ${item.category ? `<span class="gd-rec-tag">${escapeHtml(item.category)}</span>` : ""}
       </div>
@@ -227,21 +228,28 @@ export function renderRecomendacionesPage({
   const dangerCount = latestMonthRecommendations.filter((r) => r.severity === "danger").length;
   const warningCount = latestMonthRecommendations.filter((r) => r.severity === "warning").length;
 
+  const dangerLabel = dangerCount !== 1
+    ? t('rec.alerts', { count: dangerCount })
+    : t('rec.alertsOne', { count: dangerCount });
+  const warningLabel = warningCount !== 1
+    ? t('rec.warningsCount', { count: warningCount })
+    : t('rec.warningsCountOne', { count: warningCount });
+
   const content = `
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
       <div class="d-flex gap-2 flex-wrap">
-        ${dangerCount > 0 ? `<span class="gd-rec-badge gd-rec-badge-danger"><i class="lni lni-alarm"></i> ${escapeHtml(String(dangerCount))} alerta${dangerCount !== 1 ? "s" : ""}</span>` : ""}
-        ${warningCount > 0 ? `<span class="gd-rec-badge gd-rec-badge-warning"><i class="lni lni-warning"></i> ${escapeHtml(String(warningCount))} aviso${warningCount !== 1 ? "s" : ""}</span>` : ""}
-        ${dangerCount === 0 && warningCount === 0 && latestMonthRecommendations.length > 0 ? `<span class="gd-rec-badge gd-rec-badge-good"><i class="lni lni-checkmark-circle"></i> Todo en orden</span>` : ""}
+        ${dangerCount > 0 ? `<span class="gd-rec-badge gd-rec-badge-danger"><i class="lni lni-alarm"></i> ${escapeHtml(dangerLabel)}</span>` : ""}
+        ${warningCount > 0 ? `<span class="gd-rec-badge gd-rec-badge-warning"><i class="lni lni-warning"></i> ${escapeHtml(warningLabel)}</span>` : ""}
+        ${dangerCount === 0 && warningCount === 0 && latestMonthRecommendations.length > 0 ? `<span class="gd-rec-badge gd-rec-badge-good"><i class="lni lni-checkmark-circle"></i> ${t('rec.allInOrder')}</span>` : ""}
       </div>
       <div class="d-flex gap-2 flex-wrap">
         <button id="btnGenerarRecomendacionesIA" class="gd-top-btn" type="button">
           <i class="lni lni-bolt-alt" aria-hidden="true"></i>
-          Analizar con IA
+          ${t('rec.analyzeWithAI')}
         </button>
         <a href="/dashboard/recomendaciones/historicas" data-link class="gd-top-btn">
           <i class="lni lni-list" aria-hidden="true"></i>
-          Ver historial
+          ${t('rec.viewHistory')}
         </a>
       </div>
     </div>
@@ -252,7 +260,7 @@ export function renderRecomendacionesPage({
         <div class="gd-card">
           <div class="gd-card-body" style="padding: 2rem; text-align: center;">
             <i class="lni lni-checkmark-circle" style="font-size: 2rem; color: #16a34a; display: block; margin-bottom: 0.5rem;"></i>
-            <p class="gd-muted mb-0">No hay recomendaciones del ultimo mes.</p>
+            <p class="gd-muted mb-0">${t('rec.noRecentRecommendations')}</p>
           </div>
         </div>
       `

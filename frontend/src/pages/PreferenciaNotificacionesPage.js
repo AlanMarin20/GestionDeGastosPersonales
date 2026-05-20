@@ -1,4 +1,5 @@
 import { renderDashboardAppLayout } from "../components/dashboard/dashboardAppLayout";
+import { t } from "../i18n";
 
 export function renderPreferenciaNotificacionesPageView({
   state,
@@ -8,28 +9,28 @@ export function renderPreferenciaNotificacionesPageView({
   const toggles = [
     {
       id: "resumenSemanal",
-      label: "Resumen semanal",
-      description: "Recibe un resumen con tu comportamiento de gastos cada semana.",
+      labelKey: 'prefNotif.weeklySummary',
+      descKey: 'prefNotif.weeklySummaryDesc',
     },
     {
       id: "alertaPago",
-      label: "Alerta de pagos",
-      description: "Notifica vencimientos y pagos pendientes importantes.",
+      labelKey: 'prefNotif.paymentAlert',
+      descKey: 'prefNotif.paymentAlertDesc',
     },
     {
       id: "alertaPresupuesto",
-      label: "Alerta de presupuesto",
-      description: "Avisa cuando estes por superar tu presupuesto mensual.",
+      labelKey: 'prefNotif.budgetAlert',
+      descKey: 'prefNotif.budgetAlertDesc',
     },
     {
       id: "movimientosGrandes",
-      label: "Movimientos grandes",
-      description: "Detecta consumos fuera de lo habitual y te avisa al instante.",
+      labelKey: 'prefNotif.largeMovements',
+      descKey: 'prefNotif.largeMovementsDesc',
     },
     {
       id: "recomendacionesIA",
-      label: "Recomendaciones IA",
-      description: "Sugerencias personalizadas para mejorar tus finanzas.",
+      labelKey: 'prefNotif.aiRecommendations',
+      descKey: 'prefNotif.aiRecommendationsDesc',
     },
   ];
 
@@ -37,10 +38,10 @@ export function renderPreferenciaNotificacionesPageView({
     <article class="gd-card">
       <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 mb-3">
         <div>
-          <h2 class="gd-card-title mb-1">Preferencias de notificaciones</h2>
-          <p class="gd-muted mb-0">Elige que alertas quieres recibir en tu panel.</p>
+          <h2 class="gd-card-title mb-1">${t('prefNotif.title')}</h2>
+          <p class="gd-muted mb-0">${t('prefNotif.subtitle')}</p>
         </div>
-        <button type="button" class="gd-btn-primary" id="guardarPreferenciasBtn">Guardar preferencias</button>
+        <button type="button" class="gd-btn-primary" id="guardarPreferenciasBtn">${t('prefNotif.savePreferences')}</button>
       </div>
 
       <div class="d-flex flex-column gap-2">
@@ -49,8 +50,8 @@ export function renderPreferenciaNotificacionesPageView({
             (item) => `
               <label class="gd-settings-toggle-row gd-settings-toggle-row-start gd-notification-toggle-row">
                 <div>
-                  <p class="gd-card-title gd-card-title-xs mb-0">${item.label}</p>
-                  <small class="gd-muted">${item.description}</small>
+                  <p class="gd-card-title gd-card-title-xs mb-0">${t(item.labelKey)}</p>
+                  <small class="gd-muted">${t(item.descKey)}</small>
                 </div>
                 <input class="form-check-input mt-1" type="checkbox" id="${item.id}" ${state.notificaciones[item.id] ? "checked" : ""}>
               </label>
@@ -63,8 +64,8 @@ export function renderPreferenciaNotificacionesPageView({
 
   return renderDashboardAppLayout({
     activePath: "/perfil/notificaciones",
-    pageTitle: "Notificaciones",
-    pageSubtitle: "Controla como y cuando recibir alertas",
+    pageTitle: t('prefNotif.pageTitle'),
+    pageSubtitle: t('prefNotif.pageSubtitle'),
     content,
     profileImage,
     profileName,

@@ -1,14 +1,15 @@
 import { renderDashboardAppLayout } from "../components/dashboard/dashboardAppLayout";
 import { escapeHtml } from "../utils/sanitize";
+import { t } from '../i18n';
 
 const SOURCE_CONFIG = {
   asesor: {
-    label: "Asesor",
+    labelKey: 'rec.sourceAdvisor',
     className: "gd-rec-source-asesor",
     iconClass: "lni lni-user",
   },
   ia: {
-    label: "IA",
+    labelKey: 'rec.sourceIa',
     className: "gd-rec-source-ia",
     iconClass: "lni lni-bolt-alt",
   },
@@ -28,6 +29,33 @@ const MONTH_LABELS = [
   "Noviembre",
   "Diciembre",
 ];
+
+const MONTH_TO_I18N_KEY = {
+  'Enero':      'recHist.monthEnero',
+  'Febrero':    'recHist.monthFebrero',
+  'Marzo':      'recHist.monthMarzo',
+  'Abril':      'recHist.monthAbril',
+  'Mayo':       'recHist.monthMayo',
+  'Junio':      'recHist.monthJunio',
+  'Julio':      'recHist.monthJulio',
+  'Agosto':     'recHist.monthAgosto',
+  'Septiembre': 'recHist.monthSeptiembre',
+  'Octubre':    'recHist.monthOctubre',
+  'Noviembre':  'recHist.monthNoviembre',
+  'Diciembre':  'recHist.monthDiciembre',
+};
+
+function translateMonthLabel(label) {
+  const spaceIdx = label.lastIndexOf(' ');
+  if (spaceIdx === -1) {
+    const key = MONTH_TO_I18N_KEY[label];
+    return key ? t(key) : label;
+  }
+  const month = label.slice(0, spaceIdx);
+  const year = label.slice(spaceIdx + 1);
+  const key = MONTH_TO_I18N_KEY[month];
+  return key ? `${t(key)} ${year}` : label;
+}
 
 const MONTH_INDEX_BY_NAME = {
   ene: 0,
@@ -103,9 +131,8 @@ function parseDateParts(dateStr) {
 }
 
 function normalizeRecommendationItem(item = {}) {
-  // Usa fecha ISO para ordenamiento/agrupamiento (puede ser 'fecha' en ISO o 'date')
   const date = String(item.fecha || item.date || "").trim();
-  const title = String(item.title || item.titulo || "Sin titulo").trim();
+  const title = String(item.title || item.titulo || t('recHist.noTitle')).trim();
   const body = String(item.body || item.texto || "").trim();
   const source = String(item.source || item.type || item.emisor || "").trim().toLowerCase();
 
@@ -123,11 +150,11 @@ function groupByMonth(recommendations) {
   (recommendations || []).forEach((rawItem) => {
     const item = normalizeRecommendationItem(rawItem);
     const parsed = parseDateParts(item.date);
-    const key = parsed.monthKey || parsed.label || item.date || "Sin fecha";
+    const key = parsed.monthKey || parsed.label || item.date || t('recHist.noDate');
 
     if (!map[key]) {
       map[key] = {
-        label: parsed.label || item.date || "Sin fecha",
+        label: parsed.label || item.date || t('recHist.noDate'),
         items: [],
       };
     }
@@ -142,13 +169,13 @@ function renderRecommendationItem(rawItem) {
   const parts = parseDateParts(item.date);
   const sourceRaw = String(item.source || item.type || '').trim().toLowerCase();
   const source = sourceRaw === 'ia' ? SOURCE_CONFIG.ia : SOURCE_CONFIG.asesor;
-  
+
   return `
     <article class="gd-rec-card ${escapeHtml(source.className)}" data-date="${escapeHtml(item.date || '')}" data-month="${escapeHtml(parts.month)}" data-year="${escapeHtml(parts.year)}" data-source="${escapeHtml(sourceRaw === 'ia' ? 'ia' : 'asesor')}" data-title="${escapeHtml((item.title || '').toLowerCase())}" data-body="${escapeHtml((item.body || '').toLowerCase())}">
       <header class="gd-rec-head">
         <i class="${escapeHtml(source.iconClass)}"></i>
         <h2 class="gd-rec-title">${escapeHtml(item.title)}</h2>
-        <span class="gd-rec-type">${escapeHtml(source.label)}</span>
+        <span class="gd-rec-type">${escapeHtml(t(source.labelKey))}</span>
       </header>
       <p class="gd-rec-body">${escapeHtml(item.body)}</p>
     </article>
@@ -159,8 +186,8 @@ export function renderRecomendacionesHistoricasPage({
   profileImage,
   profileName,
   activePath = "/dashboard/recomendaciones/historicas",
-  pageTitle = "Historial de recomendaciones",
-  pageSubtitle = "Recomendaciones agrupadas por mes",
+  pageTitle = t('recHist.title'),
+  pageSubtitle = t('recHist.subtitle'),
   recomendaciones = [],
   filters = { search: "", periodo: "todos" },
   sidebarSections = null,
@@ -173,39 +200,39 @@ export function renderRecomendacionesHistoricasPage({
     <div class="d-flex justify-content-end mb-2">
       <a href="/dashboard/recomendaciones" data-link class="gd-top-btn">
         <i class="lni lni-arrow-left"></i>
-        Volver
+        ${t('common.back')}
       </a>
     </div>
 
     <div class="gd-filters" style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; align-items: flex-end;">
       <div style="flex: 1; min-width: 200px;">
-        <label class="gd-form-label">Buscar recomendaciones</label>
-        <input id="recSearchInput" class="gd-form-input" type="search" placeholder="Buscar recomendaciones" value="${escapeHtml(filters.search)}">
+        <label class="gd-form-label">${t('recHist.searchLabel')}</label>
+        <input id="recSearchInput" class="gd-form-input" type="search" placeholder="${t('recHist.searchPlaceholder')}" value="${escapeHtml(filters.search)}">
       </div>
 
       <div>
-        <label class="gd-form-label">Mes</label>
+        <label class="gd-form-label">${t('recHist.month')}</label>
         <select id="recMonthFilter" class="gd-form-select">
-          <option value="">Todos</option>
-          <option value="Enero">Enero</option>
-          <option value="Febrero">Febrero</option>
-          <option value="Marzo">Marzo</option>
-          <option value="Abril">Abril</option>
-          <option value="Mayo">Mayo</option>
-          <option value="Junio">Junio</option>
-          <option value="Julio">Julio</option>
-          <option value="Agosto">Agosto</option>
-          <option value="Septiembre">Septiembre</option>
-          <option value="Octubre">Octubre</option>
-          <option value="Noviembre">Noviembre</option>
-          <option value="Diciembre">Diciembre</option>
+          <option value="">${t('recHist.all')}</option>
+          <option value="Enero">${t('recHist.monthEnero')}</option>
+          <option value="Febrero">${t('recHist.monthFebrero')}</option>
+          <option value="Marzo">${t('recHist.monthMarzo')}</option>
+          <option value="Abril">${t('recHist.monthAbril')}</option>
+          <option value="Mayo">${t('recHist.monthMayo')}</option>
+          <option value="Junio">${t('recHist.monthJunio')}</option>
+          <option value="Julio">${t('recHist.monthJulio')}</option>
+          <option value="Agosto">${t('recHist.monthAgosto')}</option>
+          <option value="Septiembre">${t('recHist.monthSeptiembre')}</option>
+          <option value="Octubre">${t('recHist.monthOctubre')}</option>
+          <option value="Noviembre">${t('recHist.monthNoviembre')}</option>
+          <option value="Diciembre">${t('recHist.monthDiciembre')}</option>
         </select>
       </div>
 
       <div>
-        <label class="gd-form-label">Año</label>
+        <label class="gd-form-label">${t('recHist.year')}</label>
         <select id="recYearFilter" class="gd-form-select">
-          <option value="">Todos</option>
+          <option value="">${t('recHist.all')}</option>
           <option value="2025">2025</option>
           <option value="2026">2026</option>
           <option value="2027">2027</option>
@@ -213,24 +240,24 @@ export function renderRecomendacionesHistoricasPage({
       </div>
 
       <div>
-        <label class="gd-form-label">Emisor</label>
+        <label class="gd-form-label">${t('recHist.emitter')}</label>
         <select id="recEmitterFilter" class="gd-form-select">
-          <option value="">Todos</option>
-          <option value="asesor">Asesor</option>
-          <option value="ia">IA</option>
+          <option value="">${t('recHist.all')}</option>
+          <option value="asesor">${t('rec.sourceAdvisor')}</option>
+          <option value="ia">${t('rec.sourceIa')}</option>
         </select>
       </div>
 
       <button type="button" class="gd-csv-btn" data-action="export-recommendations-csv">
         <i class="lni lni-download"></i>
-        Exportar CSV
+        ${t('common.exportCsv')}
       </button>
     </div>
 
     <div class="gd-card">
       <div class="gd-card-header">
         <h2 class="gd-card-title">${escapeHtml(pageTitle)}</h2>
-        <span class="gd-muted gd-muted-sm">${recomendaciones.length} registros</span>
+        <span class="gd-muted gd-muted-sm">${t('recHist.recordCount', { count: recomendaciones.length })}</span>
       </div>
 
       <div class="gd-card-body">
@@ -238,7 +265,7 @@ export function renderRecomendacionesHistoricasPage({
           .map(
             (month) => `
           <section class="mb-4" data-month-section="${escapeHtml(month)}">
-            <div class="gd-rec-month-header"><strong>${escapeHtml(byMonth[month].label)}</strong> <span class="badge bg-secondary">${byMonth[month].items.length}</span></div>
+            <div class="gd-rec-month-header"><strong>${escapeHtml(translateMonthLabel(byMonth[month].label))}</strong> <span class="badge bg-secondary">${byMonth[month].items.length}</span></div>
             <div class="gd-rec-month-list mt-2">${byMonth[month].items.map(renderRecommendationItem).join("")}</div>
           </section>
         `,

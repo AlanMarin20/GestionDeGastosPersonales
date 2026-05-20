@@ -1,3 +1,5 @@
+import { t } from '../i18n';
+
 export function renderVerificarCodigoRecuperacionPage({
   encabezadoExterno,
   botonIniciarCrearCuenta,
@@ -7,16 +9,16 @@ export function renderVerificarCodigoRecuperacionPage({
 }) {
   const helperMarkup = `
     <div class="rounded-3 border border-primary border-opacity-25 bg-primary bg-opacity-10 text-primary small p-3 mb-4">
-      Si el correo pertenece a una cuenta, recibiras un codigo de 6 digitos para confirmar.
+      ${t('auth.verifyCodeHelper')}
     </div>
   `;
 
   const fieldsMarkup = [
     campoAuthInput({
       id: 'codigoRecuperacion',
-      label: 'Codigo de verificacion',
+      label: t('auth.verificationCodeLabel'),
       type: 'text',
-      placeholder: 'Ingresa el codigo de 6 digitos',
+      placeholder: t('auth.verificationCodePlaceholderLower'),
       wrapperClass: 'mb-3',
     }),
     helperMarkup,
@@ -24,24 +26,24 @@ export function renderVerificarCodigoRecuperacionPage({
 
   const footerMarkup = `
     <p class="text-muted mb-2">
-      No recibiste el codigo?
-      <a href="/recuperar-contrasena" data-link class="text-primary fw-bold text-decoration-none">Solicitar un nuevo codigo</a>
+      ${t('auth.noCodeReceivedLower')}
+      <a href="/recuperar-contrasena" data-link class="text-primary fw-bold text-decoration-none">${t('auth.requestNewCode')}</a>
     </p>
     <p class="text-muted mb-0">
-      Volver a <a href="/login" data-link class="text-primary fw-bold text-decoration-none">Iniciar sesion</a>
+      ${t('auth.backTo')} <a href="/login" data-link class="text-primary fw-bold text-decoration-none">${t('auth.loginLinkLower')}</a>
     </p>
   `;
 
   return renderAuthPublicPage({
     encabezadoExterno,
     fondoDecorativoAuth,
-    heading: 'Verifica tu codigo',
-    description: 'Ingresa el codigo de verificacion de dos pasos para confirmar tu identidad.',
+    heading: t('auth.verifyCodeHeading'),
+    description: t('auth.verifyCodeDescription'),
     formId: 'verificarCodigoForm',
     errorId: 'verificarCodigoError',
     formFieldsMarkup: fieldsMarkup,
     submitButtonMarkup: botonIniciarCrearCuenta({
-      text: 'Verificar codigo',
+      text: t('auth.verifyCode'),
       type: 'submit',
       className: 'main-btn btn-hover w-100 mb-3',
     }),

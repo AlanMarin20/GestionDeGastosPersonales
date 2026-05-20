@@ -1,4 +1,5 @@
 import { escapeHtml } from '../utils/sanitize';
+import { t } from '../i18n';
 
 const TEAM_MEMBERS = [
   {
@@ -28,7 +29,7 @@ function renderTeamMemberCard(member) {
           />
           <div>
             <h6 class="fw-bold mb-1 fp-public-title-sm">${escapeHtml(member.name)}</h6>
-            <p class="text-muted mb-0 small">Desarrollador Web</p>
+            <p class="text-muted mb-0 small">${t('about.webDeveloper')}</p>
           </div>
         </div>
         <div class="d-flex flex-column gap-2">
@@ -57,15 +58,15 @@ export function renderSobreNosotrosPage({
   const aboutProjectCard = tarjetaPublicaBase({
     bodyClass: 'card-body p-4 p-md-5',
     bodyMarkup: `
-      <h5 class="fw-bold mb-3 fp-public-subtitle">¿De qué trata FinanzasPro?</h5>
+      <h5 class="fw-bold mb-3 fp-public-subtitle">${t('about.whatIsTitle')}</h5>
       <p class="text-muted mb-3">
-        En la actualidad, la gestión eficiente de las finanzas personales se ha vuelto una necesidad fundamental para las personas. Muchas decisiones económicas cotidianas se basan en la capacidad de analizar gastos, identificar patrones de consumo y optimizar el uso del dinero.
+        ${t('about.whatIsP1')}
       </p>
       <p class="text-muted mb-3">
-        El objetivo de este proyecto es diseñar e implementar una plataforma web de gestión de gastos personales, que permita a los usuarios registrar sus gastos mediante la carga de tickets o comprobantes, mientras que un asesor financiero podrá analizar los patrones de consumo generados por los usuarios.
+        ${t('about.whatIsP2')}
       </p>
       <p class="text-muted mb-0">
-        Como característica innovadora, el sistema incorpora el uso de inteligencia artificial para interpretar imágenes de tickets o facturas, extrayendo información relevante como monto, comercio, fecha y categoría del gasto.
+        ${t('about.whatIsP3')}
       </p>
     `,
   });
@@ -73,7 +74,7 @@ export function renderSobreNosotrosPage({
   const teamCard = tarjetaPublicaBase({
     bodyClass: 'card-body p-4 p-md-5',
     bodyMarkup: `
-      <h5 class="fw-bold mb-4 fp-public-subtitle">Equipo de Desarrollo</h5>
+      <h5 class="fw-bold mb-4 fp-public-subtitle">${t('about.teamTitle')}</h5>
       <div class="row g-4">
         ${TEAM_MEMBERS.map(renderTeamMemberCard).join('')}
       </div>
@@ -84,7 +85,7 @@ export function renderSobreNosotrosPage({
     <div class="min-vh-100 d-flex flex-column public-page-shell public-about-page fp-public-surface">
       ${encabezadoExterno({
         rightHref: '/login',
-        rightText: 'Iniciar sesión',
+        rightText: t('landing.authLogin'),
         rightClass: 'landing-access-btn landing-login-btn',
         rightMarkup: headerAuthMarkup,
       })}
@@ -92,9 +93,9 @@ export function renderSobreNosotrosPage({
       <main class="container flex-grow-1 fp-public-main-container">
         <div class="row g-4 justify-content-center">
           <div class="col-12 col-xl-10">
-            <h1 class="fw-bold mb-3 fp-public-title">Sobre Nosotros</h1>
+            <h1 class="fw-bold mb-3 fp-public-title">${t('about.pageTitle')}</h1>
             <p class="text-muted mb-0">
-              Proyecto desarrollado en la materia WEB 2 del Instituto Universitario Aeronáutico.
+              ${t('about.intro')}
             </p>
           </div>
           <div class="col-12 col-xl-10">

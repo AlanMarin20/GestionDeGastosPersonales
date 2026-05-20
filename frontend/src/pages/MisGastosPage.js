@@ -2,6 +2,7 @@ import { renderDashboardAppLayout } from "../components/dashboard/dashboardAppLa
 import { renderExpenseTable } from "../components/dashboard/dashboardExpenseTable";
 import { escapeHtml } from "../utils/sanitize";
 import { formatMoney } from "../utils/money";
+import { t } from '../i18n';
 
 function renderCategorySelect(id, options, selectedValue) {
   return `
@@ -30,55 +31,53 @@ function renderEditExpenseModal({ editingExpense, categoryOptions, ingresoCatego
   const formFields = isIngreso
     ? `
       <div>
-        <label class="gd-form-label" for="editExpenseFecha">Fecha</label>
+        <label class="gd-form-label" for="editExpenseFecha">${t('expenses.fieldDate')}</label>
         <div class="gd-date-field">
           <i class="lni lni-calendar gd-date-field-icon" aria-hidden="true"></i>
           <input id="editExpenseFecha" type="date" lang="es-AR" class="gd-form-input gd-date-field-input" value="${escapeHtml(editingExpense.fecha)}">
         </div>
       </div>
       <div>
-        <label class="gd-form-label" for="editExpenseMonto">Monto</label>
+        <label class="gd-form-label" for="editExpenseMonto">${t('expenses.fieldAmount')}</label>
         <input id="editExpenseMonto" type="number" min="0" step="0.01" class="gd-form-input" value="${escapeHtml(String(editingExpense.monto))}">
       </div>
       <div class="gd-form-full">
-        <label class="gd-form-label" for="editExpenseCategoria">Categoria</label>
+        <label class="gd-form-label" for="editExpenseCategoria">${t('expenses.fieldCategory')}</label>
         ${renderCategorySelect("editExpenseCategoria", ingresoCategoryOpts, editingExpense.categoria)}
       </div>
       <div class="gd-form-full">
-        <label class="gd-form-label" for="editExpenseDescripcion">Descripcion</label>
-        <input id="editExpenseDescripcion" class="gd-form-input" value="${escapeHtml(editingExpense.descripcion || "")}" placeholder="Ej: Sueldo de mayo">
+        <label class="gd-form-label" for="editExpenseDescripcion">${t('expenses.fieldDescription')}</label>
+        <input id="editExpenseDescripcion" class="gd-form-input" value="${escapeHtml(editingExpense.descripcion || "")}" placeholder="${t('expenses.placeholderSalary')}">
       </div>
     `
     : `
       <div>
-        <label class="gd-form-label" for="editExpenseComercio">Comercio</label>
+        <label class="gd-form-label" for="editExpenseComercio">${t('expenses.fieldMerchant')}</label>
         <input id="editExpenseComercio" class="gd-form-input" value="${escapeHtml(editingExpense.comercio)}">
       </div>
       <div>
-        <label class="gd-form-label" for="editExpenseCategoria">Categoria</label>
+        <label class="gd-form-label" for="editExpenseCategoria">${t('expenses.fieldCategory')}</label>
         ${renderCategorySelect("editExpenseCategoria", categoryOptions, editingExpense.categoria)}
       </div>
       <div>
-        <label class="gd-form-label" for="editExpenseFecha">Fecha</label>
+        <label class="gd-form-label" for="editExpenseFecha">${t('expenses.fieldDate')}</label>
         <div class="gd-date-field">
           <i class="lni lni-calendar gd-date-field-icon" aria-hidden="true"></i>
           <input id="editExpenseFecha" type="date" lang="es-AR" class="gd-form-input gd-date-field-input" value="${escapeHtml(editingExpense.fecha)}">
         </div>
       </div>
       <div>
-        <label class="gd-form-label" for="editExpenseMonto">Monto</label>
+        <label class="gd-form-label" for="editExpenseMonto">${t('expenses.fieldAmount')}</label>
         <input id="editExpenseMonto" type="number" min="0" step="0.01" class="gd-form-input" value="${escapeHtml(String(editingExpense.monto))}">
       </div>
       <div class="gd-form-full">
-        <label class="gd-form-label" for="editExpenseDescripcion">Descripcion</label>
+        <label class="gd-form-label" for="editExpenseDescripcion">${t('expenses.fieldDescription')}</label>
         <input id="editExpenseDescripcion" class="gd-form-input" value="${escapeHtml(editingExpense.descripcion || "")}">
       </div>
     `;
 
-  const title = isIngreso ? "Editar ingreso" : "Editar gasto";
-  const subtitle = isIngreso
-    ? "Actualiza categoria, fecha y monto."
-    : "Actualiza comercio, categoria, fecha y monto.";
+  const title = isIngreso ? t('expenses.editIncome') : t('expenses.editExpense');
+  const subtitle = isIngreso ? t('expenses.editIncomeSub') : t('expenses.editExpenseSub');
 
   return `
     <div class="gd-modal-backdrop" data-action="close-edit-expense-modal"></div>
@@ -92,8 +91,8 @@ function renderEditExpenseModal({ editingExpense, categoryOptions, ingresoCatego
         </div>
 
         <div class="gd-modal-actions">
-          <button type="button" class="gd-btn-secondary" data-action="close-edit-expense-modal">Cancelar</button>
-          <button type="button" class="gd-btn-primary" data-action="save-edit-expense" data-expense-id="${escapeHtml(editingExpense.id)}">Guardar cambios</button>
+          <button type="button" class="gd-btn-secondary" data-action="close-edit-expense-modal">${t('common.cancel')}</button>
+          <button type="button" class="gd-btn-primary" data-action="save-edit-expense" data-expense-id="${escapeHtml(editingExpense.id)}">${t('common.saveChanges')}</button>
         </div>
       </div>
     </section>
@@ -107,13 +106,13 @@ function renderDeleteExpenseModal({ deletingExpense }) {
 
   return `
     <div class="gd-modal-backdrop" data-action="close-delete-expense-modal"></div>
-    <section class="gd-modal" role="dialog" aria-modal="true" aria-label="Eliminar gasto">
+    <section class="gd-modal" role="dialog" aria-modal="true" aria-label="${t('expenses.deleteExpenseTitle')}">
       <div class="gd-modal-card">
-        <h3 class="gd-modal-title">Eliminar gasto</h3>
-        <p class="gd-modal-sub">Esta accion eliminara el gasto de ${escapeHtml(deletingExpense.comercio)} por ${escapeHtml(formatMoney(deletingExpense.monto))}.</p>
+        <h3 class="gd-modal-title">${t('expenses.deleteExpenseTitle')}</h3>
+        <p class="gd-modal-sub">${t('expenses.deleteExpenseConfirm', { merchant: escapeHtml(deletingExpense.comercio), amount: escapeHtml(formatMoney(deletingExpense.monto)) })}</p>
         <div class="gd-modal-actions">
-          <button type="button" class="gd-btn-secondary" data-action="close-delete-expense-modal">Cancelar</button>
-          <button type="button" class="gd-btn-danger" data-action="confirm-delete-expense" data-expense-id="${escapeHtml(deletingExpense.id)}">Eliminar</button>
+          <button type="button" class="gd-btn-secondary" data-action="close-delete-expense-modal">${t('common.cancel')}</button>
+          <button type="button" class="gd-btn-danger" data-action="confirm-delete-expense" data-expense-id="${escapeHtml(deletingExpense.id)}">${t('common.delete')}</button>
         </div>
       </div>
     </section>
@@ -141,18 +140,18 @@ export function renderMisGastosPage({
         id="expenseSearchInput"
         class="gd-form-input"
         type="search"
-        placeholder="Buscar por comercio o descripción"
+        placeholder="${t('expenses.searchPlaceholder')}"
         value="${escapeHtml(filters.search)}"
       >
 
       <select id="expenseTypeFilter" class="gd-form-select">
-        <option value="Todos" ${filters.tipo === "Todos" ? "selected" : ""}>Todos los tipos</option>
-        <option value="Ingreso" ${filters.tipo === "Ingreso" ? "selected" : ""}>Ingresos</option>
-        <option value="Egreso" ${filters.tipo === "Egreso" ? "selected" : ""}>Gastos</option>
+        <option value="Todos" ${filters.tipo === "Todos" ? "selected" : ""}>${t('expenses.allTypes')}</option>
+        <option value="Ingreso" ${filters.tipo === "Ingreso" ? "selected" : ""}>${t('expenses.incomes')}</option>
+        <option value="Egreso" ${filters.tipo === "Egreso" ? "selected" : ""}>${t('expenses.expenses')}</option>
       </select>
 
       <select id="expenseCategoryFilter" class="gd-form-select">
-        <option value="Todas" ${filters.categoria === "Todas" ? "selected" : ""}>Todas las categorias</option>
+        <option value="Todas" ${filters.categoria === "Todas" ? "selected" : ""}>${t('expenses.allCategories')}</option>
         ${categoryOptions
           .map(
             (category) =>
@@ -162,12 +161,12 @@ export function renderMisGastosPage({
       </select>
 
       <select id="expenseTagFilter" class="gd-form-select">
-        <option value="">Todas las etiquetas</option>
-        ${tags.map((t) => `<option value="${escapeHtml(t.id)}" ${filtroEtiqueta === t.id ? "selected" : ""}>${escapeHtml(t.nombre)}</option>`).join("")}
+        <option value="">${t('expenses.allTags')}</option>
+        ${tags.map((tag) => `<option value="${escapeHtml(tag.id)}" ${filtroEtiqueta === tag.id ? "selected" : ""}>${escapeHtml(tag.nombre)}</option>`).join("")}
       </select>
 
       <div class="gd-date-range">
-        <label class="gd-form-label gd-date-range-label" for="expenseFechaDesde">Desde</label>
+        <label class="gd-form-label gd-date-range-label" for="expenseFechaDesde">${t('expenses.from')}</label>
         <div class="gd-date-field">
           <i class="lni lni-calendar gd-date-field-icon" aria-hidden="true"></i>
           <input
@@ -178,7 +177,7 @@ export function renderMisGastosPage({
             value="${escapeHtml(filters.fechaDesde || "")}"
           >
         </div>
-        <label class="gd-form-label gd-date-range-label" for="expenseFechaHasta">Hasta</label>
+        <label class="gd-form-label gd-date-range-label" for="expenseFechaHasta">${t('expenses.to')}</label>
         <div class="gd-date-field">
           <i class="lni lni-calendar gd-date-field-icon" aria-hidden="true"></i>
           <input
@@ -190,7 +189,7 @@ export function renderMisGastosPage({
           >
         </div>
         ${(filters.fechaDesde || filters.fechaHasta) ? `
-          <button type="button" class="gd-btn-clear-dates" data-action="clear-date-filter" aria-label="Limpiar rango de fechas">
+          <button type="button" class="gd-btn-clear-dates" data-action="clear-date-filter" aria-label="${t('expenses.clearDateRange')}">
             <i class="lni lni-close" aria-hidden="true"></i>
           </button>
         ` : ""}
@@ -198,14 +197,14 @@ export function renderMisGastosPage({
 
       <button type="button" class="gd-csv-btn" data-action="export-expenses-csv">
         <i class="lni lni-download"></i>
-        Exportar CSV
+        ${t('common.exportCsv')}
       </button>
     </div>
 
     <div class="gd-card">
       <div class="gd-card-header">
-        <h2 class="gd-card-title">Listado completo de movimientos</h2>
-        <span class="gd-muted gd-muted-sm">${gastos.length} registros</span>
+        <h2 class="gd-card-title">${t('expenses.fullListTitle')}</h2>
+        <span class="gd-muted gd-muted-sm">${t('expenses.recordCount', { count: gastos.length })}</span>
       </div>
 
       ${renderExpenseTable({
@@ -213,7 +212,7 @@ export function renderMisGastosPage({
         showDescription: true,
         showActions: true,
         showTipo: true,
-        emptyMessage: "No hay movimientos que coincidan con los filtros aplicados.",
+        emptyMessage: t('expenses.noMatches'),
       })}
     </div>
 

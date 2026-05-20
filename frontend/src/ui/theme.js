@@ -40,7 +40,6 @@ export function loadAppPreferences() {
     tema: fallbackThemeMode,
     tamanioFuente: normalizeFontSizeMode(state.configuracion.tamanioFuente),
     densidad: normalizeDensityMode(state.configuracion.densidad),
-    reducirAnimaciones: Boolean(state.configuracion.reducirAnimaciones),
     mostrarCentavos: Boolean(state.configuracion.mostrarCentavos),
     autenticacionDos: Boolean(state.configuracion.autenticacionDos),
     imagePreview: String(state.perfil?.imagePreview || DEFAULT_PROFILE_IMAGE),
@@ -67,7 +66,6 @@ export function loadAppPreferences() {
       tema: normalizeThemeMode(parsedPreferences.tema || fallback.tema),
       tamanioFuente: normalizeFontSizeMode(parsedPreferences.tamanioFuente || fallback.tamanioFuente),
       densidad: normalizeDensityMode(parsedPreferences.densidad || fallback.densidad),
-      reducirAnimaciones: Boolean(parsedPreferences.reducirAnimaciones),
       mostrarCentavos: Boolean(parsedPreferences.mostrarCentavos),
       autenticacionDos: Boolean(parsedPreferences.autenticacionDos),
       imagePreview: String(parsedPreferences.imagePreview || fallback.imagePreview),
@@ -96,7 +94,6 @@ export function saveAppPreferences() {
       tema: themeMode,
       tamanioFuente: normalizeFontSizeMode(state.configuracion.tamanioFuente),
       densidad: normalizeDensityMode(state.configuracion.densidad),
-      reducirAnimaciones: Boolean(state.configuracion.reducirAnimaciones),
       mostrarCentavos: Boolean(state.configuracion.mostrarCentavos),
       autenticacionDos: Boolean(state.configuracion.autenticacionDos),
       imagePreview: String(state.perfil?.imagePreview || DEFAULT_PROFILE_IMAGE),
@@ -123,7 +120,6 @@ export function applyAccessibilityPreferences() {
   document.body.classList.remove("app-font-sm", "app-font-md", "app-font-lg");
   document.body.classList.add(`app-font-${fontSizeMode}`);
   document.body.classList.toggle("app-density-compact", densityMode === "compact");
-  document.body.classList.toggle("app-reduced-motion", Boolean(state.configuracion.reducirAnimaciones));
 }
 
 export function isFixedDarkRoute(pathname) {

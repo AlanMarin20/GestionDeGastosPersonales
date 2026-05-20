@@ -1,29 +1,31 @@
+import { t } from '../i18n';
+
 // ─── Datos estáticos de la página ───────────────────────────────────────────
 
 const ARROW_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true" style="margin-left:6px;flex-shrink:0"><path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/></svg>`;
 
-const NAV_LINKS = [
-  { href: '/',               label: 'Inicio' },
-  { href: '/faqs',           label: "FAQ's" },
-  { href: '/sobre-nosotros', label: 'Sobre nosotros' },
+const getNavLinks = () => [
+  { href: '/',               label: t('landing.navHome') },
+  { href: '/faqs',           label: t('landing.navFaqs') },
+  { href: '/sobre-nosotros', label: t('landing.navAbout') },
 ];
 
-const AUTH_LINKS = [
-  { href: '/login',    label: 'Iniciar sesión' },
-  { href: '/registro', label: 'Registrarse' },
+const getAuthLinks = () => [
+  { href: '/login',    label: t('landing.authLogin') },
+  { href: '/registro', label: t('landing.authRegister') },
 ];
 
-const METRICS = [
-  { value: '+5K',  label: 'Usuarios activos' },
-  { value: '$2M+', label: 'En gastos analizados' },
-  { value: '98%',  label: 'Precisión con IA' },
-  { value: '4.9★', label: 'Valoración promedio' },
+const getMetrics = () => [
+  { value: '+5K',  label: t('landing.metricUsers') },
+  { value: '$2M+', label: t('landing.metricExpenses') },
+  { value: '98%',  label: t('landing.metricPrecision') },
+  { value: '4.9★', label: t('landing.metricRating') },
 ];
 
-const FEATURES = [
+const getFeatures = () => [
   {
-    title: 'Registrá',
-    description: 'Digitalizá tus comprobantes rápidamente con nuestra tecnología de reconocimiento de texto o realizá cargas manuales detalladas mediante formularios dinámicos. Nos adaptamos a tu ritmo para que ningún gasto quede fuera de tu historial.',
+    title: t('landing.featureRegisterTitle'),
+    description: t('landing.featureRegisterDesc'),
     iconHtml: `
       <svg width="90" height="90" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <path d="M18 8 L52 8 L64 20 L64 72 L18 72 Z" stroke="#7dd3fc" stroke-width="2.2" stroke-linejoin="round" fill="rgba(56,189,248,0.06)"/>
@@ -38,8 +40,8 @@ const FEATURES = [
     `,
   },
   {
-    title: 'Analizá',
-    description: 'Visualizá la distribución de tus gastos por categoría o período de tiempo a través de gráficos interactivos de torta y barras. Identificá patrones mensuales y mantené un seguimiento preciso de tus ingresos y ahorros en un solo lugar.',
+    title: t('landing.featureAnalyzeTitle'),
+    description: t('landing.featureAnalyzeDesc'),
     iconHtml: `
       <svg width="90" height="90" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <line x1="12" y1="64" x2="68" y2="64" stroke="#7dd3fc" stroke-width="2" stroke-linecap="round" opacity="0.45"/>
@@ -53,8 +55,8 @@ const FEATURES = [
     `,
   },
   {
-    title: 'Optimizá',
-    description: 'Utilizá la información generada para establecer presupuestos y objetivos de ahorro realistas. Recibí sugerencias personalizadas de tu asesor financiero para reducir gastos innecesarios y mejorar tu salud económica general.',
+    title: t('landing.featureOptimizeTitle'),
+    description: t('landing.featureOptimizeDesc'),
     iconHtml: `
       <svg width="90" height="90" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <circle cx="40" cy="40" r="30" stroke="#7dd3fc" stroke-width="2" fill="rgba(56,189,248,0.04)" opacity="0.65"/>
@@ -71,24 +73,26 @@ const FEATURES = [
 // ─── Helpers de markup ───────────────────────────────────────────────────────
 
 function renderMobileNavItems() {
-  const navItems = NAV_LINKS.map((link, i) =>
+  const navLinks = getNavLinks();
+  const authLinks = getAuthLinks();
+  const navItems = navLinks.map((link, i) =>
     `<a href="${link.href}" data-link class="landing-mobile-menu-link landing-mobile-menu-item landing-mobile-menu-item-step-${i}">${link.label}</a>`,
   );
-  const divider = `<span class="landing-mobile-menu-divider landing-mobile-menu-item landing-mobile-menu-item-step-${NAV_LINKS.length}" aria-hidden="true"></span>`;
-  const authItems = AUTH_LINKS.map((link, i) =>
-    `<a href="${link.href}" data-link class="landing-mobile-menu-link landing-mobile-menu-link-auth landing-mobile-menu-item landing-mobile-menu-item-step-${NAV_LINKS.length + 1 + i}">${link.label}</a>`,
+  const divider = `<span class="landing-mobile-menu-divider landing-mobile-menu-item landing-mobile-menu-item-step-${navLinks.length}" aria-hidden="true"></span>`;
+  const authItems = authLinks.map((link, i) =>
+    `<a href="${link.href}" data-link class="landing-mobile-menu-link landing-mobile-menu-link-auth landing-mobile-menu-item landing-mobile-menu-item-step-${navLinks.length + 1 + i}">${link.label}</a>`,
   );
   return [...navItems, divider, ...authItems].join('\n      ');
 }
 
 function renderFooterNavLinks() {
-  return [...NAV_LINKS, ...AUTH_LINKS]
+  return [...getNavLinks(), ...getAuthLinks()]
     .map(({ href, label }) => `<a href="${href}" data-link class="landing-footer-link">${label}</a>`)
     .join('\n                  ');
 }
 
 function renderMetrics() {
-  return METRICS.map(({ value, label }) => `
+  return getMetrics().map(({ value, label }) => `
           <div class="landing-metric-item">
             <span class="landing-metric-value">${value}</span>
             <span class="landing-metric-label">${label}</span>
@@ -96,7 +100,7 @@ function renderMetrics() {
 }
 
 function renderFeatureCards(tarjetaLandingPage) {
-  return FEATURES.map(feature => tarjetaLandingPage({
+  return getFeatures().map(feature => tarjetaLandingPage({
     ...feature,
     descriptionClassName: 'fp-feature-card-description-match-selected',
   })).join('');
@@ -113,7 +117,7 @@ export function renderLandingPage({ encabezadoExterno, encabezadoAuthPublico, ta
   return `
     ${encabezadoExterno({
       rightHref: '/login',
-      rightText: 'Iniciar sesión',
+      rightText: t('landing.authLogin'),
       rightClass: 'landing-access-btn landing-login-btn',
       rightMarkup: headerAuthMarkup,
     })}
@@ -127,17 +131,17 @@ export function renderLandingPage({ encabezadoExterno, encabezadoAuthPublico, ta
     <nav
       id="landing-mobile-navigation"
       class="landing-mobile-menu d-lg-none"
-      aria-label="Navegación móvil"
+      aria-label="${t('landing.mobileNavAria')}"
       data-landing-mobile-menu
       hidden
     >
       <div class="landing-mobile-menu-head">
-        <span class="landing-mobile-menu-title">Navegación</span>
+        <span class="landing-mobile-menu-title">${t('landing.mobileNavTitle')}</span>
         <button
           type="button"
           class="landing-mobile-menu-close"
           data-action="close-landing-mobile-menu"
-          aria-label="Cerrar menú de navegación"
+          aria-label="${t('landing.closeNavMenu')}"
         >
           <span aria-hidden="true">×</span>
         </button>
@@ -152,13 +156,13 @@ export function renderLandingPage({ encabezadoExterno, encabezadoAuthPublico, ta
       <div class="container">
         <div class="row align-items-center position-relative landing-hero-row">
           <div class="col-lg-5">
-            <div class="landing-hero-badge wow fadeInUp" data-wow-delay=".15s" aria-label="Tecnología de inteligencia artificial">
+            <div class="landing-hero-badge wow fadeInUp" data-wow-delay=".15s" aria-label="${t('landing.aiBadgeAria')}">
               <span class="landing-hero-badge-dot" aria-hidden="true"></span>
-              Impulsado por Inteligencia Artificial
+              ${t('landing.aiPowered')}
             </div>
             ${descripcionLanding({
-              title: 'Tomá el control total de tu economía',
-              description: 'Digitalizá comprobantes al instante, visualizá tus consumos con gráficos interactivos y recibí recomendaciones personalizadas. Todo en un solo lugar.',
+              title: t('landing.heroTitle'),
+              description: t('landing.heroDescription'),
               containerClass: 'hero-content',
               titleClass: 'wow fadeInUp fw-bold text-white landing-hero-title',
               titleDelay: '.3s',
@@ -167,10 +171,10 @@ export function renderLandingPage({ encabezadoExterno, encabezadoAuthPublico, ta
               ctaMarkup: `
                 <div class="landing-hero-cta wow fadeInUp" data-wow-delay=".6s">
                   <a href="/registro" data-link class="landing-cta-primary">
-                    Empezá gratis ${ARROW_ICON}
+                    ${t('landing.startFree')} ${ARROW_ICON}
                   </a>
                   <a href="/faqs" data-link class="landing-cta-secondary">
-                    Cómo funciona
+                    ${t('landing.howItWorks')}
                   </a>
                 </div>
               `,
@@ -180,7 +184,7 @@ export function renderLandingPage({ encabezadoExterno, encabezadoAuthPublico, ta
             ${imagenesLanding({
               src: '/assets/img/hero/dashboard.webp',
               fallbackSrc: '/assets/img/hero/dashboard.png',
-              alt: 'Vista de dashboard de usuario',
+              alt: t('landing.heroImageAlt'),
               wrapperClass: 'hero-img wow fadeInUp d-flex align-items-center justify-content-center landing-hero-image-wrap',
               delay: '.5s',
               imageClass: 'landing-hero-image landing-media-rounded',
@@ -191,7 +195,7 @@ export function renderLandingPage({ encabezadoExterno, encabezadoAuthPublico, ta
     </section>
 
     <!-- Métricas -->
-    <section class="landing-metrics-section" aria-label="Estadísticas de la plataforma">
+    <section class="landing-metrics-section" aria-label="${t('landing.statsAria')}">
       <div class="container">
         <div class="landing-metrics-grid">
           ${renderMetrics()}
@@ -203,8 +207,8 @@ export function renderLandingPage({ encabezadoExterno, encabezadoAuthPublico, ta
     <section id="features" class="feature-section pt-120 custom-landing-features">
       <div class="container">
         <div class="landing-section-header text-center wow fadeInUp" data-wow-delay=".1s">
-          <span class="landing-section-label">Características</span>
-          <h2 class="landing-section-title">Todo lo que necesitás, en un solo lugar</h2>
+          <span class="landing-section-label">${t('landing.featuresLabel')}</span>
+          <h2 class="landing-section-title">${t('landing.featuresTitle')}</h2>
         </div>
         <div class="row justify-content-center">
           ${renderFeatureCards(tarjetaLandingPage)}
@@ -220,7 +224,7 @@ export function renderLandingPage({ encabezadoExterno, encabezadoAuthPublico, ta
             ${imagenesLanding({
               src: '/assets/img/hero/dashboard-asesor.webp',
               fallbackSrc: '/assets/img/hero/dashboard-asesor.png',
-              alt: 'Imagen descriptiva del uso como asesor',
+              alt: t('landing.aboutImageAlt'),
               wrapperClass: 'about-img landing-about-img',
               imageClass: 'w-100 landing-about-image landing-media-rounded',
             })}
@@ -228,11 +232,11 @@ export function renderLandingPage({ encabezadoExterno, encabezadoAuthPublico, ta
           <div class="col-xl-6 col-lg-6">
             <div class="landing-about-badge wow fadeInUp" data-wow-delay=".1s">
               <span class="landing-about-badge-icon" aria-hidden="true">◈</span>
-              Para asesores financieros
+              ${t('landing.forAdvisors')}
             </div>
             ${descripcionLanding({
-              title: 'Herramientas de análisis para una asesoría de precisión',
-              description: 'Potenciá el valor de tu asesoría financiera con un panel de control avanzado. Accedé a los perfiles de consumo de tus clientes, identificá comportamientos de gasto problemáticos y generá recomendaciones basadas en datos reales y estadísticas detalladas.',
+              title: t('landing.aboutTitle'),
+              description: t('landing.aboutDescription'),
               containerClass: 'about-content section-title mb-30',
               titleClass: 'mb-25 wow fadeInUp',
               titleDelay: '.2s',
@@ -241,7 +245,7 @@ export function renderLandingPage({ encabezadoExterno, encabezadoAuthPublico, ta
               ctaMarkup: `
                 <div class="wow fadeInUp" data-wow-delay=".55s" style="margin-top:28px">
                   <a href="/registro" data-link class="landing-cta-primary">
-                    Comenzar como asesor ${ARROW_ICON}
+                    ${t('landing.startAsAdvisor')} ${ARROW_ICON}
                   </a>
                 </div>
               `,
@@ -264,12 +268,12 @@ export function renderLandingPage({ encabezadoExterno, encabezadoAuthPublico, ta
                     <span class="fw-bold text-white fs-4 landing-footer-brand-text">FinanzasPro</span>
                   </a>
                 </div>
-                <p class="landing-footer-tagline mb-3">Hacé valer más tu dinero.</p>
-                <nav class="landing-footer-links mb-4" aria-label="Enlaces de navegación pública">
+                <p class="landing-footer-tagline mb-3">${t('landing.footerTagline')}</p>
+                <nav class="landing-footer-links mb-4" aria-label="${t('landing.footerNavAria')}">
                   ${renderFooterNavLinks()}
                 </nav>
                 <p class="desc mb-0 text-white landing-footer-copy">
-                  © 2026 FinanzasPro. Todos los derechos reservados. Plataforma autorizada para la prestación de servicios de información sobre cuentas.
+                  ${t('landing.footerCopy')}
                 </p>
               </div>
             </div>

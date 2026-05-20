@@ -1,6 +1,7 @@
 import { normalizeCategoryClass } from "../../utils/category";
 import { escapeHtml } from "../../utils/sanitize";
 import { formatMoney } from "../../utils/money";
+import { t } from "../../i18n";
 
 export function renderExpenseTable({
   expenses = [],
@@ -11,13 +12,13 @@ export function renderExpenseTable({
 } = {}) {
   const rows = Array.isArray(expenses) ? expenses : [];
   const headers = [
-    ...(showTipo ? [{ label: "Tipo" }] : []),
-    { label: "Comercio" },
-    { label: "Categoria" },
-    ...(showDescription ? [{ label: "Descripcion" }] : []),
-    { label: "Fecha" },
-    { label: "Monto", className: "gd-right" },
-    ...(showActions ? [{ label: "Acciones", className: "gd-right" }] : []),
+    ...(showTipo ? [{ label: t('expensesTable.type') }] : []),
+    { label: t('expensesTable.merchant') },
+    { label: t('expensesTable.category') },
+    ...(showDescription ? [{ label: t('expensesTable.description') }] : []),
+    { label: t('expensesTable.date') },
+    { label: t('expensesTable.amount'), className: "gd-right" },
+    ...(showActions ? [{ label: t('expensesTable.actions'), className: "gd-right" }] : []),
   ];
 
   const rowMarkup = rows.length === 0
@@ -36,11 +37,11 @@ export function renderExpenseTable({
         const esAhorro = expense.esTransferenciaInterna === true;
 
         const tipoCell = showTipo
-          ? `<td><span class="gd-pill ${esAhorro ? "gd-pill-tipo-ahorro" : (esIngreso ? "gd-pill-tipo-ingreso" : "gd-pill-tipo-egreso")}">${esAhorro ? "AHORRO" : (esIngreso ? "INGRESO" : "GASTO")}</span></td>`
+          ? `<td><span class="gd-pill ${esAhorro ? "gd-pill-tipo-ahorro" : (esIngreso ? "gd-pill-tipo-ingreso" : "gd-pill-tipo-egreso")}">${esAhorro ? t('common.savingUpper') : (esIngreso ? t('common.incomeUpper') : t('common.expenseUpper'))}</span></td>`
           : "";
 
         const tagsHtml = Array.isArray(expense.etiquetas) && expense.etiquetas.length > 0
-          ? `<div class="gd-expense-tags">${expense.etiquetas.map((t) => `<span class="gd-tag-chip gd-tag-chip--sm">${escapeHtml(t.nombre)}</span>`).join("")}</div>`
+          ? `<div class="gd-expense-tags">${expense.etiquetas.map((tag) => `<span class="gd-tag-chip gd-tag-chip--sm">${escapeHtml(tag.nombre)}</span>`).join("")}</div>`
           : "";
 
         const descriptionCell = showDescription
@@ -51,11 +52,11 @@ export function renderExpenseTable({
           ? `
             <td class="gd-right">
               <span class="gd-action-cell">
-                <button type="button" class="gd-action-btn" data-action="open-edit-expense" data-expense-id="${escapeHtml(expense.id)}" aria-label="Editar gasto">
-                  <i class="lni lni-pencil-alt" aria-hidden="true"></i> Editar
+                <button type="button" class="gd-action-btn" data-action="open-edit-expense" data-expense-id="${escapeHtml(expense.id)}" aria-label="${t('expensesTable.editExpense')}">
+                  <i class="lni lni-pencil-alt" aria-hidden="true"></i> ${t('common.edit')}
                 </button>
-                <button type="button" class="gd-action-btn danger" data-action="open-delete-expense" data-expense-id="${escapeHtml(expense.id)}" aria-label="Eliminar gasto">
-                  <i class="lni lni-trash-can" aria-hidden="true"></i> Eliminar
+                <button type="button" class="gd-action-btn danger" data-action="open-delete-expense" data-expense-id="${escapeHtml(expense.id)}" aria-label="${t('expensesTable.deleteExpense')}">
+                  <i class="lni lni-trash-can" aria-hidden="true"></i> ${t('common.delete')}
                 </button>
               </span>
             </td>

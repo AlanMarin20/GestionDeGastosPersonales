@@ -1,3 +1,5 @@
+import { t } from '../i18n';
+
 export function renderRegistroPage({
   encabezadoExterno,
   botonIniciarCrearCuenta,
@@ -12,9 +14,9 @@ export function renderRegistroPage({
       <div class="col-md-6 mb-4">
         ${campoAuthInput({
           id: 'contrasena',
-          label: 'Contraseña',
+          label: t('auth.password'),
           type: 'password',
-          placeholder: '********',
+          placeholder: t('auth.passwordPlaceholder'),
           wrapperClass: null,
         })}
       </div>
@@ -22,9 +24,9 @@ export function renderRegistroPage({
       <div class="col-md-6 mb-4">
         ${campoAuthInput({
           id: 'confirmarContrasena',
-          label: 'Confirmar',
+          label: t('auth.confirm'),
           type: 'password',
-          placeholder: '********',
+          placeholder: t('auth.passwordPlaceholder'),
           wrapperClass: null,
         })}
       </div>
@@ -34,16 +36,16 @@ export function renderRegistroPage({
   const fieldsMarkup = [
     campoAuthInput({
       id: 'nombre',
-      label: 'Nombre Completo',
+      label: t('auth.fullName'),
       type: 'text',
-      placeholder: 'Juan Pérez',
+      placeholder: t('auth.fullNamePlaceholder'),
       wrapperClass: 'mb-3',
     }),
     campoAuthInput({
       id: 'email',
-      label: 'Correo Electrónico',
+      label: t('auth.email'),
       type: 'email',
-      placeholder: 'ejemplo@correo.com',
+      placeholder: t('auth.emailPlaceholder'),
       wrapperClass: 'mb-3',
     }),
     passwordRowMarkup,
@@ -51,21 +53,21 @@ export function renderRegistroPage({
 
   const footerMarkup = `
     <p class="text-muted mb-0">
-      ¿Ya tienes una cuenta?
-      <a href="/login" data-link class="text-primary fw-bold text-decoration-none">Inicia sesión</a>
+      ${t('auth.alreadyAccount')}
+      <a href="/login" data-link class="text-primary fw-bold text-decoration-none">${t('auth.loginLink')}</a>
     </p>
   `;
 
   return renderAuthPublicPage({
     encabezadoExterno,
     fondoDecorativoAuth,
-    heading: 'Crea tu cuenta',
-    description: 'Comienza a tomar el control de tus finanzas hoy mismo.',
+    heading: t('auth.createAccount'),
+    description: t('auth.registerDescription'),
     formId: 'registroForm',
     errorId: 'registroError',
     formFieldsMarkup: fieldsMarkup,
     submitButtonMarkup: botonIniciarCrearCuenta({
-      text: 'Crear Cuenta',
+      text: t('auth.createAccountBtn'),
       type: 'submit',
       className: 'main-btn btn-hover w-100 mt-3 mb-3',
     }),

@@ -6,6 +6,7 @@ import {
 } from "../components/common/reusablePageComponents";
 import { escapeHtml } from "../utils/sanitize";
 import { formatMoney } from "../utils/money";
+import { t } from "../i18n";
 
 const NOTIF_ICON = {
   info: "lni-bulb",
@@ -38,10 +39,10 @@ function renderRecentItem(expense) {
   const amountClass = esAhorro ? "" : (esIngreso ? "gd-monto-ingreso" : "gd-monto-egreso");
   const amountSign = esIngreso ? "+" : "-";
   const tipoBadge = esAhorro
-    ? `<span class="gd-tipo-badge gd-tipo-badge--ahorro">Ahorro</span>`
+    ? `<span class="gd-tipo-badge gd-tipo-badge--ahorro">${t('common.saving')}</span>`
     : esIngreso
-      ? `<span class="gd-tipo-badge gd-tipo-badge--in">Ingreso</span>`
-      : `<span class="gd-tipo-badge gd-tipo-badge--out">Gasto</span>`;
+      ? `<span class="gd-tipo-badge gd-tipo-badge--in">${t('common.income')}</span>`
+      : `<span class="gd-tipo-badge gd-tipo-badge--out">${t('common.expense')}</span>`;
 
   return `
     <div class="gd-list-item gd-list-item--compact">
@@ -49,7 +50,7 @@ function renderRecentItem(expense) {
         <span class="gd-avatar gd-avatar--${escapeHtml(esIngreso ? "in" : "out")}" style="font-size:0.6rem;flex-shrink:0" aria-hidden="true">${initials}</span>
         <div style="min-width:0">
           <p class="gd-list-item-title" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(displayName)}</p>
-          <p class="gd-list-item-sub">${escapeHtml(expense.fechaCorta)} · ${escapeHtml(expense.categoria || "Sin categoría")}</p>
+          <p class="gd-list-item-sub">${escapeHtml(expense.fechaCorta)} · ${escapeHtml(expense.categoria || t('common.noCategory'))}</p>
         </div>
       </div>
       <div class="gd-list-item-aside">
@@ -71,11 +72,11 @@ export function renderDashboardPage({
   insights = [],
 }) {
   const recentList = recentExpenses.length === 0
-    ? `<p class="gd-muted gd-muted-sm" style="margin:0">Sin movimientos recientes.</p>`
+    ? `<p class="gd-muted gd-muted-sm" style="margin:0">${t('dashboard.noRecentMovements')}</p>`
     : `<div class="gd-list">${recentExpenses.map(renderRecentItem).join("")}</div>`;
 
   const notifList = insights.length === 0
-    ? `<p class="gd-muted gd-muted-sm" style="margin:0">Sin sugerencias disponibles.</p>`
+    ? `<p class="gd-muted gd-muted-sm" style="margin:0">${t('dashboard.noSuggestions')}</p>`
     : `<div class="gd-notif-list">${insights.map(renderNotifItem).join("")}</div>`;
 
   const content = `
@@ -94,17 +95,17 @@ export function renderDashboardPage({
     <div class="gd-grid-3">
       <div class="gd-dashboard-charts">
         ${graficoGastos({
-          title: "Tendencias de gasto",
+          title: t('dashboard.spendingTrends'),
           canvasId: "dashboardMonthlyBarChart",
-          ariaLabel: "Gastos mensuales",
+          ariaLabel: t('dashboard.monthlyExpenses'),
           height: "200px",
           dashboardStyle: true,
         })}
 
         ${graficoTorta({
-          title: "Por categoría",
+          title: t('dashboard.byCategory'),
           canvasId: "dashboardCategoryDonutChart",
-          ariaLabel: "Distribución por categoría",
+          ariaLabel: t('dashboard.categoryDistribution'),
           height: "180px",
           dashboardStyle: true,
           legendContainerId: "dashboardCategoryLegend",
@@ -114,8 +115,8 @@ export function renderDashboardPage({
       <div class="gd-dashboard-aside">
         <article class="gd-card">
           <div class="gd-card-header">
-            <h2 class="gd-card-title">Transacciones Recientes</h2>
-            <a href="/dashboard/gastos" data-link class="gd-top-btn">Ver todo <i class="lni lni-chevron-right" aria-hidden="true"></i></a>
+            <h2 class="gd-card-title">${t('dashboard.recentTransactions')}</h2>
+            <a href="/dashboard/gastos" data-link class="gd-top-btn">${t('common.viewAll')} <i class="lni lni-chevron-right" aria-hidden="true"></i></a>
           </div>
           ${recentList}
         </article>
@@ -124,9 +125,9 @@ export function renderDashboardPage({
           <div class="gd-card-header">
             <h2 class="gd-card-title gd-notif-card-title">
               <i class="lni lni-bolt-alt" aria-hidden="true"></i>
-              Análisis y Sugerencias
+              ${t('dashboard.analysisTitle')}
             </h2>
-            <a href="/dashboard/recomendaciones" data-link class="gd-top-btn">Ver todo <i class="lni lni-chevron-right" aria-hidden="true"></i></a>
+            <a href="/dashboard/recomendaciones" data-link class="gd-top-btn">${t('common.viewAll')} <i class="lni lni-chevron-right" aria-hidden="true"></i></a>
           </div>
           ${notifList}
         </article>
