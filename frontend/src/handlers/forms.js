@@ -5,7 +5,7 @@ import {
   PASSWORD_POLICY_MESSAGE,
   REGISTRO_EXITOSO_REDIRECT_SECONDS,
 } from "../config";
-import { getCurrentDateShort, getMonthKeyFromDate } from "../utils/date";
+import { getCurrentDateShort, getMonthKeyFromDate, parseMonthKey } from "../utils/date";
 import {
   isStrongPassword,
   normalizeThemeMode,
@@ -15,6 +15,7 @@ import {
 } from "../utils/format";
 import { showAppNotification } from "../ui/notifications";
 import { saveAppPreferences } from "../ui/theme";
+import { getFinanzasCurrentPeriod } from "../data/finanzas";
 import { addExpenseRecord, addIncomeRecord } from "../data/expenses";
 import { apiCreateMovimiento } from "../api/movimientos";
 import {
@@ -1633,7 +1634,8 @@ export function attachFormHandlers(pathname, { navigate, render }) {
         return;
       }
 
-      const now = new Date();
+      const viewPeriod = state.finanzas.ui.budgetViewPeriod || getFinanzasCurrentPeriod();
+      const { year: bYear, month: bMonth } = parseMonthKey(viewPeriod);
       const submitBtn = nuevoBudgetForm.querySelector('[type="submit"]');
       if (submitBtn) submitBtn.disabled = true;
 
@@ -1641,8 +1643,8 @@ export function attachFormHandlers(pathname, { navigate, render }) {
         await createBudget({
           categoryId: Number(categoryId),
           amountLimit,
-          month: now.getMonth() + 1,
-          year: now.getFullYear(),
+          month: bMonth,
+          year: bYear,
         });
         await loadBudgets();
         if (limiteInput) limiteInput.value = "";
