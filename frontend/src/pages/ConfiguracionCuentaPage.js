@@ -180,7 +180,7 @@ function renderBudgetSummary(budgets, spentByCategory) {
   `;
 }
 
-function renderBudgetRow(budget, spentAmount, notifEnabled, isEditing) {
+function renderBudgetRow(budget, spentAmount, notifEnabled, isEditing, isReadOnly) {
   const spent = Number(spentAmount || 0);
   const limit = Number(budget.amountLimit || 0);
   const pct = limit > 0 ? Math.min(Math.round((spent / limit) * 100), 100) : 0;
@@ -226,6 +226,7 @@ function renderBudgetRow(budget, spentAmount, notifEnabled, isEditing) {
         <span class="gd-settings-budget-pct ${exceeded ? "text-danger" : nearLimit && notifEnabled ? "text-warning" : ""}">${rawPct}%</span>
         <span class="gd-settings-budget-spent">${formatMoney(spent)} / ${formatMoney(limit)}</span>
       </div>
+      ${!isReadOnly ? `
       <div class="gd-settings-budget-actions">
         <button type="button" class="gd-ahorro-ctrl-btn gd-ahorro-ctrl-btn--edit"
           data-action="edit-budget" data-budget-id="${escapeHtml(budget.id)}" aria-label="Editar presupuesto">
@@ -235,7 +236,7 @@ function renderBudgetRow(budget, spentAmount, notifEnabled, isEditing) {
           data-action="delete-budget" data-budget-id="${escapeHtml(budget.id)}" aria-label="Eliminar presupuesto">
           <i class="lni lni-close" aria-hidden="true"></i>
         </button>
-      </div>
+      </div>` : ""}
     </div>
   `;
 }
@@ -536,7 +537,7 @@ export function renderConfiguracionCuentaPage({ state, profileImage, profileName
                    <p class="gd-muted mb-0">${isCurrentOrFuture ? "Agregá un presupuesto para monitorear el gasto por categoría." : "No hay presupuestos registrados para este período."}</p>
                  </div>`
               : `<div class="gd-settings-budget-list mb-3">
-                   ${budgets.map((b) => renderBudgetRow(b, spentByCategory[b.categoryName] || 0, notifEnabled, b.id === state.finanzas.ui.editingBudgetId)).join("")}
+                   ${budgets.map((b) => renderBudgetRow(b, spentByCategory[b.categoryName] || 0, notifEnabled, b.id === state.finanzas.ui.editingBudgetId, !isCurrentOrFuture)).join("")}
                  </div>`
             }
 
