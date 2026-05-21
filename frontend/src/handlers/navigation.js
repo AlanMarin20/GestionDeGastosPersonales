@@ -31,7 +31,7 @@ import {
 import { apiFetch } from "../api/client";
 import { loadDashboardBalances, loadMovimientos } from "../api/user";
 import { loadAhorros, updateAhorro, deleteAhorro, depositarAhorro, retirarAhorro } from "../api/ahorros";
-import { apiDesvincularCliente, loadAsesorClientes } from "../api/asesor";
+import { apiDesvincularCliente, loadAsesorClientes, activateAdvisor } from "../api/asesor";
 import { loadBudgets, deleteBudget, createBudget, updateBudget } from "../api/budgets";
 import { loadCategories, deleteCategory } from "../api/categories";
 import { createTag } from "../api/tags";
@@ -858,6 +858,38 @@ export function attachGlobalNavigation({ navigate, render }) {
         render();
       } catch (err) {
         showAppNotification(err?.message || t('forms.couldNotCreateTag'), "error");
+      }
+    },
+    "show-onboarding-modal": ({ event }) => {
+      event.preventDefault();
+      const modal = document.getElementById("gd-onboarding-modal");
+      if (modal) modal.removeAttribute("hidden");
+    },
+    "hide-onboarding-modal": ({ event }) => {
+      event.preventDefault();
+      const modal = document.getElementById("gd-onboarding-modal");
+      if (modal) modal.setAttribute("hidden", "");
+      const checkbox = document.getElementById("gd-terms-checkbox");
+      const confirmBtn = document.getElementById("gd-confirm-advisor-btn");
+      if (checkbox) checkbox.checked = false;
+      if (confirmBtn) confirmBtn.disabled = true;
+    },
+    "submit-advisor-activation": async ({ event }) => {
+      event.preventDefault();
+      const btn = document.getElementById("gd-confirm-advisor-btn");
+      if (!btn || btn.disabled) return;
+      btn.disabled = true;
+      btn.textContent = t("onboarding.activating");
+      try {
+        await activateAdvisor();
+        navigate("/dashboard/asesor");
+      } catch (err) {
+        showAppNotification(
+          err instanceof Error ? err.message : t("forms.unexpectedError"),
+          "error",
+        );
+        btn.disabled = false;
+        btn.textContent = `✅ ${t("onboarding.confirmBtn")}`;
       }
     },
   };

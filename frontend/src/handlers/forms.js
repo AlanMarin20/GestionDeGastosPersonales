@@ -70,6 +70,16 @@ export function attachFormHandlers(pathname, { navigate, render }) {
     clearRegistroExitosoAutoRedirect();
   }
 
+  if (pathname === "/perfil/asesor-onboarding") {
+    const checkbox = document.getElementById("gd-terms-checkbox");
+    const confirmBtn = document.getElementById("gd-confirm-advisor-btn");
+    if (checkbox && confirmBtn) {
+      checkbox.addEventListener("change", () => {
+        confirmBtn.disabled = !checkbox.checked;
+      });
+    }
+  }
+
   if (pathname === "/login") {
     const loginForm = document.getElementById("loginForm");
     const emailInput = document.getElementById("email");

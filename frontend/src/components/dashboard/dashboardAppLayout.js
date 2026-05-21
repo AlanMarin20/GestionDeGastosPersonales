@@ -35,6 +35,25 @@ function getNavItems() {
   ];
 }
 
+function getAdvisorNavItems() {
+  return [
+    {
+      section: t('nav.section.advisor'),
+      items: [
+        { href: "/dashboard/asesor",          label: t('nav.advisorPortfolio'), icon: "lni lni-users"      },
+        { href: "/dashboard/recomendaciones", label: t('nav.recommendations'),  icon: "lni lni-bulb"       },
+        { href: "/perfil/configuracion",      label: t('nav.configuration'),    icon: "lni lni-cog"        },
+      ],
+    },
+    {
+      section: "",
+      items: [
+        { href: "/dashboard", label: t('nav.backToMyDashboard'), icon: "lni lni-arrow-left" },
+      ],
+    },
+  ];
+}
+
 function buildInitials(name) {
   const words = String(name)
     .trim()
@@ -52,8 +71,8 @@ function buildInitials(name) {
   return `${words[0][0]}${words[1][0]}`.toUpperCase();
 }
 
-function renderNavGroups({ activePath }) {
-  return getNavItems()
+function renderNavGroups({ activePath, navItems }) {
+  return navItems
     .map(
       (group) => `
         <div class="gd-nav-section">
@@ -105,8 +124,10 @@ function resolveNavMarkup({ activePath, isAsesor, sidebarSections }) {
   if (hasCustomSections) {
     return renderCustomNavGroups({ activePath, sidebarSections });
   }
-
-  return renderNavGroups({ activePath });
+  if (isAsesor) {
+    return renderNavGroups({ activePath, navItems: getAdvisorNavItems() });
+  }
+  return renderNavGroups({ activePath, navItems: getNavItems() });
 }
 
 export function renderDashboardAppLayout({

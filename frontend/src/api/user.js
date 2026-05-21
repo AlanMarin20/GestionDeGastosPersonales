@@ -2,6 +2,13 @@ import { ACCESS_TOKEN_KEY } from "../config";
 import { state } from "../state";
 import { getAccessToken, apiFetch } from "./client";
 
+export function isUserAsesor() {
+  return (
+    Array.isArray(state.currentUser?.roles) &&
+    state.currentUser.roles.includes('asesor')
+  );
+}
+
 export function syncProfileFromUser(user) {
   if (!user) return;
 

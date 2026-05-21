@@ -178,3 +178,23 @@ export async function loadClienteGraficoCategorias(clienteId) {
     console.warn("Error cargando gráfico de categorías:", error);
   }
 }
+
+export async function activateAdvisor() {
+  const response = await apiFetch('/api/auth/activate-advisor', {
+    method: 'POST',
+    body: JSON.stringify({ acceptedTerms: true }),
+  });
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    throw new Error(body.message || 'No se pudo activar el rol de asesor');
+  }
+
+  const data = await response.json();
+
+  if (state.currentUser) {
+    state.currentUser = { ...state.currentUser, roles: data.roles ?? ['asesor'] };
+  }
+
+  return data;
+}

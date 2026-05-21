@@ -9,6 +9,30 @@ import {
 import { escapeHtml } from "../utils/sanitize";
 import { t } from '../i18n';
 
+function clientBanner(clienteName) {
+  const initials = String(clienteName)
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase() || "CL";
+
+  return `
+    <div class="gd-client-banner" role="status" aria-label="${escapeHtml(t('cliente.viewingLabel'))} ${escapeHtml(clienteName)}">
+      <div class="gd-client-banner-avatar" aria-hidden="true">${escapeHtml(initials)}</div>
+      <div class="gd-client-banner-info">
+        <span class="gd-client-banner-label">${escapeHtml(t('cliente.viewingLabel'))}</span>
+        <span class="gd-client-banner-name">${escapeHtml(clienteName)}</span>
+      </div>
+      <a href="/dashboard/asesor" data-link class="gd-btn gd-btn-sm gd-client-banner-back">
+        ← ${escapeHtml(t('cliente.backToPortfolio'))}
+      </a>
+    </div>
+  `;
+}
+
 export function resolveDetalleCliente(pathname, state) {
   const match = pathname.match(/^\/cliente\/([^/]+)(?:\/(?:gastos|recomendaciones\/historicas))?$/);
   if (!match) {
@@ -71,55 +95,6 @@ function mapGastoClienteToRow(gasto) {
   };
 }
 
-function buildDetalleClienteSidebarSections({ clienteId }) {
-  const detalleHref = `/cliente/${encodeURIComponent(String(clienteId))}`;
-  const recomendacionesHref = `${detalleHref}/recomendaciones/historicas`;
-  const gastosHref = `${detalleHref}/gastos`;
-
-  return [
-    {
-      section: t('nav.section.main'),
-      items: [
-        {
-          href: "/dashboard",
-          label: t('nav.myDashboard'),
-          icon: "lni lni-grid-alt",
-        },
-        {
-          href: detalleHref,
-          label: t('nav.clientDashboard'),
-          icon: "lni lni-user",
-        },
-      ],
-    },
-    {
-      section: t('nav.section.analysis'),
-      items: [
-        {
-          href: recomendacionesHref,
-          label: t('nav.historicalRecommendations'),
-          icon: "lni lni-bulb",
-        },
-      ],
-    },
-    {
-      section: t('nav.section.advisor'),
-      items: [
-        {
-          href: "/dashboard/asesor",
-          label: t('nav.advisorDashboard'),
-          icon: "lni lni-grid-alt",
-        },
-        {
-          href: gastosHref,
-          label: t('nav.clientMovements'),
-          icon: "lni lni-list",
-        },
-      ],
-    },
-  ];
-}
-
 function renderDetalleClienteGastosPage({ cliente, detalle, formatCurrency, profileImage, profileName }) {
   const detalleHref = `/cliente/${encodeURIComponent(String(cliente.id))}`;
   const gastosHref = `${detalleHref}/gastos`;
@@ -132,6 +107,7 @@ function renderDetalleClienteGastosPage({ cliente, detalle, formatCurrency, prof
     pageTitle: t('cliente.movementsOf', { name: cliente.nombre }),
     pageSubtitle: t('cliente.movementsSubtitle'),
     content: `
+      ${clientBanner(cliente.nombre)}
       <section class="gd-metrics gd-metrics-2 mb-4">
         ${[
           {
@@ -184,8 +160,6 @@ function renderDetalleClienteGastosPage({ cliente, detalle, formatCurrency, prof
     profileImage,
     profileName,
     isAsesor: true,
-    notificationCount: 3,
-    sidebarSections: buildDetalleClienteSidebarSections({ clienteId: cliente.id }),
   });
 }
 
@@ -222,6 +196,7 @@ export function renderDetalleClientePage({
     pageTitle: t('cliente.pageTitle', { name: cliente.nombre }),
     pageSubtitle: t('cliente.pageSubtitle'),
     content: `
+      ${clientBanner(cliente.nombre)}
       <section class="gd-metrics">
         ${[
           {
@@ -335,7 +310,5 @@ export function renderDetalleClientePage({
     profileImage,
     profileName,
     isAsesor: true,
-    notificationCount: 3,
-    sidebarSections: buildDetalleClienteSidebarSections({ clienteId: cliente.id }),
   });
 }

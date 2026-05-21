@@ -4247,3 +4247,155 @@ body.theme-dark .gd-batch-badge--error {
 .gd-tag-chip--new { border-style: dashed; }
 .gd-tag-chip--sm { font-size: 0.72rem; padding: 0.1rem 0.5rem; }
 .gd-expense-tags { display: flex; flex-wrap: wrap; gap: 0.25rem; margin-top: 0.2rem; }
+
+/* ── Advisor onboarding ──────────────────────────────── */
+.gd-onboarding {
+  max-width: 760px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.gd-onboarding-hero {
+  background: linear-gradient(135deg, var(--gd-surface-2, #1e1b4b) 0%, transparent 100%);
+  border: 1px solid var(--gd-border, #2d2a5e);
+  border-radius: 12px;
+  padding: 32px;
+  text-align: center;
+}
+
+.gd-onboarding-hero-icon { font-size: 40px; display: block; margin-bottom: 12px; }
+.gd-onboarding-hero-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 8px; }
+.gd-onboarding-hero-sub { color: var(--gd-muted, #6b7280); margin: 0; }
+
+.gd-onboarding-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 640px) {
+  .gd-onboarding-grid { grid-template-columns: 1fr; }
+}
+
+.gd-onboarding-card {
+  background: var(--gd-surface, #111);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.gd-onboarding-card--benefits { border: 1px solid #2d2a5e; }
+.gd-onboarding-card--responsibilities { border: 1px solid #2d1d0a; }
+.gd-onboarding-card-heading { font-size: 0.875rem; font-weight: 700; margin-bottom: 12px; }
+.gd-onboarding-card--benefits .gd-onboarding-card-heading { color: #a5b4fc; }
+.gd-onboarding-card--responsibilities .gd-onboarding-card-heading { color: #fb923c; }
+
+.gd-onboarding-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.gd-onboarding-list-item { display: flex; gap: 8px; align-items: flex-start; font-size: 0.875rem; color: var(--gd-text-muted, #9ca3af); }
+.gd-onboarding-check { color: #22c55e; font-weight: 700; flex-shrink: 0; }
+.gd-onboarding-warn { color: #fb923c; font-weight: 700; flex-shrink: 0; }
+
+.gd-onboarding-cta-wrap { text-align: center; }
+.gd-onboarding-cta-note { color: var(--gd-muted, #6b7280); font-size: 0.8rem; margin-top: 8px; }
+
+/* ── Onboarding modal ─────────────────────────────────── */
+.gd-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.gd-modal-backdrop[hidden] { display: none; }
+
+.gd-modal {
+  background: var(--gd-surface, #1a1a1a);
+  border: 1px solid #2d2a5e;
+  border-radius: 12px;
+  padding: 24px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.gd-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.gd-modal-title { font-size: 1rem; font-weight: 700; margin: 0; }
+.gd-modal-close-btn { background: none; border: none; color: var(--gd-muted); font-size: 1.4rem; cursor: pointer; padding: 0 4px; line-height: 1; }
+
+.gd-tc-scroll {
+  background: var(--gd-surface-2, #111);
+  border: 1px solid var(--gd-border, #222);
+  border-radius: 8px;
+  padding: 12px;
+  max-height: 160px;
+  overflow-y: auto;
+  font-size: 0.8125rem;
+  color: var(--gd-text-muted, #9ca3af);
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.gd-checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  padding: 10px;
+  background: var(--gd-surface-2, #111);
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.gd-checkbox { width: 16px; height: 16px; flex-shrink: 0; margin-top: 2px; cursor: pointer; accent-color: #4f46e5; }
+
+.gd-modal-footer { display: flex; justify-content: flex-end; gap: 10px; }
+
+/* ── Client banner ────────────────────────────────────── */
+.gd-client-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(90deg, #7c2d12, #431407);
+  border-bottom: 2px solid #ea580c;
+  border-radius: 10px;
+  padding: 10px 16px;
+  margin-bottom: 20px;
+}
+
+.gd-client-banner-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #ea580c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.875rem;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.gd-client-banner-info { flex: 1; }
+.gd-client-banner-label { display: block; color: #fdba74; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em; }
+.gd-client-banner-name { font-size: 1rem; font-weight: 700; color: #fff; }
+
+.gd-client-banner-back {
+  background: #ea580c;
+  color: #fff;
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.gd-client-banner-back:hover { background: #c2410c; color: #fff; }

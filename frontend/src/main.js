@@ -23,6 +23,7 @@ import {
   resolveDetalleCliente as resolveDetalleClienteView,
 } from "./pages/DetalleClientePage";
 import { renderDashboardAsesorPage as renderDashboardAsesorPageView } from "./pages/DashboardAsesorPage";
+import { renderAsesorOnboardingPage } from "./pages/AsesorOnboardingPage";
 import { renderDashboardPage as renderDashboardPageView } from "./pages/DashboardPage";
 import { renderDetalleAhorrosPage as renderDetalleAhorrosPageView } from "./pages/DetalleAhorrosPage";
 import { renderCargarGastoPage as renderCargarGastoPageView } from "./pages/CargarGastoPage";
@@ -141,6 +142,7 @@ import {
   loadCurrentUser,
   loadDashboardBalances,
   loadMovimientos,
+  isUserAsesor,
 } from "./api/user";
 import { loadTags } from "./api/tags";
 import { loadAhorros } from "./api/ahorros";
@@ -567,6 +569,13 @@ function renderDashboardAsesorPage({
   });
 }
 
+function renderAsesorOnboardingPageView() {
+  return renderAsesorOnboardingPage({
+    profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
+    profileName: state.perfil.nombre || "Usuario",
+  });
+}
+
 // RecomendacionesHistoricasPage removed: function omitted intentionally.
 
 function resolveDetalleCliente(pathname) {
@@ -690,19 +699,39 @@ if (pathname === "/dashboard/patrones") {
     return renderDashboardLayout(renderDetalleAhorrosPage());
   }
 
+  if (pathname === "/perfil/asesor-onboarding") {
+    if (isUserAsesor()) {
+      history.replaceState({}, "", "/dashboard/asesor");
+      return renderDashboardLayout(renderDashboardAsesorPage(), { showScrollTop: false });
+    }
+    return renderAsesorOnboardingPageView();
+  }
+
   if (pathname === "/dashboard/asesor") {
+    if (!isUserAsesor()) {
+      history.replaceState({}, "", "/perfil/asesor-onboarding");
+      return renderAsesorOnboardingPageView();
+    }
     return renderDashboardLayout(renderDashboardAsesorPage(), {
       showScrollTop: false,
     });
   }
 
   if (pathname === "/dashboard/asesor/recomendaciones") {
+    if (!isUserAsesor()) {
+      history.replaceState({}, "", "/perfil/asesor-onboarding");
+      return renderAsesorOnboardingPageView();
+    }
     return renderDashboardLayout(renderDashboardAsesorPage(), {
       showScrollTop: false,
     });
   }
 
   if (pathname === "/dashboard/asesor/panel") {
+    if (!isUserAsesor()) {
+      history.replaceState({}, "", "/perfil/asesor-onboarding");
+      return renderAsesorOnboardingPageView();
+    }
     return renderDashboardLayout(renderDashboardAsesorPage(), {
       showScrollTop: false,
     });
