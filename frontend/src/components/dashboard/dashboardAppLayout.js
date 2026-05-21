@@ -41,7 +41,7 @@ function getAdvisorNavItems() {
       section: t('nav.section.advisor'),
       items: [
         { href: "/dashboard/asesor",          label: t('nav.advisorPortfolio'), icon: "lni lni-users"      },
-        { href: "/dashboard/recomendaciones", label: t('nav.recommendations'),  icon: "lni lni-bulb"       },
+        { href: "/dashboard/asesor/recomendaciones", label: t('nav.recommendations'),  icon: "lni lni-bulb"       },
         { href: "/perfil/configuracion",      label: t('nav.configuration'),    icon: "lni lni-cog"        },
       ],
     },

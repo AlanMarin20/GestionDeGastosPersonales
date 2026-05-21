@@ -613,6 +613,7 @@ function renderConfiguracionCuentaPage() {
     state,
     profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
     profileName: state.perfil.nombre || "Usuario",
+    isAsesor: isUserAsesor(),
   });
 }
 

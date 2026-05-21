@@ -260,7 +260,7 @@ function renderCategoryRow(cat) {
   `;
 }
 
-export function renderConfiguracionCuentaPage({ state, profileImage, profileName }) {
+export function renderConfiguracionCuentaPage({ state, profileImage, profileName, isAsesor = false }) {
   const config = state.configuracion;
   const recomendacionesPendientes = state.finanzas?.recomendaciones?.length || 0;
   const activeSection = resolveActiveSettingsSection();
@@ -894,5 +894,6 @@ export function renderConfiguracionCuentaPage({ state, profileImage, profileName
     content,
     profileImage,
     profileName,
+    isAsesor,
   });
 }
