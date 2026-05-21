@@ -8,10 +8,6 @@ function getAdvisorInitials(name) {
   return `${words[0][0]}${words[1][0]}`.toUpperCase();
 }
 
-function renderProxBadge() {
-  return `<span class="gd-settings-prox-badge">${t('config.comingSoon')}</span>`;
-}
-
 export function renderAsesoriaSection({ activeSection, config }) {
   const advisorLink = config.asesoria?.asesor || null;
   const advisorRequest = config.asesoria?.solicitud || {};

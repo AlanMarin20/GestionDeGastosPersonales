@@ -4,10 +4,6 @@ import { getBudgetAlertsForPeriod, getFinanzasCurrentPeriod } from "../../data/f
 import { parseMonthKey, formatMonthLabelLong, compareMonthKeys } from "../../utils/date";
 import { t } from "../../i18n";
 
-function renderProxBadge() {
-  return `<span class="gd-settings-prox-badge">${t('config.comingSoon')}</span>`;
-}
-
 function renderBudgetMonthPicker(viewPeriod, currentPeriod) {
   const isAtMax = compareMonthKeys(viewPeriod, currentPeriod) >= 0;
   return `
