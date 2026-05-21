@@ -553,3 +553,6 @@ body.app-density-compact .gd-user-chip {
 
 /* ── Enhanced Recommendation Cards (severity-based) ─────────────────────── */
 .gd-rec-card.gd-rec-severity-danger {
+  border-left-color: var(--gd-danger);
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.07) 0%, rgba(239, 68, 68, 0) 34%), var(--gd-surface);
+}
