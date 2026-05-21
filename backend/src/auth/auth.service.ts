@@ -7,8 +7,12 @@ import { randomInt } from 'crypto';
 import { createHash } from 'crypto';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { DataSource } from 'typeorm';
 import { UsersService } from '../users/users.service';
 import { EmailService } from './email.service';
+import { UserRole } from '../user-roles/entities/user-role.entity';
+import { Role } from '../roles/entities/role.entity';
+import { User } from '../users/entities/user.entity';
 
 const RESET_CODE_TTL_MINUTES = 15;
 
@@ -18,6 +22,7 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     private emailService: EmailService,
+    private dataSource: DataSource,
   ) {}
 
   async login(email: string, pass: string) {
@@ -96,7 +101,44 @@ export class AuthService {
       throw new UnauthorizedException('Usuario no encontrado');
     }
 
-    return user;
+    const userRoles = await this.dataSource.getRepository(UserRole).find({
+      where: { user: { id: userId } },
+      relations: { role: true },
+    });
+
+    return {
+      ...user,
+      roles: userRoles
+        .map((ur) => ur.role?.nombre)
+        .filter((name): name is string => Boolean(name)),
+    };
+  }
+
+  async activateAdvisor(userId: string): Promise<{ roles: string[] }> {
+    const asesorRole = await this.dataSource
+      .getRepository(Role)
+      .findOne({ where: { nombre: 'asesor' } });
+
+    if (!asesorRole) {
+      throw new BadRequestException(
+        'El rol de asesor no está configurado en el sistema',
+      );
+    }
+
+    const existing = await this.dataSource.getRepository(UserRole).findOne({
+      where: { user: { id: userId }, role: { id: asesorRole.id } },
+      relations: { user: true, role: true },
+    });
+
+    if (!existing) {
+      const userRole = this.dataSource.getRepository(UserRole).create({
+        user: { id: userId } as User,
+        role: { id: asesorRole.id } as Role,
+      });
+      await this.dataSource.getRepository(UserRole).save(userRole);
+    }
+
+    return { roles: ['asesor'] };
   }
 
   /*

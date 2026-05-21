@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -146,6 +147,21 @@ export class AuthController {
   @Get('me')
   getProfile(@Request() req) {
     return this.authService.getProfile(req.user.sub);
+  }
+
+  @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @Post('activate-advisor')
+  async activateAdvisor(
+    @Request() req,
+    @Body('acceptedTerms') acceptedTerms: boolean,
+  ) {
+    if (!acceptedTerms) {
+      throw new BadRequestException(
+        'Debes aceptar los términos y condiciones para continuar',
+      );
+    }
+    return this.authService.activateAdvisor(req.user.sub);
   }
 
   /*
