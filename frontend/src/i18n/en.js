@@ -934,4 +934,18 @@ export const en = {
   // Common missing keys
   'common.close': 'Close',
   'forms.unexpectedError': 'An unexpected error occurred',
+  // Advisor recommendations page
+  'asesorRec.pageTitle': 'Recommendations',
+  'asesorRec.pageSubtitle': 'Manage the recommendations you send to your clients',
+  'asesorRec.newRec': 'New recommendation',
+  'asesorRec.newRecSub': 'Select a client and write your message',
+  'asesorRec.selectClient': 'Select client',
+  'asesorRec.title': 'Title',
+  'asesorRec.message': 'Message',
+  'asesorRec.send': 'Send recommendation',
+  'asesorRec.history': 'History',
+  'asesorRec.noRecs': 'You have not sent any recommendations yet.',
+  'asesorRec.to': 'To',
+  'asesorRec.recSent': 'Recommendation sent',
+  'asesorRec.noClients': 'You have no assigned clients. Link a client first.',
 };

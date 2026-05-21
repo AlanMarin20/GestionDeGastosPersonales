@@ -19,6 +19,11 @@ import { AgregarRecomendacionDto } from './dto/agregar-recomendacion.dto';
 export class AsesorController {
   constructor(private readonly asesorService: AsesorService) {}
 
+  @Get('recomendaciones')
+  getAllRecomendaciones(@Request() req) {
+    return this.asesorService.getAllRecomendacionesEnviadas(req.user.sub);
+  }
+
   @Get('clientes')
   getClientes(
     @Request() req,

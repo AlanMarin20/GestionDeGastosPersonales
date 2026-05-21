@@ -109,6 +109,7 @@ export const state = {
       showModal: false,
       termsAccepted: false,
     },
+    recomendaciones: [],
   },
   detalleCliente: {
     gastos: [],

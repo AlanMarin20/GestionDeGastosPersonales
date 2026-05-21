@@ -1,0 +1,117 @@
+<h2>Estructura del flujo de onboarding para asesor</h2>
+<p class="subtitle">¿Cómo organizamos las pantallas de "convertirse en asesor"?</p>
+
+<div class="cards">
+
+  <!-- Opción A: Wizard 3 pasos -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="font-size:10px;">
+        <!-- Step indicators -->
+        <div style="display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:10px;">
+          <div style="width:28px;height:28px;border-radius:50%;background:#4f46e5;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;">1</div>
+          <div style="width:40px;height:2px;background:#4f46e5;"></div>
+          <div style="width:28px;height:28px;border-radius:50%;background:#4f46e5;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;">2</div>
+          <div style="width:40px;height:2px;background:#333;"></div>
+          <div style="width:28px;height:28px;border-radius:50%;background:#333;color:#666;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;">3</div>
+        </div>
+
+        <!-- Step 1 mockup -->
+        <div style="background:#111;border-radius:8px;border:1px solid #2d2d2d;padding:12px;margin-bottom:6px;">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">
+            <div style="width:32px;height:32px;border-radius:50%;background:#1e1b4b;display:flex;align-items:center;justify-content:center;font-size:16px;">🤝</div>
+            <div>
+              <div style="color:#a5b4fc;font-size:10px;font-weight:700;">Paso 1 de 3 — ¿Qué es ser asesor?</div>
+              <div style="color:#666;font-size:9px;">Conocé los beneficios del programa</div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">
+            <div style="background:#1e1b2e;border-radius:5px;padding:6px;"><div style="color:#a5b4fc;font-size:9px;">✅ Acceso a datos de clientes</div></div>
+            <div style="background:#1e1b2e;border-radius:5px;padding:6px;"><div style="color:#a5b4fc;font-size:9px;">✅ Panel exclusivo de asesor</div></div>
+            <div style="background:#1e1b2e;border-radius:5px;padding:6px;"><div style="color:#a5b4fc;font-size:9px;">✅ Envío de recomendaciones</div></div>
+            <div style="background:#1e1b2e;border-radius:5px;padding:6px;"><div style="color:#a5b4fc;font-size:9px;">✅ Métricas de tu cartera</div></div>
+          </div>
+          <div style="text-align:right;margin-top:8px;"><span style="background:#4f46e5;color:#fff;border-radius:5px;padding:3px 10px;font-size:9px;">Siguiente →</span></div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+          <!-- Step 2 preview -->
+          <div style="background:#111;border-radius:8px;border:1px solid #2d2d2d;padding:8px;opacity:0.6;">
+            <div style="color:#fb923c;font-size:9px;font-weight:700;margin-bottom:4px;">Paso 2 — Responsabilidades</div>
+            <div style="color:#666;font-size:8px;line-height:1.4;">• Mantener confidencialidad<br>• Asesorar con información real<br>• No usar datos para fines propios</div>
+          </div>
+          <!-- Step 3 preview -->
+          <div style="background:#111;border-radius:8px;border:1px solid #2d2d2d;padding:8px;opacity:0.4;">
+            <div style="color:#22c55e;font-size:9px;font-weight:700;margin-bottom:4px;">Paso 3 — Términos y condiciones</div>
+            <div style="background:#1a1a1a;border-radius:4px;height:20px;margin-bottom:4px;"></div>
+            <div style="display:flex;align-items:center;gap:4px;"><div style="width:10px;height:10px;border:1px solid #22c55e;border-radius:2px;"></div><div style="color:#666;font-size:8px;">Acepto los términos</div></div>
+            <div style="margin-top:4px;"><span style="background:#22c55e;color:#000;border-radius:4px;padding:2px 8px;font-size:8px;font-weight:700;">Confirmar</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Wizard de 3 pasos</h3>
+      <p><strong>1. Beneficios</strong> → <strong>2. Responsabilidades</strong> → <strong>3. T&C + confirmación</strong>. Flujo guiado, una idea por pantalla.</p>
+      <div class="pros-cons" style="margin-top:8px;">
+        <div class="pros"><h4>A favor</h4><ul><li>Muy claro y digerido</li><li>El usuario se siente informado</li></ul></div>
+        <div class="cons"><h4>En contra</h4><ul><li>3 clicks para completar</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Opción B: Landing page + modal -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#111;border-radius:8px;border:1px solid #2d2d2d;padding:12px;font-size:10px;">
+        <!-- Hero -->
+        <div style="text-align:center;margin-bottom:10px;padding:10px;background:linear-gradient(135deg,#1e1b4b,#111);border-radius:8px;">
+          <div style="font-size:22px;margin-bottom:4px;">🏛️</div>
+          <div style="color:#a5b4fc;font-size:12px;font-weight:700;">Convertite en Asesor Financiero</div>
+          <div style="color:#666;font-size:9px;">Todo lo que necesitás saber</div>
+        </div>
+        <!-- Sections -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;">
+          <div>
+            <div style="color:#a5b4fc;font-size:9px;font-weight:700;margin-bottom:4px;">✨ Beneficios</div>
+            <div style="color:#888;font-size:8px;line-height:1.5;">• Panel exclusivo<br>• Gestión de clientes<br>• Envío de recomendaciones<br>• Métricas de cartera</div>
+          </div>
+          <div>
+            <div style="color:#fb923c;font-size:9px;font-weight:700;margin-bottom:4px;">⚖️ Responsabilidades</div>
+            <div style="color:#888;font-size:8px;line-height:1.5;">• Confidencialidad<br>• Información veraz<br>• Uso ético de datos<br>• Actualizaciones regulares</div>
+          </div>
+        </div>
+        <!-- CTA -->
+        <div style="text-align:center;">
+          <span style="background:#4f46e5;color:#fff;border-radius:6px;padding:5px 16px;font-size:10px;font-weight:700;">Quiero ser asesor →</span>
+        </div>
+      </div>
+      <!-- Modal overlay -->
+      <div style="background:#111;border-radius:8px;border:2px solid #4f46e5;padding:10px;margin-top:6px;font-size:10px;">
+        <div style="color:#a5b4fc;font-size:10px;font-weight:700;margin-bottom:6px;">📋 Términos y condiciones de asesor</div>
+        <div style="background:#1a1a1a;border-radius:5px;padding:6px;height:35px;overflow:hidden;margin-bottom:6px;">
+          <div style="color:#666;font-size:8px;line-height:1.4;">Al aceptar, confirmás que vas a usar la plataforma de manera ética y responsable, respetando la privacidad de tus clientes y brindando...</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+          <div style="width:12px;height:12px;border:2px solid #4f46e5;border-radius:2px;background:#4f46e5;display:flex;align-items:center;justify-content:center;color:#fff;font-size:8px;">✓</div>
+          <div style="color:#ddd;font-size:9px;">Acepto los términos y condiciones</div>
+        </div>
+        <div style="display:flex;gap:6px;justify-content:flex-end;">
+          <span style="color:#666;font-size:9px;padding:3px 8px;cursor:pointer;">Cancelar</span>
+          <span style="background:#4f46e5;color:#fff;border-radius:5px;padding:3px 10px;font-size:9px;font-weight:700;">Confirmar</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Landing page + modal de T&C</h3>
+      <p>Una <strong>página completa</strong> con toda la info (beneficios + responsabilidades). Al hacer click "Quiero ser asesor" aparece un <strong>modal</strong> con los T&C y el checkbox.</p>
+      <div class="pros-cons" style="margin-top:8px;">
+        <div class="pros"><h4>A favor</h4><ul><li>Todo visible sin navegar</li><li>Flujo en 2 clicks</li></ul></div>
+        <div class="cons"><h4>En contra</h4><ul><li>Más texto de golpe</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:16px;">¿Preferís el wizard guiado paso a paso (A) o la landing page con modal (B)?</p>

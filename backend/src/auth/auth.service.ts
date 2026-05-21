@@ -3,7 +3,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { randomInt } from 'crypto';
+import { randomInt, randomBytes } from 'crypto';
 import { createHash } from 'crypto';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -112,6 +112,24 @@ export class AuthService {
         .map((ur) => ur.role?.nombre)
         .filter((name): name is string => Boolean(name)),
     };
+  }
+
+  async generateLinkCode(userId: string): Promise<{ codigoVinculacion: string; expiraEn: Date }> {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const bytes = randomBytes(12);
+    const raw = Array.from(bytes, (b) => chars[b % chars.length]).join('');
+    const code = `${raw.slice(0, 4)}-${raw.slice(4, 8)}-${raw.slice(8, 12)}`;
+    const expiraEn = new Date(Date.now() + 48 * 60 * 60 * 1000);
+
+    await this.dataSource.query(
+      `UPDATE usuarios
+       SET codigo_vinculacion = $1,
+           codigo_expira_en   = $2
+       WHERE id = $3`,
+      [code, expiraEn, userId],
+    );
+
+    return { codigoVinculacion: code, expiraEn };
   }
 
   async activateAdvisor(userId: string): Promise<{ roles: string[] }> {

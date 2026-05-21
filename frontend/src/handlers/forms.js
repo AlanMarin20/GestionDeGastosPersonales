@@ -29,6 +29,7 @@ import {
   registerUser,
   verifyRegistrationEmail,
   resendRegistrationCode,
+  apiGenerateLinkCode,
 } from "../api/user";
 import { createAhorro, loadAhorros } from "../api/ahorros";
 import {
@@ -36,9 +37,9 @@ import {
   apiAddClienteRecomendacion,
   loadAsesorClientes,
   loadClienteRecomendaciones,
+  loadAllAsesorRecomendaciones,
 } from "../api/asesor";
 import {
-  generateAdvisorVerificationCode,
   closeAdvisorNewClientModal,
   updateAdvisorNewClientField,
 } from "../data/advisor";
@@ -1229,6 +1230,37 @@ export function attachFormHandlers(pathname, { navigate, render }) {
     });
   }
 
+  if (pathname === "/dashboard/asesor/recomendaciones") {
+    const globalRecForm = document.getElementById("advisorGlobalRecomendacionForm");
+    globalRecForm?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const clienteId = (document.getElementById("recClienteId")?.value ?? "").trim();
+      const titulo = (document.getElementById("recTitulo")?.value ?? "").trim();
+      const texto = (document.getElementById("recTexto")?.value ?? "").trim();
+
+      if (!clienteId) {
+        showAppNotification(t('asesorRec.selectClient'), "warning");
+        return;
+      }
+      if (!texto) return;
+
+      const submitBtn = globalRecForm.querySelector('[type="submit"]');
+      if (submitBtn) submitBtn.disabled = true;
+
+      try {
+        await apiAddClienteRecomendacion(clienteId, { contenido: texto, titulo, tipo: "asesor" });
+        await loadAllAsesorRecomendaciones();
+        showAppNotification(t('asesorRec.recSent'), "success");
+        render();
+      } catch (error) {
+        showAppNotification(error.message || t('forms.unexpectedError'), "error");
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+      }
+    });
+  }
+
   if (pathname.startsWith("/cliente/")) {
     const formRecomendacion = document.getElementById(
       "agregarRecomendacionForm",
@@ -1468,7 +1500,7 @@ export function attachFormHandlers(pathname, { navigate, render }) {
     });
 
     const asesorForm = document.getElementById("agregarAsesorForm");
-    asesorForm?.addEventListener("submit", (event) => {
+    asesorForm?.addEventListener("submit", async (event) => {
       event.preventDefault();
 
       const nombre = (document.getElementById("asesorNombre")?.value ?? "").trim();
@@ -1480,27 +1512,32 @@ export function attachFormHandlers(pathname, { navigate, render }) {
         return;
       }
 
-      const codigoVerificacion = generateAdvisorVerificationCode();
+      const submitBtn = asesorForm.querySelector('[type="submit"]');
+      if (submitBtn) submitBtn.disabled = true;
 
-      state.configuracion.asesoria = {
-        asesor: {
-          nombre,
-          email,
-          especialidad,
-          codigoVerificacion,
-          estado: "Pendiente de verificacion",
-          vinculadoEn: new Date().toISOString(),
-        },
-        solicitud: {
-          nombre,
-          email,
-          especialidad,
-        },
-      };
+      try {
+        const { codigoVinculacion } = await apiGenerateLinkCode();
 
-      saveAppPreferences();
-      showAppNotification(t('forms.advisorAdded'), "success");
-      render();
+        state.configuracion.asesoria = {
+          asesor: {
+            nombre,
+            email,
+            especialidad,
+            codigoVerificacion: codigoVinculacion,
+            estado: "Pendiente de verificacion",
+            vinculadoEn: new Date().toISOString(),
+          },
+          solicitud: { nombre, email, especialidad },
+        };
+
+        saveAppPreferences();
+        showAppNotification(t('forms.advisorAdded'), "success");
+        render();
+      } catch (error) {
+        showAppNotification(error.message || t('forms.unexpectedError'), "error");
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+      }
     });
 
     const configProfileImageInput = document.getElementById("configProfileImageInput");

@@ -1,0 +1,306 @@
+<h2>Diseño completo — Flujo de asesor profesional</h2>
+<p class="subtitle">Revisá cada pantalla. Las secciones cubren todo el flujo de punta a punta.</p>
+
+<!-- SECCION 1: ENTRY POINT -->
+<div class="section">
+  <div class="label">Sección 1 · Punto de entrada</div>
+  <h3>¿Desde dónde se accede al onboarding?</h3>
+  <p>El sidebar actual ya muestra "Panel Asesor" para todos los usuarios. La propuesta: si el usuario <strong>todavía no es asesor</strong>, ese link lo lleva directo al onboarding en lugar del dashboard vacío. Es el flujo natural — el usuario quiere ver el panel, y la app lo guía.</p>
+
+  <div class="mockup">
+    <div class="mockup-header">Sidebar — usuario sin rol de asesor</div>
+    <div class="mockup-body">
+      <div style="display:flex;height:220px;font-size:11px;">
+        <div style="width:160px;background:#151515;padding:12px 10px;display:flex;flex-direction:column;gap:3px;">
+          <div style="color:#888;font-size:9px;font-weight:700;letter-spacing:1px;margin-bottom:4px;">PRINCIPAL</div>
+          <div style="color:#ccc;padding:5px 8px;border-radius:5px;font-size:10px;">⬡ Dashboard</div>
+          <div style="color:#ccc;padding:5px 8px;border-radius:5px;font-size:10px;">↑ Cargar gasto</div>
+          <div style="color:#ccc;padding:5px 8px;border-radius:5px;font-size:10px;">≡ Mis movimientos</div>
+          <div style="color:#888;font-size:9px;font-weight:700;letter-spacing:1px;margin:6px 0 4px;">ASESORÍA</div>
+          <div style="color:#a5b4fc;padding:5px 8px;border-radius:5px;font-size:10px;border:1px dashed #4f46e5;display:flex;align-items:center;justify-content:space-between;">
+            <span>🏛️ Panel Asesor</span>
+            <span style="background:#4f46e5;color:#fff;border-radius:10px;padding:1px 5px;font-size:8px;">Nuevo</span>
+          </div>
+          <div style="margin-top:auto;display:flex;gap:6px;align-items:center;padding-top:8px;border-top:1px solid #222;">
+            <div style="width:24px;height:24px;border-radius:50%;background:#222;display:flex;align-items:center;justify-content:center;color:#888;font-size:9px;">JC</div>
+            <div><div style="color:#ddd;font-size:9px;">Juan</div><div style="color:#666;font-size:8px;">usuario</div></div>
+          </div>
+        </div>
+        <div style="flex:1;background:#0d0d0d;padding:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+          <div style="color:#666;font-size:11px;text-align:center;">← Al clickear "Panel Asesor"<br>va al onboarding</div>
+          <div style="margin-top:12px;color:#4f46e5;font-size:18px;">↓</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SECCION 2: ONBOARDING LANDING -->
+<div class="section">
+  <div class="label">Sección 2 · Onboarding — Landing page</div>
+  <h3>Pantalla de "Convertite en Asesor"</h3>
+  <p>Usa el layout del dashboard (con sidebar normal del usuario), pero el contenido central es la landing page de asesor. Así el usuario no pierde contexto de dónde está.</p>
+
+  <div class="mockup">
+    <div class="mockup-header">Ruta: /perfil/asesor-onboarding</div>
+    <div class="mockup-body">
+      <div style="display:flex;height:340px;font-size:11px;">
+        <!-- Sidebar -->
+        <div style="width:140px;background:#151515;padding:10px 8px;display:flex;flex-direction:column;gap:3px;flex-shrink:0;">
+          <div style="color:#888;font-size:9px;font-weight:700;letter-spacing:1px;margin-bottom:3px;">PRINCIPAL</div>
+          <div style="color:#ccc;padding:4px 7px;border-radius:4px;font-size:9px;">⬡ Dashboard</div>
+          <div style="color:#ccc;padding:4px 7px;border-radius:4px;font-size:9px;">↑ Cargar gasto</div>
+          <div style="color:#ccc;padding:4px 7px;border-radius:4px;font-size:9px;">≡ Movimientos</div>
+          <div style="color:#888;font-size:9px;font-weight:700;letter-spacing:1px;margin:5px 0 3px;">ASESORÍA</div>
+          <div style="background:#1e1b4b;color:#a5b4fc;padding:4px 7px;border-radius:4px;font-size:9px;font-weight:600;">🏛️ Panel Asesor</div>
+          <div style="margin-top:auto;display:flex;gap:5px;align-items:center;padding-top:6px;border-top:1px solid #222;">
+            <div style="width:20px;height:20px;border-radius:50%;background:#222;color:#888;display:flex;align-items:center;justify-content:center;font-size:8px;">JC</div>
+            <div style="color:#ddd;font-size:8px;">Juan</div>
+          </div>
+        </div>
+
+        <!-- Main content -->
+        <div style="flex:1;background:#0d0d0d;overflow-y:auto;padding:16px;">
+          <!-- Hero -->
+          <div style="background:linear-gradient(135deg,#1e1b4b 0%,#111 60%);border-radius:10px;padding:20px;text-align:center;margin-bottom:12px;border:1px solid #2d2a5e;">
+            <div style="font-size:28px;margin-bottom:6px;">🏛️</div>
+            <div style="color:#c7d2fe;font-size:14px;font-weight:700;margin-bottom:4px;">Convertite en Asesor Financiero</div>
+            <div style="color:#6b7280;font-size:10px;">Ayudá a otros a tomar mejores decisiones financieras con herramientas exclusivas</div>
+          </div>
+
+          <!-- Benefits + Responsibilities grid -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+            <div style="background:#111;border:1px solid #1e1b4b;border-radius:8px;padding:10px;">
+              <div style="color:#a5b4fc;font-size:10px;font-weight:700;margin-bottom:6px;">✨ Beneficios</div>
+              <div style="display:flex;flex-direction:column;gap:4px;">
+                <div style="display:flex;gap:5px;align-items:flex-start;"><span style="color:#22c55e;font-size:9px;">✓</span><span style="color:#aaa;font-size:9px;">Panel exclusivo con métricas de tu cartera</span></div>
+                <div style="display:flex;gap:5px;align-items:flex-start;"><span style="color:#22c55e;font-size:9px;">✓</span><span style="color:#aaa;font-size:9px;">Acceso a datos financieros de tus clientes</span></div>
+                <div style="display:flex;gap:5px;align-items:flex-start;"><span style="color:#22c55e;font-size:9px;">✓</span><span style="color:#aaa;font-size:9px;">Envío de recomendaciones personalizadas</span></div>
+                <div style="display:flex;gap:5px;align-items:flex-start;"><span style="color:#22c55e;font-size:9px;">✓</span><span style="color:#aaa;font-size:9px;">Indicadores de riesgo por cliente</span></div>
+              </div>
+            </div>
+            <div style="background:#111;border:1px solid #2d1d0a;border-radius:8px;padding:10px;">
+              <div style="color:#fb923c;font-size:10px;font-weight:700;margin-bottom:6px;">⚖️ Responsabilidades</div>
+              <div style="display:flex;flex-direction:column;gap:4px;">
+                <div style="display:flex;gap:5px;align-items:flex-start;"><span style="color:#fb923c;font-size:9px;">!</span><span style="color:#aaa;font-size:9px;">Mantener la confidencialidad de los datos</span></div>
+                <div style="display:flex;gap:5px;align-items:flex-start;"><span style="color:#fb923c;font-size:9px;">!</span><span style="color:#aaa;font-size:9px;">Brindar asesoramiento ético y responsable</span></div>
+                <div style="display:flex;gap:5px;align-items:flex-start;"><span style="color:#fb923c;font-size:9px;">!</span><span style="color:#aaa;font-size:9px;">No usar datos de clientes para fines propios</span></div>
+                <div style="display:flex;gap:5px;align-items:flex-start;"><span style="color:#fb923c;font-size:9px;">!</span><span style="color:#aaa;font-size:9px;">Respetar los términos de la plataforma</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Para quién es -->
+          <div style="background:#111;border:1px solid #222;border-radius:8px;padding:10px;margin-bottom:12px;">
+            <div style="color:#ddd;font-size:10px;font-weight:700;margin-bottom:5px;">👥 ¿Para quién es?</div>
+            <div style="display:flex;gap:8px;">
+              <div style="flex:1;text-align:center;"><div style="font-size:16px;">📊</div><div style="color:#aaa;font-size:8px;margin-top:2px;">Contadores y asesores financieros</div></div>
+              <div style="flex:1;text-align:center;"><div style="font-size:16px;">👨‍👩‍👧</div><div style="color:#aaa;font-size:8px;margin-top:2px;">Quienes ayudan a familia o amigos</div></div>
+              <div style="flex:1;text-align:center;"><div style="font-size:16px;">🎓</div><div style="color:#aaa;font-size:8px;margin-top:2px;">Profesionales de finanzas personales</div></div>
+            </div>
+          </div>
+
+          <!-- CTA -->
+          <div style="text-align:center;">
+            <div style="background:#4f46e5;color:#fff;border-radius:8px;padding:8px 24px;font-size:11px;font-weight:700;display:inline-block;cursor:pointer;">
+              Quiero ser asesor →
+            </div>
+            <div style="color:#666;font-size:9px;margin-top:5px;">Revisarás los términos en el siguiente paso</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SECCION 3: MODAL T&C -->
+<div class="section">
+  <div class="label">Sección 3 · Modal de Términos y Condiciones</div>
+  <h3>Aceptación formal — el último paso</h3>
+  <p>Al clickear "Quiero ser asesor" aparece un modal. El botón "Confirmar" está deshabilitado hasta que se marque el checkbox. Al confirmar, el backend asigna el rol de asesor y redirige al panel.</p>
+
+  <div class="mockup">
+    <div class="mockup-header">Modal sobre la landing page</div>
+    <div class="mockup-body">
+      <div style="position:relative;height:260px;background:#0d0d0d;border-radius:8px;overflow:hidden;">
+        <!-- Backdrop blur hint -->
+        <div style="position:absolute;inset:0;background:rgba(0,0,0,0.7);z-index:1;"></div>
+        <!-- Modal -->
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:280px;background:#1a1a1a;border:1px solid #2d2a5e;border-radius:10px;z-index:2;padding:16px;font-size:11px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <div style="color:#c7d2fe;font-weight:700;font-size:12px;">📋 Términos de asesor</div>
+            <div style="color:#666;cursor:pointer;font-size:14px;">×</div>
+          </div>
+          <!-- Terms scroll area -->
+          <div style="background:#111;border:1px solid #222;border-radius:6px;padding:8px;height:80px;overflow:hidden;margin-bottom:10px;">
+            <div style="color:#888;font-size:9px;line-height:1.6;">
+              Al registrarte como asesor en FinanzasPro aceptás usar la plataforma de forma ética y responsable. Tendrás acceso a información financiera sensible de tus clientes, la cual está protegida por nuestra política de privacidad.<br><br>
+              No podés compartir, vender ni usar estos datos para fines distintos a la asesoría financiera. El incumplimiento puede resultar en la suspensión del acceso como asesor...
+            </div>
+          </div>
+          <!-- Checkbox -->
+          <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:12px;background:#111;border-radius:6px;padding:8px;">
+            <div style="width:14px;height:14px;border:2px solid #4f46e5;border-radius:3px;background:#4f46e5;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">
+              <span style="color:#fff;font-size:9px;font-weight:700;">✓</span>
+            </div>
+            <div style="color:#ddd;font-size:9px;line-height:1.4;">Leí y acepto los términos y condiciones del programa de asesores de FinanzasPro</div>
+          </div>
+          <!-- Buttons -->
+          <div style="display:flex;gap:8px;justify-content:flex-end;">
+            <div style="color:#666;font-size:10px;padding:5px 10px;cursor:pointer;">Cancelar</div>
+            <div style="background:#4f46e5;color:#fff;border-radius:6px;padding:5px 14px;font-size:10px;font-weight:700;cursor:pointer;">
+              ✅ Confirmar y activar
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SECCION 4: ADVISOR DASHBOARD -->
+<div class="section">
+  <div class="label">Sección 4 · Panel del asesor (post-onboarding)</div>
+  <h3>Sidebar exclusivo para modo asesor</h3>
+  <p>Una vez activado el rol, el sidebar de asesor reemplaza al sidebar de usuario. Tiene nav propio, y un link "Ir a mi dashboard" para volver al modo usuario. El badge "ASESOR" en el chip de usuario refuerza el contexto.</p>
+
+  <div class="mockup">
+    <div class="mockup-header">Ruta: /dashboard/asesor</div>
+    <div class="mockup-body">
+      <div style="display:flex;height:260px;font-size:11px;">
+        <!-- Advisor sidebar -->
+        <div style="width:155px;background:#0f172a;padding:10px 8px;display:flex;flex-direction:column;gap:3px;flex-shrink:0;">
+          <div style="color:#4f46e5;font-weight:800;font-size:10px;margin-bottom:6px;letter-spacing:0.5px;">FINANZAS PRO</div>
+          <div style="color:#6b7280;font-size:9px;font-weight:700;letter-spacing:1px;margin-bottom:3px;">ASESORÍA</div>
+          <div style="background:#1e1b4b;color:#a5b4fc;padding:5px 8px;border-radius:5px;font-size:10px;font-weight:600;">⬡ Mi cartera</div>
+          <div style="color:#9ca3af;padding:5px 8px;border-radius:5px;font-size:10px;">📤 Recomendaciones</div>
+          <div style="color:#9ca3af;padding:5px 8px;border-radius:5px;font-size:10px;">⚙ Config. asesor</div>
+          <div style="height:1px;background:#1e293b;margin:6px 0;"></div>
+          <div style="color:#4b5563;padding:5px 8px;border-radius:5px;font-size:9px;display:flex;align-items:center;gap:4px;">
+            <span>←</span> <span>Ir a mi dashboard</span>
+          </div>
+          <div style="margin-top:auto;display:flex;gap:5px;align-items:center;padding-top:6px;border-top:1px solid #1e293b;">
+            <div style="width:22px;height:22px;border-radius:50%;background:#1e1b4b;display:flex;align-items:center;justify-content:center;color:#a5b4fc;font-size:9px;font-weight:700;">JC</div>
+            <div>
+              <div style="color:#e2e8f0;font-size:9px;">Juan C.</div>
+              <div style="color:#4f46e5;font-size:8px;font-weight:700;">● ASESOR</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Content -->
+        <div style="flex:1;background:#080e1a;padding:12px;">
+          <div style="color:#e2e8f0;font-size:13px;font-weight:700;margin-bottom:2px;">Panel Asesor</div>
+          <div style="color:#4b5563;font-size:9px;margin-bottom:10px;">Vista global de tu cartera</div>
+          <!-- Metrics -->
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px;">
+            <div style="background:#111827;border-radius:6px;padding:8px;text-align:center;">
+              <div style="color:#4b5563;font-size:8px;">Clientes</div>
+              <div style="color:#e2e8f0;font-size:14px;font-weight:700;">4</div>
+            </div>
+            <div style="background:#111827;border-radius:6px;padding:8px;text-align:center;">
+              <div style="color:#4b5563;font-size:8px;">Riesgo prom.</div>
+              <div style="color:#fbbf24;font-size:14px;font-weight:700;">Medio</div>
+            </div>
+            <div style="background:#111827;border-radius:6px;padding:8px;text-align:center;">
+              <div style="color:#4b5563;font-size:8px;">Gestionado</div>
+              <div style="color:#e2e8f0;font-size:14px;font-weight:700;">$340k</div>
+            </div>
+          </div>
+          <!-- Client list -->
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <div style="background:#111827;border-radius:6px;padding:7px 10px;display:flex;align-items:center;justify-content:space-between;">
+              <span style="color:#e2e8f0;font-size:10px;">Ana López</span>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <span style="background:#ef4444;color:#fff;border-radius:10px;padding:1px 6px;font-size:8px;">Alto</span>
+                <span style="color:#4f46e5;font-size:9px;cursor:pointer;">Ver →</span>
+              </div>
+            </div>
+            <div style="background:#111827;border-radius:6px;padding:7px 10px;display:flex;align-items:center;justify-content:space-between;">
+              <span style="color:#e2e8f0;font-size:10px;">Pedro Ruiz</span>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <span style="background:#22c55e;color:#000;border-radius:10px;padding:1px 6px;font-size:8px;">Bajo</span>
+                <span style="color:#4f46e5;font-size:9px;cursor:pointer;">Ver →</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SECCION 5: CLIENTE VIEW -->
+<div class="section">
+  <div class="label">Sección 5 · Vista de cliente</div>
+  <h3>Banner naranja persistente — "Estás viendo a [cliente]"</h3>
+  <p>Al clickear "Ver →" en un cliente, el sidebar se mantiene (modo asesor) pero aparece un <strong>banner naranja prominente</strong> debajo del topbar con el nombre del cliente y un botón para volver. Imposible confundirse con el dashboard propio.</p>
+
+  <div class="mockup">
+    <div class="mockup-header">Ruta: /cliente/:id</div>
+    <div class="mockup-body">
+      <div style="display:flex;height:260px;font-size:11px;">
+        <!-- Sidebar (same as advisor) -->
+        <div style="width:155px;background:#0f172a;padding:10px 8px;display:flex;flex-direction:column;gap:3px;flex-shrink:0;">
+          <div style="color:#4f46e5;font-weight:800;font-size:10px;margin-bottom:6px;">FINANZAS PRO</div>
+          <div style="color:#6b7280;font-size:9px;font-weight:700;letter-spacing:1px;margin-bottom:3px;">ASESORÍA</div>
+          <div style="color:#9ca3af;padding:5px 8px;border-radius:5px;font-size:10px;">⬡ Mi cartera</div>
+          <div style="color:#9ca3af;padding:5px 8px;border-radius:5px;font-size:10px;">📤 Recomendaciones</div>
+          <div style="color:#9ca3af;padding:5px 8px;border-radius:5px;font-size:10px;">⚙ Config. asesor</div>
+          <div style="height:1px;background:#1e293b;margin:6px 0;"></div>
+          <div style="color:#4b5563;padding:5px 8px;border-radius:5px;font-size:9px;">← Ir a mi dashboard</div>
+          <div style="margin-top:auto;display:flex;gap:5px;align-items:center;padding-top:6px;border-top:1px solid #1e293b;">
+            <div style="width:22px;height:22px;border-radius:50%;background:#1e1b4b;display:flex;align-items:center;justify-content:center;color:#a5b4fc;font-size:9px;font-weight:700;">JC</div>
+            <div>
+              <div style="color:#e2e8f0;font-size:9px;">Juan C.</div>
+              <div style="color:#4f46e5;font-size:8px;font-weight:700;">● ASESOR</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Content with client banner -->
+        <div style="flex:1;background:#080e1a;display:flex;flex-direction:column;">
+          <!-- ORANGE BANNER -->
+          <div style="background:linear-gradient(90deg,#7c2d12,#431407);padding:8px 14px;display:flex;align-items:center;gap:10px;border-bottom:2px solid #ea580c;flex-shrink:0;">
+            <div style="width:28px;height:28px;border-radius:50%;background:#ea580c;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;font-weight:700;flex-shrink:0;">AL</div>
+            <div style="flex:1;">
+              <div style="color:#fdba74;font-size:8px;font-weight:700;letter-spacing:1px;">👁 ESTÁS VIENDO A</div>
+              <div style="color:#fff;font-size:12px;font-weight:700;">Ana López</div>
+            </div>
+            <div style="background:#ea580c;color:#fff;border-radius:5px;padding:4px 10px;font-size:9px;font-weight:700;cursor:pointer;flex-shrink:0;">
+              ← Volver a mi cartera
+            </div>
+          </div>
+
+          <!-- Client content -->
+          <div style="padding:10px;flex:1;">
+            <div style="color:#9ca3af;font-size:9px;margin-bottom:8px;">Resumen financiero · Mayo 2026</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:8px;">
+              <div style="background:#111827;border-radius:6px;padding:7px;text-align:center;">
+                <div style="color:#4b5563;font-size:8px;">Gastos mes</div>
+                <div style="color:#ef4444;font-size:11px;font-weight:700;">$85.2k</div>
+              </div>
+              <div style="background:#111827;border-radius:6px;padding:7px;text-align:center;">
+                <div style="color:#4b5563;font-size:8px;">Ingresos</div>
+                <div style="color:#22c55e;font-size:11px;font-weight:700;">$120k</div>
+              </div>
+              <div style="background:#111827;border-radius:6px;padding:7px;text-align:center;">
+                <div style="color:#4b5563;font-size:8px;">Riesgo</div>
+                <div style="color:#ef4444;font-size:11px;font-weight:700;">Alto</div>
+              </div>
+            </div>
+            <div style="background:#111827;border-radius:6px;padding:7px;display:flex;justify-content:space-between;align-items:center;">
+              <span style="color:#9ca3af;font-size:9px;">Presupuesto mensual</span>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <div style="width:60px;height:5px;background:#222;border-radius:3px;overflow:hidden;"><div style="width:71%;height:100%;background:#ef4444;border-radius:3px;"></div></div>
+                <span style="color:#ef4444;font-size:9px;">71%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="subtitle" style="margin-top:8px;">¿Este diseño refleja lo que tenías en mente? Cualquier sección que quieras ajustar, decime.</p>

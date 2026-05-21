@@ -72,6 +72,9 @@ function buildInitials(name) {
 }
 
 function renderNavGroups({ activePath, navItems }) {
+  const allHrefs = navItems.flatMap((g) => g.items.map((i) => i.href));
+  const hasExactMatch = allHrefs.includes(activePath);
+
   return navItems
     .map(
       (group) => `
@@ -80,7 +83,7 @@ function renderNavGroups({ activePath, navItems }) {
           ${group.items
             .map((item) => {
               const isActive = activePath === item.href ||
-                (item.href !== "/dashboard" && activePath.startsWith(item.href + "/"));
+                (!hasExactMatch && item.href !== "/dashboard" && activePath.startsWith(item.href + "/"));
               return `
                 <a href="${escapeHtml(item.href)}" data-link class="gd-nav-item ${isActive ? "active" : ""}">
                   <i class="${escapeHtml(item.icon)} gd-nav-icon" aria-hidden="true"></i>
@@ -96,6 +99,9 @@ function renderNavGroups({ activePath, navItems }) {
 }
 
 function renderCustomNavGroups({ activePath, sidebarSections }) {
+  const allHrefs = sidebarSections.flatMap((g) => (g.items || []).map((i) => i.href));
+  const hasExactMatch = allHrefs.includes(activePath);
+
   return sidebarSections
     .map(
       (group) => `
@@ -104,7 +110,7 @@ function renderCustomNavGroups({ activePath, sidebarSections }) {
           ${(group.items || [])
             .map((item) => {
               const isActive = activePath === item.href ||
-                (item.href !== "/dashboard" && activePath.startsWith(item.href + "/"));
+                (!hasExactMatch && item.href !== "/dashboard" && activePath.startsWith(item.href + "/"));
               return `
                 <a href="${escapeHtml(item.href)}" data-link class="gd-nav-item ${isActive ? "active" : ""}">
                   <i class="${escapeHtml(item.icon)} gd-nav-icon" aria-hidden="true"></i>

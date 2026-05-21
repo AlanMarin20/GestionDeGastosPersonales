@@ -431,6 +431,39 @@ export class AsesorService {
     return { message: 'Cliente vinculado correctamente' };
   }
 
+  async getAllRecomendacionesEnviadas(advisorId: string) {
+    const rows: {
+      id: string;
+      titulo: string;
+      contenido: string;
+      tipo: string;
+      creado_en: Date;
+      nombre_completo: string;
+      usuario_id: string;
+    }[] = await this.userRepository.manager.query(
+      `
+      SELECT r.id, r.titulo, r.contenido, r.tipo, r.creado_en,
+             u.nombre_completo, r.usuario_id
+      FROM recomendaciones r
+      JOIN usuarios u ON r.usuario_id = u.id
+      WHERE r.asesor_id = $1
+      ORDER BY r.creado_en DESC
+      LIMIT 100
+      `,
+      [advisorId],
+    );
+
+    return rows.map((r) => ({
+      id: r.id,
+      titulo: r.titulo || '',
+      contenido: r.contenido,
+      tipo: r.tipo,
+      creadoEn: r.creado_en,
+      clienteNombre: r.nombre_completo,
+      clienteId: r.usuario_id,
+    }));
+  }
+
   async desvincularCliente(clienteId: string, advisorId: string) {
     const result: { rowCount: number } =
       await this.userRepository.manager.query(

@@ -195,6 +195,17 @@ export async function resendRegistrationCode(email) {
   }
 }
 
+export async function apiGenerateLinkCode() {
+  const response = await apiFetch('/api/auth/generate-link-code', {
+    method: 'POST',
+  });
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    throw new Error(body.message || 'No se pudo generar el código');
+  }
+  return response.json();
+}
+
 export async function changePassword(currentPassword, newPassword) {
   const response = await apiFetch("/api/auth/change-password", {
     method: "POST",

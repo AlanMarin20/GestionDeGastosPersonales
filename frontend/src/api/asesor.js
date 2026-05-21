@@ -179,6 +179,30 @@ export async function loadClienteGraficoCategorias(clienteId) {
   }
 }
 
+export async function loadAllAsesorRecomendaciones() {
+  if (!getAccessToken()) return;
+
+  try {
+    const response = await apiFetch('/api/asesor/recomendaciones');
+    if (!response.ok) return;
+
+    const rows = await response.json();
+    if (!Array.isArray(rows)) return;
+
+    state.asesor.recomendaciones = rows.map((r) => ({
+      id: r.id,
+      titulo: r.titulo || '',
+      texto: r.contenido || '',
+      tipo: r.tipo || 'asesor',
+      fecha: r.creadoEn || '',
+      clienteNombre: r.clienteNombre || '',
+      clienteId: r.clienteId || '',
+    }));
+  } catch (error) {
+    console.warn('Error cargando recomendaciones del asesor:', error);
+  }
+}
+
 export async function activateAdvisor() {
   const response = await apiFetch('/api/auth/activate-advisor', {
     method: 'POST',

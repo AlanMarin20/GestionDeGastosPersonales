@@ -934,4 +934,18 @@ export const es = {
   // Common missing keys
   'common.close': 'Cerrar',
   'forms.unexpectedError': 'Ocurrió un error inesperado',
+  // Advisor recommendations page
+  'asesorRec.pageTitle': 'Recomendaciones',
+  'asesorRec.pageSubtitle': 'Gestioná las recomendaciones que enviás a tus clientes',
+  'asesorRec.newRec': 'Nueva recomendación',
+  'asesorRec.newRecSub': 'Seleccioná un cliente y escribí el mensaje',
+  'asesorRec.selectClient': 'Seleccionar cliente',
+  'asesorRec.title': 'Título',
+  'asesorRec.message': 'Mensaje',
+  'asesorRec.send': 'Enviar recomendación',
+  'asesorRec.history': 'Historial',
+  'asesorRec.noRecs': 'Todavía no enviaste recomendaciones.',
+  'asesorRec.to': 'Para',
+  'asesorRec.recSent': 'Recomendación enviada',
+  'asesorRec.noClients': 'No tenés clientes asignados. Vinculá un cliente primero.',
 };

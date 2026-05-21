@@ -151,6 +151,13 @@ export class AuthController {
 
   @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.OK)
+  @Post('generate-link-code')
+  generateLinkCode(@Request() req) {
+    return this.authService.generateLinkCode(req.user.sub);
+  }
+
+  @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.OK)
   @Post('activate-advisor')
   async activateAdvisor(
     @Request() req,

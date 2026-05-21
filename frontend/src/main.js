@@ -24,6 +24,7 @@ import {
 } from "./pages/DetalleClientePage";
 import { renderDashboardAsesorPage as renderDashboardAsesorPageView } from "./pages/DashboardAsesorPage";
 import { renderAsesorOnboardingPage } from "./pages/AsesorOnboardingPage";
+import { renderAsesorRecomendacionesPage as renderAsesorRecomendacionesPageView } from "./pages/AsesorRecomendacionesPage";
 import { renderDashboardPage as renderDashboardPageView } from "./pages/DashboardPage";
 import { renderDetalleAhorrosPage as renderDetalleAhorrosPageView } from "./pages/DetalleAhorrosPage";
 import { renderCargarGastoPage as renderCargarGastoPageView } from "./pages/CargarGastoPage";
@@ -156,6 +157,7 @@ import {
   loadClienteRecomendaciones,
   loadClienteGastosPorMes,
   loadClienteGraficoCategorias,
+  loadAllAsesorRecomendaciones,
 } from "./api/asesor";
 import {
   showAppNotification,
@@ -578,6 +580,18 @@ function renderAsesorOnboardingPageView() {
   });
 }
 
+function renderAsesorRecomendacionesPage() {
+  return renderAsesorRecomendacionesPageView({
+    profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
+    profileName: state.perfil.nombre || "Usuario",
+    activePath: "/dashboard/asesor/recomendaciones",
+    pageTitle: t('asesorRec.pageTitle'),
+    pageSubtitle: t('asesorRec.pageSubtitle'),
+    clients: state.asesor.clientes,
+    recommendations: state.asesor.recomendaciones,
+  });
+}
+
 // RecomendacionesHistoricasPage removed: function omitted intentionally.
 
 function resolveDetalleCliente(pathname) {
@@ -725,7 +739,7 @@ if (pathname === "/dashboard/patrones") {
       history.replaceState({}, "", "/perfil/asesor-onboarding");
       return renderAsesorOnboardingPageView();
     }
-    return renderDashboardLayout(renderDashboardAsesorPage(), {
+    return renderDashboardLayout(renderAsesorRecomendacionesPage(), {
       showScrollTop: false,
     });
   }
@@ -856,6 +870,7 @@ loadCurrentUser().finally(() => {
       loadAhorros(),
       loadRecomendaciones(),
       loadAsesorClientes(),
+      loadAllAsesorRecomendaciones(),
       loadBudgets(),
       loadCategories(),
       loadTags(),
