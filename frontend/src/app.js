@@ -7,7 +7,7 @@ import {
   resolveThemeForPath,
 } from "./ui/theme";
 import { initCharts } from "./ui/charts";
-import { attachFormHandlers, clearRegistroExitosoAutoRedirect } from "./handlers/forms/index.js";
+import { attachFormHandlers } from "./handlers/forms/index.js";
 import { closeLandingMobileMenu } from "./handlers/mobileMenu";
 import { closeDashboardDropdowns } from "./handlers/dropdowns";
 // NOTA: closeLandingMobileMenu y closeDashboardDropdowns son usados dentro de navigate()

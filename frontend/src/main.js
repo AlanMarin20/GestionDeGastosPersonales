@@ -1,7 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap";
 import "flatpickr/dist/flatpickr.min.css";
-import "chart.js/auto";
 import "./index.css";
 import "./App.css";
 import "./components/dashboard/dashboard-widgets.css";
