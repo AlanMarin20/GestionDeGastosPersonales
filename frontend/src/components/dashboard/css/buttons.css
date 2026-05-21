@@ -1,0 +1,42 @@
+.gd-btn-secondary,
+.gd-btn-primary,
+.gd-btn-danger {
+  border-radius: 9px;
+  height: 34px;
+  border: 1px solid transparent;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0 0.82rem;
+}
+
+.gd-btn-secondary {
+  border-color: var(--gd-border);
+  color: var(--gd-muted);
+  background: transparent;
+}
+
+.gd-btn-secondary:hover {
+  color: var(--gd-text);
+}
+
+.gd-btn-primary {
+  border-color: var(--gd-accent-2);
+  background: var(--gd-accent-2);
+  color: #eff6ff;
+}
+
+.gd-btn-primary:hover {
+  filter: brightness(1.06);
+}
+
+.gd-btn-danger {
+  border-color: #dc2626;
+  background: #dc2626;
+  color: #fef2f2;
+}
+
+.gd-btn-danger:hover {
+  background: #b91c1c;
+  border-color: #b91c1c;
+}
+

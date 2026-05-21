@@ -1,0 +1,555 @@
+/* ============================================================
+   SETTINGS — NUEVOS COMPONENTES
+   ============================================================ */
+
+/* Próximamente badge */
+.gd-settings-prox-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--gd-accent-2);
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  vertical-align: middle;
+  margin-left: 6px;
+}
+
+/* Bloque de "próximamente" para secciones completas */
+.gd-settings-prox-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 160px;
+  border: 1px dashed var(--gd-border);
+  border-radius: 14px;
+  background: rgba(100, 116, 139, 0.05);
+  padding: 1.5rem;
+  text-align: center;
+  color: var(--gd-text-muted);
+}
+
+.gd-settings-prox-block i {
+  font-size: 2rem;
+  opacity: 0.4;
+}
+
+/* Alerta chip en presupuestos */
+.gd-settings-alert-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #dc2626;
+  background: rgba(220, 38, 38, 0.1);
+  border: 1px solid rgba(220, 38, 38, 0.25);
+  white-space: nowrap;
+}
+
+/* Budget row variants */
+.gd-settings-budget-row--danger .gd-settings-budget-cat {
+  color: #dc2626;
+}
+.gd-settings-budget-row--warning .gd-settings-budget-cat {
+  color: #d97706;
+}
+.gd-settings-budget-fill--danger {
+  background: linear-gradient(90deg, #ef4444, #dc2626) !important;
+}
+.gd-settings-budget-fill--warn {
+  background: linear-gradient(90deg, #fbbf24, #d97706) !important;
+}
+.gd-settings-budget-limit {
+  font-size: 0.78rem;
+  color: var(--gd-text-muted);
+  white-space: nowrap;
+  min-width: 64px;
+  text-align: right;
+}
+
+/* Budget form 3-col grid */
+.gd-settings-budget-form {
+  padding-top: 1rem;
+  border-top: 1px solid var(--gd-border);
+}
+
+/* Bloque de porcentaje + monto gastado */
+.gd-settings-budget-pct-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.1rem;
+}
+
+.gd-settings-budget-spent {
+  font-size: 0.62rem;
+  color: var(--gd-muted);
+  white-space: nowrap;
+  line-height: 1.2;
+}
+
+/* Grupo de botones de acción (editar + eliminar) */
+.gd-settings-budget-actions {
+  display: flex;
+  gap: 0.22rem;
+  flex-shrink: 0;
+}
+
+/* Wrapper del input de edición inline */
+.gd-settings-budget-inline-edit {
+  display: flex;
+  align-items: center;
+}
+
+/* Resumen general de presupuestos */
+.gd-settings-budget-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1.25rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--gd-border);
+  border-radius: 11px;
+  background: var(--gd-surface-strong);
+  margin-bottom: 0.75rem;
+}
+
+.gd-settings-budget-summary-bar {
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(100, 116, 139, 0.18);
+  overflow: hidden;
+  flex: 1 1 100%;
+  margin-top: 0.1rem;
+}
+
+.gd-settings-budget-summary-stat {
+  font-size: 0.72rem;
+  color: var(--gd-muted);
+}
+
+.gd-settings-budget-summary-stat strong {
+  color: var(--gd-text);
+  font-weight: 700;
+}
+
+/* Navegador de meses */
+.gd-settings-budget-monthpicker {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.gd-settings-budget-monthpicker-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--gd-text);
+  min-width: 130px;
+  text-align: center;
+}
+
+.gd-settings-budget-monthpicker .gd-ahorro-ctrl-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Category section labels */
+.gd-settings-category-section-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gd-text-muted);
+  margin: 0 0 0.4rem;
+}
+
+.gd-settings-category-pill--personal {
+  background: rgba(124, 58, 237, 0.12);
+  color: #7c3aed;
+  border-color: rgba(124, 58, 237, 0.25);
+}
+
+/* Profile right area (score + actions) */
+.gd-settings-profile-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: auto;
+}
+
+/* Score description */
+.gd-settings-score-desc {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  background: rgba(100, 116, 139, 0.07);
+  border: 1px solid var(--gd-border);
+}
+
+/* ── Score ring ── */
+.gd-score-ring-wrap {
+  position: relative;
+  width: 72px;
+  height: 72px;
+}
+
+.gd-score-ring {
+  width: 72px;
+  height: 72px;
+}
+
+.gd-score-ring-track {
+  stroke: rgba(100, 116, 139, 0.18);
+}
+
+.gd-score-ring-fill {
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.gd-score-ring--excellent .gd-score-ring-fill { stroke: #16a34a; }
+.gd-score-ring--good     .gd-score-ring-fill { stroke: #0ea5e9; }
+.gd-score-ring--fair     .gd-score-ring-fill { stroke: #d97706; }
+.gd-score-ring--low      .gd-score-ring-fill { stroke: #dc2626; }
+
+.gd-score-ring-inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.gd-score-ring-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--gd-text);
+}
+
+.gd-score-ring-label {
+  font-size: 0.6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--gd-text-muted);
+  line-height: 1;
+  margin-top: 2px;
+}
+
+
+.gd-client-recommend-form-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.gd-client-recommend-form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.gd-client-recommend-input-wrap {
+  flex: 1;
+  min-height: 0;
+}
+
+.gd-client-recommend-input-wrap textarea {
+  height: 100%;
+  min-height: 96px;
+  resize: none;
+}
+
+.gd-profile-overview {
+  min-height: 100%;
+}
+
+.gd-profile-photo {
+  width: 124px;
+  height: 124px;
+  object-fit: cover;
+  border: 2px solid rgba(59, 130, 246, 0.35);
+}
+
+.gd-profile-photo-label {
+  right: -2px;
+  bottom: 2px;
+  height: 28px;
+}
+
+.gd-profile-meta {
+  display: flex;
+  gap: 0.34rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.gd-profile-progress {
+  border: 1px solid var(--gd-border);
+  border-radius: 10px;
+  background: var(--gd-surface-strong);
+  padding: 0.56rem;
+}
+
+.gd-profile-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.42rem;
+}
+
+.gd-profile-stat {
+  border: 1px solid var(--gd-border);
+  border-radius: 10px;
+  background: var(--gd-surface);
+  padding: 0.45rem 0.5rem;
+}
+
+.gd-profile-inline-hint {
+  color: var(--gd-muted);
+  font-size: 0.7rem;
+  line-height: 1.5;
+}
+
+.gd-policy-list {
+  margin: 0;
+  padding-left: 1rem;
+  color: var(--gd-muted);
+  font-size: 0.7rem;
+  line-height: 1.45;
+}
+
+.gd-policy-list li + li {
+  margin-top: 0.2rem;
+}
+
+.gd-session-mini-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  border-bottom: 1px solid var(--gd-border);
+  padding: 0.42rem 0;
+}
+
+.gd-session-mini-row:first-of-type {
+  border-top: 1px solid var(--gd-border);
+}
+
+.gd-session-mini-label {
+  color: var(--gd-muted);
+  font-size: 0.68rem;
+}
+
+.gd-session-mini-value {
+  color: var(--gd-text);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.gd-link-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--gd-border);
+  color: var(--gd-text);
+  text-decoration: none;
+  border-radius: 9px;
+  min-height: 34px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0 0.72rem;
+  background: var(--gd-surface);
+}
+
+.gd-link-btn:hover {
+  border-color: rgba(56, 189, 248, 0.62);
+  background: rgba(56, 189, 248, 0.12);
+  color: var(--gd-accent-2);
+}
+
+body.app-density-compact .gd-topbar {
+  padding: 0.76rem 0.86rem;
+}
+
+body.app-density-compact .gd-content {
+  padding: 0.78rem 0.86rem;
+}
+
+body.app-density-compact .gd-card,
+body.app-density-compact .gd-metric-card {
+  padding: 0.66rem;
+}
+
+body.app-density-compact .gd-nav-item {
+  padding: 0.42rem 0.5rem;
+}
+
+body.app-density-compact .gd-user-chip {
+  padding: 0.45rem;
+}
+
+@media (max-width: 1199.98px) {
+  .gd-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .gd-metrics-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .gd-grid-3,
+  .gd-grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .gd-settings-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .gd-settings-nav {
+    max-height: none;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .gd-shell {
+    flex-direction: column;
+    height: auto;
+    min-height: auto;
+  }
+
+  .gd-sidebar {
+    width: 100%;
+    border-right: 0;
+    border-bottom: 1px solid var(--gd-border);
+  }
+
+  .gd-nav {
+    flex: initial;
+    min-height: initial;
+    display: flex;
+    gap: 0.7rem;
+    overflow-x: auto;
+  }
+
+  .gd-nav-section {
+    min-width: 190px;
+  }
+
+  .gd-user-chip-wrap {
+    border-top: 0;
+  }
+
+  .gd-topbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .gd-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .gd-metrics-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .gd-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .gd-filters {
+    flex-direction: column;
+  }
+
+  .gd-csv-btn {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .gd-settings-preview-list,
+  .gd-profile-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .gd-setting-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .gd-setting-select-inline {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .gd-settings-profile-head,
+  .gd-settings-toggle-row,
+  .gd-settings-export-row,
+  .gd-settings-danger-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .gd-settings-avatar-actions {
+    margin-left: 0;
+    align-items: flex-start;
+  }
+
+  .gd-settings-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .gd-settings-plan-card {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .gd-settings-budget-row {
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas:
+      "dot cat pct"
+      "bar bar bar"
+      "input input input";
+  }
+
+  .gd-settings-budget-dot {
+    grid-area: dot;
+  }
+
+  .gd-settings-budget-cat {
+    grid-area: cat;
+  }
+
+  .gd-settings-budget-pct {
+    grid-area: pct;
+  }
+
+  .gd-settings-budget-bar {
+    grid-area: bar;
+  }
+
+  .gd-settings-budget-input-wrap {
+    grid-area: input;
+  }
+
+  .gd-settings-budget-input {
+    width: 120px;
+  }
+}
+
+/* ── Enhanced Recommendation Cards (severity-based) ─────────────────────── */
+.gd-rec-card.gd-rec-severity-danger {

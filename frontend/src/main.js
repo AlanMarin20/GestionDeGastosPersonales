@@ -183,7 +183,7 @@ import {
 } from "./handlers/dropdowns";
 import { closeLandingMobileMenu, toggleLandingMobileMenu } from "./handlers/mobileMenu";
 import { attachGlobalNavigation } from "./handlers/navigation";
-import { attachFormHandlers, clearRegistroExitosoAutoRedirect } from "./handlers/forms";
+import { attachFormHandlers, clearRegistroExitosoAutoRedirect } from "./handlers/forms/index.js";
 import "./index.css";
 import "./App.css";
 import "./components/dashboard/dashboard-widgets.css";

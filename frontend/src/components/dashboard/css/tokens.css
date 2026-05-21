@@ -1,0 +1,38 @@
+.gd-shell {
+  --gd-bg: var(--app-surface-bg);
+  --gd-surface: rgba(255, 255, 255, 0.78);
+  --gd-surface-strong: #ffffff;
+  --gd-border: rgba(30, 41, 59, 0.12);
+  --gd-text: #111827;
+  --gd-muted: #64748b;
+  --gd-accent: #38bdf8;
+  --gd-accent-2: #2563eb;
+  --gd-danger: #ef4444;
+  --gd-warning: #f59e0b;
+  --gd-info: #38bdf8;
+  --gd-sidebar-w: 228px;
+  display: flex;
+  height: calc(100vh - 2rem);
+  min-height: calc(100vh - 2rem);
+  border: 1px solid var(--gd-border);
+  border-radius: 20px;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 120% at 10% -20%, rgba(56, 189, 248, 0.2) 0%, rgba(56, 189, 248, 0) 52%),
+    linear-gradient(155deg, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0.2) 100%),
+    var(--gd-bg);
+  box-shadow: 0 28px 55px rgba(15, 23, 42, 0.16);
+}
+
+body.theme-dark .gd-shell {
+  --gd-bg: #0d131f;
+  --gd-surface: #131c2a;
+  --gd-surface-strong: #182335;
+  --gd-border: rgba(148, 163, 184, 0.18);
+  --gd-text: #e2e8f0;
+  --gd-muted: #94a3b8;
+  background:
+    radial-gradient(120% 120% at 8% -20%, rgba(56, 189, 248, 0.22) 0%, rgba(56, 189, 248, 0) 55%),
+    radial-gradient(120% 120% at 95% 120%, rgba(56, 189, 248, 0.14) 0%, rgba(56, 189, 248, 0) 52%),
+    #0a111d;
+}

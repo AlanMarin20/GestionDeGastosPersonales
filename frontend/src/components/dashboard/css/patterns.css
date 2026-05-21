@@ -1,0 +1,363 @@
+/* ── Patterns Page ───────────────────────────────────────────────────────── */
+.gd-rank-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--gd-text);
+  width: 96px;
+  flex-shrink: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gd-rank-bar-wrap {
+  flex: 1;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--gd-border);
+  overflow: hidden;
+}
+
+.gd-rank-bar {
+  height: 100%;
+  border-radius: 999px;
+  background: rgba(37, 99, 235, 0.68);
+  min-width: 4%;
+}
+
+.gd-rank-amount {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--gd-text);
+  width: 64px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.gd-legend {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.28rem;
+}
+
+.gd-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.7rem;
+}
+
+.gd-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.gd-legend-label {
+  flex: 1;
+  color: var(--gd-text);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gd-legend-value {
+  font-weight: 700;
+  color: var(--gd-muted);
+}
+
+.gd-unusual-list {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.gd-unusual-item {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  padding: 0.52rem 0.6rem;
+  border-radius: 8px;
+  background: rgba(239, 68, 68, 0.04);
+  border: 1px solid rgba(239, 68, 68, 0.1);
+}
+
+.gd-unusual-icon {
+  color: var(--gd-danger);
+  font-size: 0.88rem;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.gd-unusual-text {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--gd-text);
+  line-height: 1.52;
+}
+
+.gd-unusual-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.4rem;
+  padding: 1.2rem 0;
+}
+
+.gd-unusual-empty-icon {
+  font-size: 1.6rem;
+  color: #16a34a;
+}
+
+.gd-unusual-empty p {
+  margin: 0;
+  font-size: 0.74rem;
+  color: var(--gd-muted);
+}
+
+.gd-unusual-count-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.63rem;
+  color: var(--gd-muted);
+  background: rgba(100, 116, 139, 0.12);
+  border-radius: 999px;
+  padding: 0.15rem 0.5rem;
+}
+
+.gd-evol-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.42rem;
+}
+
+.gd-evol-row-current .gd-evol-label,
+.gd-evol-row-current .gd-evol-amount-current {
+  color: var(--gd-accent-2);
+}
+
+.gd-evol-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--gd-text);
+  width: 40px;
+  flex-shrink: 0;
+}
+
+.gd-evol-bar-wrap {
+  flex: 1;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--gd-border);
+  overflow: hidden;
+}
+
+.gd-evol-bar {
+  height: 100%;
+  border-radius: 999px;
+  background: rgba(56, 189, 248, 0.45);
+  min-width: 4%;
+}
+
+.gd-evol-bar-current {
+  background: rgba(37, 99, 235, 0.8);
+}
+
+.gd-evol-amount {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--gd-text);
+  width: 64px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* ── Patron: rank position badges ───────────────────────────────── */
+
+.gd-rank-row {
+  display: flex;
+  align-items: center;
+  gap: 0.44rem;
+  margin-bottom: 0.52rem;
+}
+
+.gd-rank-pos {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  font-size: 0.6rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  letter-spacing: 0;
+}
+
+.gd-rank-pos--first {
+  background: linear-gradient(135deg, #f59e0b, #f97316);
+  color: #fff;
+}
+
+.gd-rank-pos--top {
+  background: rgba(100, 116, 139, 0.18);
+  color: var(--gd-muted);
+}
+
+.gd-rank-pos--rest {
+  background: rgba(100, 116, 139, 0.09);
+  color: var(--gd-muted);
+  font-size: 0.55rem;
+}
+
+.gd-rank-bar--top {
+  background: linear-gradient(90deg, rgba(37, 99, 235, 0.85), rgba(56, 189, 248, 0.75));
+}
+
+.gd-rank-pct {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--gd-muted);
+  width: 28px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* ── Patron: unusual spending cards ─────────────────────────────── */
+
+.gd-unusual-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.22rem;
+  padding: 0.62rem 0.72rem;
+  border-radius: 9px;
+  border-left: 3px solid transparent;
+}
+
+.gd-unusual-card--warning {
+  background: rgba(251, 146, 60, 0.05);
+  border-left-color: #f97316;
+}
+
+.gd-unusual-card--critical {
+  background: rgba(239, 68, 68, 0.06);
+  border-left-color: #ef4444;
+}
+
+.gd-unusual-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.gd-unusual-category {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--gd-text);
+}
+
+.gd-unusual-ratio {
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.gd-unusual-ratio--warning {
+  background: rgba(251, 146, 60, 0.14);
+  color: #c2410c;
+}
+
+.gd-unusual-ratio--critical {
+  background: rgba(239, 68, 68, 0.12);
+  color: #dc2626;
+}
+
+.gd-unusual-compare {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.gd-unusual-amount {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--gd-text);
+}
+
+.gd-unusual-vs {
+  font-size: 0.65rem;
+  color: var(--gd-muted);
+}
+
+.gd-unusual-merchant {
+  margin: 0;
+  font-size: 0.63rem;
+  color: var(--gd-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* ── Patron: card title icons ────────────────────────────────────── */
+
+.gd-card-title-icon {
+  font-size: 0.82rem;
+  color: var(--gd-muted);
+  margin-right: 0.25rem;
+  vertical-align: middle;
+}
+
+.gd-card-title-icon--warn {
+  color: #f97316;
+}
+
+/* ── Patron: empty state ─────────────────────────────────────────── */
+
+.gd-patron-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 1rem 0;
+  color: var(--gd-muted);
+  font-size: 0.72rem;
+  text-align: center;
+}
+
+.gd-patron-empty i {
+  font-size: 1.4rem;
+  opacity: 0.45;
+}
+
+.gd-patron-empty p {
+  margin: 0;
+}
+
+/* ── Patron: metric card color bars ─────────────────────────────── */
+
+.gd-metrics-3 .gd-metric-card[data-metric-id="avg-monthly"]::before {
+  background: linear-gradient(90deg, #8b5cf6, #6366f1);
+  opacity: 0.7;
+}
+
+.gd-metrics-3 .gd-metric-card[data-metric-id="top-category"]::before {
+  background: linear-gradient(90deg, #f97316, #f59e0b);
+  opacity: 0.7;
+}
+
+.gd-metrics-3 .gd-metric-card[data-metric-id="top-merchant"]::before {
+  background: linear-gradient(90deg, #0ea5e9, #10b981);
+  opacity: 0.7;
+}
+
