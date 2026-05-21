@@ -105,6 +105,10 @@ export const state = {
     modals: {
       nuevoCliente: false,
     },
+    onboarding: {
+      showModal: false,
+      termsAccepted: false,
+    },
   },
   detalleCliente: {
     gastos: [],

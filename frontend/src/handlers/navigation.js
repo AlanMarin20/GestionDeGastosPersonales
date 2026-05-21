@@ -862,17 +862,20 @@ export function attachGlobalNavigation({ navigate, render }) {
     },
     "show-onboarding-modal": ({ event }) => {
       event.preventDefault();
-      const modal = document.getElementById("gd-onboarding-modal");
-      if (modal) modal.removeAttribute("hidden");
+      state.asesor.onboarding.showModal = true;
+      state.asesor.onboarding.termsAccepted = false;
+      render();
     },
     "hide-onboarding-modal": ({ event }) => {
       event.preventDefault();
-      const modal = document.getElementById("gd-onboarding-modal");
-      if (modal) modal.setAttribute("hidden", "");
-      const checkbox = document.getElementById("gd-terms-checkbox");
-      const confirmBtn = document.getElementById("gd-confirm-advisor-btn");
-      if (checkbox) checkbox.checked = false;
-      if (confirmBtn) confirmBtn.disabled = true;
+      state.asesor.onboarding.showModal = false;
+      state.asesor.onboarding.termsAccepted = false;
+      render();
+    },
+    "toggle-advisor-terms": ({ event, actionButton }) => {
+      event.stopPropagation();
+      state.asesor.onboarding.termsAccepted = actionButton.checked;
+      render();
     },
     "submit-advisor-activation": async ({ event }) => {
       event.preventDefault();
@@ -882,6 +885,7 @@ export function attachGlobalNavigation({ navigate, render }) {
       btn.textContent = t("onboarding.activating");
       try {
         await activateAdvisor();
+        state.asesor.onboarding.showModal = false;
         navigate("/dashboard/asesor");
       } catch (err) {
         showAppNotification(

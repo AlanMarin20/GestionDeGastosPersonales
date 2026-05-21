@@ -4299,62 +4299,27 @@ body.theme-dark .gd-batch-badge--error {
 .gd-onboarding-cta-wrap { text-align: center; }
 .gd-onboarding-cta-note { color: var(--gd-muted, #6b7280); font-size: 0.8rem; margin-top: 8px; }
 
-/* ── Onboarding modal ─────────────────────────────────── */
-.gd-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.gd-modal-backdrop[hidden] { display: none; }
-
-.gd-modal {
-  background: var(--gd-surface, #1a1a1a);
-  border: 1px solid #2d2a5e;
-  border-radius: 12px;
-  padding: 24px;
-  width: 100%;
-  max-width: 480px;
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-.gd-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-.gd-modal-title { font-size: 1rem; font-weight: 700; margin: 0; }
-.gd-modal-close-btn { background: none; border: none; color: var(--gd-muted); font-size: 1.4rem; cursor: pointer; padding: 0 4px; line-height: 1; }
-
-.gd-tc-scroll {
-  background: var(--gd-surface-2, #111);
-  border: 1px solid var(--gd-border, #222);
-  border-radius: 8px;
-  padding: 12px;
-  max-height: 160px;
-  overflow-y: auto;
-  font-size: 0.8125rem;
-  color: var(--gd-text-muted, #9ca3af);
-  line-height: 1.6;
-  margin-bottom: 16px;
-}
-
-.gd-checkbox-label {
+/* ── Onboarding T&C label ─────────────────────────────── */
+.gd-onboarding-terms-label {
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   cursor: pointer;
   padding: 10px;
-  background: var(--gd-surface-2, #111);
+  background: var(--gd-surface);
+  border: 1px solid var(--gd-border);
   border-radius: 8px;
-  margin-bottom: 16px;
+  margin-bottom: 0.8rem;
+  color: var(--gd-text);
+  line-height: 1.5;
 }
 
-.gd-checkbox { width: 16px; height: 16px; flex-shrink: 0; margin-top: 2px; cursor: pointer; accent-color: #4f46e5; }
-
-.gd-modal-footer { display: flex; justify-content: flex-end; gap: 10px; }
+.gd-onboarding-terms-label input[type="checkbox"] {
+  flex-shrink: 0;
+  margin-top: 2px;
+  accent-color: var(--gd-accent-2);
+}
 
 /* ── Client banner ────────────────────────────────────── */
 .gd-client-banner {

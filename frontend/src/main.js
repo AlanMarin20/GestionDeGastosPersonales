@@ -573,6 +573,8 @@ function renderAsesorOnboardingPageView() {
   return renderAsesorOnboardingPage({
     profileImage: state.perfil.imagePreview || DEFAULT_PROFILE_IMAGE,
     profileName: state.perfil.nombre || "Usuario",
+    showModal: Boolean(state.asesor.onboarding?.showModal),
+    termsAccepted: Boolean(state.asesor.onboarding?.termsAccepted),
   });
 }
 
