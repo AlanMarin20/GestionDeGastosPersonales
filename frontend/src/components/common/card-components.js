@@ -1,5 +1,4 @@
 import { escapeHtml } from "../../utils/sanitize";
-import { t } from "../../i18n";
 
 export function tarjetaPublicaBase({
   bodyMarkup = '',
