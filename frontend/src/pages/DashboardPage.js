@@ -2,6 +2,7 @@ import { renderDashboardAppLayout } from "../components/dashboard/dashboardAppLa
 import {
   graficoGastos,
   graficoTorta,
+  enlaceVerTodo,
   tarjetaValor,
 } from "../components/common/reusablePageComponents";
 import { escapeHtml } from "../utils/sanitize";
@@ -116,7 +117,7 @@ export function renderDashboardPage({
         <article class="gd-card">
           <div class="gd-card-header">
             <h2 class="gd-card-title">${t('dashboard.recentTransactions')}</h2>
-            <a href="/dashboard/gastos" data-link class="gd-top-btn">${t('common.viewAll')} <i class="lni lni-chevron-right" aria-hidden="true"></i></a>
+            ${enlaceVerTodo({ href: '/dashboard/gastos' })}
           </div>
           ${recentList}
         </article>
@@ -127,7 +128,7 @@ export function renderDashboardPage({
               <i class="lni lni-bolt-alt" aria-hidden="true"></i>
               ${t('dashboard.analysisTitle')}
             </h2>
-            <a href="/dashboard/recomendaciones" data-link class="gd-top-btn">${t('common.viewAll')} <i class="lni lni-chevron-right" aria-hidden="true"></i></a>
+            ${enlaceVerTodo({ href: '/dashboard/recomendaciones' })}
           </div>
           ${notifList}
         </article>

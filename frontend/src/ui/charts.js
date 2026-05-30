@@ -19,6 +19,9 @@ export function buildPieChart(canvasId, labels, values, centerAmount = 0, colors
   const canvas = document.getElementById(canvasId);
   if (!canvas) return;
 
+  const canvasCenterValue = canvas.dataset.centerValue || '';
+  const canvasCenterLabel = canvas.dataset.centerLabel || '';
+
   const isDark = state.configuracion.temaOscuro;
   const tooltipBackground = isDark ? "rgba(15, 23, 42, 0.95)" : "rgba(255, 255, 255, 0.9)";
   const tooltipTitle = isDark ? "#f8fafc" : "#333";
@@ -28,7 +31,8 @@ export function buildPieChart(canvasId, labels, values, centerAmount = 0, colors
   const centerTextColor = isDark ? "#f8fafc" : "#0f172a";
   const centerSubTextColor = isDark ? "#94a3b8" : "#64748b";
 
-  const centerText = formatMoney(centerAmount);
+  const centerText = canvasCenterValue || formatMoney(centerAmount);
+  const centerSubText = canvasCenterLabel || 'Total mes';
 
   const centerTextPlugin = {
     id: `centerText-${canvasId}`,
@@ -49,7 +53,7 @@ export function buildPieChart(canvasId, labels, values, centerAmount = 0, colors
 
       ctx.fillStyle = centerSubTextColor;
       ctx.font = "500 11px Inter, sans-serif";
-      ctx.fillText("Total mes", centerX, centerY + 12);
+      ctx.fillText(centerSubText, centerX, centerY + 12);
       ctx.restore();
     },
   };

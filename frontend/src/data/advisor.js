@@ -137,7 +137,7 @@ export function getAdvisorPanelMetrics() {
       label: "Clientes en Riesgo Alto",
       value: String(highRiskClients),
       delta: "+ 95% del presupuesto",
-      trend: highRiskClients > 0 ? "down" : "up",
+      trend: "down",
     },
   ];
 }

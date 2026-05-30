@@ -938,7 +938,6 @@ export const en = {
   'asesorRec.pageTitle': 'Recommendations',
   'asesorRec.pageSubtitle': 'Manage the recommendations you send to your clients',
   'asesorRec.newRec': 'New recommendation',
-  'asesorRec.newRecSub': 'Select a client and write your message',
   'asesorRec.selectClient': 'Select client',
   'asesorRec.title': 'Title',
   'asesorRec.message': 'Message',

@@ -76,8 +76,8 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  background: linear-gradient(90deg, #7c2d12, #431407);
-  border-bottom: 2px solid #ea580c;
+  background: linear-gradient(90deg, var(--gd-banner-bg-start, #7c2d12), var(--gd-banner-bg-end, #431407));
+  border-bottom: 2px solid var(--gd-banner-border, #ea580c);
   border-radius: 10px;
   padding: 10px 16px;
   margin-bottom: 20px;
@@ -87,7 +87,7 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: #ea580c;
+  background: var(--gd-banner-accent, #ea580c);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -98,11 +98,12 @@
 }
 
 .gd-client-banner-info { flex: 1; }
-.gd-client-banner-label { display: block; color: #fdba74; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em; }
+.gd-client-banner-label { display: block; color: var(--gd-banner-label, #fdba74); font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em; }
+.gd-client-banner-name-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .gd-client-banner-name { font-size: 1rem; font-weight: 700; color: #fff; }
 
 .gd-client-banner-back {
-  background: #ea580c;
+  background: var(--gd-banner-accent, #ea580c);
   color: #fff;
   border-radius: 6px;
   padding: 5px 12px;
@@ -113,7 +114,7 @@
   flex-shrink: 0;
 }
 
-.gd-client-banner-back:hover { background: #c2410c; color: #fff; }
+.gd-client-banner-back:hover { background: color-mix(in srgb, var(--gd-banner-accent, #ea580c) 82%, black); color: #fff; }
 
 /* ── Advisor recommendations history list ── */
 .gd-rec-advisory-list { display: flex; flex-direction: column; }
@@ -143,6 +144,10 @@
 .gd-rec-advisory-date { font-size: 0.7rem; color: var(--gd-muted); }
 .gd-rec-advisory-title { font-weight: 600; font-size: 0.875rem; margin: 0; }
 .gd-rec-advisory-body { font-size: 0.8rem; color: var(--gd-muted); margin: 0; }
+
+.gd-rec-advisory-item--client {
+  background: rgba(15, 23, 42, 0.34);
+}
 
 /* ── Textarea variant of gd-form-input ── */
 textarea.gd-textarea { resize: vertical; min-height: 110px; }

@@ -3,34 +3,60 @@ import {
   contenedorRecomendaciones,
   graficoGastos,
   graficoTorta,
+  enlaceVerTodo,
+  renderClientBanner,
   renderDashboardExpenseCard,
   tarjetaValor,
 } from "../components/common/reusablePageComponents";
 import { escapeHtml } from "../utils/sanitize";
 import { t } from '../i18n';
 
-function clientBanner(clienteName) {
-  const initials = String(clienteName)
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase() || "CL";
+const RISK_CONFIG = {
+  low: {
+    labelKey: 'asesor.riskLow',
+    className: 'gd-risk-low',
+    bannerStart: 'rgba(22, 163, 74, 0.34)',
+    bannerEnd: 'rgba(21, 128, 61, 0.92)',
+    bannerBorder: '#16a34a',
+    bannerAccent: '#16a34a',
+    bannerLabel: '#bbf7d0',
+  },
+  medium: {
+    labelKey: 'asesor.riskMedium',
+    className: 'gd-risk-medium',
+    bannerStart: 'rgba(202, 138, 4, 0.34)',
+    bannerEnd: 'rgba(146, 64, 14, 0.92)',
+    bannerBorder: '#ca8a04',
+    bannerAccent: '#ca8a04',
+    bannerLabel: '#fde68a',
+  },
+  high: {
+    labelKey: 'asesor.riskHigh',
+    className: 'gd-risk-high',
+    bannerStart: 'rgba(220, 38, 38, 0.34)',
+    bannerEnd: 'rgba(127, 29, 29, 0.92)',
+    bannerBorder: '#dc2626',
+    bannerAccent: '#dc2626',
+    bannerLabel: '#fecaca',
+  },
+};
 
-  return `
-    <div class="gd-client-banner" role="status" aria-label="${escapeHtml(t('cliente.viewingLabel'))} ${escapeHtml(clienteName)}">
-      <div class="gd-client-banner-avatar" aria-hidden="true">${escapeHtml(initials)}</div>
-      <div class="gd-client-banner-info">
-        <span class="gd-client-banner-label">${escapeHtml(t('cliente.viewingLabel'))}</span>
-        <span class="gd-client-banner-name">${escapeHtml(clienteName)}</span>
-      </div>
-      <a href="/dashboard/asesor" data-link class="gd-btn gd-btn-sm gd-client-banner-back">
-        ← ${escapeHtml(t('cliente.backToPortfolio'))}
-      </a>
-    </div>
-  `;
+function getClientRisk(cliente) {
+  const presupuesto = Number(cliente.presupuesto ?? 0);
+  const gastadoMes = Number(cliente.gastadoMes ?? 0);
+  const ratio = presupuesto > 0 ? (gastadoMes / presupuesto) * 100 : 0;
+
+  if (ratio >= 95) return RISK_CONFIG.high;
+  if (ratio > 90) return RISK_CONFIG.medium;
+  return RISK_CONFIG.low;
+}
+
+function formatTruncatedPercentage(value) {
+  const numericValue = Number(value);
+  if (!Number.isFinite(numericValue)) return '0';
+
+  const truncatedValue = Math.trunc(numericValue * 100) / 100;
+  return truncatedValue.toFixed(2).replace(/\.00$/, '').replace(/(\.\d*[1-9])0$/, '$1');
 }
 
 export function resolveDetalleCliente(pathname, state) {
@@ -87,15 +113,16 @@ export function resolveDetalleCliente(pathname, state) {
 
 function mapGastoClienteToRow(gasto) {
   return {
-    comercio: gasto.descripcion ?? "-",
+    comercio: gasto.comercio ?? "-",
     categoria: gasto.categoria ?? "Otros",
     fechaCorta: gasto.fecha ?? "-",
     monto: gasto.monto ?? 0,
     descripcion: gasto.descripcion ?? "",
+    tipo: gasto.tipo ?? "egreso",
   };
 }
 
-function renderDetalleClienteGastosPage({ cliente, detalle, formatCurrency, profileImage, profileName }) {
+function renderDetalleClienteGastosPage({ cliente, detalle, formatCurrency, profileImage, profileName, risk }) {
   const detalleHref = `/cliente/${encodeURIComponent(String(cliente.id))}`;
   const gastosHref = `${detalleHref}/gastos`;
   const porcentajeGastado = cliente.presupuesto > 0
@@ -107,7 +134,12 @@ function renderDetalleClienteGastosPage({ cliente, detalle, formatCurrency, prof
     pageTitle: t('cliente.movementsOf', { name: cliente.nombre }),
     pageSubtitle: t('cliente.movementsSubtitle'),
     content: `
-      ${clientBanner(cliente.nombre)}
+      ${renderClientBanner({
+        clienteName: cliente.nombre,
+        risk,
+        backHref: detalleHref,
+        backLabel: 'Volver',
+      })}
       <section class="gd-metrics gd-metrics-2 mb-4">
         ${[
           {
@@ -177,6 +209,10 @@ export function renderDetalleClientePage({
 
   const detalle = state.detalleCliente;
   const presupuestoDisponible = cliente.presupuesto;
+  const risk = getClientRisk(cliente);
+  const porcentajeGastado = cliente.presupuesto > 0
+    ? Math.min((cliente.gastadoMes / cliente.presupuesto) * 100, 100)
+    : 0;
 
   if (pathname.endsWith("/gastos")) {
     return renderDetalleClienteGastosPage({
@@ -185,6 +221,7 @@ export function renderDetalleClientePage({
       formatCurrency,
       profileImage,
       profileName,
+      risk,
     });
   }
 
@@ -196,7 +233,11 @@ export function renderDetalleClientePage({
     pageTitle: t('cliente.pageTitle', { name: cliente.nombre }),
     pageSubtitle: t('cliente.pageSubtitle'),
     content: `
-      ${clientBanner(cliente.nombre)}
+      ${renderClientBanner({
+        clienteName: cliente.nombre,
+        risk,
+        backHref: '/dashboard/asesor',
+      })}
       <section class="gd-metrics">
         ${[
           {
@@ -254,6 +295,8 @@ export function renderDetalleClientePage({
           ariaLabel: t('cliente.categoryDistributionAria'),
           height: "220px",
           dashboardStyle: true,
+          centerValue: `${formatTruncatedPercentage(porcentajeGastado)}%`,
+          centerLabel: t('cliente.spent'),
         })}
       </section>
 
@@ -266,6 +309,9 @@ export function renderDetalleClientePage({
           formatMoney: formatCurrency,
           rowMapper: mapGastoClienteToRow,
           emptyMessage: t('cliente.noRecentExpenses'),
+          showTipo: true,
+          showDescription: true,
+          columnLayout: 'client-detail',
         })}
       </section>
 
@@ -301,8 +347,10 @@ export function renderDetalleClientePage({
             recommendations: detalle.recomendaciones,
             emptyText: t('cliente.noRecommendationsYet'),
             cardClass: "gd-client-detail-fixed-card",
+            itemClassName: "gd-rec-advisory-item--client",
             maxHeight: "100%",
             bodyStyle: "height: 100%; padding: 0;",
+            headerActionMarkup: enlaceVerTodo({ href: "/dashboard/asesor/recomendaciones" }),
           })}
         </div>
       </section>

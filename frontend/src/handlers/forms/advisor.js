@@ -73,7 +73,7 @@ export function attachAdvisorFormHandlers(pathname, { render }) {
     globalRecForm?.addEventListener("submit", async (event) => {
       event.preventDefault();
 
-      const clienteId = (document.getElementById("recClienteId")?.value ?? "").trim();
+      const clienteId = (state.asesor.clienteSeleccionadoId ?? "").trim();
       const titulo = (document.getElementById("recTitulo")?.value ?? "").trim();
       const texto = (document.getElementById("recTexto")?.value ?? "").trim();
 

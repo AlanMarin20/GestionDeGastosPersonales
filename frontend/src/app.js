@@ -42,7 +42,7 @@ export function navigate(path, replace = false) {
   closeLandingMobileMenu();
   closeDashboardDropdowns();
 
-  if (!String(path).startsWith("/cliente/")) {
+  if (!String(path).startsWith("/cliente/") && !String(path).startsWith("/dashboard/asesor/recomendaciones")) {
     state.asesor.clienteSeleccionadoId = null;
   }
 

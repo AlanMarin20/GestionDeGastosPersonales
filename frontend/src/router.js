@@ -442,6 +442,7 @@ function renderAsesorRecomendacionesPage() {
     pageSubtitle: t('asesorRec.pageSubtitle'),
     clients: state.asesor.clientes,
     recommendations: state.asesor.recomendaciones,
+    selectedClientId: state.asesor.clienteSeleccionadoId || null,
   });
 }
 
