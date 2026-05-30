@@ -34,6 +34,11 @@ export class MovimientosController {
     return this.movimientosService.getGastosPorMes(req.user.sub);
   }
 
+  @Get('grafico-categorias')
+  getGraficoCategorias(@Request() req) {
+    return this.movimientosService.getGraficoCategorias(req.user.sub);
+  }
+
   @Get()
   findAll(@Request() req) {
     return this.movimientosService.findAll(req.user.sub);

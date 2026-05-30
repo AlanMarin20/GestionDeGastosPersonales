@@ -290,17 +290,19 @@ export function initCharts(pathname) {
 
   if (pathname === "/dashboard") {
     const currentPeriod = getFinanzasCurrentPeriod();
-    const monthlySeries = getDashboardMonthlySeries();
+    const monthlySeries = state.finanzas.dashboardGastosPorMes?.length > 0
+      ? state.finanzas.dashboardGastosPorMes
+      : getDashboardMonthlySeries();
     const categorySeries = getDashboardCategorySummary(currentPeriod);
     const totalEgreso = categorySeries.reduce((sum, item) => sum + item.total, 0);
 
     buildBarChart("dashboardMonthlyBarChart", monthlySeries);
     buildPieChart(
       "dashboardCategoryDonutChart",
-      categorySeries.map((item) => item.label),
+      categorySeries.map((item) => item.label ?? item.categoria ?? "Sin categoría"),
       categorySeries.map((item) => item.total),
       totalEgreso,
-      categorySeries.map((item) => item.color),
+      [],
       "dashboardCategoryLegend",
     );
   }

@@ -8,7 +8,25 @@ import {
 import { escapeHtml } from "../utils/sanitize";
 import { formatMoney } from "../utils/money";
 import { t } from "../i18n";
+import { getDashboardBalanceData } from "../data/finanzas";
 
+function formatTruncatedPercentage(value) {
+  const numericValue = Number(value);
+  if (!Number.isFinite(numericValue)) return "0";
+
+  const truncatedValue = Math.trunc(numericValue * 100) / 100;
+  return truncatedValue.toFixed(2).replace(/\.00$/, "").replace(/(\.\d*[1-9])0$/, "$1");
+}
+function mapMovimientoToRow(movimiento) {
+  return {
+    comercio: movimiento.comercio ?? "-",
+    categoria: movimiento.categoria ?? "Otros",
+    fechaCorta: movimiento.fecha ?? "-",
+    monto: movimiento.monto ?? 0,
+    descripcion: movimiento.descripcion ?? "",
+    tipo: movimiento.tipo ?? "egreso",
+  };
+}
 const NOTIF_ICON = {
   info: "lni-bulb",
   warning: "lni-warning",
@@ -35,7 +53,7 @@ function renderNotifItem(item) {
 function renderRecentItem(expense) {
   const esIngreso = expense.tipo === "ingreso";
   const esAhorro = expense.esTransferenciaInterna === true;
-  const displayName = esIngreso ? (expense.descripcion || "-") : (expense.comercio || "-");
+  const displayName = expense.comercio || "-";
   const initials = escapeHtml((displayName || "?").slice(0, 2).toUpperCase());
   const amountClass = esAhorro ? "" : (esIngreso ? "gd-monto-ingreso" : "gd-monto-egreso");
   const amountSign = esIngreso ? "+" : "-";
@@ -72,9 +90,12 @@ export function renderDashboardPage({
   recentExpenses,
   insights = [],
 }) {
+  const { ingreso, egreso } = getDashboardBalanceData();
+  const porcentajeGastado = ingreso > 0 ? Math.min((egreso / ingreso) * 100, 100) : 0;
+
   const recentList = recentExpenses.length === 0
     ? `<p class="gd-muted gd-muted-sm" style="margin:0">${t('dashboard.noRecentMovements')}</p>`
-    : `<div class="gd-list">${recentExpenses.map(renderRecentItem).join("")}</div>`;
+    : `<div class="gd-list" style="${recentExpenses.length > 4 ? 'max-height: 360px; overflow-y: auto; padding-right: 6px;' : ''}">${recentExpenses.map(renderRecentItem).join("")}</div>`;
 
   const notifList = insights.length === 0
     ? `<p class="gd-muted gd-muted-sm" style="margin:0">${t('dashboard.noSuggestions')}</p>`
@@ -96,9 +117,9 @@ export function renderDashboardPage({
     <div class="gd-grid-3">
       <div class="gd-dashboard-charts">
         ${graficoGastos({
-          title: t('dashboard.spendingTrends'),
+          title: t('cliente.expensesByMonth'),
           canvasId: "dashboardMonthlyBarChart",
-          ariaLabel: t('dashboard.monthlyExpenses'),
+          ariaLabel: t('cliente.expensesByMonthAria'),
           height: "200px",
           dashboardStyle: true,
         })}
@@ -110,6 +131,8 @@ export function renderDashboardPage({
           height: "180px",
           dashboardStyle: true,
           legendContainerId: "dashboardCategoryLegend",
+          centerValue: `${formatTruncatedPercentage(porcentajeGastado)}%`,
+          centerLabel: t('cliente.spent'),
         })}
       </div>
 

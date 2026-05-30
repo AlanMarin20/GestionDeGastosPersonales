@@ -11,10 +11,23 @@ export async function loadRecomendaciones() {
 
     const data = await response.json();
     if (Array.isArray(data)) {
-      state.finanzas.recomendaciones = data;
+      // Mapea respuesta del backend como se hace con loadMovimientos
+      state.finanzas.recomendaciones = data.map((rec) => ({
+        id: rec.id,
+        title: rec.title || "",
+        body: rec.body || "",
+        severity: rec.severity || "info",
+        source: rec.source || "ia",
+        date: rec.date || "",
+        category: rec.category || "",
+        wasRead: rec.wasRead || false,
+      }));
+    } else {
+      state.finanzas.recomendaciones = [];
     }
   } catch (error) {
     console.warn("Error cargando recomendaciones:", error);
+    state.finanzas.recomendaciones = [];
   }
 }
 

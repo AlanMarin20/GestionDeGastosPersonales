@@ -126,17 +126,35 @@ describe('RecommendationsService', () => {
   // ─── findAllForUser ───────────────────────────────────────────────────────
 
   describe('findAllForUser', () => {
-    it('retorna las recomendaciones del usuario', async () => {
-      const recs = [{ id: REC_ID, contenido: 'Test', user: { id: USER_ID } }];
-      mockFind.mockResolvedValue(recs);
+    it('retorna las recomendaciones del usuario mapeadas', async () => {
+      const rows = [
+        {
+          id: REC_ID,
+          fecha: new Date('2026-05-15'),
+          tipo: 'alerta',
+          severidad: 'danger',
+          titulo: 'Test Alerta',
+          contenido: 'Test Content',
+        },
+      ];
+      mockQuery.mockResolvedValue(rows);
 
       const result = await service.findAllForUser(USER_ID);
-      expect(result).toEqual(recs);
-      expect(mockFind).toHaveBeenCalledWith({
-        where: { user: { id: USER_ID } },
-        relations: { advisor: true },
-        order: { createdAt: 'DESC' },
-      });
+
+      expect(mockQuery).toHaveBeenCalledWith(
+        expect.stringContaining('SELECT'),
+        [USER_ID],
+      );
+      expect(result).toEqual([
+        {
+          id: REC_ID,
+          date: '2026-05',
+          tipo: 'alerta',
+          title: 'Test Alerta',
+          body: 'Test Content',
+          severity: 'danger',
+        },
+      ]);
     });
   });
 

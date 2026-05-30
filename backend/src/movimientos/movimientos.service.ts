@@ -161,7 +161,6 @@ export class MovimientosService {
     const rows = await this.movimientoRepository
       .createQueryBuilder('m')
       .leftJoinAndSelect('m.category', 'c')
-      .leftJoinAndSelect('m.etiquetas', 'e')
       .where('m.user.id = :userId', { userId })
       .orderBy('m.fecha', 'DESC')
       .addOrderBy('m.creadoEn', 'DESC')
@@ -169,15 +168,15 @@ export class MovimientosService {
 
     return rows.map((r) => ({
       id: r.id,
-      comercio: r.comercio ?? null,
+      comercio: r.comercio ?? '-',
       categoria: r.category?.name ?? 'Sin categoría',
-      descripcion: r.descripcion ?? null,
+      descripcion: r.descripcion ?? '',
       fecha: r.fecha,
       monto: Number(r.monto),
       tipo: r.tipo,
       moneda: r.moneda,
       esTransferenciaInterna: r.esTransferenciaInterna,
-      etiquetas: (r.etiquetas ?? []).map((e) => ({ id: e.id, nombre: e.nombre })),
+      etiquetas: [],
     }));
   }
 
@@ -200,30 +199,35 @@ export class MovimientosService {
   async getUltimosMovimientos(
     userId: string,
   ): Promise<
-    { categoria: string; tipo: string; fecha: Date; monto: number }[]
+    { categoria: string; tipo: string; fecha: Date; monto: number; comercio: string; descripcion: string }[]
   > {
-    const rows: {
-      categoria: string;
-      tipo: string;
-      fecha: Date;
-      monto: string;
-    }[] = await this.movimientoRepository.manager.query(
-      `
+    const rows: { fecha: Date; tipo: string; monto: string; categoria: string; comercio: string | null; descripcion: string | null }[] =
+      await this.movimientoRepository.manager.query(
+        `
         SELECT
-          COALESCE(c.nombre, 'Sin categoría') AS categoria,
-          m.tipo,
-          m.fecha,
-          m.monto
-        FROM movimientos m
-        LEFT JOIN categorias c ON m.categoria_id = c.id
-        WHERE m.usuario_id = $1
-        ORDER BY m.fecha DESC
-        LIMIT 5
+          fecha,
+          tipo,
+          monto,
+          comercio,
+          descripcion,
+          COALESCE(c.nombre, 'Sin categoría') AS categoria
+        FROM movimientos
+        LEFT JOIN categorias c ON movimientos.categoria_id = c.id
+        WHERE usuario_id = $1
+        ORDER BY fecha DESC, creado_en DESC
+        LIMIT 10
         `,
-      [userId],
-    );
+        [userId],
+      );
 
-    return rows.map((r) => ({ ...r, monto: Number(r.monto) }));
+    return rows.map((r) => ({
+      categoria: r.categoria,
+      fecha: r.fecha,
+      monto: Number(r.monto),
+      tipo: r.tipo,
+      comercio: r.comercio || '',
+      descripcion: r.descripcion || '',
+    }));
   }
 
   async getGastosPorMes(
@@ -257,6 +261,48 @@ export class MovimientosService {
       orden: r.orden,
       total: Number(r.total),
     }));
+  }
+
+  async getGraficoCategorias(userId: string) {
+    const rows: { categoria: string; total: string; porcentaje: string }[] =
+      await this.movimientoRepository.manager.query(
+        `
+SELECT categoria, total,
+
+ROUND((total * 100.0) / SUM(total) OVER (), 2) AS porcentaje
+
+FROM (
+
+  SELECT
+
+    COALESCE(c.nombre, 'Sin categoría') AS categoria,
+
+    SUM(m.monto) AS total
+
+  FROM movimientos m
+
+  LEFT JOIN categorias c ON m.categoria_id = c.id
+
+  WHERE m.usuario_id = $1
+
+    AND m.tipo = 'egreso'
+
+  GROUP BY COALESCE(c.nombre, 'Sin categoría')
+
+) t
+
+ORDER BY total DESC;
+        `,
+        [userId],
+      );
+
+    return {
+      categorias: rows.map((row) => ({
+        categoria: row.categoria,
+        total: Number(row.total),
+        porcentaje: Number(row.porcentaje),
+      })),
+    };
   }
 
   async getGastosMensuales(

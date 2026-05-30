@@ -55,12 +55,31 @@ export class RecommendationsService {
   }
 
   async findAllForUser(userId: string) {
-    const rows = await this.recommendationRepository.find({
-      where: { user: { id: userId } },
-      relations: { advisor: true },
-      order: { createdAt: 'DESC' },
-    });
-    return rows.map((r) => this.mapToFrontend(r));
+    const rows: { fecha: Date; tipo: string; titulo: string | null; contenido: string }[] =
+      await this.recommendationRepository.manager.query(
+        `
+        SELECT creado_en as fecha, tipo, titulo, contenido 
+        FROM recomendaciones 
+        WHERE usuario_id = $1 AND asesor_id IS NOT NULL
+        ORDER BY creado_en DESC
+        LIMIT 1
+        `,
+        [userId],
+      );
+
+    const tipoSevMap: Record<string, string> = {
+      alerta: 'danger',
+      consejo: 'info',
+      general: 'warning',
+    };
+
+    return rows.map((r) => ({
+      title: r.titulo || '',
+      body: r.contenido,
+      severity: tipoSevMap[r.tipo] || 'info',
+      date: new Date(r.fecha).toISOString().slice(0, 7),
+      tipo: r.tipo,
+    }));
   }
 
   async findAllByAdvisor(advisorId: string) {
@@ -137,6 +156,11 @@ export class RecommendationsService {
     );
 
     return saved.map((r) => this.mapToFrontend(r));
+  }
+
+  // Devuelve las recomendaciones destinadas al dashboard (última recomendación del asesor)
+  async getDashboardRecommendations(userId: string) {
+    return this.findAllForUser(userId);
   }
 
   async getHistoria(

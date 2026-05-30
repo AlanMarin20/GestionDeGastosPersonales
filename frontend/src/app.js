@@ -16,6 +16,7 @@ import {
   loadCurrentUser,
   loadDashboardBalances,
   loadMovimientos,
+  // loadDashboardMovimientos removed — dashboard won't request recent movements
 } from "./api/user";
 import { loadAhorros } from "./api/ahorros";
 import { loadRecomendaciones } from "./api/recomendaciones";
@@ -149,6 +150,7 @@ export function init() {
       const initialLoads = [
         loadDashboardBalances(),
         loadMovimientos(),
+        // No cargamos movimientos específicos para "Transacciones Recientes"
         loadAhorros(),
         loadRecomendaciones(),
         loadAsesorClientes(),

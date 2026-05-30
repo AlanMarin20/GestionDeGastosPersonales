@@ -76,10 +76,29 @@ export async function loadDashboardBalances() {
         disponible: Number(balances.dineroDisponible ?? 0),
       };
     }
+
+    const chartResponse = await apiFetch("/api/balances/grafico-gastos");
+    if (chartResponse.ok) {
+      const chartData = await chartResponse.json();
+      state.finanzas.dashboardGastosPorMes = Array.isArray(chartData?.meses)
+        ? chartData.meses
+            .slice()
+            .reverse()
+            .map((item) => ({
+              label: item.label ?? String(item.mes ?? ""),
+              total: Number(item.total ?? 0),
+            }))
+        : [];
+    } else {
+      state.finanzas.dashboardGastosPorMes = [];
+    }
+
   } catch (error) {
     console.warn("Error cargando balances:", error);
   }
 }
+
+// Nota: la carga específica de movimientos para el widget de "Transacciones Recientes" fue removida.
 
 function getCurrentMonthKey() {
   const now = new Date();

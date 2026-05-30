@@ -55,8 +55,8 @@ import {
   getDashboardMonthlySeries,
   getDashboardCategorySummary,
   getDashboardMetrics,
-  getDashboardRecentExpenses,
   getDashboardInsights,
+  getDashboardRecentExpenses,
   getMisGastosCategoryOptions,
   getMisGastosPeriodOptions,
   getFilteredExpenses,
@@ -252,7 +252,7 @@ function renderDashboardPage() {
     pageTitle: t('dashboard.pageTitle'),
     pageSubtitle: t('dashboard.pageSubtitle', { period: formatMonthLabelLong(currentPeriod) }),
     metrics: getDashboardMetrics(),
-    recentExpenses: getDashboardRecentExpenses(4),
+    recentExpenses: getDashboardRecentExpenses(10),
     insights: getDashboardInsights(),
   });
 }

@@ -41,6 +41,11 @@ export class RecommendationsController {
     return this.recommendationsService.findAllForUser(req.user.sub);
   }
 
+  @Get('dashboard')
+  getDashboard(@Request() req) {
+    return this.recommendationsService.getDashboardRecommendations(req.user.sub);
+  }
+
   @Get('historia')
   getHistoria(
     @Request() req,
