@@ -130,11 +130,12 @@ describe('RecommendationsService', () => {
       const rows = [
         {
           id: REC_ID,
-          fecha: new Date('2026-05-15'),
+          creado_en: new Date('2026-05-15'),
           tipo: 'alerta',
           severidad: 'danger',
           titulo: 'Test Alerta',
           contenido: 'Test Content',
+          asesor_id: 'advisor-uuid',
         },
       ];
       mockQuery.mockResolvedValue(rows);
@@ -148,13 +149,41 @@ describe('RecommendationsService', () => {
       expect(result).toEqual([
         {
           id: REC_ID,
-          date: '2026-05',
+          date: '2026-05-15',
           tipo: 'alerta',
           title: 'Test Alerta',
           body: 'Test Content',
           severity: 'danger',
+          source: 'asesor',
         },
       ]);
+    });
+
+    it('retorna todas las recomendaciones sin limitar a una sola', async () => {
+      mockQuery.mockResolvedValue([
+        {
+          id: 'rec-1',
+          creado_en: new Date('2026-05-15'),
+          tipo: 'alerta',
+          titulo: 'Una',
+          contenido: 'Primera',
+          asesor_id: null,
+        },
+        {
+          id: 'rec-2',
+          creado_en: new Date('2026-04-10'),
+          tipo: 'consejo',
+          titulo: 'Dos',
+          contenido: 'Segunda',
+          asesor_id: 'advisor-uuid',
+        },
+      ]);
+
+      const result = await service.findAllForUser(USER_ID);
+
+      expect(result).toHaveLength(2);
+      expect(result[0].source).toBe('ia');
+      expect(result[1].source).toBe('asesor');
     });
   });
 

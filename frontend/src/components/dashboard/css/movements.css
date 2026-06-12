@@ -154,6 +154,25 @@
   line-height: 1.45;
 }
 
+.gd-dashboard-charts > .gd-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.gd-dashboard-charts > .gd-card:first-child {
+  flex: 0 0 auto;
+}
+
+.gd-dashboard-pie-card {
+  flex: 1 1 auto;
+}
+
+.gd-dashboard-pie-card .gd-card-body,
+.gd-dashboard-pie-card .gd-chart-wrap {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
 /* ── Legacy insight card (kept for other pages) ─────────────────── */
 
 .gd-insight-card {

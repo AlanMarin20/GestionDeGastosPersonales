@@ -326,6 +326,9 @@ function renderChartCard({
       </div>
     `
     : '';
+  const titleMarkup = title
+    ? `<h2 class="${dashboardStyle ? 'gd-card-title' : 'h5 mb-4 fw-bold text-dark'}">${escapeHtml(title)}</h2>`
+    : '';
 
   if (dashboardStyle) {
     const cardClasses = ['gd-card', cardClass].filter(Boolean).join(' ');
@@ -344,7 +347,7 @@ function renderChartCard({
     return `
       <article class="${escapeHtml(cardClasses)}">
         <header class="gd-card-header">
-          <h2 class="gd-card-title">${escapeHtml(title)}</h2>
+          ${titleMarkup}
           ${headerActionMarkup}
         </header>
         ${summaryMarkup}
@@ -373,7 +376,7 @@ function renderChartCard({
   return `
     <article class="${escapeHtml(cardClasses)}">
       <div class="card-body p-4 d-flex flex-column">
-        <h2 class="h5 mb-4 fw-bold text-dark">${escapeHtml(title)}</h2>
+        ${titleMarkup}
         ${summaryMarkup}
         <div class="${escapeHtml(chartClasses)}" style="min-height:${escapeHtml(height)};${extraWrapStyle}">
           <canvas id="${escapeHtml(canvasId)}" aria-label="${escapeHtml(ariaLabel)}" role="img"${centerValueAttr}${centerLabelAttr}></canvas>

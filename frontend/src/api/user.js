@@ -59,7 +59,7 @@ export async function loadDashboardBalances() {
   if (!accessToken) return;
 
   try {
-    const response = await apiFetch("/api/balances/dashboard");
+    const response = await apiFetch("/api/balances/current");
 
     if (!response.ok) {
       console.warn("No se pudieron cargar los balances desde la API");
@@ -71,9 +71,8 @@ export async function loadDashboardBalances() {
     if (balances && typeof balances === "object") {
       state.finanzas.balancesData = {
         ingreso: Number(balances.ingreso ?? 0),
-        egreso: Number(balances.gastoMensual ?? balances.egreso ?? 0),
-        ahorro: Number(balances.ahorroAcumulado ?? balances.ahorro ?? 0),
-        disponible: Number(balances.dineroDisponible ?? 0),
+        egreso: Number(balances.egreso ?? 0),
+        ahorro: Number(balances.ahorro ?? 0),
       };
     }
 
@@ -111,7 +110,7 @@ export async function loadMovimientos() {
 
   const currentMonthKey = getCurrentMonthKey();
   state.finanzas.currentPeriod = currentMonthKey;
-  state.finanzas.filtros.periodo = currentMonthKey;
+  state.finanzas.filtros.periodo = "todos";
 
   try {
     const response = await apiFetch("/api/movimientos");

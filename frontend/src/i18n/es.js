@@ -83,7 +83,7 @@ export const es = {
 
   // ─── Dashboard ─────────────────────────────────────────────
   'dashboard.recentTransactions': 'Transacciones Recientes',
-  'dashboard.analysisTitle': 'Análisis y Sugerencias',
+  'dashboard.analysisTitle': 'Análisis y Recomendaciones',
   'dashboard.noRecentMovements': 'Sin movimientos recientes.',
   'dashboard.noSuggestions': 'Sin sugerencias disponibles.',
   'dashboard.spendingTrends': 'Tendencias de gasto',
@@ -920,8 +920,8 @@ export const es = {
   'onboarding.cta': 'Quiero ser asesor →',
   'onboarding.ctaNote': 'Revisarás los términos en el siguiente paso',
   'onboarding.modalTitle': 'Términos y condiciones de asesor',
-  'onboarding.tc1': 'Al registrarte como asesor en FinanzasPro aceptás usar la plataforma de forma ética y responsable. Tendrás acceso a información financiera sensible de tus clientes, la cual está protegida por nuestra política de privacidad.',
-  'onboarding.tc2': 'No podés compartir, vender ni usar estos datos para fines distintos a la asesoría financiera. El incumplimiento puede resultar en la suspensión del acceso como asesor y acciones legales si corresponde.',
+  'onboarding.tc1': 'Al registrarte como asesor en FinanzasPro, aceptás utilizar la plataforma de manera ética, responsable y conforme a la normativa vigente. En tu rol, tendrás acceso a información financiera sensible de los clientes, la cual se encuentra protegida por nuestra política de privacidad y confidencialidad.',
+  'onboarding.tc2': 'Queda estrictamente prohibido compartir, vender, divulgar o utilizar dicha información para fines distintos a la prestación del servicio de asesoría financiera. El incumplimiento de estas condiciones podrá derivar en la suspensión o cancelación de tu acceso como asesor, sin perjuicio de las acciones legales que pudieran corresponder.',
   'onboarding.termsLabel': 'Leí y acepto los términos y condiciones del programa de asesores de FinanzasPro',
   'onboarding.confirmBtn': 'Confirmar y activar',
   'onboarding.activating': 'Activando...',

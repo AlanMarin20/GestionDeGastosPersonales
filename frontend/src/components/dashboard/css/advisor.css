@@ -23,6 +23,15 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
+  align-items: stretch;
+}
+
+.gd-onboarding-grid > .gd-card {
+  height: 100%;
+}
+
+.gd-onboarding-grid .gd-card + .gd-card {
+  margin-top: 0;
 }
 
 @media (max-width: 640px) {

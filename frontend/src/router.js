@@ -1,3 +1,4 @@
+import { getLatestDashboardRecommendation } from "./data/finanzas";
 import {
   encabezadoAuthPublico,
   encabezadoExterno,
@@ -254,6 +255,7 @@ function renderDashboardPage() {
     metrics: getDashboardMetrics(),
     recentExpenses: getDashboardRecentExpenses(10),
     insights: getDashboardInsights(),
+    latestRecommendation: getLatestDashboardRecommendation(),
   });
 }
 

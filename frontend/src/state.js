@@ -92,6 +92,7 @@ export const state = {
       editingBudgetId: null,
     },
     recomendaciones: [],
+    recomendacionesFiltroMesKey: "",
     dashboardRecomendaciones: [],
     budgets: [],
     customCategories: [],

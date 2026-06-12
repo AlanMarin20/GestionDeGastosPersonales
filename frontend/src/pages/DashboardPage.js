@@ -10,6 +10,20 @@ import { formatMoney } from "../utils/money";
 import { t } from "../i18n";
 import { getDashboardBalanceData } from "../data/finanzas";
 
+function formatRecommendationDate(value) {
+  const raw = String(value || "").trim();
+  if (!raw) return "";
+
+  const date = new Date(`${raw}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return raw;
+
+  return new Intl.DateTimeFormat("es-AR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(date);
+}
+
 function formatTruncatedPercentage(value) {
   const numericValue = Number(value);
   if (!Number.isFinite(numericValue)) return "0";
@@ -89,6 +103,7 @@ export function renderDashboardPage({
   metrics,
   recentExpenses,
   insights = [],
+  latestRecommendation = null,
 }) {
   const { ingreso, egreso } = getDashboardBalanceData();
   const porcentajeGastado = ingreso > 0 ? Math.min((egreso / ingreso) * 100, 100) : 0;
@@ -100,6 +115,20 @@ export function renderDashboardPage({
   const notifList = insights.length === 0
     ? `<p class="gd-muted gd-muted-sm" style="margin:0">${t('dashboard.noSuggestions')}</p>`
     : `<div class="gd-notif-list">${insights.map(renderNotifItem).join("")}</div>`;
+
+  const latestRecommendationBlock = latestRecommendation
+    ? `
+      <div class="gd-notif-item" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid rgba(148, 163, 184, 0.18);">
+        <span class="gd-notif-icon gd-notif-icon--info" aria-hidden="true">
+          <i class="lni lni-envelope"></i>
+        </span>
+        <div class="gd-notif-body-wrap">
+          <p class="gd-notif-title" style="margin-bottom: 0.35rem;">${escapeHtml(latestRecommendation.title || "Sin título")}${latestRecommendation.date ? ` | ${escapeHtml(formatRecommendationDate(latestRecommendation.date))}` : ""}</p>
+          <p class="gd-notif-body" style="margin:0;">${escapeHtml(latestRecommendation.body || "")}</p>
+        </div>
+      </div>
+    `
+    : "";
 
   const content = `
     <section class="gd-metrics gd-metrics-3">
@@ -125,11 +154,12 @@ export function renderDashboardPage({
         })}
 
         ${graficoTorta({
-          title: t('dashboard.byCategory'),
+          title: "",
           canvasId: "dashboardCategoryDonutChart",
           ariaLabel: t('dashboard.categoryDistribution'),
           height: "180px",
           dashboardStyle: true,
+          cardClass: "gd-dashboard-pie-card",
           legendContainerId: "dashboardCategoryLegend",
           centerValue: `${formatTruncatedPercentage(porcentajeGastado)}%`,
           centerLabel: t('cliente.spent'),
@@ -154,6 +184,7 @@ export function renderDashboardPage({
             ${enlaceVerTodo({ href: '/dashboard/recomendaciones' })}
           </div>
           ${notifList}
+          ${latestRecommendationBlock}
         </article>
       </div>
     </div>

@@ -2,7 +2,6 @@ import { state } from "../../state";
 import { t } from "../../i18n";
 import { showAppNotification } from "../../ui/notifications";
 import { saveAppPreferences } from "../../ui/theme";
-import { generateAiRecommendations } from "../../api/recomendaciones";
 
 export function attachNotificationFormHandlers(pathname, { render }) {
   if (pathname === "/perfil/notificaciones") {
@@ -29,22 +28,10 @@ export function attachNotificationFormHandlers(pathname, { render }) {
   }
 
   if (pathname === "/dashboard/recomendaciones") {
-    const btnGenerar = document.getElementById("btnGenerarRecomendacionesIA");
-    btnGenerar?.addEventListener("click", async () => {
-      btnGenerar.disabled = true;
-      const originalHtml = btnGenerar.innerHTML;
-      btnGenerar.innerHTML = `<i class="lni lni-spinner-arrow" aria-hidden="true"></i> ${t('forms.analyzing')}`;
-
-      try {
-        await generateAiRecommendations();
-        showAppNotification(t('forms.recommendationsGenerated'), "success");
-        render();
-      } catch (error) {
-        showAppNotification(error.message || t('forms.errorGeneratingRecommendations'), "error");
-      } finally {
-        btnGenerar.disabled = false;
-        btnGenerar.innerHTML = originalHtml;
-      }
+    const monthFilter = document.getElementById("recMonthFilterSelect");
+    monthFilter?.addEventListener("change", (event) => {
+      state.finanzas.recomendacionesFiltroMesKey = event.target.value || "all";
+      render();
     });
   }
 }

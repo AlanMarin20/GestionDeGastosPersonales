@@ -89,12 +89,16 @@ export function getDashboardCategorySummary(periodKey = getFinanzasCurrentPeriod
 
 export function getDashboardBalanceData() {
   const balanceData = state.finanzas.balancesData || {};
+  const ingreso = Number(balanceData.ingreso ?? 0);
+  const egreso = Number(balanceData.egreso ?? 0);
+  const ahorro = Number(balanceData.ahorro ?? 0);
+  const disponible = Number(balanceData.disponible ?? (ingreso - egreso - ahorro));
 
   return {
-    ingreso: Number(balanceData.ingreso ?? 0),
-    egreso: Number(balanceData.egreso ?? 0),
-    ahorro: Number(balanceData.ahorro ?? 0),
-    disponible: (Number(balanceData.ingreso ?? 0) - Number(balanceData.egreso ?? 0)),
+    ingreso,
+    egreso,
+    ahorro,
+    disponible,
   };
 }
 
@@ -254,6 +258,33 @@ export function getDashboardInsights() {
   }];
 }
 
+export function getLatestDashboardRecommendation() {
+  const recomendaciones = Array.isArray(state.finanzas.recomendaciones)
+    ? state.finanzas.recomendaciones
+    : [];
+
+  const latest = recomendaciones
+    .filter((item) => item && (item.date || item.createdAt || item.fecha))
+    .slice()
+    .sort((a, b) => {
+      const aDate = String(a.date || a.createdAt || a.fecha || "");
+      const bDate = String(b.date || b.createdAt || b.fecha || "");
+      const dateCompare = bDate.localeCompare(aDate);
+      if (dateCompare !== 0) return dateCompare;
+      return String(b.id || "").localeCompare(String(a.id || ""));
+    })[0];
+
+  if (!latest) return null;
+
+  return {
+    title: latest.title || latest.titulo || "",
+    body: latest.body || latest.contenido || "",
+    date: String(latest.date || latest.createdAt || latest.fecha || ""),
+    category: latest.category || latest.categoria || "",
+    source: latest.source || latest.tipo || "ia",
+  };
+}
+
 export function getBudgetAlertsForPeriod(periodKey = null) {
   const period = periodKey || getFinanzasCurrentPeriod();
   if (!period) return [];
@@ -342,7 +373,7 @@ export function getUnreadNotifications() {
 }
 
 export function getFilteredExpenses() {
-  const { search, categoria, periodo, tipo, fechaDesde, fechaHasta, etiqueta } = state.finanzas.filtros;
+  const { search, periodo, tipo, fechaDesde, fechaHasta } = state.finanzas.filtros;
   const normalizedSearch = search.trim().toLowerCase();
 
   return state.finanzas.gastos
@@ -356,10 +387,6 @@ export function getFilteredExpenses() {
         if (getMonthKeyFromDate(expense.fecha) !== periodo) return false;
       }
 
-      if (categoria !== "Todas" && expense.categoria !== categoria) {
-        return false;
-      }
-
       if (tipo && tipo !== "Todos") {
         const tipoEsperado = tipo === "Ingreso" ? "ingreso" : "egreso";
         if (expense.tipo !== tipoEsperado) return false;
@@ -369,12 +396,6 @@ export function getFilteredExpenses() {
         const inComercio = (expense.comercio || "").toLowerCase().includes(normalizedSearch);
         const inDescripcion = (expense.descripcion || "").toLowerCase().includes(normalizedSearch);
         if (!inComercio && !inDescripcion) return false;
-      }
-
-      if (etiqueta) {
-        if (!Array.isArray(expense.etiquetas) || !expense.etiquetas.some((t) => t.id === etiqueta)) {
-          return false;
-        }
       }
 
       return true;

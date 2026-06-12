@@ -150,21 +150,6 @@ export function renderMisGastosPage({
         <option value="Egreso" ${filters.tipo === "Egreso" ? "selected" : ""}>${t('expenses.expenses')}</option>
       </select>
 
-      <select id="expenseCategoryFilter" class="gd-form-select">
-        <option value="Todas" ${filters.categoria === "Todas" ? "selected" : ""}>${t('expenses.allCategories')}</option>
-        ${categoryOptions
-          .map(
-            (category) =>
-              `<option value="${escapeHtml(category)}" ${filters.categoria === category ? "selected" : ""}>${escapeHtml(category)}</option>`,
-          )
-          .join("")}
-      </select>
-
-      <select id="expenseTagFilter" class="gd-form-select">
-        <option value="">${t('expenses.allTags')}</option>
-        ${tags.map((tag) => `<option value="${escapeHtml(tag.id)}" ${filtroEtiqueta === tag.id ? "selected" : ""}>${escapeHtml(tag.nombre)}</option>`).join("")}
-      </select>
-
       <div class="gd-date-range">
         <label class="gd-form-label gd-date-range-label" for="expenseFechaDesde">${t('expenses.from')}</label>
         <div class="gd-date-field">
