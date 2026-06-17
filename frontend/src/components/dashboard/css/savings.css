@@ -11,6 +11,10 @@
   gap: 0.8rem;
 }
 
+.gd-ahorro-grid .gd-card + .gd-card {
+  margin-top: 0;
+}
+
 .gd-ahorro-empty {
   display: flex;
   flex-direction: column;
@@ -35,6 +39,7 @@
   padding: 0;
   overflow: hidden;
   border-top: 3px solid var(--ahorro-accent, var(--gd-accent-2));
+  height: 200px;
   transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 

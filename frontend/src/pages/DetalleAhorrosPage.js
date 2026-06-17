@@ -6,10 +6,10 @@ import { t } from '../i18n';
 
 const STATUS_META = {
   "no-goal": { accent: "#7c3aed", bg: "rgba(124,58,237,0.12)", text: "#7c3aed", icon: "lni-investment" },
-  low:       { accent: "#dc2626", bg: "rgba(220,38,38,0.10)",  text: "#dc2626", icon: "lni-investment" },
-  mid:       { accent: "#d97706", bg: "rgba(217,119,6,0.10)",  text: "#d97706", icon: "lni-bar-chart" },
-  near:      { accent: "#0ea5e9", bg: "rgba(14,165,233,0.10)", text: "#0ea5e9", icon: "lni-stats-up" },
-  done:      { accent: "#16a34a", bg: "rgba(22,163,74,0.10)",  text: "#16a34a", icon: "lni-checkmark-circle" },
+  low:       { accent: "#7c3aed", bg: "rgba(124,58,237,0.12)", text: "#7c3aed", icon: "lni-investment" },
+  mid:       { accent: "#7c3aed", bg: "rgba(124,58,237,0.12)", text: "#7c3aed", icon: "lni-investment" },
+  near:      { accent: "#7c3aed", bg: "rgba(124,58,237,0.12)", text: "#7c3aed", icon: "lni-investment" },
+  done:      { accent: "#7c3aed", bg: "rgba(124,58,237,0.12)", text: "#7c3aed", icon: "lni-investment" },
 };
 
 function resolveProgress(ahorro) {

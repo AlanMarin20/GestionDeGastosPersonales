@@ -6,15 +6,46 @@ import { createAhorro, loadAhorros } from "../../api/ahorros";
 export function attachSavingsFormHandlers(pathname, { render }) {
   if (pathname === "/dashboard/ahorros") {
     const ahorroForm = document.getElementById("detalleAhorroForm");
+    const nombreInput = document.getElementById("detalleAhorroNombre");
+
+    if (ahorroForm) {
+      ahorroForm.setAttribute("novalidate", "true");
+    }
+
+    // Limpiar mensaje de error al escribir
+    nombreInput?.addEventListener("input", () => {
+      nombreInput.classList.remove("auth-input-error");
+      const errorMsg = nombreInput.parentNode?.querySelector(".gd-field-error-message");
+      if (errorMsg) {
+        errorMsg.remove();
+      }
+    });
+
     ahorroForm?.addEventListener("submit", async (event) => {
       event.preventDefault();
 
-      const nombre = (document.getElementById("detalleAhorroNombre")?.value || "").trim();
+      const nombre = (nombreInput?.value || "").trim();
       const montoInicial = Number.parseFloat(document.getElementById("detalleAhorroMonto")?.value || "") || 0;
       const meta = Number.parseFloat(document.getElementById("detalleAhorroMeta")?.value || "") || 0;
 
+      // Limpiar errores previos si los hubiera
+      nombreInput?.classList.remove("auth-input-error");
+      const existingError = nombreInput?.parentNode?.querySelector(".gd-field-error-message");
+      if (existingError) {
+        existingError.remove();
+      }
+
       if (!nombre) {
-        showAppNotification(t('forms.completeSavingName'), "warning");
+        if (nombreInput) {
+          nombreInput.classList.add("auth-input-error");
+          
+          const errorMsg = document.createElement("div");
+          errorMsg.className = "gd-field-error-message";
+          errorMsg.innerHTML = `<i class="lni lni-warning" aria-hidden="true"></i><span>${t('forms.completeSavingName') || "Completa este campo"}</span>`;
+          
+          nombreInput.parentNode?.appendChild(errorMsg);
+          nombreInput.focus();
+        }
         return;
       }
 

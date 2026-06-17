@@ -233,3 +233,35 @@ body.theme-dark .app-confirm-danger .app-confirm-title {
 @keyframes gd-spin {
   to { transform: rotate(360deg); }
 }
+
+/* Custom Form Field Validation Error Message */
+.gd-field-error-message {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: #ef4444;
+  font-size: 0.76rem;
+  font-weight: 500;
+  margin-top: 0.35rem;
+  animation: gdFadeInError 0.2s ease-out;
+}
+
+.gd-field-error-message i {
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+body.theme-dark .gd-field-error-message {
+  color: #fca5a5;
+}
+
+@keyframes gdFadeInError {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
