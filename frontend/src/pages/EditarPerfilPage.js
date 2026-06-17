@@ -45,6 +45,7 @@ export function renderEditarPerfilPage({
   state,
   profileImage,
   profileName,
+  isAsesor = false,
 }) {
   const perfil = state.perfil;
   const profileCompletion = getProfileCompletion(perfil);
@@ -187,6 +188,7 @@ export function renderEditarPerfilPage({
     content,
     profileImage,
     profileName,
+    isAsesor,
     notificationCount: state.finanzas?.recomendaciones?.length || 0,
   });
 }

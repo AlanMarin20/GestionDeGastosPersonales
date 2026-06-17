@@ -192,6 +192,7 @@ export function renderRecomendacionesHistoricasPage({
   filters = { search: "", periodo: "todos" },
   sidebarSections = null,
   notificationCount = recomendaciones.length,
+  isAsesor = false,
 }) {
   const byMonth = groupByMonth(recomendaciones);
   const months = Object.keys(byMonth).sort((a, b) => (a < b ? 1 : -1));
@@ -282,7 +283,7 @@ export function renderRecomendacionesHistoricasPage({
     content,
     profileImage,
     profileName,
-    isAsesor: true,
+    isAsesor,
     notificationCount,
     sidebarSections,
   });

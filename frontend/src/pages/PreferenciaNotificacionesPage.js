@@ -5,6 +5,7 @@ export function renderPreferenciaNotificacionesPageView({
   state,
   profileImage,
   profileName,
+  isAsesor = false,
 }) {
   const toggles = [
     {
@@ -69,6 +70,7 @@ export function renderPreferenciaNotificacionesPageView({
     content,
     profileImage,
     profileName,
+    isAsesor,
     notificationCount: state.finanzas?.recomendaciones?.length || 0,
   });
 }

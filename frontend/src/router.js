@@ -98,6 +98,20 @@ function getCurrentRoleLabel(pathname = window.location.pathname) {
   return cambioRol(pathname);
 }
 
+function updateDashboardContext(pathname) {
+  if (typeof sessionStorage === "undefined") return;
+  if (pathname.startsWith("/dashboard/asesor") || pathname.startsWith("/cliente/")) {
+    sessionStorage.setItem("dashboardContext", "advisor");
+  } else if (pathname.startsWith("/dashboard") || pathname === "/perfil/asesor-onboarding") {
+    sessionStorage.setItem("dashboardContext", "user");
+  }
+}
+
+function isAdvisorModeActive() {
+  if (typeof sessionStorage === "undefined") return false;
+  return sessionStorage.getItem("dashboardContext") === "advisor";
+}
+
 function getAdvisorClientHref() {
   return "/dashboard/asesor";
 }
@@ -356,6 +370,7 @@ function renderRecomendacionesHistoricasPage(pathname) {
     recomendaciones: recomendaciones,
     recommendationsByMonth,
     ...getProfileProps(),
+    isAsesor: isUserAsesor() && isAdvisorModeActive(),
   });
 }
 
@@ -470,6 +485,7 @@ function renderEditarPerfilPage() {
   return renderEditarPerfilPageView({
     state,
     ...getProfileProps(),
+    isAsesor: isUserAsesor() && isAdvisorModeActive(),
   });
 }
 
@@ -477,7 +493,7 @@ function renderConfiguracionCuentaPage() {
   return renderConfiguracionCuentaPageView({
     state,
     ...getProfileProps(),
-    isAsesor: isUserAsesor(),
+    isAsesor: isUserAsesor() && isAdvisorModeActive(),
   });
 }
 
@@ -485,12 +501,15 @@ function renderPreferenciaNotificacionesPage() {
   return renderPreferenciaNotificacionesPageView({
     state,
     ...getProfileProps(),
+    isAsesor: isUserAsesor() && isAdvisorModeActive(),
   });
 }
 
 // ─── Route resolver ───────────────────────────────────────────────────────────
 
 function buildRouteView(pathname) {
+  updateDashboardContext(pathname);
+
   if (pathname === "/") {
     return renderLandingPage();
   }
@@ -572,13 +591,13 @@ function buildRouteView(pathname) {
       history.replaceState({}, "", "/dashboard/asesor");
       return renderDashboardLayout(renderDashboardAsesorPage(), { showScrollTop: false });
     }
-    return renderAsesorOnboardingPageView();
+    return renderDashboardLayout(renderAsesorOnboardingPageView());
   }
 
   if (pathname === "/dashboard/asesor") {
     if (!isUserAsesor()) {
       history.replaceState({}, "", "/perfil/asesor-onboarding");
-      return renderAsesorOnboardingPageView();
+      return renderDashboardLayout(renderAsesorOnboardingPageView());
     }
     return renderDashboardLayout(renderDashboardAsesorPage(), {
       showScrollTop: false,
@@ -588,7 +607,7 @@ function buildRouteView(pathname) {
   if (pathname === "/dashboard/asesor/recomendaciones") {
     if (!isUserAsesor()) {
       history.replaceState({}, "", "/perfil/asesor-onboarding");
-      return renderAsesorOnboardingPageView();
+      return renderDashboardLayout(renderAsesorOnboardingPageView());
     }
     return renderDashboardLayout(renderAsesorRecomendacionesPage(), {
       showScrollTop: false,
@@ -598,7 +617,7 @@ function buildRouteView(pathname) {
   if (pathname === "/dashboard/asesor/panel") {
     if (!isUserAsesor()) {
       history.replaceState({}, "", "/perfil/asesor-onboarding");
-      return renderAsesorOnboardingPageView();
+      return renderDashboardLayout(renderAsesorOnboardingPageView());
     }
     return renderDashboardLayout(renderDashboardAsesorPage(), {
       showScrollTop: false,
