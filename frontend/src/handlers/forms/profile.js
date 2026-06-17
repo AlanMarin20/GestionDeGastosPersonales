@@ -219,6 +219,13 @@ export function attachProfileFormHandlers(pathname, { render }) {
         return;
       }
 
+      // Verificar si ya tiene ese mismo asesor vinculado (por email)
+      const currentAdvisor = state.configuracion?.asesoria?.asesor;
+      if (currentAdvisor && currentAdvisor.email && currentAdvisor.email.toLowerCase() === email.toLowerCase()) {
+        showAppNotification(t('forms.advisorAlreadyLinked'), "error");
+        return;
+      }
+
       const submitBtn = asesorForm.querySelector('[type="submit"]');
       if (submitBtn) submitBtn.disabled = true;
 

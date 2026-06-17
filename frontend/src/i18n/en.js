@@ -863,6 +863,7 @@ export const en = {
   'forms.profileUpdated': 'Profile updated successfully',
   'forms.passwordUpdated': 'Password updated successfully',
   'forms.completeAdvisorFields': "Complete the advisor's name and email",
+  'forms.advisorAlreadyLinked': 'This advisor is already linked to your account',
   'forms.advisorAdded': 'Advisor added and code generated',
   'forms.selectValidImage': 'Select a valid image file',
   'forms.profilePhotoUpdated': 'Profile photo updated',

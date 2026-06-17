@@ -863,6 +863,7 @@ export const es = {
   'forms.profileUpdated': 'Perfil actualizado correctamente',
   'forms.passwordUpdated': 'Contrasena actualizada correctamente',
   'forms.completeAdvisorFields': 'Completa el nombre y el email del asesor',
+  'forms.advisorAlreadyLinked': 'Este asesor ya está vinculado a tu cuenta',
   'forms.advisorAdded': 'Asesor agregado y codigo generado',
   'forms.selectValidImage': 'Selecciona un archivo de imagen valido',
   'forms.profilePhotoUpdated': 'Foto de perfil actualizada',
