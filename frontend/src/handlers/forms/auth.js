@@ -16,7 +16,16 @@ import {
   verifyRegistrationEmail,
   resendRegistrationCode,
   syncProfileFromUser,
+  loadDashboardBalances,
+  loadMovimientos,
 } from "../../api/user";
+import { loadAhorros } from "../../api/ahorros";
+import { loadRecomendaciones } from "../../api/recomendaciones";
+import { loadAsesorClientes, loadAllAsesorRecomendaciones } from "../../api/asesor";
+import { loadBudgets } from "../../api/budgets";
+import { loadCategories } from "../../api/categories";
+import { loadTags } from "../../api/tags";
+
 
 let registroExitosoRedirectTimeoutId = null;
 let registroExitosoCountdownIntervalId = null;
@@ -33,7 +42,7 @@ export function clearRegistroExitosoAutoRedirect() {
   }
 }
 
-export function attachAuthFormHandlers(pathname, { navigate }) {
+export function attachAuthFormHandlers(pathname, { navigate, render }) {
   if (pathname !== "/registro/exitoso") {
     clearRegistroExitosoAutoRedirect();
   }
@@ -115,6 +124,24 @@ export function attachAuthFormHandlers(pathname, { navigate }) {
         const data = await response.json();
         localStorage.setItem(ACCESS_TOKEN_KEY, data.access_token);
         syncProfileFromUser(data.user);
+
+        // Load all initial user data in the background (non-blocking)
+        Promise.all([
+          loadDashboardBalances(),
+          loadMovimientos(),
+          loadAhorros(),
+          loadRecomendaciones(),
+          loadAsesorClientes(),
+          loadAllAsesorRecomendaciones(),
+          loadBudgets(),
+          loadCategories(),
+          loadTags(),
+        ]).catch((err) => {
+          console.warn("Error background loading after login:", err);
+        }).finally(() => {
+          render();
+        });
+
         navigate("/dashboard");
       } catch (error) {
         const message = error instanceof Error ? error.message : t('forms.couldNotLogin');
