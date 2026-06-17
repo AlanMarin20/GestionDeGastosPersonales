@@ -272,7 +272,7 @@ export function renderDetalleClientePage({
       <section id="recomendaciones-historicas" class="row g-2 g-md-2 mt-2 mb-2">
         <div class="col-12 col-lg-6">
           <div class="gd-card gd-client-detail-fixed-card">
-            <div class="card-body p-0 gd-client-recommend-form-body">
+            <div class="card-body p-3 gd-client-recommend-form-body" style="height: 100%;">
               <h5 class="card-title mb-2">${t('cliente.addRecommendationFor', { name: escapeHtml(cliente.nombre) })}</h5>
               <form id="agregarRecomendacionForm" class="gd-client-recommend-form">
                 <div class="mb-2">
@@ -301,8 +301,16 @@ export function renderDetalleClientePage({
             recommendations: detalle.recomendaciones,
             emptyText: t('cliente.noRecommendationsYet'),
             cardClass: "gd-client-detail-fixed-card",
-            maxHeight: "100%",
-            bodyStyle: "height: 100%; padding: 0;",
+            bodyStyle: "height: 100%; display: flex; flex-direction: column; padding: 1rem;",
+            itemsWrapperClass: "d-flex flex-column gap-2 overflow-y-auto flex-grow-1 pe-1",
+            itemRenderer: (item, index) => `
+              <div class="alert ${index % 2 === 0 ? 'alert-info' : 'alert-warning'} alert-sm mb-0 fp-recommendation-item" role="alert">
+                <div class="fp-rec-header mb-2">
+                  <small><strong>${escapeHtml(cliente.nombre)}</strong>${item.titulo ? ` | <strong>${escapeHtml(item.titulo)}</strong>` : ''}</small>
+                </div>
+                <small class="fp-recommendation-item-text d-block">${escapeHtml(item.texto)}</small>
+              </div>
+            `
           })}
         </div>
       </section>

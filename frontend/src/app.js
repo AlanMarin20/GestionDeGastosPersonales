@@ -72,6 +72,8 @@ export function navigate(path, replace = false) {
   }
 }
 
+let lastPathname = null;
+
 export function render() {
   const pathname = window.location.pathname;
 
@@ -89,9 +91,15 @@ export function render() {
   document.body.style.overflow = '';
   document.body.style.paddingRight = '';
 
-  // Guardar el estado del elemento enfocado
+  // Guardar el estado del elemento enfocado y la posición del scroll (si seguimos en la misma ruta)
   const focusedElementId = document.activeElement?.id;
   const cursorPosition = document.activeElement?.selectionStart;
+
+  const scrollContainer = document.getElementById("main-content-wrapper");
+  const scrollTop = (scrollContainer && lastPathname === pathname) ? scrollContainer.scrollTop : 0;
+  const scrollLeft = (scrollContainer && lastPathname === pathname) ? scrollContainer.scrollLeft : 0;
+
+  lastPathname = pathname;
 
   const view = buildRouteView(pathname);
 
@@ -112,6 +120,15 @@ export function render() {
       if (typeof cursorPosition === 'number' && element.setSelectionRange) {
         element.setSelectionRange(cursorPosition, cursorPosition);
       }
+    }
+  }
+
+  // Restaurar posición de scroll del wrapper principal
+  if (scrollTop || scrollLeft) {
+    const newScrollContainer = document.getElementById("main-content-wrapper");
+    if (newScrollContainer) {
+      newScrollContainer.scrollTop = scrollTop;
+      newScrollContainer.scrollLeft = scrollLeft;
     }
   }
 }

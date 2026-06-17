@@ -123,7 +123,7 @@ function getBrandTarget(pathname) {
 function renderDashboardLayout(content, { showScrollTop = true } = {}) {
   return `
     <div class="d-flex min-vh-100 overflow-hidden" style="background-color: var(--app-surface-bg);">
-      <div class="flex-grow-1 d-flex flex-column h-100 overflow-y-auto w-100">
+      <div id="main-content-wrapper" class="flex-grow-1 d-flex flex-column h-100 overflow-y-auto w-100">
         <main class="container-fluid py-4 px-3 px-md-4 flex-grow-1">
           ${content}
         </main>

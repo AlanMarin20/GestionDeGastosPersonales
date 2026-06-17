@@ -793,8 +793,9 @@ body.theme-dark .gd-sparkline-row-evolution .gd-spark-label {
 }
 
 .gd-client-detail-fixed-card {
-  height: 240px;
+  height: 290px;
   overflow: hidden;
+}
 
 .gd-settings-advisor-profile {
   display: flex;
@@ -863,7 +864,6 @@ body.theme-dark .gd-sparkline-row-evolution .gd-spark-label {
   padding: 1rem;
   text-align: center;
   color: var(--gd-text);
-}
 }
 
 .gd-client-detail-fixed-card .card-body {
