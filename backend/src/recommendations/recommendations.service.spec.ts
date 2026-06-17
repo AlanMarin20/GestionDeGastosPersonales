@@ -3,6 +3,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { NotFoundException } from '@nestjs/common';
 import { RecommendationsService } from './recommendations.service';
 import { Recommendation } from './entities/recommendation.entity';
+import { AiRecommendationsService } from './ai-recommendations.service';
 
 const USER_ID = 'user-uuid';
 const ADVISOR_ID = 'advisor-uuid';
@@ -16,6 +17,7 @@ describe('RecommendationsService', () => {
   let mockCreate: jest.Mock;
   let mockSave: jest.Mock;
   let mockRemove: jest.Mock;
+  let mockGenerateForUser: jest.Mock;
 
   beforeEach(async () => {
     mockQuery = jest.fn();
@@ -24,6 +26,7 @@ describe('RecommendationsService', () => {
     mockCreate = jest.fn();
     mockSave = jest.fn();
     mockRemove = jest.fn();
+    mockGenerateForUser = jest.fn();
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -39,6 +42,12 @@ describe('RecommendationsService', () => {
             remove: mockRemove,
           },
         },
+        {
+          provide: AiRecommendationsService,
+          useValue: {
+            generateForUser: mockGenerateForUser,
+          },
+        },
       ],
     }).compile();
 
@@ -49,7 +58,7 @@ describe('RecommendationsService', () => {
 
   describe('getHistoria', () => {
     const iaRow = {
-      emisor: 'IA',
+      emisor: 'ia',
       contenido: 'Recomendación de la IA',
       creado_en: new Date('2026-05-01'),
     };
@@ -131,7 +140,18 @@ describe('RecommendationsService', () => {
       mockFind.mockResolvedValue(recs);
 
       const result = await service.findAllForUser(USER_ID);
-      expect(result).toEqual(recs);
+      expect(result).toEqual([
+        {
+          id: REC_ID,
+          title: '',
+          body: 'Test',
+          severity: 'info',
+          source: 'ia',
+          date: '',
+          category: '',
+          wasRead: undefined,
+        },
+      ]);
       expect(mockFind).toHaveBeenCalledWith({
         where: { user: { id: USER_ID } },
         relations: { advisor: true },
@@ -199,6 +219,38 @@ describe('RecommendationsService', () => {
       await expect(service.removeForUser(REC_ID, USER_ID)).rejects.toThrow(
         NotFoundException,
       );
+    });
+  });
+
+  // ─── generateAiRecommendations ────────────────────────────────────────────
+
+  describe('generateAiRecommendations', () => {
+    it('debe generar recomendaciones con IA y guardarlas en base de datos', async () => {
+      const mockRawRecs = [
+        { titulo: 'Ahorra más', contenido: 'Contenido test', tipo: 'consejo', severidad: 'info', categoria: 'Ahorros' },
+      ];
+      mockGenerateForUser.mockResolvedValue(mockRawRecs);
+
+      const mockSavedRec = {
+        id: 'rec-1',
+        titulo: 'Ahorra más',
+        contenido: 'Contenido test',
+        tipo: 'consejo',
+        severidad: 'info',
+        categoria: 'Ahorros',
+        createdAt: new Date(),
+        wasRead: false,
+      };
+      mockCreate.mockReturnValue(mockSavedRec);
+      mockSave.mockResolvedValue(mockSavedRec);
+
+      const result = await service.generateAiRecommendations(USER_ID);
+
+      expect(mockGenerateForUser).toHaveBeenCalledWith(USER_ID);
+      expect(mockCreate).toHaveBeenCalled();
+      expect(mockSave).toHaveBeenCalled();
+      expect(result).toHaveLength(1);
+      expect(result[0].title).toBe('Ahorra más');
     });
   });
 });

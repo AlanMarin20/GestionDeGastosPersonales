@@ -2,20 +2,23 @@ import { renderDashboardAppLayout } from "../components/dashboard/dashboardAppLa
 import { escapeHtml } from "../utils/sanitize";
 import { t } from "../i18n";
 
-function benefitItem(text) {
-  return `
-    <li class="gd-onboarding-list-item">
-      <span class="gd-onboarding-check" aria-hidden="true">✓</span>
-      <span>${escapeHtml(text)}</span>
-    </li>`;
-}
+function onboardingCard({ title, icon, items, isBenefit }) {
+  const cardClass = isBenefit ? 'gd-onboarding-card gd-onboarding-card--benefits' : 'gd-onboarding-card gd-onboarding-card--responsibilities';
+  const iconClass = isBenefit ? 'gd-onboarding-check' : 'gd-onboarding-warn';
+  const marker = isBenefit ? '✓' : '!';
 
-function respItem(text) {
   return `
-    <li class="gd-onboarding-list-item">
-      <span class="gd-onboarding-warn" aria-hidden="true">!</span>
-      <span>${escapeHtml(text)}</span>
-    </li>`;
+    <div class="${cardClass}">
+      <h3 class="gd-onboarding-card-heading">${icon} ${escapeHtml(title)}</h3>
+      <ul class="gd-onboarding-list">
+        ${items.map(text => `
+          <li class="gd-onboarding-list-item">
+            <span class="${iconClass}" aria-hidden="true">${marker}</span>
+            <span>${escapeHtml(text)}</span>
+          </li>
+        `).join('')}
+      </ul>
+    </div>`;
 }
 
 export function renderAsesorOnboardingPage({ profileImage, profileName, showModal = false, termsAccepted = false }) {
@@ -64,24 +67,18 @@ export function renderAsesorOnboardingPage({ profileImage, profileName, showModa
       </div>
 
       <div class="gd-onboarding-grid">
-        <div class="gd-card">
-          <div class="gd-card-header">
-            <h3 class="gd-card-title">✨ ${escapeHtml(t('onboarding.benefitsTitle'))}</h3>
-          </div>
-          <ul class="gd-onboarding-list">
-            ${[t('onboarding.benefit1'), t('onboarding.benefit2'), t('onboarding.benefit3'), t('onboarding.benefit4')]
-              .map(benefitItem).join('')}
-          </ul>
-        </div>
-        <div class="gd-card">
-          <div class="gd-card-header">
-            <h3 class="gd-card-title">⚖️ ${escapeHtml(t('onboarding.responsibilitiesTitle'))}</h3>
-          </div>
-          <ul class="gd-onboarding-list">
-            ${[t('onboarding.resp1'), t('onboarding.resp2'), t('onboarding.resp3'), t('onboarding.resp4')]
-              .map(respItem).join('')}
-          </ul>
-        </div>
+        ${onboardingCard({
+          title: t('onboarding.benefitsTitle'),
+          icon: '✨',
+          items: [t('onboarding.benefit1'), t('onboarding.benefit2'), t('onboarding.benefit3'), t('onboarding.benefit4')],
+          isBenefit: true
+        })}
+        ${onboardingCard({
+          title: t('onboarding.responsibilitiesTitle'),
+          icon: '⚖️',
+          items: [t('onboarding.resp1'), t('onboarding.resp2'), t('onboarding.resp3'), t('onboarding.resp4')],
+          isBenefit: false
+        })}
       </div>
 
       <div class="gd-onboarding-cta-wrap">

@@ -156,6 +156,37 @@ describe('BalancesService', () => {
       expect(mockQuery.mock.calls[1][1]).toEqual([USER_ID]);
       expect(mockQuery.mock.calls[2][1]).toEqual([USER_ID]);
     });
+
+    it('verifica que el gasto y el ingreso mensual filtren únicamente por el mes actual y no sean transferencias internas', async () => {
+      mockQuery
+        .mockResolvedValueOnce([{ egreso: '12000', ingreso: '45000' }])
+        .mockResolvedValueOnce([{ neto: '33000' }])
+        .mockResolvedValueOnce([{ total: '5000' }]);
+
+      await service.getDashboard(USER_ID);
+
+      const statsQuery = mockQuery.mock.calls[0][0];
+      expect(statsQuery).toContain("DATE_TRUNC('month', fecha) = DATE_TRUNC('month', CURRENT_DATE)");
+      expect(statsQuery).toContain('es_transferencia_interna = FALSE');
+      expect(statsQuery).toContain("tipo = 'egreso'");
+      expect(statsQuery).toContain("tipo = 'ingreso'");
+    });
+
+    it('verifica que el dinero disponible calcule el balance neto acumulado global de la cuenta y permita valores negativos', async () => {
+      mockQuery
+        .mockResolvedValueOnce([{ egreso: '20000', ingreso: '30000' }])
+        .mockResolvedValueOnce([{ neto: '-5000' }]) // balance negativo
+        .mockResolvedValueOnce([{ total: '0' }]);
+
+      const result = await service.getDashboard(USER_ID);
+
+      expect(result.dineroDisponible).toBe(-5000);
+
+      const netQuery = mockQuery.mock.calls[1][0];
+      expect(netQuery).not.toContain("DATE_TRUNC('month'"); // balance neto global, sin limite de mes
+      expect(netQuery).toContain("COALESCE(SUM(CASE WHEN tipo = 'ingreso' THEN monto ELSE 0 END), 0) -");
+      expect(netQuery).toContain("COALESCE(SUM(CASE WHEN tipo = 'egreso'  THEN monto ELSE 0 END), 0) AS neto");
+    });
   });
 
   // ─── getGraficoGastos ─────────────────────────────────────────────────────
