@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 import { Recommendation } from '../recommendations/entities/recommendation.entity';
+import { NotificationsService } from '../notifications/notifications.service';
 
 type OrdenClientes = 'riesgo' | 'nombre' | 'ingreso';
 
@@ -17,6 +18,7 @@ export class AsesorService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(Recommendation)
     private readonly recommendationRepository: Repository<Recommendation>,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async getClientesAsignados(
@@ -322,13 +324,29 @@ export class AsesorService {
   }
 
   async getRecomendacionesEnviadas(clienteId: string, advisorId: string) {
+    const exists: { exists: boolean }[] =
+      await this.userRepository.manager.query(
+        `SELECT EXISTS (
+         SELECT 1 FROM usuarios WHERE id = $1 AND asesor_id = $2
+       ) AS exists`,
+        [clienteId, advisorId],
+      );
+
+    if (!exists[0]?.exists) {
+      throw new NotFoundException(
+        'Cliente no encontrado o no pertenece a este asesor',
+      );
+    }
+
     // Obtener últimas 2 recomendaciones sin filtrar por tipo
     const rows: any[] = await this.userRepository.manager.query(
       `
         SELECT 
+          id,
           titulo,
           contenido,
           tipo,
+          fue_leida as "fueLeida",
           creado_en as "creadoEn"
         FROM recomendaciones
         WHERE usuario_id = $1
@@ -339,21 +357,39 @@ export class AsesorService {
     );
 
     return rows.map((r) => ({
+      id: r.id,
       titulo: r.titulo || '',
       contenido: r.contenido,
       tipo: r.tipo,
+      fueLeida: r.fueLeida,
       creadoEn: r.creadoEn,
     }));
   }
 
   async getRecomendacionesHistoricas(clienteId: string, advisorId: string) {
+    const exists: { exists: boolean }[] =
+      await this.userRepository.manager.query(
+        `SELECT EXISTS (
+         SELECT 1 FROM usuarios WHERE id = $1 AND asesor_id = $2
+       ) AS exists`,
+        [clienteId, advisorId],
+      );
+
+    if (!exists[0]?.exists) {
+      throw new NotFoundException(
+        'Cliente no encontrado o no pertenece a este asesor',
+      );
+    }
+
     // Obtener todas las recomendaciones sin límite
     const rows: any[] = await this.userRepository.manager.query(
       `
         SELECT 
+          id,
           titulo,
           contenido,
           tipo,
+          fue_leida as "fueLeida",
           creado_en as "creadoEn"
         FROM recomendaciones
         WHERE usuario_id = $1
@@ -363,9 +399,11 @@ export class AsesorService {
     );
 
     return rows.map((r) => ({
+      id: r.id,
       titulo: r.titulo || '',
       contenido: r.contenido,
       tipo: r.tipo,
+      fueLeida: r.fueLeida,
       creadoEn: r.creadoEn,
     }));
   }
@@ -397,6 +435,12 @@ export class AsesorService {
         'Cliente no encontrado o no pertenece a este asesor',
       );
     }
+
+    // Create a notification for the user
+    await this.notificationsService.create(clienteId, {
+      message: `Nueva recomendación de tu asesor: "${titulo || (contenido.length > 30 ? contenido.slice(0, 30) + '...' : contenido)}"`,
+      type: 'info',
+    });
 
     return {
       id: result[0].id,

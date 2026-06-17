@@ -4,6 +4,7 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { AsesorService } from './asesor.service';
 import { User } from '../users/entities/user.entity';
 import { Recommendation } from '../recommendations/entities/recommendation.entity';
+import { NotificationsService } from '../notifications/notifications.service';
 
 const ADVISOR_ID = 'advisor-uuid';
 const CLIENT_ID = 'client-uuid';
@@ -13,11 +14,13 @@ describe('AsesorService', () => {
   let mockQuery: jest.Mock;
   let mockCreate: jest.Mock;
   let mockSave: jest.Mock;
+  let mockNotificationsCreate: jest.Mock;
 
   beforeEach(async () => {
     mockQuery = jest.fn();
     mockCreate = jest.fn();
     mockSave = jest.fn();
+    mockNotificationsCreate = jest.fn();
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -29,6 +32,10 @@ describe('AsesorService', () => {
         {
           provide: getRepositoryToken(Recommendation),
           useValue: { create: mockCreate, save: mockSave },
+        },
+        {
+          provide: NotificationsService,
+          useValue: { create: mockNotificationsCreate },
         },
       ],
     }).compile();
@@ -44,6 +51,7 @@ describe('AsesorService', () => {
       nombre_completo: 'Ana García',
       ingreso: '100000',
       egreso: '80000',
+      ahorro: '15000',
       riesgo: '0.8',
     };
 
@@ -58,6 +66,7 @@ describe('AsesorService', () => {
           nombreCompleto: 'Ana García',
           ingreso: 100000,
           egreso: 80000,
+          ahorro: 15000,
           riesgo: 0.8,
         },
       ]);
@@ -224,10 +233,11 @@ describe('AsesorService', () => {
   describe('getRecomendacionesEnviadas', () => {
     const recRow = {
       id: 'rec-1',
+      titulo: '',
       contenido: 'Reducí gastos en entretenimiento',
       tipo: 'general',
-      fue_leida: false,
-      creado_en: new Date('2026-05-01'),
+      fueLeida: false,
+      creadoEn: new Date('2026-05-01'),
     };
 
     it('retorna las recomendaciones mapeadas', async () => {
@@ -243,10 +253,11 @@ describe('AsesorService', () => {
       expect(result).toEqual([
         {
           id: 'rec-1',
+          titulo: '',
           contenido: 'Reducí gastos en entretenimiento',
           tipo: 'general',
           fueLeida: false,
-          creadoEn: recRow.creado_en,
+          creadoEn: recRow.creadoEn,
         },
       ]);
     });
@@ -275,42 +286,40 @@ describe('AsesorService', () => {
   // ─── agregarRecomendacion ─────────────────────────────────────────────────
 
   describe('agregarRecomendacion', () => {
-    const savedRec = {
-      id: 'rec-new',
-      contenido: 'Ahorrá más',
-      tipo: 'general',
-      createdAt: new Date('2026-05-09'),
-    };
+    const createdAt = new Date('2026-05-09');
 
-    it('crea y retorna la recomendación cuando el cliente existe', async () => {
-      mockQuery.mockResolvedValueOnce([{ exists: true }]);
-      mockCreate.mockReturnValue(savedRec);
-      mockSave.mockResolvedValue(savedRec);
+    it('crea y retorna la recomendación y la notificación cuando el cliente existe', async () => {
+      mockQuery.mockResolvedValueOnce([{ id: 'rec-new', creado_en: createdAt }]);
+      mockNotificationsCreate.mockResolvedValue({});
 
       const result = await service.agregarRecomendacion(
         CLIENT_ID,
         ADVISOR_ID,
         'Ahorrá más',
+        'asesor',
+        'Mi Titulo',
       );
 
-      expect(mockCreate).toHaveBeenCalledWith({
-        user: { id: CLIENT_ID },
-        advisor: { id: ADVISOR_ID },
-        contenido: 'Ahorrá más',
-        tipo: 'general',
+      expect(mockQuery).toHaveBeenCalledWith(
+        expect.stringContaining('INSERT INTO recomendaciones'),
+        [CLIENT_ID, ADVISOR_ID, 'Mi Titulo', 'Ahorrá más', 'asesor'],
+      );
+      expect(mockNotificationsCreate).toHaveBeenCalledWith(CLIENT_ID, {
+        message: 'Nueva recomendación de tu asesor: "Mi Titulo"',
+        type: 'info',
       });
       expect(result).toEqual({
         id: 'rec-new',
+        titulo: 'Mi Titulo',
         contenido: 'Ahorrá más',
-        tipo: 'general',
-        creadoEn: savedRec.createdAt,
+        tipo: 'asesor',
+        creadoEn: createdAt,
       });
     });
 
     it('usa el tipo provisto si se especifica', async () => {
-      mockQuery.mockResolvedValueOnce([{ exists: true }]);
-      mockCreate.mockReturnValue({ ...savedRec, tipo: 'ahorro' });
-      mockSave.mockResolvedValue({ ...savedRec, tipo: 'ahorro' });
+      mockQuery.mockResolvedValueOnce([{ id: 'rec-new', creado_en: createdAt }]);
+      mockNotificationsCreate.mockResolvedValue({});
 
       const result = await service.agregarRecomendacion(
         CLIENT_ID,
@@ -322,13 +331,13 @@ describe('AsesorService', () => {
     });
 
     it('lanza NotFoundException si el cliente no pertenece al asesor', async () => {
-      mockQuery.mockResolvedValueOnce([{ exists: false }]);
+      mockQuery.mockResolvedValueOnce([]);
 
       await expect(
         service.agregarRecomendacion(CLIENT_ID, ADVISOR_ID, 'contenido'),
       ).rejects.toThrow(NotFoundException);
 
-      expect(mockCreate).not.toHaveBeenCalled();
+      expect(mockNotificationsCreate).not.toHaveBeenCalled();
     });
   });
 
