@@ -19,6 +19,7 @@ import {
 } from "./api/user";
 import { loadAhorros } from "./api/ahorros";
 import { loadRecomendaciones } from "./api/recomendaciones";
+import { loadNotifications } from "./api/notificaciones";
 import { loadBudgets } from "./api/budgets";
 import { loadCategories } from "./api/categories";
 import { loadTags } from "./api/tags";
@@ -168,6 +169,7 @@ export function init() {
         loadMovimientos(),
         loadAhorros(),
         loadRecomendaciones(),
+        loadNotifications(),
         loadAsesorClientes(),
         loadAllAsesorRecomendaciones(),
         loadBudgets(),

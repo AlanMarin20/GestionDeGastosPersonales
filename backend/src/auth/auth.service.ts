@@ -255,10 +255,19 @@ export class AuthService {
   private async buildAuthResponse(userId: string, email: string) {
     const payload = { sub: userId, email };
     const publicUser = await this.usersService.findPublicById(userId);
+    const userRoles = await this.dataSource.getRepository(UserRole).find({
+      where: { user: { id: userId } },
+      relations: { role: true },
+    });
 
     return {
       access_token: await this.jwtService.signAsync(payload),
-      user: publicUser,
+      user: {
+        ...publicUser,
+        roles: userRoles
+          .map((ur) => ur.role?.nombre)
+          .filter((name): name is string => Boolean(name)),
+      },
     };
   }
 
@@ -512,10 +521,19 @@ export class AuthService {
   private async buildAuthResponse(userId: string, email: string) {
     const payload = { sub: userId, email };
     const publicUser = await this.usersService.findPublicById(userId);
+    const userRoles = await this.dataSource.getRepository(UserRole).find({
+      where: { user: { id: userId } },
+      relations: { role: true },
+    });
 
     return {
       access_token: await this.jwtService.signAsync(payload),
-      user: publicUser,
+      user: {
+        ...publicUser,
+        roles: userRoles
+          .map((ur) => ur.role?.nombre)
+          .filter((name): name is string => Boolean(name)),
+      },
     };
   }
 }

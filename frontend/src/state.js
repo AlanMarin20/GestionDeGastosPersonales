@@ -177,4 +177,6 @@ export const state = {
     movimientosGrandes: true,
     recomendacionesIA: true,
   },
+  notifications: [],
 };
+

@@ -149,11 +149,9 @@ export function renderDashboardAppLayout({
 }) {
   const initials = buildInitials(profileName);
   const roleLabel = isAsesor ? t('header.role.advisor') : t('header.role.user');
-  const notificationsRoute = isAsesor
-    ? "/dashboard/asesor"
-    : "/dashboard/recomendaciones";
+  const notificationsRoute = "/perfil/notificaciones";
 
-  const notifData = isAsesor ? { count: notificationCount, items: [] } : getUnreadNotifications();
+  const notifData = getUnreadNotifications();
   const resolvedCount = notifData.count;
   const resolvedItems = notifData.items;
   const primaryAction = isAsesor
@@ -250,7 +248,7 @@ export function renderDashboardAppLayout({
                     <a href="${escapeHtml(notificationsRoute)}" data-link class="gd-notification-item">
                       <span class="gd-notification-item-title">${t('layout.viewMoreAlerts', { count: resolvedCount - 4 })}</span>
                     </a>` : ""}
-                  <a href="/perfil/notificaciones" data-link class="gd-notification-item">
+                  <a href="/perfil/configuracion#config-notificaciones" data-link class="gd-notification-item">
                     <span class="gd-notification-item-title">${t('layout.notificationPreferences')}</span>
                     <span class="gd-notification-item-sub">${t('layout.notificationPreferencesSub')}</span>
                   </a>

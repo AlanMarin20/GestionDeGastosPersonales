@@ -30,6 +30,14 @@ export function renderPreferencesSections({ activeSection, config, state }) {
 
         <label class="gd-settings-toggle-row">
           <div>
+            <p class="gd-card-title gd-card-title-xs mb-0">${t('prefNotif.paymentAlert')}</p>
+            <small class="gd-muted">${t('prefNotif.paymentAlertDesc')}</small>
+          </div>
+          <input class="form-check-input mt-0" type="checkbox" id="alertaPago" ${state.notificaciones?.alertaPago !== false ? "checked" : ""}>
+        </label>
+
+        <label class="gd-settings-toggle-row">
+          <div>
             <p class="gd-card-title gd-card-title-xs mb-0">${t('config.budget80')}</p>
             <small class="gd-muted">${t('config.budget80Sub')}</small>
           </div>

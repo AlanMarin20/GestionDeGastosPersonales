@@ -30,7 +30,7 @@ import { renderRecomendacionesHistoricasPage as renderRecomendacionesHistoricasP
 import { renderPatronesPage as renderPatronesPageView } from "./pages/PatronesPage";
 import { renderRecHistoricasClientePage as renderRecHistoricasClientePageView } from "./pages/RecHistoricasClientePage";
 import { renderEditarPerfilPage as renderEditarPerfilPageView } from "./pages/EditarPerfilPage";
-import { renderPreferenciaNotificacionesPageView } from "./pages/PreferenciaNotificacionesPage";
+import { renderNotificacionesPage as renderNotificacionesPageView } from "./pages/NotificacionesPage";
 import { renderLandingPage as renderLandingPageView } from "./pages/LandingPage";
 import { renderFaqPage as renderFaqPageView } from "./pages/FaqPage";
 import { renderSobreNosotrosPage as renderSobreNosotrosPageView } from "./pages/SobreNosotrosPage";
@@ -51,6 +51,8 @@ import { DEFAULT_PROFILE_IMAGE } from "./config";
 import { formatMonthLabelLong } from "./utils/date";
 import { formatCurrency } from "./utils/format";
 import { state } from "./state";
+import { markAllNotificationsAsRead } from "./api/notificaciones";
+import { render } from "./app";
 import {
   getDashboardMonthlySeries,
   getDashboardCategorySummary,
@@ -497,11 +499,13 @@ function renderConfiguracionCuentaPage() {
   });
 }
 
-function renderPreferenciaNotificacionesPage() {
-  return renderPreferenciaNotificacionesPageView({
-    state,
+function renderNotificacionesPage() {
+  return renderNotificacionesPageView({
     ...getProfileProps(),
-    isAsesor: isUserAsesor() && isAdvisorModeActive(),
+    activePath: "/perfil/notificaciones",
+    pageTitle: t('prefNotif.pageTitle'),
+    pageSubtitle: t('prefNotif.pageSubtitle'),
+    notifications: state.notifications || [],
   });
 }
 
@@ -646,7 +650,14 @@ function buildRouteView(pathname) {
   }
 
   if (pathname === "/perfil/notificaciones") {
-    return renderDashboardLayout(renderPreferenciaNotificacionesPage());
+    markAllNotificationsAsRead().finally(() => {
+      try {
+        render();
+      } catch (e) {
+        console.warn(e);
+      }
+    });
+    return renderDashboardLayout(renderNotificacionesPage());
   }
 
   return null;

@@ -60,13 +60,10 @@ function resolveActiveSettingsSection() {
   return SETTINGS_SECTION_IDS.includes(parsed) ? parsed : DEFAULT_SETTINGS_SECTION;
 }
 
-function renderSettingsNav(activeSection, alertsCount = 0) {
+function renderSettingsNav(activeSection) {
   return SETTINGS_NAV_GROUPS.map((group) => {
     const items = group.items.map((item) => {
       const isActive = item.id === activeSection;
-      const badge = item.id === "notificaciones" && alertsCount > 0
-        ? `<span class="gd-settings-nav-badge">${escapeHtml(String(alertsCount))}</span>`
-        : "";
 
       return `
         <button
@@ -78,7 +75,6 @@ function renderSettingsNav(activeSection, alertsCount = 0) {
         >
           <i class="${escapeHtml(item.icon)}" aria-hidden="true"></i>
           <span>${t(item.labelKey)}</span>
-          ${badge}
         </button>
       `;
     }).join("");
@@ -94,12 +90,11 @@ function renderSettingsNav(activeSection, alertsCount = 0) {
 
 export function renderConfiguracionCuentaPage({ state, profileImage, profileName, isAsesor = false }) {
   const activeSection = resolveActiveSettingsSection();
-  const recomendacionesPendientes = state.finanzas?.recomendaciones?.length || 0;
 
   const content = `
     <section class="gd-settings-shell">
       <aside class="gd-settings-nav" aria-label="${t('config.subsectionsAria')}">
-        ${renderSettingsNav(activeSection, recomendacionesPendientes)}
+        ${renderSettingsNav(activeSection)}
       </aside>
       <div class="gd-settings-content">
         ${renderAccountSections({ activeSection, profileImage, profileName, state, config: state.configuracion })}

@@ -369,19 +369,15 @@ export function getFinancialScore() {
 }
 
 export function getUnreadNotifications() {
-  const recs = state.finanzas.recomendaciones || [];
-  const urgent = recs
-    .filter((r) => {
-      const sev = String(r.severity || "").toLowerCase();
-      return sev === "danger" || sev === "warning";
-    })
-    .sort((a, b) => severityRank(a.severity) - severityRank(b.severity));
-  const items = urgent.slice(0, 4).map((r) => ({
-    title: r.title || "Alerta",
-    body: r.body || "",
-    severity: String(r.severity || "warning").toLowerCase(),
+  const notifs = state.notifications || [];
+  const unread = notifs.filter((n) => !n.wasRead);
+  const items = unread.slice(0, 4).map((n) => ({
+    id: n.id,
+    title: n.title || "Notificación",
+    body: n.body || "",
+    severity: String(n.severity || "info").toLowerCase(),
   }));
-  return { count: urgent.length, items };
+  return { count: unread.length, items };
 }
 
 export function getFilteredExpenses() {

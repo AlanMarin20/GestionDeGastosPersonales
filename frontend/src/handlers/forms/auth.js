@@ -21,6 +21,7 @@ import {
 } from "../../api/user";
 import { loadAhorros } from "../../api/ahorros";
 import { loadRecomendaciones } from "../../api/recomendaciones";
+import { loadNotifications } from "../../api/notificaciones";
 import { loadAsesorClientes, loadAllAsesorRecomendaciones } from "../../api/asesor";
 import { loadBudgets } from "../../api/budgets";
 import { loadCategories } from "../../api/categories";
@@ -131,6 +132,7 @@ export function attachAuthFormHandlers(pathname, { navigate, render }) {
           loadMovimientos(),
           loadAhorros(),
           loadRecomendaciones(),
+          loadNotifications(),
           loadAsesorClientes(),
           loadAllAsesorRecomendaciones(),
           loadBudgets(),

@@ -497,7 +497,7 @@ export function attachProfileFormHandlers(pathname, { render }) {
       showAppNotification(t('forms.notifPreferencesSaved'), "success");
     });
 
-    ["resumenSemanal", "alertaPresupuesto", "recomendacionesIA", "movimientosGrandes"].forEach((key) => {
+    ["resumenSemanal", "alertaPago", "alertaPresupuesto", "recomendacionesIA", "movimientosGrandes"].forEach((key) => {
       const input = document.getElementById(key);
       input?.addEventListener("change", (event) => {
         state.notificaciones[key] = event.target.checked;
