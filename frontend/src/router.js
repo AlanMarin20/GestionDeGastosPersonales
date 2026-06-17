@@ -650,13 +650,16 @@ function buildRouteView(pathname) {
   }
 
   if (pathname === "/perfil/notificaciones") {
-    markAllNotificationsAsRead().finally(() => {
-      try {
-        render();
-      } catch (e) {
-        console.warn(e);
-      }
-    });
+    const unreadCount = (state.notifications || []).filter((n) => !n.wasRead).length;
+    if (unreadCount > 0) {
+      markAllNotificationsAsRead().then(() => {
+        try {
+          render();
+        } catch (e) {
+          console.warn(e);
+        }
+      });
+    }
     return renderDashboardLayout(renderNotificacionesPage());
   }
 

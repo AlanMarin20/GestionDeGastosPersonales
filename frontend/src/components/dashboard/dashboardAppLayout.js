@@ -23,7 +23,8 @@ function getNavItems() {
     {
       section: t('nav.section.account'),
       items: [
-        { href: "/perfil/configuracion", label: t('nav.configuration'), icon: "lni lni-cog" },
+        { href: "/perfil/notificaciones",     label: t('nav.notifications'),   icon: "lni lni-alarm"      },
+        { href: "/perfil/configuracion",      label: t('nav.configuration'),   icon: "lni lni-cog"        },
       ],
     },
     {
@@ -40,9 +41,10 @@ function getAdvisorNavItems() {
     {
       section: t('nav.section.advisor'),
       items: [
-        { href: "/dashboard/asesor",          label: t('nav.advisorPortfolio'), icon: "lni lni-users"      },
-        { href: "/dashboard/asesor/recomendaciones", label: t('nav.recommendations'),  icon: "lni lni-bulb"       },
-        { href: "/perfil/configuracion",      label: t('nav.configuration'),    icon: "lni lni-cog"        },
+        { href: "/dashboard/asesor",                  label: t('nav.advisorPortfolio'), icon: "lni lni-users"      },
+        { href: "/dashboard/asesor/recomendaciones",  label: t('nav.recommendations'),  icon: "lni lni-bulb"       },
+        { href: "/perfil/notificaciones",             label: t('nav.notifications'),    icon: "lni lni-alarm"      },
+        { href: "/perfil/configuracion",              label: t('nav.configuration'),    icon: "lni lni-cog"        },
       ],
     },
     {
@@ -144,7 +146,6 @@ export function renderDashboardAppLayout({
   profileImage,
   profileName,
   isAsesor = false,
-  notificationCount = 0,
   sidebarSections = null,
 }) {
   const initials = buildInitials(profileName);

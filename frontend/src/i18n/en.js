@@ -34,6 +34,7 @@ export const en = {
   'nav.savings': 'Savings',
   'nav.recommendations': 'Recommendations',
   'nav.patterns': 'Patterns',
+  'nav.notifications': 'Notifications',
   'nav.configuration': 'Settings',
   'nav.advisorDashboard': 'Advisor dashboard',
   'nav.myDashboard': 'My Dashboard',
