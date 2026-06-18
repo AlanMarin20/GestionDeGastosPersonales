@@ -10,7 +10,7 @@ export class CreateRecommendationDto {
   advisorId?: string;
 
   @IsString()
-  content: string;
+  contenido: string = '';
 
   @IsOptional()
   @IsString()

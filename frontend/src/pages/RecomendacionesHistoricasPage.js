@@ -246,6 +246,8 @@ export function renderRecomendacionesHistoricasPage({
           <option value="">${t('recHist.all')}</option>
           <option value="asesor">${t('rec.sourceAdvisor')}</option>
           <option value="ia">${t('rec.sourceIa')}</option>
+          <option value="">Todos</option>
+          <option value="asesor">Asesor</option>
         </select>
       </div>
 

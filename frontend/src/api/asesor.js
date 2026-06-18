@@ -103,6 +103,26 @@ export async function loadClienteRecomendaciones(clienteId) {
       type: r.tipo || "asesor",
       source: r.tipo || "asesor",
     }));
+    state.detalleCliente.recomendaciones = rows.map((r, idx) => {
+      const dateObj = r.creadoEn ? new Date(r.creadoEn) : null;
+      const formattedDate = dateObj ? dateObj.toLocaleDateString('es-AR', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      }) : "";
+      
+      return {
+        id: `rec-${idx}`,
+        titulo: r.titulo || "",
+        title: r.titulo || "",
+        texto: r.contenido || "",
+        body: r.contenido || "",
+        fecha: formattedDate,
+        date: formattedDate,
+        type: r.tipo || "",
+        source: r.tipo || "",
+      };
+    });
     console.log("Recomendaciones mapeadas:", state.detalleCliente.recomendaciones);
   } catch (error) {
     console.warn("Error cargando recomendaciones del cliente:", error);
