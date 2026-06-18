@@ -11,7 +11,7 @@ const GOAL_ID = 'goal-uuid';
 
 describe('SavingsGoalsService', () => {
   let service: SavingsGoalsService;
-  
+
   let mockCreateGoal: jest.Mock;
   let mockSaveGoal: jest.Mock;
   let mockFindOneGoal: jest.Mock;
@@ -101,7 +101,9 @@ describe('SavingsGoalsService', () => {
       mockQueryGoal.mockResolvedValue([{ neto: '500.00' }]);
 
       await expect(service.create(USER_ID, createDto)).rejects.toThrow(
-        new BadRequestException('El monto inicial supera el dinero disponible (500.00)'),
+        new BadRequestException(
+          'El monto inicial supera el dinero disponible (500.00)',
+        ),
       );
     });
 
@@ -117,7 +119,11 @@ describe('SavingsGoalsService', () => {
       mockCreateGoal.mockReturnValue(mockGoal);
       mockSaveGoal.mockResolvedValue(mockGoal);
 
-      const mockMovimiento = { id: 'movimiento-uuid', tipo: 'egreso', monto: 1000 };
+      const mockMovimiento = {
+        id: 'movimiento-uuid',
+        tipo: 'egreso',
+        monto: 1000,
+      };
       mockCreateMovimiento.mockReturnValue(mockMovimiento);
       mockSaveMovimiento.mockResolvedValue(mockMovimiento);
 
@@ -164,16 +170,25 @@ describe('SavingsGoalsService', () => {
       mockFindOneGoal.mockResolvedValue(mockGoal);
 
       // Mock de balance existente
-      mockFindOneBalance.mockResolvedValue({ id: 'balance-uuid', ahorro: 1500 });
+      mockFindOneBalance.mockResolvedValue({
+        id: 'balance-uuid',
+        ahorro: 1500,
+      });
       mockRemoveGoal.mockResolvedValue(mockGoal);
 
-      const mockMovimiento = { id: 'movimiento-uuid', tipo: 'ingreso', monto: 1500 };
+      const mockMovimiento = {
+        id: 'movimiento-uuid',
+        tipo: 'ingreso',
+        monto: 1500,
+      };
       mockCreateMovimiento.mockReturnValue(mockMovimiento);
       mockSaveMovimiento.mockResolvedValue(mockMovimiento);
 
       const result = await service.remove(GOAL_ID, USER_ID);
 
-      expect(result).toEqual({ message: 'Meta de ahorro eliminada correctamente' });
+      expect(result).toEqual({
+        message: 'Meta de ahorro eliminada correctamente',
+      });
       expect(mockRemoveGoal).toHaveBeenCalledWith(mockGoal);
 
       // Verificar que el monto se devuelva como un ingreso

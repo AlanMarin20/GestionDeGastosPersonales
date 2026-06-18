@@ -95,7 +95,6 @@ export function renderPatronesPage({
   pageTitle,
   pageSubtitle,
   metrics,
-  categorySummary,
   merchantRanking,
   unusualMessages,
   evolutionRows,

@@ -115,10 +115,10 @@ const runE2E = process.env.RUN_E2E === 'true';
 
   it('2. links client to advisor', async () => {
     // Link via direct SQL for testing
-    await dataSource.query(
-      `UPDATE usuarios SET asesor_id = $1 WHERE id = $2`,
-      [advisorId, clientId],
-    );
+    await dataSource.query(`UPDATE usuarios SET asesor_id = $1 WHERE id = $2`, [
+      advisorId,
+      clientId,
+    ]);
 
     // Verify relation
     const [user] = await dataSource.query(
@@ -166,7 +166,9 @@ const runE2E = process.env.RUN_E2E === 'true';
       .expect(200);
 
     const recNotif = notifsRes.body.find(
-      (n: any) => n.mensaje.includes('Control de Gastos') || n.mensaje.includes('recomendación'),
+      (n: any) =>
+        n.mensaje.includes('Control de Gastos') ||
+        n.mensaje.includes('recomendación'),
     );
     expect(recNotif).toBeDefined();
     expect(recNotif.mensaje).toContain('Nueva recomendación de tu asesor');

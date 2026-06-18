@@ -227,7 +227,13 @@ describe('RecommendationsService', () => {
   describe('generateAiRecommendations', () => {
     it('debe generar recomendaciones con IA y guardarlas en base de datos', async () => {
       const mockRawRecs = [
-        { titulo: 'Ahorra más', contenido: 'Contenido test', tipo: 'consejo', severidad: 'info', categoria: 'Ahorros' },
+        {
+          titulo: 'Ahorra más',
+          contenido: 'Contenido test',
+          tipo: 'consejo',
+          severidad: 'info',
+          categoria: 'Ahorros',
+        },
       ];
       mockGenerateForUser.mockResolvedValue(mockRawRecs);
 

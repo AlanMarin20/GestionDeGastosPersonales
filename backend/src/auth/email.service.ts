@@ -18,7 +18,8 @@ export class EmailService implements OnModuleInit {
     const fromName =
       this.configService.get<string>('SMTP_FROM_NAME') ?? 'GestiónGastos';
     const fromEmail =
-      this.configService.get<string>('SMTP_FROM_EMAIL') ?? 'onboarding@resend.dev';
+      this.configService.get<string>('SMTP_FROM_EMAIL') ??
+      'onboarding@resend.dev';
 
     if (resendApiKey) {
       this.resend = new Resend(resendApiKey);

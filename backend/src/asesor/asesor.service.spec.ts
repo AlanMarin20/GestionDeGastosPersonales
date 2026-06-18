@@ -289,7 +289,9 @@ describe('AsesorService', () => {
     const createdAt = new Date('2026-05-09');
 
     it('crea y retorna la recomendación y la notificación cuando el cliente existe', async () => {
-      mockQuery.mockResolvedValueOnce([{ id: 'rec-new', creado_en: createdAt }]);
+      mockQuery.mockResolvedValueOnce([
+        { id: 'rec-new', creado_en: createdAt },
+      ]);
       mockNotificationsCreate.mockResolvedValue({});
 
       const result = await service.agregarRecomendacion(
@@ -318,7 +320,9 @@ describe('AsesorService', () => {
     });
 
     it('usa el tipo provisto si se especifica', async () => {
-      mockQuery.mockResolvedValueOnce([{ id: 'rec-new', creado_en: createdAt }]);
+      mockQuery.mockResolvedValueOnce([
+        { id: 'rec-new', creado_en: createdAt },
+      ]);
       mockNotificationsCreate.mockResolvedValue({});
 
       const result = await service.agregarRecomendacion(

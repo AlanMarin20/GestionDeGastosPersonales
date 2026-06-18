@@ -1,7 +1,6 @@
 import { state } from "../../state";
 import { t } from "../../i18n";
 import { showAppNotification } from "../../ui/notifications";
-import { saveAppPreferences } from "../../ui/theme";
 import { generateAiRecommendations } from "../../api/recomendaciones";
 
 export function attachNotificationFormHandlers(pathname, { render }) {

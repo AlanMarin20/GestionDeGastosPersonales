@@ -338,12 +338,13 @@ body.theme-dark .gd-csv-btn {
   font-size: 0.68rem;
   font-weight: 700;
   gap: 0.3rem;
+  transition: all 0.15s ease-in-out;
 }
 
 .gd-action-btn:hover {
-  color: #1e3a8a;
-  border-color: rgba(56, 189, 248, 0.65);
-  background: rgba(56, 189, 248, 0.14);
+  color: #ffffff;
+  border-color: var(--gd-accent-2);
+  background: var(--gd-accent-2);
 }
 
 .gd-action-btn.danger {
@@ -351,8 +352,8 @@ body.theme-dark .gd-csv-btn {
 }
 
 .gd-action-btn.danger:hover {
-  border-color: rgba(239, 68, 68, 0.55);
-  background: rgba(239, 68, 68, 0.12);
-  color: #991b1b;
+  border-color: var(--gd-danger);
+  background: var(--gd-danger);
+  color: #ffffff;
 }
 

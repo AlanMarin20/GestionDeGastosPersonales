@@ -8,7 +8,6 @@ import {
   normalizeThemeMode,
   normalizeFontSizeMode,
   normalizeDensityMode,
-  normalizeCurrency,
 } from "../utils/format";
 
 export function applyTheme(isDark) {

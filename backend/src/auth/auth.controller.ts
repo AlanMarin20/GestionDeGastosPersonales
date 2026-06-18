@@ -110,10 +110,7 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Post('verify-reset-code')
-  verifyResetCode(
-    @Body('email') email: string,
-    @Body('code') code: string,
-  ) {
+  verifyResetCode(@Body('email') email: string, @Body('code') code: string) {
     return this.authService.verifyResetCode(email, code);
   }
 

@@ -58,9 +58,12 @@ export class AiRecommendationsService {
         [userId],
       );
 
-    const gastosCat: { categoria: string; total: string; porcentaje: string }[] =
-      await manager.query(
-        `SELECT
+    const gastosCat: {
+      categoria: string;
+      total: string;
+      porcentaje: string;
+    }[] = await manager.query(
+      `SELECT
            COALESCE(c.nombre, 'Sin categoría') AS categoria,
            SUM(m.monto) AS total,
            ROUND(SUM(m.monto) * 100.0 / NULLIF(SUM(SUM(m.monto)) OVER (), 0), 1) AS porcentaje
@@ -73,8 +76,8 @@ export class AiRecommendationsService {
          GROUP BY COALESCE(c.nombre, 'Sin categoría')
          ORDER BY total DESC
          LIMIT 8`,
-        [userId],
-      );
+      [userId],
+    );
 
     const presupuestos: {
       categoria: string;
@@ -134,7 +137,9 @@ export class AiRecommendationsService {
     return { balance, gastosCat, presupuestos, metas, tendencia };
   }
 
-  private buildPrompt(ctx: Awaited<ReturnType<typeof this.gatherFinancialContext>>) {
+  private buildPrompt(
+    ctx: Awaited<ReturnType<typeof this.gatherFinancialContext>>,
+  ) {
     const { balance, gastosCat, presupuestos, metas, tendencia } = ctx;
 
     const ing = Number(balance?.ingreso ?? 0);
@@ -239,9 +244,12 @@ Reglas:
     try {
       const parsed = JSON.parse(cleaned.slice(start, end + 1));
       if (!Array.isArray(parsed)) return [];
-      return parsed.slice(0, 5).filter(
-        (r) => typeof r.titulo === 'string' && typeof r.contenido === 'string',
-      );
+      return parsed
+        .slice(0, 5)
+        .filter(
+          (r) =>
+            typeof r.titulo === 'string' && typeof r.contenido === 'string',
+        );
     } catch (err) {
       this.logger.error('Error parseando respuesta de Groq', err);
       return [];

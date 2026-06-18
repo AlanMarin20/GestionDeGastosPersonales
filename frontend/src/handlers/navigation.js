@@ -31,7 +31,7 @@ import {
 import { apiFetch } from "../api/client";
 import { loadDashboardBalances, loadMovimientos } from "../api/user";
 import { loadAhorros, updateAhorro, deleteAhorro, depositarAhorro, retirarAhorro } from "../api/ahorros";
-import { apiDesvincularCliente, loadAsesorClientes, activateAdvisor } from "../api/asesor";
+import { apiDesvincularCliente, activateAdvisor } from "../api/asesor";
 import { loadBudgets, deleteBudget, createBudget, updateBudget } from "../api/budgets";
 import { loadCategories, deleteCategory } from "../api/categories";
 import { createTag } from "../api/tags";
@@ -92,9 +92,18 @@ export function attachGlobalNavigation({ navigate, render }) {
         navigate(target);
       }
     },
-    logout: ({ event }) => {
+    logout: async ({ event }) => {
       event.preventDefault();
-      clearSessionAndRedirectToLogin();
+      const confirmed = await showAppConfirm({
+        title: t('forms.logoutTitle'),
+        message: t('forms.logoutMsg'),
+        confirmText: t('forms.logoutConfirm'),
+        cancelText: t('forms.cancel'),
+        danger: false,
+      });
+      if (confirmed) {
+        clearSessionAndRedirectToLogin();
+      }
     },
     "save-new-category": ({ event, actionButton }) => {
       event.preventDefault();

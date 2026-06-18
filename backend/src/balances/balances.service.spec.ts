@@ -166,7 +166,9 @@ describe('BalancesService', () => {
       await service.getDashboard(USER_ID);
 
       const statsQuery = mockQuery.mock.calls[0][0];
-      expect(statsQuery).toContain("DATE_TRUNC('month', fecha) = DATE_TRUNC('month', CURRENT_DATE)");
+      expect(statsQuery).toContain(
+        "DATE_TRUNC('month', fecha) = DATE_TRUNC('month', CURRENT_DATE)",
+      );
       expect(statsQuery).toContain('es_transferencia_interna = FALSE');
       expect(statsQuery).toContain("tipo = 'egreso'");
       expect(statsQuery).toContain("tipo = 'ingreso'");
@@ -184,8 +186,12 @@ describe('BalancesService', () => {
 
       const netQuery = mockQuery.mock.calls[1][0];
       expect(netQuery).not.toContain("DATE_TRUNC('month'"); // balance neto global, sin limite de mes
-      expect(netQuery).toContain("COALESCE(SUM(CASE WHEN tipo = 'ingreso' THEN monto ELSE 0 END), 0) -");
-      expect(netQuery).toContain("COALESCE(SUM(CASE WHEN tipo = 'egreso'  THEN monto ELSE 0 END), 0) AS neto");
+      expect(netQuery).toContain(
+        "COALESCE(SUM(CASE WHEN tipo = 'ingreso' THEN monto ELSE 0 END), 0) -",
+      );
+      expect(netQuery).toContain(
+        "COALESCE(SUM(CASE WHEN tipo = 'egreso'  THEN monto ELSE 0 END), 0) AS neto",
+      );
     });
   });
 

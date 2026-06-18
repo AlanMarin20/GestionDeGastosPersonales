@@ -1,6 +1,6 @@
 import { state } from "../state";
 import { CATEGORY_COLORS } from "./mockData";
-import { getMonthKeyFromDate, compareMonthKeys, formatMonthLabelShort, formatMonthLabelLong, formatIsoDateShort, formatDateDDMMYYYY } from "../utils/date";
+import { getMonthKeyFromDate, compareMonthKeys, formatMonthLabelShort, formatMonthLabelLong, formatDateDDMMYYYY } from "../utils/date";
 import { formatMoney } from "../utils/money";
 
 export function getFinanzasCurrentPeriod() {
@@ -258,7 +258,6 @@ export function getDashboardInsights() {
     if (budgetAlerts.length > 0) {
       const top = budgetAlerts[0];
       const type = top.exceeded ? "danger" : "warning";
-      const verb = top.exceeded ? "superaste" : "alcanzaste el";
       insights.push({
         type,
         icon: "lni-wallet",

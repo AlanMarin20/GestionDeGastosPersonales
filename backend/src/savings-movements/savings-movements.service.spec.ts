@@ -116,7 +116,11 @@ describe('SavingsMovementsService', () => {
       mockMovimientoQuery.mockResolvedValueOnce([{ neto: '300' }]);
 
       await expect(
-        service.create(USER_ID, { goalId: GOAL_ID, amount: 500, tipo: 'deposito' }),
+        service.create(USER_ID, {
+          goalId: GOAL_ID,
+          amount: 500,
+          tipo: 'deposito',
+        }),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -124,7 +128,11 @@ describe('SavingsMovementsService', () => {
       mockGoalFindOne.mockResolvedValue(makeGoal({ currentAmount: 100 }));
 
       await expect(
-        service.create(USER_ID, { goalId: GOAL_ID, amount: 500, tipo: 'retiro' }),
+        service.create(USER_ID, {
+          goalId: GOAL_ID,
+          amount: 500,
+          tipo: 'retiro',
+        }),
       ).rejects.toThrow(BadRequestException);
     });
   });
@@ -142,7 +150,11 @@ describe('SavingsMovementsService', () => {
     });
 
     it('crea un movimiento de tipo egreso', async () => {
-      await service.create(USER_ID, { goalId: GOAL_ID, amount: 500, tipo: 'deposito' });
+      await service.create(USER_ID, {
+        goalId: GOAL_ID,
+        amount: 500,
+        tipo: 'deposito',
+      });
 
       expect(mockMovimientoCreate).toHaveBeenCalledWith(
         expect.objectContaining({ tipo: 'egreso', monto: 500 }),
@@ -150,7 +162,11 @@ describe('SavingsMovementsService', () => {
     });
 
     it('el movimiento tiene esTransferenciaInterna = true', async () => {
-      await service.create(USER_ID, { goalId: GOAL_ID, amount: 500, tipo: 'deposito' });
+      await service.create(USER_ID, {
+        goalId: GOAL_ID,
+        amount: 500,
+        tipo: 'deposito',
+      });
 
       expect(mockMovimientoCreate).toHaveBeenCalledWith(
         expect.objectContaining({ esTransferenciaInterna: true }),
@@ -158,14 +174,22 @@ describe('SavingsMovementsService', () => {
     });
 
     it('incrementa currentAmount del objetivo por el monto depositado', async () => {
-      await service.create(USER_ID, { goalId: GOAL_ID, amount: 500, tipo: 'deposito' });
+      await service.create(USER_ID, {
+        goalId: GOAL_ID,
+        amount: 500,
+        tipo: 'deposito',
+      });
 
       const savedGoal = mockGoalSave.mock.calls[0][0];
       expect(Number(savedGoal.currentAmount)).toBe(2500);
     });
 
     it('el monto del movimiento egreso es exactamente el monto depositado', async () => {
-      await service.create(USER_ID, { goalId: GOAL_ID, amount: 750, tipo: 'deposito' });
+      await service.create(USER_ID, {
+        goalId: GOAL_ID,
+        amount: 750,
+        tipo: 'deposito',
+      });
 
       // Reset mocks for this test
       expect(mockMovimientoCreate).toHaveBeenCalledWith(
@@ -174,7 +198,11 @@ describe('SavingsMovementsService', () => {
     });
 
     it('guarda el movimiento en movimientos_ahorro', async () => {
-      await service.create(USER_ID, { goalId: GOAL_ID, amount: 500, tipo: 'deposito' });
+      await service.create(USER_ID, {
+        goalId: GOAL_ID,
+        amount: 500,
+        tipo: 'deposito',
+      });
 
       expect(mockMovementSave).toHaveBeenCalled();
     });
@@ -189,7 +217,11 @@ describe('SavingsMovementsService', () => {
     });
 
     it('crea un movimiento de tipo ingreso', async () => {
-      await service.create(USER_ID, { goalId: GOAL_ID, amount: 500, tipo: 'retiro' });
+      await service.create(USER_ID, {
+        goalId: GOAL_ID,
+        amount: 500,
+        tipo: 'retiro',
+      });
 
       expect(mockMovimientoCreate).toHaveBeenCalledWith(
         expect.objectContaining({ tipo: 'ingreso', monto: 500 }),
@@ -197,7 +229,11 @@ describe('SavingsMovementsService', () => {
     });
 
     it('el movimiento tiene esTransferenciaInterna = true', async () => {
-      await service.create(USER_ID, { goalId: GOAL_ID, amount: 500, tipo: 'retiro' });
+      await service.create(USER_ID, {
+        goalId: GOAL_ID,
+        amount: 500,
+        tipo: 'retiro',
+      });
 
       expect(mockMovimientoCreate).toHaveBeenCalledWith(
         expect.objectContaining({ esTransferenciaInterna: true }),
@@ -205,7 +241,11 @@ describe('SavingsMovementsService', () => {
     });
 
     it('decrementa currentAmount del objetivo por el monto retirado', async () => {
-      await service.create(USER_ID, { goalId: GOAL_ID, amount: 500, tipo: 'retiro' });
+      await service.create(USER_ID, {
+        goalId: GOAL_ID,
+        amount: 500,
+        tipo: 'retiro',
+      });
 
       const savedGoal = mockGoalSave.mock.calls[0][0];
       expect(Number(savedGoal.currentAmount)).toBe(2500);
@@ -214,14 +254,22 @@ describe('SavingsMovementsService', () => {
     it('currentAmount no baja de cero', async () => {
       mockGoalFindOne.mockResolvedValue(makeGoal({ currentAmount: 300 }));
 
-      await service.create(USER_ID, { goalId: GOAL_ID, amount: 300, tipo: 'retiro' });
+      await service.create(USER_ID, {
+        goalId: GOAL_ID,
+        amount: 300,
+        tipo: 'retiro',
+      });
 
       const savedGoal = mockGoalSave.mock.calls[0][0];
       expect(Number(savedGoal.currentAmount)).toBeGreaterThanOrEqual(0);
     });
 
     it('guarda el movimiento en movimientos_ahorro', async () => {
-      await service.create(USER_ID, { goalId: GOAL_ID, amount: 500, tipo: 'retiro' });
+      await service.create(USER_ID, {
+        goalId: GOAL_ID,
+        amount: 500,
+        tipo: 'retiro',
+      });
 
       expect(mockMovementSave).toHaveBeenCalled();
     });
@@ -233,12 +281,18 @@ describe('SavingsMovementsService', () => {
     it('depósito: el monto debitado del movimiento == monto acreditado al objetivo', async () => {
       const initialAmount = 1000;
       const depositAmount = 400;
-      mockGoalFindOne.mockResolvedValue(makeGoal({ currentAmount: initialAmount }));
+      mockGoalFindOne.mockResolvedValue(
+        makeGoal({ currentAmount: initialAmount }),
+      );
       mockMovimientoQuery
         .mockResolvedValueOnce([{ neto: '10000' }])
         .mockResolvedValueOnce([]);
 
-      await service.create(USER_ID, { goalId: GOAL_ID, amount: depositAmount, tipo: 'deposito' });
+      await service.create(USER_ID, {
+        goalId: GOAL_ID,
+        amount: depositAmount,
+        tipo: 'deposito',
+      });
 
       const movimientoArg = mockMovimientoCreate.mock.calls[0][0];
       const goalArg = mockGoalSave.mock.calls[0][0];
@@ -251,17 +305,25 @@ describe('SavingsMovementsService', () => {
     it('retiro: el monto acreditado del movimiento == monto debitado del objetivo', async () => {
       const initialAmount = 2000;
       const withdrawAmount = 600;
-      mockGoalFindOne.mockResolvedValue(makeGoal({ currentAmount: initialAmount }));
+      mockGoalFindOne.mockResolvedValue(
+        makeGoal({ currentAmount: initialAmount }),
+      );
       mockMovimientoQuery.mockResolvedValue([]);
 
-      await service.create(USER_ID, { goalId: GOAL_ID, amount: withdrawAmount, tipo: 'retiro' });
+      await service.create(USER_ID, {
+        goalId: GOAL_ID,
+        amount: withdrawAmount,
+        tipo: 'retiro',
+      });
 
       const movimientoArg = mockMovimientoCreate.mock.calls[0][0];
       const goalArg = mockGoalSave.mock.calls[0][0];
 
       expect(movimientoArg.tipo).toBe('ingreso');
       expect(Number(movimientoArg.monto)).toBe(withdrawAmount);
-      expect(Number(goalArg.currentAmount)).toBe(initialAmount - withdrawAmount);
+      expect(Number(goalArg.currentAmount)).toBe(
+        initialAmount - withdrawAmount,
+      );
     });
   });
 });

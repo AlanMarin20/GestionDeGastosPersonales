@@ -37,7 +37,9 @@ export class AuthService {
     }
 
     if (!user.emailVerified) {
-      throw new UnauthorizedException('Verificá tu correo antes de iniciar sesión');
+      throw new UnauthorizedException(
+        'Verificá tu correo antes de iniciar sesión',
+      );
     }
 
     return this.buildAuthResponse(user.id, user.email);
@@ -78,7 +80,9 @@ export class AuthService {
   async resendRegistrationCode(email: string) {
     const user = await this.usersService.findByEmail(email);
     if (!user) {
-      throw new BadRequestException('No existe una cuenta asociada a ese correo');
+      throw new BadRequestException(
+        'No existe una cuenta asociada a ese correo',
+      );
     }
 
     if (user.emailVerified) {
@@ -114,7 +118,9 @@ export class AuthService {
     };
   }
 
-  async generateLinkCode(userId: string): Promise<{ codigoVinculacion: string; expiraEn: Date }> {
+  async generateLinkCode(
+    userId: string,
+  ): Promise<{ codigoVinculacion: string; expiraEn: Date }> {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     const bytes = randomBytes(12);
     const raw = Array.from(bytes, (b) => chars[b % chars.length]).join('');
@@ -444,7 +450,9 @@ export class AuthService {
   async requestPasswordReset(email: string) {
     const user = await this.usersService.findByEmail(email);
     if (!user) {
-      throw new BadRequestException('No existe una cuenta asociada a ese correo');
+      throw new BadRequestException(
+        'No existe una cuenta asociada a ese correo',
+      );
     }
 
     const code = String(randomInt(100000, 999999));

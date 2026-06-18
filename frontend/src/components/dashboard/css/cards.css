@@ -163,33 +163,107 @@ body.theme-dark .gd-chart-summary-badge {
 
 .gd-table-wrap {
   overflow-x: auto;
+  border: 1px solid var(--gd-border);
+  border-radius: 10px;
+  background: var(--gd-surface-strong);
+  margin-top: 0.5rem;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+}
+
+body.theme-dark .gd-table-wrap {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
 .gd-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 600px;
+  min-width: 800px;
 }
 
 .gd-table th {
   color: var(--gd-muted);
-  font-size: 0.62rem;
-  letter-spacing: 0.09em;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  border-bottom: 1px solid var(--gd-border);
-  padding: 0 0 0.55rem;
+  border-bottom: 2px solid var(--gd-border);
+  padding: 0.85rem 1rem;
+  background-color: rgba(56, 189, 248, 0.03);
+  text-align: left;
+}
+
+body.theme-dark .gd-table th {
+  background-color: rgba(148, 163, 184, 0.03);
 }
 
 .gd-table td {
   color: var(--gd-text);
-  font-size: 0.76rem;
-  padding: 0.62rem 0;
+  font-size: 0.84rem;
+  padding: 0.9rem 1rem;
   border-bottom: 1px solid var(--gd-border);
   vertical-align: middle;
+  line-height: 1.45;
+}
+
+.gd-table tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+.gd-table tbody tr:hover {
+  background-color: rgba(56, 189, 248, 0.04);
+}
+
+body.theme-dark .gd-table tbody tr:hover {
+  background-color: rgba(148, 163, 184, 0.04);
 }
 
 .gd-table tbody tr:last-child td {
   border-bottom: none;
+}
+
+/* Explicit columns styling for optimal layout spacing and avoiding overlapping */
+.gd-cell-tipo {
+  width: 110px;
+  white-space: nowrap;
+}
+
+.gd-cell-comercio {
+  font-weight: 600;
+  color: var(--gd-text);
+  min-width: 150px;
+}
+
+.gd-cell-categoria {
+  width: 140px;
+  white-space: nowrap;
+}
+
+.gd-cell-descripcion {
+  min-width: 200px;
+  max-width: 320px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gd-cell-fecha {
+  width: 90px;
+  white-space: nowrap;
+}
+
+.gd-cell-monto {
+  width: 120px;
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+.gd-cell-acciones {
+  width: 170px;
+  white-space: nowrap;
+}
+
+.gd-action-btn:focus-visible {
+  outline: 2px solid var(--gd-accent-2);
+  outline-offset: 2px;
 }
 
 .gd-right {

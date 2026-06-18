@@ -1,12 +1,46 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
+import { UsersService } from '../users/users.service';
+import { JwtService } from '@nestjs/jwt';
+import { EmailService } from './email.service';
+import { DataSource } from 'typeorm';
 
 describe('AuthService', () => {
   let service: AuthService;
 
+  const mockUsersService = {
+    findByEmail: jest.fn(),
+    create: jest.fn(),
+    findOne: jest.fn(),
+    saveResetCode: jest.fn(),
+    clearResetCode: jest.fn(),
+    updatePasswordHash: jest.fn(),
+    setEmailVerified: jest.fn(),
+  };
+
+  const mockJwtService = {
+    verifyAsync: jest.fn(),
+    signAsync: jest.fn(),
+  };
+
+  const mockEmailService = {
+    sendPasswordResetEmail: jest.fn(),
+    sendVerificationEmail: jest.fn(),
+  };
+
+  const mockDataSource = {
+    createQueryRunner: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [AuthService],
+      providers: [
+        AuthService,
+        { provide: UsersService, useValue: mockUsersService },
+        { provide: JwtService, useValue: mockJwtService },
+        { provide: EmailService, useValue: mockEmailService },
+        { provide: DataSource, useValue: mockDataSource },
+      ],
     }).compile();
 
     service = module.get<AuthService>(AuthService);
@@ -16,3 +50,4 @@ describe('AuthService', () => {
     expect(service).toBeDefined();
   });
 });
+

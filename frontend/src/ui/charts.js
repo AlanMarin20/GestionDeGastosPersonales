@@ -7,7 +7,6 @@ import {
   getDashboardMonthlySeries,
   getDashboardCategorySummary,
 } from "../data/finanzas";
-import { resolveDetalleCliente as resolveDetalleClienteView } from "../pages/DetalleClientePage";
 
 let chartInstances = [];
 
@@ -319,7 +318,6 @@ export function initCharts(pathname) {
   }
 
   if (pathname.startsWith("/cliente/") && !pathname.endsWith("/gastos")) {
-    const detalleCliente = resolveDetalleClienteView(pathname, state);
     const gastosPorMes = state.detalleCliente?.gastosPorMes ?? [];
     const graficoCategorias = state.detalleCliente?.graficoCategorias ?? { porcentaje: 0, categorias: [] };
 

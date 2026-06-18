@@ -70,7 +70,12 @@ export class ExpensesService {
     }
 
     await this.checkGastoAlto(userId, amount, budget);
-    await this.checkGastoAnomalo(userId, amount, categoryId, budget?.category?.name ?? undefined);
+    await this.checkGastoAnomalo(
+      userId,
+      amount,
+      categoryId,
+      budget?.category?.name ?? undefined,
+    );
 
     if (budget) {
       await this.checkPresupuestoSuperado(userId, amount, budget);
@@ -135,10 +140,9 @@ export class ExpensesService {
   ) {
     const manager = this.budgetRepository.manager;
 
-    const rows: [{ promedio: string; registros: string }] =
-      await manager.query(
-        categoryId
-          ? `SELECT COALESCE(AVG(monto), 0) AS promedio, COUNT(*) AS registros
+    const rows: [{ promedio: string; registros: string }] = await manager.query(
+      categoryId
+        ? `SELECT COALESCE(AVG(monto), 0) AS promedio, COUNT(*) AS registros
              FROM movimientos
              WHERE usuario_id = $1
                AND categoria_id = $2
@@ -146,15 +150,15 @@ export class ExpensesService {
                AND es_transferencia_interna = FALSE
                AND fecha >= DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '3 months'
                AND DATE_TRUNC('month', fecha) < DATE_TRUNC('month', CURRENT_DATE)`
-          : `SELECT COALESCE(AVG(monto), 0) AS promedio, COUNT(*) AS registros
+        : `SELECT COALESCE(AVG(monto), 0) AS promedio, COUNT(*) AS registros
              FROM movimientos
              WHERE usuario_id = $1
                AND tipo = 'egreso'
                AND es_transferencia_interna = FALSE
                AND fecha >= DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '3 months'
                AND DATE_TRUNC('month', fecha) < DATE_TRUNC('month', CURRENT_DATE)`,
-        categoryId ? [userId, categoryId] : [userId],
-      );
+      categoryId ? [userId, categoryId] : [userId],
+    );
 
     const promedio = Number(rows[0]?.promedio ?? 0);
     const registros = Number(rows[0]?.registros ?? 0);

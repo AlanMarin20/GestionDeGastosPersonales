@@ -31,7 +31,7 @@ function renderAdvisorClientRow({ user, risk }) {
           <span class="gd-user-name">${escapeHtml(user.name)}</span>
           <div class="gd-action-cell">
             <button type="button" class="gd-action-btn" data-nav="/cliente/${escapeHtml(encodeURIComponent(String(user.id)))}" aria-label="${t('asesor.viewClientDetail')}">${t('asesor.viewDetail')}</button>
-            <button type="button" class="gd-action-btn danger" data-action="desvincular-cliente" data-cliente-id="${escapeHtml(String(user.id))}" aria-label="${t('asesor.unlinkClient')}">🗑</button>
+            <button type="button" class="gd-action-btn danger" data-action="desvincular-cliente" data-cliente-id="${escapeHtml(String(user.id))}" aria-label="${t('asesor.unlinkClient')}">${t('forms.unlink')}</button>
           </div>
         </div>
         <div class="gd-user-sub">${escapeHtml(t('asesor.spentThisMonth', { amount: formatMoney(user.monthlySpend), tickets: String(user.tickets) }))}</div>

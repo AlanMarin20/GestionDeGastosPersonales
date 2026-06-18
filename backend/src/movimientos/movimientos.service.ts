@@ -177,7 +177,10 @@ export class MovimientosService {
       tipo: r.tipo,
       moneda: r.moneda,
       esTransferenciaInterna: r.esTransferenciaInterna,
-      etiquetas: (r.etiquetas ?? []).map((e) => ({ id: e.id, nombre: e.nombre })),
+      etiquetas: (r.etiquetas ?? []).map((e) => ({
+        id: e.id,
+        nombre: e.nombre,
+      })),
     }));
   }
 

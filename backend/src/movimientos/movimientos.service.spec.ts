@@ -64,9 +64,24 @@ describe('MovimientosService', () => {
   describe('getUltimosMovimientos', () => {
     it('debe consultar y retornar las últimas 5 transacciones formateadas', async () => {
       const mockRows = [
-        { categoria: 'Alimentos', tipo: 'egreso', fecha: new Date('2026-06-17'), monto: '1500.50' },
-        { categoria: 'Servicios', tipo: 'egreso', fecha: new Date('2026-06-16'), monto: '2400.00' },
-        { categoria: 'Sin categoría', tipo: 'ingreso', fecha: new Date('2026-06-15'), monto: '10000.00' },
+        {
+          categoria: 'Alimentos',
+          tipo: 'egreso',
+          fecha: new Date('2026-06-17'),
+          monto: '1500.50',
+        },
+        {
+          categoria: 'Servicios',
+          tipo: 'egreso',
+          fecha: new Date('2026-06-16'),
+          monto: '2400.00',
+        },
+        {
+          categoria: 'Sin categoría',
+          tipo: 'ingreso',
+          fecha: new Date('2026-06-15'),
+          monto: '10000.00',
+        },
       ];
       mockQuery.mockResolvedValue(mockRows);
 
@@ -74,16 +89,16 @@ describe('MovimientosService', () => {
 
       expect(mockQuery).toHaveBeenCalledWith(
         expect.stringContaining('LIMIT 5'),
-        [USER_ID]
+        [USER_ID],
       );
       expect(result).toHaveLength(3);
       expect(result[0]).toEqual({
         categoria: 'Alimentos',
         tipo: 'egreso',
         fecha: expect.any(Date),
-        monto: 1500.50,
+        monto: 1500.5,
       });
-      expect(result[2].monto).toBe(10000.00);
+      expect(result[2].monto).toBe(10000.0);
     });
   });
 
@@ -104,7 +119,7 @@ describe('MovimientosService', () => {
 
       expect(mockQuery).toHaveBeenCalled();
       const sqlQuery = mockQuery.mock.calls[0][0];
-      expect(sqlQuery).toContain('INTERVAL \'5 months\'');
+      expect(sqlQuery).toContain("INTERVAL '5 months'");
       expect(sqlQuery).toContain("m.tipo = 'egreso'");
       expect(sqlQuery).toContain('m.es_transferencia_interna = FALSE');
 

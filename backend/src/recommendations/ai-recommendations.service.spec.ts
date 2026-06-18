@@ -78,16 +78,20 @@ describe('AiRecommendationsService', () => {
           },
         ],
       }).compile();
-      const unconfiguredService = module.get<AiRecommendationsService>(AiRecommendationsService);
-      await expect(unconfiguredService.generateForUser(USER_ID)).rejects.toThrow(
-        'GROQ_API_KEY no está configurado.',
+      const unconfiguredService = module.get<AiRecommendationsService>(
+        AiRecommendationsService,
       );
+      await expect(
+        unconfiguredService.generateForUser(USER_ID),
+      ).rejects.toThrow('GROQ_API_KEY no está configurado.');
     });
 
     it('debe recopilar el contexto financiero y generar recomendaciones con IA', async () => {
       mockQuery
         // balance
-        .mockResolvedValueOnce([{ ingreso: '150000', egreso: '90000', ahorro: '30000' }])
+        .mockResolvedValueOnce([
+          { ingreso: '150000', egreso: '90000', ahorro: '30000' },
+        ])
         // gastosCat
         .mockResolvedValueOnce([
           { categoria: 'Alimentos', total: '40000', porcentaje: '44.4' },
@@ -99,7 +103,12 @@ describe('AiRecommendationsService', () => {
         ])
         // metas
         .mockResolvedValueOnce([
-          { nombre: 'Fondo de Emergencia', objetivo: '100000', actual: '30000', fecha_limite: new Date('2026-12-31') },
+          {
+            nombre: 'Fondo de Emergencia',
+            objetivo: '100000',
+            actual: '30000',
+            fecha_limite: new Date('2026-12-31'),
+          },
         ])
         // tendencia
         .mockResolvedValueOnce([
@@ -144,7 +153,9 @@ describe('AiRecommendationsService', () => {
         messages: [
           {
             role: 'user',
-            content: expect.stringContaining('Sos un asesor financiero personal'),
+            content: expect.stringContaining(
+              'Sos un asesor financiero personal',
+            ),
           },
         ],
         temperature: 0.7,
@@ -154,7 +165,8 @@ describe('AiRecommendationsService', () => {
       expect(recommendations).toHaveLength(2);
       expect(recommendations[0]).toEqual({
         titulo: 'Límite de Alimentos superado',
-        contenido: 'Gastaste $40.000 en Alimentos superando tu presupuesto de $30.000. Te sugerimos moderar las compras de delivery.',
+        contenido:
+          'Gastaste $40.000 en Alimentos superando tu presupuesto de $30.000. Te sugerimos moderar las compras de delivery.',
         tipo: 'alerta',
         severidad: 'danger',
         categoria: 'Alimentos',
