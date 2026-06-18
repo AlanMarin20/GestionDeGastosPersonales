@@ -316,8 +316,12 @@ body.theme-dark .gd-topbar {
 
 .gd-page-subtitle {
   margin: 0.2rem 0 0;
-  color: var(--gd-muted);
+  color: #475569;
   font-size: 0.74rem;
+}
+
+body.theme-dark .gd-page-subtitle {
+  color: var(--gd-muted);
 }
 
 .gd-topbar-actions {
@@ -350,14 +354,17 @@ body.theme-dark .gd-topbar {
 }
 
 .gd-top-btn-primary {
-  background: var(--gd-accent);
-  border-color: var(--gd-accent);
-  color: #f8fbff;
+  background: var(--gd-accent-2);
+  border-color: var(--gd-accent-2);
+  color: #ffffff;
 }
 
 .gd-top-btn-primary:hover {
-  background: var(--gd-accent-2);
-  border-color: var(--gd-accent-2);
+  filter: brightness(1.06);
+}
+
+body.theme-dark .gd-top-btn-primary {
+  color: #0f172a;
 }
 
 .gd-alert-dot {

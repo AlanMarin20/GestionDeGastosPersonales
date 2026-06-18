@@ -29,6 +29,10 @@
   filter: brightness(1.06);
 }
 
+body.theme-dark .gd-btn-primary {
+  color: #0f172a;
+}
+
 .gd-btn-danger {
   border-color: #dc2626;
   background: #dc2626;

@@ -8,16 +8,41 @@
 }
 
 .gd-onboarding-hero {
-  background: linear-gradient(135deg, var(--gd-surface-2, #1e1b4b) 0%, transparent 100%);
-  border: 1px solid var(--gd-border, #2d2a5e);
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.08) 0%, rgba(56, 189, 248, 0.02) 100%), var(--gd-surface);
+  border: 1px solid rgba(37, 99, 235, 0.15);
   border-radius: 12px;
   padding: 32px;
   text-align: center;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02);
+}
+
+body.theme-dark .gd-onboarding-hero {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, transparent 100%), var(--gd-surface-strong);
+  border: 1px solid var(--gd-border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .gd-onboarding-hero-icon { font-size: 40px; display: block; margin-bottom: 12px; }
-.gd-onboarding-hero-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 8px; }
-.gd-onboarding-hero-sub { color: var(--gd-muted, #6b7280); margin: 0; }
+
+.gd-onboarding-hero-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #1e3a8a;
+}
+
+body.theme-dark .gd-onboarding-hero-title {
+  color: #e0e7ff;
+}
+
+.gd-onboarding-hero-sub {
+  color: #4b5563;
+  margin: 0;
+}
+
+body.theme-dark .gd-onboarding-hero-sub {
+  color: var(--gd-muted);
+}
 
 .gd-onboarding-grid {
   display: grid;
@@ -30,24 +55,105 @@
 }
 
 .gd-onboarding-card {
-  background: var(--gd-surface, #111);
+  background: var(--gd-surface-strong);
   border-radius: 10px;
   padding: 16px;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
-.gd-onboarding-card--benefits { border: 1px solid #2d2a5e; }
-.gd-onboarding-card--responsibilities { border: 1px solid #2d1d0a; }
-.gd-onboarding-card-heading { font-size: 0.875rem; font-weight: 700; margin-bottom: 12px; }
-.gd-onboarding-card--benefits .gd-onboarding-card-heading { color: #a5b4fc; }
-.gd-onboarding-card--responsibilities .gd-onboarding-card-heading { color: #fb923c; }
+body.theme-dark .gd-onboarding-card {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
 
-.gd-onboarding-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
-.gd-onboarding-list-item { display: flex; gap: 8px; align-items: flex-start; font-size: 0.875rem; color: var(--gd-text-muted, #9ca3af); }
-.gd-onboarding-check { color: #22c55e; font-weight: 700; flex-shrink: 0; }
-.gd-onboarding-warn { color: #fb923c; font-weight: 700; flex-shrink: 0; }
+.gd-onboarding-card--benefits {
+  border: 1px solid #c7d2fe;
+}
 
-.gd-onboarding-cta-wrap { text-align: center; }
-.gd-onboarding-cta-note { color: var(--gd-muted, #6b7280); font-size: 0.8rem; margin-top: 8px; }
+body.theme-dark .gd-onboarding-card--benefits {
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.gd-onboarding-card--responsibilities {
+  border: 1px solid #fed7aa;
+}
+
+body.theme-dark .gd-onboarding-card--responsibilities {
+  border: 1px solid rgba(251, 146, 60, 0.3);
+}
+
+.gd-onboarding-card-heading {
+  font-size: 0.875rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.gd-onboarding-card--benefits .gd-onboarding-card-heading {
+  color: #4f46e5;
+}
+
+body.theme-dark .gd-onboarding-card--benefits .gd-onboarding-card-heading {
+  color: #a5b4fc;
+}
+
+.gd-onboarding-card--responsibilities .gd-onboarding-card-heading {
+  color: #c2410c;
+}
+
+body.theme-dark .gd-onboarding-card--responsibilities .gd-onboarding-card-heading {
+  color: #fb923c;
+}
+
+.gd-onboarding-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gd-onboarding-list-item {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-size: 0.875rem;
+  color: #374151;
+}
+
+body.theme-dark .gd-onboarding-list-item {
+  color: #cbd5e1;
+}
+
+.gd-onboarding-check {
+  color: #16a34a;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+body.theme-dark .gd-onboarding-check {
+  color: #4ade80;
+}
+
+.gd-onboarding-warn {
+  color: #ea580c;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+body.theme-dark .gd-onboarding-warn {
+  color: #fb923c;
+}
+
+.gd-onboarding-cta-wrap {
+  text-align: center;
+}
+
+.gd-onboarding-cta-note {
+  color: var(--gd-muted);
+  font-size: 0.8rem;
+  margin-top: 8px;
+}
 
 /* ── Onboarding T&C label ─────────────────────────────── */
 .gd-onboarding-terms-label {
