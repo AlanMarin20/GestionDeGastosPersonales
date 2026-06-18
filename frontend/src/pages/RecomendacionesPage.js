@@ -2,6 +2,7 @@ import { renderDashboardAppLayout } from "../components/dashboard/dashboardAppLa
 import { escapeHtml } from "../utils/sanitize";
 import { formatMoney } from "../utils/money";
 import { t } from '../i18n';
+import { state } from "../state";
 
 const SOURCE_CONFIG = {
   asesor: { labelKey: 'rec.sourceAdvisor', className: "gd-rec-source-asesor", iconClass: "lni lni-user" },
@@ -9,10 +10,10 @@ const SOURCE_CONFIG = {
 };
 
 const SEVERITY_CONFIG = {
-  danger:  { className: "gd-rec-severity-danger",  badgeClass: "gd-rec-badge-danger",  badgeLabelKey: "rec.badgeCritical",    impactLabelKey: "rec.impactHigh" },
-  warning: { className: "gd-rec-severity-warning", badgeClass: "gd-rec-badge-warning", badgeLabelKey: "rec.badgeReview",      impactLabelKey: "rec.impactMedium" },
-  good:    { className: "gd-rec-severity-good",    badgeClass: "gd-rec-badge-good",    badgeLabelKey: "rec.badgeAchievement", impactLabelKey: "rec.impactPositive" },
-  info:    { className: "gd-rec-severity-info",    badgeClass: "gd-rec-badge-info",    badgeLabelKey: "rec.badgeSuggestion",  impactLabelKey: "rec.impactMedium" },
+  danger:  { className: "gd-rec-severity-danger" },
+  warning: { className: "gd-rec-severity-warning" },
+  good:    { className: "gd-rec-severity-good" },
+  info:    { className: "gd-rec-severity-info" },
 };
 
 const CATEGORY_ICON_MAP = {
@@ -32,63 +33,64 @@ const CATEGORY_ICON_MAP = {
   Presupuesto:   "lni lni-bar-chart",
 };
 
-const MONTH_INDEX_BY_NAME = {
-  ene: 0, enero: 0, feb: 1, febrero: 1, mar: 2, marzo: 2,
-  abr: 3, abril: 3, may: 4, mayo: 4, jun: 5, junio: 5,
-  jul: 6, julio: 6, ago: 7, agosto: 7, sep: 8, septiembre: 8,
-  set: 8, oct: 9, octubre: 9, nov: 10, noviembre: 10, dic: 11, diciembre: 11,
-};
-
-function padMonth(v) { return String(v).padStart(2, "0"); }
-
-function getMonthIndex(token) {
-  if (!token) return null;
-  const n = token.toLowerCase().replace(/\./g, "");
-  if (Object.prototype.hasOwnProperty.call(MONTH_INDEX_BY_NAME, n)) return MONTH_INDEX_BY_NAME[n];
-  const s = n.slice(0, 3);
-  return Object.prototype.hasOwnProperty.call(MONTH_INDEX_BY_NAME, s) ? MONTH_INDEX_BY_NAME[s] : null;
+function sortRecommendationsByDateDesc(recomendaciones = []) {
+  return [...recomendaciones].sort((a, b) => {
+    const dateCompare = String(b.date || "").localeCompare(String(a.date || ""));
+    if (dateCompare !== 0) return dateCompare;
+    return String(b.id || "").localeCompare(String(a.id || ""));
+  });
 }
 
-function parseRecommendationDate(value) {
-  const fallbackYear = new Date().getFullYear();
+function getCurrentMonthKey() {
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  return `${now.getFullYear()}-${month}`;
+}
+
+function getRecommendationMonthKey(value) {
+  return String(value || "").slice(0, 7);
+}
+
+function capitalizeFirstLetter(text) {
+  return text ? text.charAt(0).toUpperCase() + text.slice(1) : text;
+}
+
+function formatRecommendationDate(value) {
   const raw = String(value || "").trim();
-  if (!raw) return null;
+  if (!raw) return "";
 
-  const isoMatch = raw.match(/(\d{4})-(\d{2})(?:-(\d{2}))?/);
-  if (isoMatch) {
-    const year = Number(isoMatch[1]);
-    const monthIndex = Number(isoMatch[2]) - 1;
-    const day = isoMatch[3] ? Number(isoMatch[3]) : 1;
-    return { year, monthIndex, day, monthKey: `${year}-${padMonth(monthIndex + 1)}`, sortKey: year * 10000 + (monthIndex + 1) * 100 + day };
-  }
+  const date = new Date(`${raw}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return raw;
 
-  const tokens = raw.toLowerCase().replace(/[.,]/g, " ").split(/\s+/).filter(Boolean);
-  if (!tokens.length) return null;
-  const yearToken = tokens.find((tk) => /^\d{4}$/.test(tk));
-  const year = yearToken ? Number(yearToken) : fallbackYear;
-  const monthIndex = tokens.map((tk) => getMonthIndex(tk)).find((i) => i !== null);
-  if (monthIndex === undefined || monthIndex === null) return null;
-  const pos = tokens.findIndex((tk) => getMonthIndex(tk) === monthIndex);
-  const prev = tokens[pos - 1];
-  const next = tokens[pos + 1];
-  const dayToken = /^\d{1,2}$/.test(prev) ? prev : /^\d{1,2}$/.test(next) ? next : "1";
-  return { year, monthIndex, day: Number(dayToken), monthKey: `${year}-${padMonth(monthIndex + 1)}`, sortKey: year * 10000 + (monthIndex + 1) * 100 + Number(dayToken) };
+  return new Intl.DateTimeFormat("es-AR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(date);
 }
 
-function getLatestMonthRecommendations(recomendaciones) {
-  const parsed = (recomendaciones || [])
-    .map((item, index) => ({ item, index, parsedDate: parseRecommendationDate(item.date) }))
-    .filter(({ parsedDate }) => Boolean(parsedDate));
+function buildMonthOptions(recomendaciones = []) {
+  const monthSet = new Set([getCurrentMonthKey()]);
 
-  if (!parsed.length) return [];
+  recomendaciones.forEach((item) => {
+    const monthKey = getRecommendationMonthKey(item.date);
+    if (monthKey) {
+      monthSet.add(monthKey);
+    }
+  });
 
-  const latestMonthKey = parsed.reduce((key, entry) =>
-    !key || entry.parsedDate.monthKey > key ? entry.parsedDate.monthKey : key, "");
+  return [...monthSet]
+    .sort((a, b) => String(b).localeCompare(String(a)))
+    .map((monthKey) => {
+      const date = new Date(`${monthKey}-01T00:00:00`);
+      const label = Number.isNaN(date.getTime())
+        ? monthKey
+        : capitalizeFirstLetter(
+          new Intl.DateTimeFormat("es-AR", { month: "long", year: "numeric" }).format(date),
+        );
 
-  return parsed
-    .filter(({ parsedDate }) => parsedDate.monthKey === latestMonthKey)
-    .sort((a, b) => b.parsedDate.sortKey - a.parsedDate.sortKey || b.index - a.index)
-    .map(({ item }) => item);
+      return { value: monthKey, label };
+    });
 }
 
 function extractPct(text) {
@@ -194,7 +196,6 @@ function renderRecommendationCard(item) {
           <i class="${escapeHtml(catIcon)}"></i>
         </span>
         <h2 class="gd-rec-title">${escapeHtml(item.title || "")}</h2>
-        <span class="gd-rec-badge ${escapeHtml(sev.badgeClass)}">${escapeHtml(t(sev.badgeLabelKey))}</span>
         <span class="gd-rec-type ${escapeHtml(source.className)}">
           <i class="${escapeHtml(source.iconClass)}" aria-hidden="true"></i>
           ${escapeHtml(t(source.labelKey))}
@@ -206,8 +207,7 @@ function renderRecommendationCard(item) {
       ${visual}
 
       <div class="gd-rec-meta">
-        <span class="gd-rec-impact">${escapeHtml(t(sev.impactLabelKey))}</span>
-        ${item.date ? `<span class="gd-rec-tag">${escapeHtml(item.date)}</span>` : ""}
+        ${item.date ? `<span class="gd-rec-tag">${escapeHtml(formatRecommendationDate(item.date))}</span>` : ""}
         ${item.category ? `<span class="gd-rec-tag">${escapeHtml(item.category)}</span>` : ""}
       </div>
     </article>
@@ -223,10 +223,20 @@ export function renderRecomendacionesPage({
   recomendaciones,
   isAsesor = false,
 }) {
-  const latestMonthRecommendations = getLatestMonthRecommendations(recomendaciones);
+  const currentMonthKey = getCurrentMonthKey();
+  const selectedMonthKey = state.finanzas.recomendacionesFiltroMesKey || currentMonthKey;
+  const showAll = selectedMonthKey === "all";
+  const monthOptions = buildMonthOptions(recomendaciones);
+  const filteredRecommendations = showAll
+    ? recomendaciones
+    : recomendaciones.filter((item) => getRecommendationMonthKey(item.date) === selectedMonthKey);
+  const orderedRecommendations = sortRecommendationsByDateDesc(filteredRecommendations);
+  const selectedMonthLabel = showAll
+    ? "Ver todo"
+    : (monthOptions.find((option) => option.value === selectedMonthKey)?.label || "Mes actual");
 
-  const dangerCount = latestMonthRecommendations.filter((r) => r.severity === "danger").length;
-  const warningCount = latestMonthRecommendations.filter((r) => r.severity === "warning").length;
+  const dangerCount = orderedRecommendations.filter((r) => r.severity === "danger").length;
+  const warningCount = orderedRecommendations.filter((r) => r.severity === "warning").length;
 
   const dangerLabel = dangerCount !== 1
     ? t('rec.alerts', { count: dangerCount })
@@ -240,22 +250,24 @@ export function renderRecomendacionesPage({
       <div class="d-flex gap-2 flex-wrap">
         ${dangerCount > 0 ? `<span class="gd-rec-badge gd-rec-badge-danger"><i class="lni lni-alarm"></i> ${escapeHtml(dangerLabel)}</span>` : ""}
         ${warningCount > 0 ? `<span class="gd-rec-badge gd-rec-badge-warning"><i class="lni lni-warning"></i> ${escapeHtml(warningLabel)}</span>` : ""}
-        ${dangerCount === 0 && warningCount === 0 && latestMonthRecommendations.length > 0 ? `<span class="gd-rec-badge gd-rec-badge-good"><i class="lni lni-checkmark-circle"></i> ${t('rec.allInOrder')}</span>` : ""}
+        ${dangerCount === 0 && warningCount === 0 && orderedRecommendations.length > 0 ? `<span class="gd-rec-badge gd-rec-badge-good"><i class="lni lni-checkmark-circle"></i> ${t('rec.allInOrder')}</span>` : ""}
       </div>
       <div class="d-flex gap-2 flex-wrap">
-        <button id="btnGenerarRecomendacionesIA" class="gd-top-btn" type="button">
-          <i class="lni lni-bolt-alt" aria-hidden="true"></i>
-          ${t('rec.analyzeWithAI')}
-        </button>
-        <a href="/dashboard/recomendaciones/historicas" data-link class="gd-top-btn">
-          <i class="lni lni-list" aria-hidden="true"></i>
-          ${t('rec.viewHistory')}
-        </a>
+        <div style="min-width: 240px;">
+          <select id="recMonthFilterSelect" class="gd-form-select" aria-label="Filtrar recomendaciones por mes">
+            <option value="all" ${showAll ? "selected" : ""}>Ver todo</option>
+            ${monthOptions.map((option) => `
+              <option value="${escapeHtml(option.value)}" ${option.value === selectedMonthKey ? "selected" : ""}>
+                ${escapeHtml(option.label)}
+              </option>
+            `).join("")}
+          </select>
+        </div>
       </div>
     </div>
 
-    ${latestMonthRecommendations.length > 0
-      ? latestMonthRecommendations.map(renderRecommendationCard).join("")
+    ${orderedRecommendations.length > 0
+      ? orderedRecommendations.map(renderRecommendationCard).join("")
       : `
         <div class="gd-card">
           <div class="gd-card-body" style="padding: 2rem; text-align: center;">

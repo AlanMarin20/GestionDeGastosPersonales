@@ -8,6 +8,7 @@ export function renderExpenseTable({
   showDescription = false,
   showActions = false,
   showTipo = false,
+  columnLayout = 'default',
   emptyMessage = "",
 } = {}) {
   const rows = Array.isArray(expenses) ? expenses : [];
@@ -74,6 +75,19 @@ export function renderExpenseTable({
         const montoClass = showTipo
           ? (esIngreso ? "gd-monto-ingreso" : "gd-monto-egreso")
           : "";
+
+        if (isClientDetailLayout) {
+          return `
+            <tr>
+              <td class="gd-muted">${escapeHtml(expense.fechaCorta || expense.fecha || "-")}</td>
+              <td><span class="gd-pill ${esAhorro ? "gd-pill-tipo-ahorro" : (esIngreso ? "gd-pill-tipo-ingreso" : "gd-pill-tipo-egreso")}">${esAhorro ? t('common.savingUpper') : (esIngreso ? t('common.incomeUpper') : t('common.expenseUpper'))}</span></td>
+              <td class="gd-muted">${escapeHtml(expense.descripcion || "-")}${tagsHtml}</td>
+              <td>${escapeHtml(expense.comercio || "-")}</td>
+              <td class="gd-right ${escapeHtml(montoClass)}">${montoPrefix}${escapeHtml(formatMoney(expense.monto))}</td>
+              ${actionsCell}
+            </tr>
+          `;
+        }
 
         return `
           <tr>

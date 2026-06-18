@@ -67,7 +67,7 @@ export async function loadClienteMovimientos(clienteId) {
 
     state.detalleCliente.gastos = rows.map((m) => ({
       id: m.id,
-      descripcion: m.comercio ?? m.descripcion ?? "-",
+      descripcion: m.descripcion ?? "",
       comercio: m.comercio ?? "-",
       categoria: m.categoria ?? "Otros",
       fecha: typeof m.fecha === "string" ? m.fecha.slice(0, 10) : String(m.fecha ?? ""),
@@ -99,6 +99,7 @@ export async function loadClienteRecomendaciones(clienteId) {
       texto: r.contenido || "",
       body: r.contenido || "",
       date: r.creadoEn || "",
+      fecha: r.creadoEn || "",
       type: r.tipo || "asesor",
       source: r.tipo || "asesor",
     }));
@@ -147,10 +148,13 @@ export async function loadClienteGastosPorMes(clienteId) {
     const rows = await response.json();
     if (!Array.isArray(rows)) return;
 
-    state.detalleCliente.gastosPorMes = rows.map((r) => ({
+    state.detalleCliente.gastosPorMes = rows
+      .slice()
+      .reverse()
+      .map((r) => ({
       label: r.mes,  // Renombrar 'mes' a 'label' para que buildBarChart lo entienda
       total: Number(r.total ?? 0),
-    }));
+      }));
   } catch (error) {
     console.warn("Error cargando gastos por mes:", error);
   }

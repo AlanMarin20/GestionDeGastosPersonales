@@ -135,9 +135,19 @@ describe('RecommendationsService', () => {
   // ─── findAllForUser ───────────────────────────────────────────────────────
 
   describe('findAllForUser', () => {
-    it('retorna las recomendaciones del usuario', async () => {
-      const recs = [{ id: REC_ID, contenido: 'Test', user: { id: USER_ID } }];
-      mockFind.mockResolvedValue(recs);
+    it('retorna las recomendaciones del usuario mapeadas', async () => {
+      const rows = [
+        {
+          id: REC_ID,
+          creado_en: new Date('2026-05-15'),
+          tipo: 'alerta',
+          severidad: 'danger',
+          titulo: 'Test Alerta',
+          contenido: 'Test Content',
+          asesor_id: 'advisor-uuid',
+        },
+      ];
+      mockQuery.mockResolvedValue(rows);
 
       const result = await service.findAllForUser(USER_ID);
       expect(result).toEqual([

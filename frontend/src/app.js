@@ -16,6 +16,7 @@ import {
   loadCurrentUser,
   loadDashboardBalances,
   loadMovimientos,
+  // loadDashboardMovimientos removed — dashboard won't request recent movements
 } from "./api/user";
 import { loadAhorros } from "./api/ahorros";
 import { loadRecomendaciones } from "./api/recomendaciones";
@@ -43,7 +44,7 @@ export function navigate(path, replace = false) {
   closeLandingMobileMenu();
   closeDashboardDropdowns();
 
-  if (!String(path).startsWith("/cliente/")) {
+  if (!String(path).startsWith("/cliente/") && !String(path).startsWith("/dashboard/asesor/recomendaciones")) {
     state.asesor.clienteSeleccionadoId = null;
   }
 
@@ -167,6 +168,7 @@ export function init() {
       const initialLoads = [
         loadDashboardBalances(),
         loadMovimientos(),
+        // No cargamos movimientos específicos para "Transacciones Recientes"
         loadAhorros(),
         loadRecomendaciones(),
         loadNotifications(),

@@ -89,21 +89,21 @@ export function getDashboardCategorySummary(periodKey = getFinanzasCurrentPeriod
 
 export function getDashboardBalanceData() {
   const balanceData = state.finanzas.balancesData || {};
+  const ingreso = Number(balanceData.ingreso ?? 0);
+  const egreso = Number(balanceData.egreso ?? 0);
+  const ahorro = Number(balanceData.ahorro ?? 0);
+  const disponible = Number(balanceData.disponible ?? (ingreso - egreso - ahorro));
 
   return {
-    ingreso: Number(balanceData.ingreso ?? 0),
-    egreso: Number(balanceData.egreso ?? 0),
-    ahorro: Number(balanceData.ahorro ?? 0),
-    disponible: (Number(balanceData.ingreso ?? 0) - Number(balanceData.egreso ?? 0)),
+    ingreso,
+    egreso,
+    ahorro,
+    disponible,
   };
 }
 
 export function getDashboardMetrics() {
   const balanceData = getDashboardBalanceData();
-  const currentPeriod = getFinanzasCurrentPeriod();
-  const monthlyIngreso = getFinanzasExpensesForPeriod(currentPeriod)
-    .filter((expense) => expense.tipo === "ingreso")
-    .reduce((sum, expense) => sum + Number(expense.monto || 0), 0);
 
   const metricDefinitions = [
     {
@@ -115,13 +115,13 @@ export function getDashboardMetrics() {
     {
       key: "available-cash",
       label: "Dinero Disponible",
-      resolveValue: () => formatMoney(monthlyIngreso - balanceData.egreso),
+      resolveValue: () => formatMoney(balanceData.disponible),
       resolveTrend: () => "up",
     },
     {
       key: "net-income",
       label: "Ingreso Total Mensual",
-      resolveValue: () => formatMoney(monthlyIngreso),
+      resolveValue: () => formatMoney(balanceData.ingreso),
       resolveTrend: () => "up",
     },
   ];
@@ -135,23 +135,30 @@ export function getDashboardMetrics() {
   }));
 }
 
-export function getDashboardRecentExpenses(limit = 5) {
-  return state.finanzas.gastos
-    .slice()
-    .sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime())
-    .slice(0, limit)
-    .map((expense) => ({
-      ...expense,
-      fechaCorta: formatDateDDMMYYYY(expense.fecha),
-    }));
+export function getDashboardRecentExpenses(limit = 10) {
+  const gastos = state.finanzas.gastos;
+  
+  if (!Array.isArray(gastos)) {
+    return [];
+  }
+
+  // Copiar y ordenar por fecha descendente (más recientes primero)
+  const sorted = gastos.slice().sort((a, b) => {
+    return new Date(b.fecha) - new Date(a.fecha);
+  });
+
+  // Tomar los primeros N movimientos ordenados y agregar fechaCorta
+  return sorted.slice(0, limit).map((gasto) => ({
+    ...gasto,
+    fechaCorta: formatIsoDateShort(gasto.fecha),
+  }));
 }
 
+// `getDashboardCategorySummaryFromRecentMovements` eliminado; el resumen
+// de categorías se obtiene ahora siempre con `getDashboardCategorySummary(period)`.
+
 export function getDashboardInsight() {
-  const currentPeriod = getFinanzasCurrentPeriod();
-  const monthlyIngreso = getFinanzasExpensesForPeriod(currentPeriod)
-    .filter((g) => g.tipo === "ingreso")
-    .reduce((sum, g) => sum + Number(g.monto || 0), 0);
-  const { egreso } = getDashboardBalanceData();
+  const { ingreso: monthlyIngreso, egreso } = getDashboardBalanceData();
 
   if (monthlyIngreso === 0 && egreso === 0) {
     return "Registrá tus ingresos y gastos para ver un análisis de tu situación financiera mensual.";
@@ -195,62 +202,27 @@ function severityRank(sev) {
 }
 
 export function getDashboardInsights() {
-  const insights = [];
-  const currentPeriod = getFinanzasCurrentPeriod();
-
-  // Compute ingreso and egreso from local gastos — consistent single source
-  const currentExpenses = getFinanzasExpensesForPeriod(currentPeriod);
-  const ingreso = currentExpenses
-    .filter((e) => e.tipo === "ingreso")
-    .reduce((sum, e) => sum + Number(e.monto || 0), 0);
-  const egreso = currentExpenses
-    .filter((e) => e.tipo === "egreso")
-    .reduce((sum, e) => sum + Number(e.monto || 0), 0);
-
-  // 1. Budget health
+  const { ingreso, egreso } = getDashboardBalanceData();
   if (ingreso > 0 && egreso > 0) {
     const pct = Math.round((egreso / ingreso) * 100);
-    if (pct > 100) {
-      insights.push({ type: "danger", icon: "lni-warning", title: "Gastos superan ingresos", body: `Tus gastos superan tus ingresos en ${pct - 100}% este mes. Revisá las categorías con mayor gasto.` });
-    } else if (pct >= 80) {
-      insights.push({ type: "warning", icon: "lni-warning", title: "Gasto elevado este mes", body: `Utilizaste el ${pct}% de tu ingreso mensual. Quedan ${formatMoney(ingreso - egreso)} disponibles.` });
-    } else if (pct <= 50) {
-      insights.push({ type: "success", icon: "lni-checkmark-circle", title: "Excelente control de gastos", body: `Solo el ${pct}% de tus ingresos son gastos este mes. ¡Vas muy bien!` });
-    } else {
-      insights.push({ type: "info", icon: "lni-bulb", title: "Análisis mensual", body: `Llevás gastado el ${pct}% de tus ingresos este mes. Vas bien en el control de gastos.` });
-    }
-  } else if (egreso > 0) {
-    insights.push({ type: "info", icon: "lni-bulb", title: "Registrá tus ingresos", body: "Agregá tus ingresos del mes para calcular tu balance y tasa de ahorro." });
-  }
 
-  // 2. Unusual spending detection (inline to avoid circular import with reports.js)
-  if (insights.length < 3) {
-    const previousEgresos = state.finanzas.gastos.filter(
-      (e) => getMonthKeyFromDate(e.fecha) !== currentPeriod && e.tipo === "egreso",
-    );
-    const unusualItems = [];
-    currentExpenses
-      .filter((e) => e.tipo === "egreso")
-      .forEach((expense) => {
-        const historical = previousEgresos.filter((e) => e.categoria === expense.categoria);
-        if (historical.length < 2) return;
-        const avg = historical.reduce((sum, e) => sum + Number(e.monto || 0), 0) / historical.length;
-        const ratio = avg > 0 ? Number(expense.monto || 0) / avg : 0;
-        if (ratio >= 1.8) {
-          unusualItems.push({ label: expense.comercio || expense.categoria || "gasto", ratio });
-        }
-      });
-    unusualItems.sort((a, b) => b.ratio - a.ratio);
-    if (unusualItems.length > 0) {
-      const top = unusualItems[0];
-      insights.push({
+    if (pct > 100) {
+      return [{
+        type: "danger",
+        icon: "lni-warning",
+        title: "Gastos superan ingresos",
+        body: `Tus gastos superan tus ingresos en ${pct - 100}% este mes. Revisá tu presupuesto.`,
+      }];
+    }
+
+    if (pct >= 80) {
+      return [{
         type: "warning",
         icon: "lni-warning",
-        title: "Gasto inusual detectado",
-        body: `"${top.label}" está ${top.ratio.toFixed(1)}x por encima de tu promedio histórico en esa categoría.`,
-      });
+        title: "Gasto elevado este mes",
+        body: `Utilizaste el ${pct}% de tu ingreso mensual. Quedan ${formatMoney(ingreso - egreso)} disponibles.`,
+      }];
     }
-  }
 
   // 3. Budget alerts
   if (insights.length < 3) {
@@ -265,35 +237,57 @@ export function getDashboardInsights() {
         body: `${top.exceeded ? "Superaste" : "Alcanzaste el"} ${top.pct}% del presupuesto de ${top.categoryName} este mes (${formatMoney(top.spent)} / ${formatMoney(top.limit)}).`,
       });
     }
+
+    return [{
+      type: "info",
+      icon: "lni-bulb",
+      title: "Análisis mensual",
+      body: `Llevás gastado el ${pct}% de tus ingresos este mes. Vas bien en el control de gastos.`,
+    }];
   }
 
-  // 4. Most urgent API recommendation (sorted by severity)
-  if (insights.length < 3) {
-    const recs = state.finanzas.recomendaciones || [];
-    const sorted = [...recs].sort((a, b) => severityRank(a.severity) - severityRank(b.severity));
-    if (sorted.length > 0) {
-      const rec = sorted[0];
-      const sev = String(rec.severity || "info").toLowerCase();
-      const type = sev === "danger" ? "danger" : sev === "warning" ? "warning" : sev === "good" ? "success" : "info";
-      insights.push({ type, icon: "lni-bulb", title: rec.title || "Sugerencia", body: rec.body || "" });
-    }
+  if (egreso > 0) {
+    return [{
+      type: "info",
+      icon: "lni-bulb",
+      title: "Salud del presupuesto",
+      body: "Agregá tus ingresos del mes para calcular tu balance y tasa de ahorro.",
+    }];
   }
 
-  // 4. Top spending category
-  if (insights.length < 3) {
-    const cats = getDashboardCategorySummary(currentPeriod);
-    if (cats.length > 0 && cats[0].total > 0) {
-      const top = cats[0];
-      insights.push({ type: "info", icon: "lni-stats-up", title: `Mayor gasto: ${top.label}`, body: `${top.label} representa el ${top.share} de tus gastos este mes (${formatMoney(top.total)}).` });
-    }
-  }
+  return [{
+    type: "info",
+    icon: "lni-bulb",
+    title: "Salud del presupuesto",
+    body: "Registrá tus ingresos y gastos para ver el estado de tu presupuesto mensual.",
+  }];
+}
 
-  // Fallback
-  if (insights.length === 0) {
-    insights.push({ type: "info", icon: "lni-bulb", title: "Comienza a registrar", body: "Registrá tus gastos e ingresos para ver análisis y sugerencias personalizadas." });
-  }
+export function getLatestDashboardRecommendation() {
+  const recomendaciones = Array.isArray(state.finanzas.recomendaciones)
+    ? state.finanzas.recomendaciones
+    : [];
 
-  return insights.slice(0, 3);
+  const latest = recomendaciones
+    .filter((item) => item && (item.date || item.createdAt || item.fecha))
+    .slice()
+    .sort((a, b) => {
+      const aDate = String(a.date || a.createdAt || a.fecha || "");
+      const bDate = String(b.date || b.createdAt || b.fecha || "");
+      const dateCompare = bDate.localeCompare(aDate);
+      if (dateCompare !== 0) return dateCompare;
+      return String(b.id || "").localeCompare(String(a.id || ""));
+    })[0];
+
+  if (!latest) return null;
+
+  return {
+    title: latest.title || latest.titulo || "",
+    body: latest.body || latest.contenido || "",
+    date: String(latest.date || latest.createdAt || latest.fecha || ""),
+    category: latest.category || latest.categoria || "",
+    source: latest.source || latest.tipo || "ia",
+  };
 }
 
 export function getBudgetAlertsForPeriod(periodKey = null) {
@@ -380,7 +374,7 @@ export function getUnreadNotifications() {
 }
 
 export function getFilteredExpenses() {
-  const { search, categoria, periodo, tipo, fechaDesde, fechaHasta, etiqueta } = state.finanzas.filtros;
+  const { search, periodo, tipo, fechaDesde, fechaHasta } = state.finanzas.filtros;
   const normalizedSearch = search.trim().toLowerCase();
 
   return state.finanzas.gastos
@@ -394,10 +388,6 @@ export function getFilteredExpenses() {
         if (getMonthKeyFromDate(expense.fecha) !== periodo) return false;
       }
 
-      if (categoria !== "Todas" && expense.categoria !== categoria) {
-        return false;
-      }
-
       if (tipo && tipo !== "Todos") {
         const tipoEsperado = tipo === "Ingreso" ? "ingreso" : "egreso";
         if (expense.tipo !== tipoEsperado) return false;
@@ -407,12 +397,6 @@ export function getFilteredExpenses() {
         const inComercio = (expense.comercio || "").toLowerCase().includes(normalizedSearch);
         const inDescripcion = (expense.descripcion || "").toLowerCase().includes(normalizedSearch);
         if (!inComercio && !inDescripcion) return false;
-      }
-
-      if (etiqueta) {
-        if (!Array.isArray(expense.etiquetas) || !expense.etiquetas.some((t) => t.id === etiqueta)) {
-          return false;
-        }
       }
 
       return true;

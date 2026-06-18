@@ -213,6 +213,54 @@ export function botonRegistrarGastos({
   return `<button type="${escapeHtml(type)}" class="${escapeHtml(className)}"${styleAttr}>${iconMarkup}${escapeHtml(text)}</button>`;
 }
 
+export function enlaceVerTodo({
+  href,
+  label = t('common.viewAll'),
+  className = 'gd-top-btn',
+  iconClass = 'lni lni-chevron-right',
+  dataLink = true,
+} = {}) {
+  const dataLinkAttr = dataLink ? ' data-link' : '';
+  const iconMarkup = iconClass ? `<i class="${escapeHtml(iconClass)}" aria-hidden="true"></i>` : '';
+
+  return `<a href="${escapeHtml(href)}"${dataLinkAttr} class="${escapeHtml(className)}">${escapeHtml(label)} ${iconMarkup}</a>`;
+}
+
+export function renderClientBanner({
+  clienteName,
+  risk = null,
+  backHref,
+  backLabel = t('cliente.backToPortfolio'),
+} = {}) {
+  const initials = String(clienteName)
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word[0])
+    .join('')
+    .toUpperCase() || 'CL';
+  const bannerStyle = risk
+    ? ` style="--gd-banner-bg-start: ${escapeHtml(risk.bannerStart)}; --gd-banner-bg-end: ${escapeHtml(risk.bannerEnd)}; --gd-banner-border: ${escapeHtml(risk.bannerBorder)}; --gd-banner-accent: ${escapeHtml(risk.bannerAccent)}; --gd-banner-label: ${escapeHtml(risk.bannerLabel)};"`
+    : '';
+
+  return `
+    <div class="gd-client-banner" role="status" aria-label="${escapeHtml(t('cliente.viewingLabel'))} ${escapeHtml(clienteName)}"${bannerStyle}>
+      <div class="gd-client-banner-avatar" aria-hidden="true">${escapeHtml(initials)}</div>
+      <div class="gd-client-banner-info">
+        <span class="gd-client-banner-label">${escapeHtml(t('cliente.viewingLabel'))}</span>
+        <div class="gd-client-banner-name-row">
+          <span class="gd-client-banner-name">${escapeHtml(clienteName)}</span>
+          ${risk ? `<span class="gd-risk-pill ${escapeHtml(risk.className)}">${escapeHtml(t(risk.labelKey))}</span>` : ''}
+        </div>
+      </div>
+      <a href="${escapeHtml(backHref)}" data-link class="gd-btn gd-btn-sm gd-client-banner-back">
+        ← ${escapeHtml(backLabel)}
+      </a>
+    </div>
+  `;
+}
+
 export function tarjetaAhorro({ ahorro }) {
   const progress = ahorro.meta ? Math.min((ahorro.monto / ahorro.meta) * 100, 100) : 0;
 
@@ -263,6 +311,8 @@ function renderChartCard({
   chartWrapStyle = '',
   summaryItems = [],
   legendContainerId = '',
+  centerValue = null,
+  centerLabel = null,
 }) {
   const summaryMarkup = Array.isArray(summaryItems) && summaryItems.length > 0
     ? `
@@ -276,6 +326,9 @@ function renderChartCard({
       </div>
     `
     : '';
+  const titleMarkup = title
+    ? `<h2 class="${dashboardStyle ? 'gd-card-title' : 'h5 mb-4 fw-bold text-dark'}">${escapeHtml(title)}</h2>`
+    : '';
 
   if (dashboardStyle) {
     const cardClasses = ['gd-card', cardClass].filter(Boolean).join(' ');
@@ -284,16 +337,22 @@ function renderChartCard({
     const legendMarkup = legendContainerId
       ? `<div id="${escapeHtml(legendContainerId)}" class="gd-chart-legend mt-2"></div>`
       : '';
+    const centerValueAttr = centerValue !== null && centerValue !== undefined && centerValue !== ''
+      ? ` data-center-value="${escapeHtml(String(centerValue))}"`
+      : '';
+    const centerLabelAttr = centerLabel !== null && centerLabel !== undefined && centerLabel !== ''
+      ? ` data-center-label="${escapeHtml(String(centerLabel))}"`
+      : '';
 
     return `
       <article class="${escapeHtml(cardClasses)}">
         <header class="gd-card-header">
-          <h2 class="gd-card-title">${escapeHtml(title)}</h2>
+          ${titleMarkup}
           ${headerActionMarkup}
         </header>
         ${summaryMarkup}
         <div class="${escapeHtml(chartClasses)}" style="min-height: ${escapeHtml(height)};${extraWrapStyle}">
-          <canvas id="${escapeHtml(canvasId)}" aria-label="${escapeHtml(ariaLabel)}" role="img"></canvas>
+          <canvas id="${escapeHtml(canvasId)}" aria-label="${escapeHtml(ariaLabel)}" role="img"${centerValueAttr}${centerLabelAttr}></canvas>
         </div>
         ${legendMarkup}
       </article>
@@ -307,14 +366,20 @@ function renderChartCard({
     .filter(Boolean)
     .join(' ');
   const extraWrapStyle = chartWrapStyle ? ` ${escapeHtml(chartWrapStyle)}` : '';
+  const centerValueAttr = centerValue !== null && centerValue !== undefined && centerValue !== ''
+    ? ` data-center-value="${escapeHtml(String(centerValue))}"`
+    : '';
+  const centerLabelAttr = centerLabel !== null && centerLabel !== undefined && centerLabel !== ''
+    ? ` data-center-label="${escapeHtml(String(centerLabel))}"`
+    : '';
 
   return `
     <article class="${escapeHtml(cardClasses)}">
       <div class="card-body p-4 d-flex flex-column">
-        <h2 class="h5 mb-4 fw-bold text-dark">${escapeHtml(title)}</h2>
+        ${titleMarkup}
         ${summaryMarkup}
         <div class="${escapeHtml(chartClasses)}" style="min-height:${escapeHtml(height)};${extraWrapStyle}">
-          <canvas id="${escapeHtml(canvasId)}" aria-label="${escapeHtml(ariaLabel)}" role="img"></canvas>
+          <canvas id="${escapeHtml(canvasId)}" aria-label="${escapeHtml(ariaLabel)}" role="img"${centerValueAttr}${centerLabelAttr}></canvas>
         </div>
       </div>
     </article>
@@ -333,6 +398,8 @@ export function graficoTorta({
   chartWrapStyle = '',
   summaryItems = [],
   legendContainerId = '',
+  centerValue = null,
+  centerLabel = null,
 } = {}) {
   return renderChartCard({
     title,
@@ -346,6 +413,8 @@ export function graficoTorta({
     chartWrapStyle,
     summaryItems,
     legendContainerId,
+    centerValue,
+    centerLabel,
   });
 }
 
@@ -384,6 +453,8 @@ export function renderDashboardExpenseCard({
   expenses = [],
   showDescription = false,
   showActions = false,
+  showTipo = false,
+  columnLayout = 'default',
   emptyMessage = null,
   cardClass = '',
   cardStyle = '',
@@ -394,9 +465,13 @@ export function renderDashboardExpenseCard({
   const resolvedEmptyMessage = emptyMessage ?? t('reusable.noRecentExpenses');
   const cardClasses = ['gd-card', cardClass].filter(Boolean).join(' ');
   const cardStyleAttr = cardStyle ? ` style="${escapeHtml(cardStyle)}"` : '';
-  const iconMarkup = actionIconClass ? `<i class="${escapeHtml(actionIconClass)}"></i>` : '';
   const actionMarkup = actionHref
-    ? `<a href="${escapeHtml(actionHref)}" data-link class="${escapeHtml(actionClassName)}">${iconMarkup}${escapeHtml(resolvedActionText)}</a>`
+    ? enlaceVerTodo({
+        href: actionHref,
+        label: resolvedActionText,
+        className: actionClassName,
+        iconClass: actionIconClass,
+      })
     : '';
   const tableExpenses = typeof rowMapper === 'function'
     ? expenses.map((expense) => rowMapper(expense))
@@ -413,6 +488,8 @@ export function renderDashboardExpenseCard({
         expenses: tableExpenses,
         showDescription,
         showActions,
+        showTipo,
+        columnLayout,
         emptyMessage: resolvedEmptyMessage,
       })}
     </article>
@@ -425,15 +502,31 @@ export function contenedorRecomendaciones({
   emptyText = null,
   maxHeight = '',
   padding = '16px',
-  titleIcon = 'bi bi-lightbulb',
   cardClass = '',
   cardStyle = '',
   bodyStyle = '',
-  titleClass = 'mb-0 fp-recommendation-title',
+  titleClass = 'gd-card-title',
   titleStyle = '',
-  itemsWrapperClass = 'd-flex flex-column gap-2',
+  itemsWrapperClass = 'gd-rec-advisory-list',
   itemRenderer = null,
+  headerActionMarkup = '',
+  itemClassName = '',
 } = {}) {
+  const formatRecommendationDate = (value) => {
+    if (!value) return '';
+
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      return String(value);
+    }
+
+    return date.toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
+  };
+
   const resolvedTitle = title ?? t('reusable.recommendations');
   const resolvedEmptyText = emptyText ?? t('reusable.noRecommendationsYet');
   const items = recommendations ?? [];
@@ -443,32 +536,41 @@ export function contenedorRecomendaciones({
     : '';
   const cardStyleAttr = cardStyle ? ` style="${escapeHtml(cardStyle)}"` : '';
   const titleStyleAttr = titleStyle ? ` style="${escapeHtml(titleStyle)}"` : '';
+  const listStyleAttr = [
+    `padding: ${escapeHtml(padding)};`,
+    bodyStyle,
+    scrollStyle,
+  ]
+    .filter(Boolean)
+    .join(' ');
+  const resolvedItemClassName = itemClassName ? ` ${itemClassName}` : '';
 
-  const renderItem = itemRenderer ?? ((item, index) => `
-    <div class="alert ${index % 2 === 0 ? 'alert-info' : 'alert-warning'} alert-sm mb-0 fp-recommendation-item" role="alert">
-      <div class="fp-rec-header mb-2">
-        <small><strong>${escapeHtml(item.fecha)}</strong>${item.titulo ? ` | <strong>${escapeHtml(item.titulo)}</strong>` : ''}</small>
+  const renderItem = itemRenderer ?? ((item) => `
+    <article class="gd-rec-advisory-item${resolvedItemClassName}">
+      <div class="gd-rec-advisory-meta">
+        <span class="gd-rec-advisory-date">${escapeHtml(formatRecommendationDate(item.fecha ?? item.date ?? item.createdAt ?? item.creadoEn))}${item.titulo ? ` | ${escapeHtml(item.titulo)}` : ''}</span>
       </div>
-      <small class="fp-recommendation-item-text d-block">${escapeHtml(item.texto)}</small>
-    </div>
+      <p class="gd-rec-advisory-body">${escapeHtml(item.texto)}</p>
+    </article>
   `);
 
   return `
     <article class="gd-card ${escapeHtml(cardClass)}"${cardStyleAttr}>
-      <div class="card-body" style="padding: ${escapeHtml(padding)};${bodyStyle ? ` ${escapeHtml(bodyStyle)}` : ''}${scrollStyle ? ` ${scrollStyle}` : ''}">
-        <h2 class="${escapeHtml(titleClass)}"${titleStyleAttr}><i class="${escapeHtml(titleIcon)} me-2"></i>${escapeHtml(resolvedTitle)}</h2>
-        <div class="${escapeHtml(itemsWrapperClass)}">
+      <div class="gd-card-header">
+        <h2 class="${escapeHtml(titleClass)}"${titleStyleAttr}>${escapeHtml(resolvedTitle)}</h2>
+        ${headerActionMarkup}
+      </div>
+      <div class="${escapeHtml(itemsWrapperClass)}" style="${listStyleAttr}">
           ${
             items.length === 0
-              ? `<p class="text-muted small mb-0">${escapeHtml(resolvedEmptyText)}</p>`
+              ? `<p class="gd-empty mb-0">${escapeHtml(resolvedEmptyText)}</p>`
               : items
                   .map(
-                    (item, index) => renderItem(item, index),
+                    (item) => renderItem(item),
                   )
                   .join('')
           }
         </div>
-      </div>
     </article>
   `;
 }

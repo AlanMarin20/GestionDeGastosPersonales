@@ -36,6 +36,8 @@ export const state = {
     currentPeriod: "",
     monthlyIncome: 0,
     monthlySavingsGoal: 0,
+    dashboardGastosPorMes: [],
+    dashboardGraficoCategorias: [],
     categories: [
       "Supermercado",
       "Transporte",
@@ -90,6 +92,8 @@ export const state = {
       editingBudgetId: null,
     },
     recomendaciones: [],
+    recomendacionesFiltroMesKey: "",
+    dashboardRecomendaciones: [],
     budgets: [],
     customCategories: [],
   },

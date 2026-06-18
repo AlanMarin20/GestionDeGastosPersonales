@@ -23,7 +23,7 @@ export class RecommendationsService {
     const severity = r.severidad || tipoSevMap[r.tipo] || 'info';
     const source = r.advisor ? 'asesor' : 'ia';
     const date = r.createdAt
-      ? new Date(r.createdAt).toISOString().slice(0, 7)
+      ? `${r.createdAt.getFullYear()}-${String(r.createdAt.getMonth() + 1).padStart(2, '0')}-${String(r.createdAt.getDate()).padStart(2, '0')}`
       : '';
 
     return {
@@ -55,12 +55,37 @@ export class RecommendationsService {
   }
 
   async findAllForUser(userId: string) {
-    const rows = await this.recommendationRepository.find({
-      where: { user: { id: userId } },
-      relations: { advisor: true },
-      order: { createdAt: 'DESC' },
-    });
-    return rows.map((r) => this.mapToFrontend(r));
+    const rows: {
+      titulo: string | null;
+      contenido: string;
+      tipo: string;
+      date: string;
+      asesor_id: string | null;
+    }[] =
+      await this.recommendationRepository.manager.query(
+        `
+        SELECT titulo, contenido, tipo, to_char(creado_en, 'YYYY-MM-DD') AS date, asesor_id
+        FROM recomendaciones 
+        WHERE usuario_id = $1
+        ORDER BY creado_en DESC
+        `,
+        [userId],
+      );
+
+    const tipoSevMap: Record<string, string> = {
+      alerta: 'danger',
+      consejo: 'info',
+      general: 'warning',
+    };
+
+    return rows.map((r) => ({
+      title: r.titulo || '',
+      body: r.contenido,
+      severity: tipoSevMap[r.tipo] || 'info',
+      source: r.asesor_id ? 'asesor' : 'ia',
+      date: r.date,
+      tipo: r.tipo,
+    }));
   }
 
   async findAllByAdvisor(advisorId: string) {
@@ -139,6 +164,11 @@ export class RecommendationsService {
     return saved.map((r) => this.mapToFrontend(r));
   }
 
+  // Devuelve las recomendaciones destinadas al dashboard (última recomendación del asesor)
+  async getDashboardRecommendations(userId: string) {
+    return this.findAllForUser(userId);
+  }
+
   async getHistoria(
     userId: string,
     emisor?: string,
@@ -152,7 +182,7 @@ export class RecommendationsService {
       contenido: string;
       severidad: string | null;
       categoria: string | null;
-      creado_en: Date;
+      date: string;
     }[] = await this.recommendationRepository.manager.query(
       `
       SELECT
@@ -165,7 +195,7 @@ export class RecommendationsService {
         contenido,
         severidad,
         categoria,
-        creado_en
+        to_char(creado_en, 'YYYY-MM-DD') AS date
       FROM recomendaciones
       WHERE usuario_id = $1
         AND ($2::text IS NULL OR ($2 = 'ia' AND asesor_id IS NULL) OR ($2 = 'asesor' AND asesor_id IS NOT NULL))
@@ -189,7 +219,7 @@ export class RecommendationsService {
       body: r.contenido,
       severity: r.severidad || tipoSevMap['general'],
       category: r.categoria || '',
-      date: new Date(r.creado_en).toISOString().slice(0, 7),
+      date: r.date,
     }));
   }
 }

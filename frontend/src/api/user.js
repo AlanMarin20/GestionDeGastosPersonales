@@ -59,7 +59,7 @@ export async function loadDashboardBalances() {
   if (!accessToken) return;
 
   try {
-    const response = await apiFetch("/api/balances/dashboard");
+    const response = await apiFetch("/api/balances/current");
 
     if (!response.ok) {
       console.warn("No se pudieron cargar los balances desde la API");
@@ -71,15 +71,33 @@ export async function loadDashboardBalances() {
     if (balances && typeof balances === "object") {
       state.finanzas.balancesData = {
         ingreso: Number(balances.ingreso ?? 0),
-        egreso: Number(balances.gastoMensual ?? balances.egreso ?? 0),
-        ahorro: Number(balances.ahorroAcumulado ?? balances.ahorro ?? 0),
-        disponible: Number(balances.dineroDisponible ?? 0),
+        egreso: Number(balances.egreso ?? 0),
+        ahorro: Number(balances.ahorro ?? 0),
       };
     }
+
+    const chartResponse = await apiFetch("/api/balances/grafico-gastos");
+    if (chartResponse.ok) {
+      const chartData = await chartResponse.json();
+      state.finanzas.dashboardGastosPorMes = Array.isArray(chartData?.meses)
+        ? chartData.meses
+            .slice()
+            .reverse()
+            .map((item) => ({
+              label: item.label ?? String(item.mes ?? ""),
+              total: Number(item.total ?? 0),
+            }))
+        : [];
+    } else {
+      state.finanzas.dashboardGastosPorMes = [];
+    }
+
   } catch (error) {
     console.warn("Error cargando balances:", error);
   }
 }
+
+// Nota: la carga específica de movimientos para el widget de "Transacciones Recientes" fue removida.
 
 function getCurrentMonthKey() {
   const now = new Date();
@@ -92,7 +110,7 @@ export async function loadMovimientos() {
 
   const currentMonthKey = getCurrentMonthKey();
   state.finanzas.currentPeriod = currentMonthKey;
-  state.finanzas.filtros.periodo = currentMonthKey;
+  state.finanzas.filtros.periodo = "todos";
 
   try {
     const response = await apiFetch("/api/movimientos");

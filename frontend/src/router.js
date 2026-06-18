@@ -1,3 +1,4 @@
+import { getLatestDashboardRecommendation } from "./data/finanzas";
 import {
   encabezadoAuthPublico,
   encabezadoExterno,
@@ -57,8 +58,8 @@ import {
   getDashboardMonthlySeries,
   getDashboardCategorySummary,
   getDashboardMetrics,
-  getDashboardRecentExpenses,
   getDashboardInsights,
+  getDashboardRecentExpenses,
   getMisGastosCategoryOptions,
   getMisGastosPeriodOptions,
   getFilteredExpenses,
@@ -268,8 +269,9 @@ function renderDashboardPage() {
     pageTitle: t('dashboard.pageTitle'),
     pageSubtitle: t('dashboard.pageSubtitle', { period: formatMonthLabelLong(currentPeriod) }),
     metrics: getDashboardMetrics(),
-    recentExpenses: getDashboardRecentExpenses(4),
+    recentExpenses: getDashboardRecentExpenses(10),
     insights: getDashboardInsights(),
+    latestRecommendation: getLatestDashboardRecommendation(),
   });
 }
 
@@ -459,6 +461,7 @@ function renderAsesorRecomendacionesPage() {
     pageSubtitle: t('asesorRec.pageSubtitle'),
     clients: state.asesor.clientes,
     recommendations: state.asesor.recomendaciones,
+    selectedClientId: state.asesor.clienteSeleccionadoId || null,
   });
 }
 

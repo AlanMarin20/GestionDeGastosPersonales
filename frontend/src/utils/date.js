@@ -68,14 +68,24 @@ export function formatMonthLabelLong(monthKey) {
   return `${MONTH_LABELS_LONG[month - 1]} ${year}`;
 }
 
-export function formatDateDDMMYYYY(dateIso) {
+function parseDateValue(dateIso) {
   if (!dateIso) {
-    return "-";
+    return null;
   }
 
-  const date = new Date(dateIso);
-  if (Number.isNaN(date.getTime())) {
-    return dateIso;
+  const rawValue = String(dateIso).trim();
+  const normalizedValue = /^\d{4}-\d{2}-\d{2}$/.test(rawValue)
+    ? `${rawValue}T00:00:00`
+    : rawValue;
+  const date = new Date(normalizedValue);
+
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+export function formatDateDDMMYYYY(dateIso) {
+  const date = parseDateValue(dateIso);
+  if (!date) {
+    return "-";
   }
 
   const day = String(date.getDate()).padStart(2, "0");
@@ -86,13 +96,9 @@ export function formatDateDDMMYYYY(dateIso) {
 }
 
 export function formatIsoDateShort(dateIso) {
-  if (!dateIso) {
+  const date = parseDateValue(dateIso);
+  if (!date) {
     return "-";
-  }
-
-  const date = new Date(`${dateIso}T00:00:00`);
-  if (Number.isNaN(date.getTime())) {
-    return dateIso;
   }
 
   return date.toLocaleDateString("es-ES", {
