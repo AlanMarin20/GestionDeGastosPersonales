@@ -252,9 +252,13 @@ export function renderRecomendacionesPage({
         ${warningCount > 0 ? `<span class="gd-rec-badge gd-rec-badge-warning"><i class="lni lni-warning"></i> ${escapeHtml(warningLabel)}</span>` : ""}
         ${dangerCount === 0 && warningCount === 0 && orderedRecommendations.length > 0 ? `<span class="gd-rec-badge gd-rec-badge-good"><i class="lni lni-checkmark-circle"></i> ${t('rec.allInOrder')}</span>` : ""}
       </div>
-      <div class="d-flex gap-2 flex-wrap">
-        <div style="min-width: 240px;">
-          <select id="recMonthFilterSelect" class="gd-form-select" aria-label="Filtrar recomendaciones por mes">
+      <div class="d-flex gap-2 flex-wrap align-items-center">
+        <button id="regenerateAiRecsBtn" class="gd-btn-primary d-flex align-items-center gap-2" style="height: 38px; border-radius: 8px; font-size: 0.85rem; padding: 0 1.2rem;">
+          <i class="lni lni-bolt-alt"></i>
+          <span>${t('rec.analyzeWithAI')}</span>
+        </button>
+        <div style="min-width: 200px;">
+          <select id="recMonthFilterSelect" class="gd-form-select" aria-label="Filtrar recomendaciones por mes" style="height: 38px;">
             <option value="all" ${showAll ? "selected" : ""}>Ver todo</option>
             ${monthOptions.map((option) => `
               <option value="${escapeHtml(option.value)}" ${option.value === selectedMonthKey ? "selected" : ""}>

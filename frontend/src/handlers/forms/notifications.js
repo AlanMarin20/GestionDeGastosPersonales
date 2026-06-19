@@ -33,5 +33,23 @@ export function attachNotificationFormHandlers(pathname, { render }) {
       state.finanzas.recomendacionesFiltroMesKey = event.target.value || "all";
       render();
     });
+
+    const generateBtn = document.getElementById("regenerateAiRecsBtn");
+    generateBtn?.addEventListener("click", async () => {
+      generateBtn.disabled = true;
+      const originalText = generateBtn.innerHTML;
+      generateBtn.innerHTML = `<i class="lni lni-reload" style="display:inline-block; animation: gd-spin 1s linear infinite;"></i> <span>${t('forms.analyzing')}</span>`;
+      
+      try {
+        await generateAiRecommendations();
+        showAppNotification(t('forms.recommendationsGenerated'), "success");
+      } catch (error) {
+        showAppNotification(t('forms.errorGeneratingRecommendations'), "error");
+      } finally {
+        generateBtn.disabled = false;
+        generateBtn.innerHTML = originalText;
+        render();
+      }
+    });
   }
 }

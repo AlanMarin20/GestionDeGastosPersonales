@@ -88,7 +88,7 @@ describe('MovimientosService', () => {
       const result = await service.getUltimosMovimientos(USER_ID);
 
       expect(mockQuery).toHaveBeenCalledWith(
-        expect.stringContaining('LIMIT 5'),
+        expect.stringContaining('LIMIT 10'),
         [USER_ID],
       );
       expect(result).toHaveLength(3);
@@ -97,6 +97,8 @@ describe('MovimientosService', () => {
         tipo: 'egreso',
         fecha: expect.any(Date),
         monto: 1500.5,
+        comercio: '',
+        descripcion: '',
       });
       expect(result[2].monto).toBe(10000.0);
     });

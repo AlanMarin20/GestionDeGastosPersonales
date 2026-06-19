@@ -1,6 +1,6 @@
 import { state } from "../state";
 import { CATEGORY_COLORS } from "./mockData";
-import { getMonthKeyFromDate, compareMonthKeys, formatMonthLabelShort, formatMonthLabelLong, formatDateDDMMYYYY } from "../utils/date";
+import { getMonthKeyFromDate, compareMonthKeys, formatMonthLabelShort, formatMonthLabelLong, formatDateDDMMYYYY, formatIsoDateShort } from "../utils/date";
 import { formatMoney } from "../utils/money";
 
 export function getFinanzasCurrentPeriod() {
@@ -224,18 +224,13 @@ export function getDashboardInsights() {
       }];
     }
 
-  // 3. Budget alerts
-  if (insights.length < 3) {
-    const budgetAlerts = getBudgetAlertsForPeriod(currentPeriod);
-    if (budgetAlerts.length > 0) {
-      const top = budgetAlerts[0];
-      const type = top.exceeded ? "danger" : "warning";
-      insights.push({
-        type,
-        icon: "lni-wallet",
-        title: `Presupuesto: ${top.categoryName}`,
-        body: `${top.exceeded ? "Superaste" : "Alcanzaste el"} ${top.pct}% del presupuesto de ${top.categoryName} este mes (${formatMoney(top.spent)} / ${formatMoney(top.limit)}).`,
-      });
+    if (pct <= 50) {
+      return [{
+        type: "success",
+        icon: "lni-checkmark-circle",
+        title: "Excelente control de gastos",
+        body: `Solo el ${pct}% de tus ingresos son gastos este mes. ¡Vas muy bien!`,
+      }];
     }
 
     return [{

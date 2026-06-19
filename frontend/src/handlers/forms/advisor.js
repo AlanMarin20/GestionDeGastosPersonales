@@ -73,7 +73,7 @@ export function attachAdvisorFormHandlers(pathname, { render }) {
     globalRecForm?.addEventListener("submit", async (event) => {
       event.preventDefault();
 
-      const clienteId = (state.asesor.clienteSeleccionadoId ?? "").trim();
+      const clienteId = (document.getElementById("recCliente")?.value || state.asesor.clienteSeleccionadoId || "").trim();
       const titulo = (document.getElementById("recTitulo")?.value ?? "").trim();
       const texto = (document.getElementById("recTexto")?.value ?? "").trim();
 
@@ -89,6 +89,14 @@ export function attachAdvisorFormHandlers(pathname, { render }) {
       try {
         await apiAddClienteRecomendacion(clienteId, { contenido: texto, titulo, tipo: "asesor" });
         await loadAllAsesorRecomendaciones();
+        
+        const recCliente = document.getElementById("recCliente");
+        if (recCliente) recCliente.value = "";
+        const recTitulo = document.getElementById("recTitulo");
+        if (recTitulo) recTitulo.value = "";
+        const recTexto = document.getElementById("recTexto");
+        if (recTexto) recTexto.value = "";
+
         showAppNotification(t('asesorRec.recSent'), "success");
         render();
       } catch (error) {

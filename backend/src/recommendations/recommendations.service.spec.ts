@@ -135,16 +135,18 @@ describe('RecommendationsService', () => {
   // ─── findAllForUser ───────────────────────────────────────────────────────
 
   describe('findAllForUser', () => {
-    it('retorna las recomendaciones del usuario mapeadas', async () => {
+    it('retorna las recomendaciones del usuario mapeadas sin regenerar si ya tiene IA', async () => {
       const rows = [
         {
           id: REC_ID,
-          creado_en: new Date('2026-05-15'),
-          tipo: 'alerta',
-          severidad: 'danger',
           titulo: 'Test Alerta',
           contenido: 'Test Content',
-          asesor_id: 'advisor-uuid',
+          tipo: 'alerta',
+          severidad: 'danger',
+          categoria: 'Ahorros',
+          fue_leida: false,
+          date: '2026-05-15',
+          asesor_id: null,
         },
       ];
       mockQuery.mockResolvedValue(rows);
@@ -153,20 +155,71 @@ describe('RecommendationsService', () => {
       expect(result).toEqual([
         {
           id: REC_ID,
-          title: '',
-          body: 'Test',
-          severity: 'info',
+          title: 'Test Alerta',
+          body: 'Test Content',
+          severity: 'danger',
           source: 'ia',
-          date: '',
-          category: '',
-          wasRead: undefined,
+          date: '2026-05-15',
+          category: 'Ahorros',
+          wasRead: false,
+          tipo: 'alerta',
         },
       ]);
-      expect(mockFind).toHaveBeenCalledWith({
-        where: { user: { id: USER_ID } },
-        relations: { advisor: true },
-        order: { createdAt: 'DESC' },
-      });
+      expect(mockQuery).toHaveBeenCalledWith(
+        expect.stringContaining('SELECT id, titulo, contenido, tipo, severidad, categoria, fue_leida'),
+        [USER_ID],
+      );
+    });
+
+    it('genera recomendaciones con IA automaticamente si el usuario no tiene ninguna de IA', async () => {
+      const rowsWithoutIa = [
+        {
+          id: REC_ID,
+          titulo: 'Test Asesor',
+          contenido: 'Test Advisor Content',
+          tipo: 'general',
+          severidad: 'warning',
+          categoria: 'Deudas',
+          fue_leida: false,
+          date: '2026-05-15',
+          asesor_id: 'advisor-uuid',
+        },
+      ];
+      const generatedRow = {
+        id: 'new-ai-rec-uuid',
+        titulo: 'Ahorra más',
+        contenido: 'Contenido test',
+        tipo: 'consejo',
+        severidad: 'info',
+        categoria: 'Ahorros',
+        fue_leida: false,
+        date: '2026-06-19',
+        asesor_id: null,
+      };
+
+      mockQuery
+        .mockResolvedValueOnce(rowsWithoutIa)
+        .mockResolvedValueOnce([...rowsWithoutIa, generatedRow]);
+
+      mockGenerateForUser.mockResolvedValue([
+        {
+          titulo: 'Ahorra más',
+          contenido: 'Contenido test',
+          tipo: 'consejo',
+          severidad: 'info',
+          categoria: 'Ahorros',
+        },
+      ]);
+
+      mockCreate.mockReturnValue(generatedRow);
+      mockSave.mockResolvedValue(generatedRow);
+
+      const result = await service.findAllForUser(USER_ID);
+
+      expect(mockGenerateForUser).toHaveBeenCalledWith(USER_ID);
+      expect(result).toHaveLength(2);
+      expect(result[1].source).toBe('ia');
+      expect(result[1].title).toBe('Ahorra más');
     });
   });
 

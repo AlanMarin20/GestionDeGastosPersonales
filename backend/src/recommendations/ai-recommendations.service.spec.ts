@@ -59,7 +59,7 @@ describe('AiRecommendationsService', () => {
   });
 
   describe('generateForUser', () => {
-    it('debe lanzar un error si GROQ_API_KEY no está configurado', async () => {
+    it('debe retornar recomendaciones de fallback si GROQ_API_KEY no está configurado', async () => {
       mockConfigGet.mockReturnValue(null);
       const module: TestingModule = await Test.createTestingModule({
         providers: [
@@ -81,9 +81,9 @@ describe('AiRecommendationsService', () => {
       const unconfiguredService = module.get<AiRecommendationsService>(
         AiRecommendationsService,
       );
-      await expect(
-        unconfiguredService.generateForUser(USER_ID),
-      ).rejects.toThrow('GROQ_API_KEY no está configurado.');
+      const result = await unconfiguredService.generateForUser(USER_ID);
+      expect(result).toHaveLength(3);
+      expect(result[0].titulo).toBe('Armá tu fondo de emergencia');
     });
 
     it('debe recopilar el contexto financiero y generar recomendaciones con IA', async () => {

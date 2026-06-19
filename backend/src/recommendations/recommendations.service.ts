@@ -55,22 +55,50 @@ export class RecommendationsService {
   }
 
   async findAllForUser(userId: string) {
-    const rows: {
+    let rows: {
+      id: string;
       titulo: string | null;
       contenido: string;
       tipo: string;
+      severidad: string | null;
+      categoria: string | null;
+      fue_leida: boolean;
       date: string;
       asesor_id: string | null;
     }[] =
       await this.recommendationRepository.manager.query(
         `
-        SELECT titulo, contenido, tipo, to_char(creado_en, 'YYYY-MM-DD') AS date, asesor_id
+        SELECT id, titulo, contenido, tipo, severidad, categoria, fue_leida, to_char(creado_en, 'YYYY-MM-DD') AS date, asesor_id
         FROM recomendaciones 
         WHERE usuario_id = $1
         ORDER BY creado_en DESC
         `,
         [userId],
       );
+
+    // Si no tiene ninguna recomendación generada por la IA, las generamos por defecto
+    const hasAiRecs = rows.some((r) => !r.asesor_id);
+    if (!hasAiRecs) {
+      try {
+        await this.generateAiRecommendations(userId);
+        // Volver a consultar después de generar las recomendaciones de la IA
+        rows = await this.recommendationRepository.manager.query(
+          `
+          SELECT id, titulo, contenido, tipo, severidad, categoria, fue_leida, to_char(creado_en, 'YYYY-MM-DD') AS date, asesor_id
+          FROM recomendaciones 
+          WHERE usuario_id = $1
+          ORDER BY creado_en DESC
+          `,
+          [userId],
+        );
+      } catch (error) {
+        // Logguear advertencia pero no fallar el login o carga si la API de IA falla
+        const connection = this.recommendationRepository.manager.connection;
+        if (connection.logger) {
+          connection.logger.log('warn', `No se pudieron generar recomendaciones por IA de manera automatica: ${error.message}`);
+        }
+      }
+    }
 
     const tipoSevMap: Record<string, string> = {
       alerta: 'danger',
@@ -79,11 +107,14 @@ export class RecommendationsService {
     };
 
     return rows.map((r) => ({
+      id: r.id,
       title: r.titulo || '',
       body: r.contenido,
-      severity: tipoSevMap[r.tipo] || 'info',
+      severity: r.severidad || tipoSevMap[r.tipo] || 'info',
       source: r.asesor_id ? 'asesor' : 'ia',
       date: r.date,
+      category: r.categoria || '',
+      wasRead: r.fue_leida,
       tipo: r.tipo,
     }));
   }

@@ -11,6 +11,7 @@ export function renderExpenseTable({
   columnLayout = 'default',
   emptyMessage = "",
 } = {}) {
+  const isClientDetailLayout = columnLayout === 'client-detail';
   const rows = Array.isArray(expenses) ? expenses : [];
   const headers = [
     ...(showTipo ? [{ label: t('expensesTable.type'), className: "gd-cell-tipo" }] : []),
