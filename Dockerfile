@@ -12,7 +12,7 @@ RUN npm ci
 # Copiar código fuente del frontend
 COPY frontend/src ./src
 COPY frontend/public ./public
-COPY frontend/index.html vite.config.js ./
+COPY frontend/index.html frontend/vite.config.js ./
 
 # Compilar frontend
 RUN npm run build
