@@ -74,15 +74,21 @@ import { RolesGuard } from './auth/roles.guard';
     }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        url: configService.get<string>('DATABASE_URL'),
-        autoLoadEntities: true,
-        synchronize: configService.get<boolean>('DB_SYNCHRONIZE'),
-        ssl: configService.get<boolean>('DB_SSL')
-          ? { rejectUnauthorized: false }
-          : false,
-      }),
+      useFactory: (configService: ConfigService) => {
+        // En producción NUNCA sincronizar automáticamente
+        const isProduction = configService.get<string>('NODE_ENV') === 'production';
+        const shouldSync = isProduction ? false : configService.get<boolean>('DB_SYNCHRONIZE') ?? false;
+        
+        return {
+          type: 'postgres',
+          url: configService.get<string>('DATABASE_URL'),
+          autoLoadEntities: true,
+          synchronize: shouldSync,
+          ssl: configService.get<boolean>('DB_SSL')
+            ? { rejectUnauthorized: false }
+            : false,
+        };
+      },
     }),
     CategoriesModule,
     UsersModule,
