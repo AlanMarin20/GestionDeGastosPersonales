@@ -1,7 +1,7 @@
-import { state } from "../../state";
 import { t } from "../../i18n";
 import { showAppNotification } from "../../ui/notifications";
 import { createAhorro, loadAhorros } from "../../api/ahorros";
+import { getDashboardBalanceData } from "../../data/finanzas";
 
 export function attachSavingsFormHandlers(pathname, { render }) {
   if (pathname === "/dashboard/ahorros") {
@@ -54,7 +54,7 @@ export function attachSavingsFormHandlers(pathname, { render }) {
         return;
       }
 
-      const disponible = state.finanzas.balancesData?.disponible ?? 0;
+      const { disponible } = getDashboardBalanceData();
       if (montoInicial > 0 && montoInicial > disponible) {
         showAppNotification(t('forms.initialAmountExceeds', { amount: disponible.toFixed(2) }), "warning");
         return;

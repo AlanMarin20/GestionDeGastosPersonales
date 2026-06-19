@@ -69,10 +69,14 @@ export async function loadDashboardBalances() {
     const balances = await response.json();
 
     if (balances && typeof balances === "object") {
+      const ingreso = Number(balances.ingreso ?? 0);
+      const egreso = Number(balances.egreso ?? 0);
+      const ahorro = Number(balances.ahorro ?? 0);
       state.finanzas.balancesData = {
-        ingreso: Number(balances.ingreso ?? 0),
-        egreso: Number(balances.egreso ?? 0),
-        ahorro: Number(balances.ahorro ?? 0),
+        ingreso,
+        egreso,
+        ahorro,
+        disponible: ingreso - egreso - ahorro,
       };
     }
 
