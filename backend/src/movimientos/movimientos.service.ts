@@ -199,14 +199,25 @@ export class MovimientosService {
     return { message: 'Movimiento eliminado correctamente' };
   }
 
-  async getUltimosMovimientos(
-    userId: string,
-  ): Promise<
-    { categoria: string; tipo: string; fecha: Date; monto: number; comercio: string; descripcion: string }[]
+  async getUltimosMovimientos(userId: string): Promise<
+    {
+      categoria: string;
+      tipo: string;
+      fecha: Date;
+      monto: number;
+      comercio: string;
+      descripcion: string;
+    }[]
   > {
-    const rows: { fecha: Date; tipo: string; monto: string; categoria: string; comercio: string | null; descripcion: string | null }[] =
-      await this.movimientoRepository.manager.query(
-        `
+    const rows: {
+      fecha: Date;
+      tipo: string;
+      monto: string;
+      categoria: string;
+      comercio: string | null;
+      descripcion: string | null;
+    }[] = await this.movimientoRepository.manager.query(
+      `
         SELECT
           fecha,
           tipo,
@@ -220,8 +231,8 @@ export class MovimientosService {
         ORDER BY fecha DESC, creado_en DESC
         LIMIT 10
         `,
-        [userId],
-      );
+      [userId],
+    );
 
     return rows.map((r) => ({
       categoria: r.categoria,

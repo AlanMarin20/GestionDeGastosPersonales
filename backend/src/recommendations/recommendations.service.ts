@@ -65,16 +65,15 @@ export class RecommendationsService {
       fue_leida: boolean;
       date: string;
       asesor_id: string | null;
-    }[] =
-      await this.recommendationRepository.manager.query(
-        `
+    }[] = await this.recommendationRepository.manager.query(
+      `
         SELECT id, titulo, contenido, tipo, severidad, categoria, fue_leida, to_char(creado_en, 'YYYY-MM-DD') AS date, asesor_id
         FROM recomendaciones 
         WHERE usuario_id = $1
         ORDER BY creado_en DESC
         `,
-        [userId],
-      );
+      [userId],
+    );
 
     // Si no tiene ninguna recomendación generada por la IA, las generamos por defecto
     const hasAiRecs = rows.some((r) => !r.asesor_id);
@@ -95,7 +94,10 @@ export class RecommendationsService {
         // Logguear advertencia pero no fallar el login o carga si la API de IA falla
         const connection = this.recommendationRepository.manager.connection;
         if (connection.logger) {
-          connection.logger.log('warn', `No se pudieron generar recomendaciones por IA de manera automatica: ${error.message}`);
+          connection.logger.log(
+            'warn',
+            `No se pudieron generar recomendaciones por IA de manera automatica: ${error.message}`,
+          );
         }
       }
     }

@@ -36,4 +36,3 @@ describe('IncomesService', () => {
     expect(service).toBeDefined();
   });
 });
-

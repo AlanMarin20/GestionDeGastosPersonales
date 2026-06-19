@@ -29,7 +29,9 @@ export class AiRecommendationsService {
 
   async generateForUser(userId: string): Promise<AiRecommendationRaw[]> {
     if (!this.groq) {
-      this.logger.warn('GROQ_API_KEY no está configurado. Usando recomendaciones de fallback.');
+      this.logger.warn(
+        'GROQ_API_KEY no está configurado. Usando recomendaciones de fallback.',
+      );
       return this.getFallbackRecommendations();
     }
 
@@ -47,7 +49,10 @@ export class AiRecommendationsService {
       const raw = completion.choices[0]?.message?.content ?? '';
       return this.parseResponse(raw);
     } catch (error) {
-      this.logger.error('Error generando recomendaciones con Groq. Usando fallback.', error);
+      this.logger.error(
+        'Error generando recomendaciones con Groq. Usando fallback.',
+        error,
+      );
       return this.getFallbackRecommendations();
     }
   }
@@ -56,25 +61,28 @@ export class AiRecommendationsService {
     return [
       {
         titulo: 'Armá tu fondo de emergencia',
-        contenido: 'Intentá separar al menos el 10% de tus ingresos este mes para construir un colchón financiero frente a imprevistos.',
+        contenido:
+          'Intentá separar al menos el 10% de tus ingresos este mes para construir un colchón financiero frente a imprevistos.',
         tipo: 'consejo',
         severidad: 'info',
         categoria: 'Ahorros',
       },
       {
         titulo: 'Revisá tus consumos en Entretenimiento',
-        contenido: 'Observamos que tenés varios gastos hormiga en salidas y suscripciones. Tratá de establecer un presupuesto límite semanal.',
+        contenido:
+          'Observamos que tenés varios gastos hormiga en salidas y suscripciones. Tratá de establecer un presupuesto límite semanal.',
         tipo: 'general',
         severidad: 'warning',
         categoria: 'Entretenimiento',
       },
       {
         titulo: '¡Excelente hábito de registro!',
-        contenido: 'Seguí cargando tus gastos de forma constante para tener un panorama claro de tu salud financiera actual.',
+        contenido:
+          'Seguí cargando tus gastos de forma constante para tener un panorama claro de tu salud financiera actual.',
         tipo: 'general',
         severidad: 'good',
         categoria: 'Habitos',
-      }
+      },
     ];
   }
 

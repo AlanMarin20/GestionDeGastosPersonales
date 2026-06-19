@@ -34,7 +34,10 @@ describe('ExpensesService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ExpensesService,
-        { provide: getRepositoryToken(Expense), useValue: mockExpenseRepository },
+        {
+          provide: getRepositoryToken(Expense),
+          useValue: mockExpenseRepository,
+        },
         { provide: getRepositoryToken(Budget), useValue: mockBudgetRepository },
         { provide: MovimientosService, useValue: mockMovimientosService },
         { provide: NotificationsService, useValue: mockNotificationsService },
@@ -48,4 +51,3 @@ describe('ExpensesService', () => {
     expect(service).toBeDefined();
   });
 });
-

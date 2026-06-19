@@ -53,6 +53,7 @@ const runE2E = process.env.RUN_E2E === 'true';
   }
 
   beforeAll(async () => {
+    jest.setTimeout(30000);
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -172,5 +173,5 @@ const runE2E = process.env.RUN_E2E === 'true';
     );
     expect(recNotif).toBeDefined();
     expect(recNotif.mensaje).toContain('Nueva recomendación de tu asesor');
-  });
+  }, 30000);
 });

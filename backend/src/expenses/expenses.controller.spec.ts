@@ -35,4 +35,3 @@ describe('ExpensesController', () => {
     expect(controller).toBeDefined();
   });
 });
-

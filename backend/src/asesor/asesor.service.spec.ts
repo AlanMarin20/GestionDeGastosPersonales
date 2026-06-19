@@ -260,6 +260,12 @@ describe('AsesorService', () => {
           creadoEn: recRow.creadoEn,
         },
       ]);
+
+      expect(mockQuery).toHaveBeenNthCalledWith(
+        2,
+        expect.stringContaining('AND asesor_id = $2'),
+        [CLIENT_ID, ADVISOR_ID],
+      );
     });
 
     it('retorna arreglo vacío si no hay recomendaciones', async () => {
@@ -272,6 +278,12 @@ describe('AsesorService', () => {
         ADVISOR_ID,
       );
       expect(result).toEqual([]);
+
+      expect(mockQuery).toHaveBeenNthCalledWith(
+        2,
+        expect.stringContaining('AND asesor_id = $2'),
+        [CLIENT_ID, ADVISOR_ID],
+      );
     });
 
     it('lanza NotFoundException cuando el cliente no pertenece al asesor', async () => {
@@ -279,6 +291,55 @@ describe('AsesorService', () => {
 
       await expect(
         service.getRecomendacionesEnviadas(CLIENT_ID, ADVISOR_ID),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  // ─── getRecomendacionesHistoricas ─────────────────────────────────────────
+
+  describe('getRecomendacionesHistoricas', () => {
+    const recRow = {
+      id: 'rec-2',
+      titulo: 'Histórica',
+      contenido: 'Ahorro a largo plazo',
+      tipo: 'ahorro',
+      fueLeida: true,
+      creadoEn: new Date('2026-04-01'),
+    };
+
+    it('retorna las recomendaciones históricas mapeadas', async () => {
+      mockQuery
+        .mockResolvedValueOnce([{ exists: true }])
+        .mockResolvedValueOnce([recRow]);
+
+      const result = await service.getRecomendacionesHistoricas(
+        CLIENT_ID,
+        ADVISOR_ID,
+      );
+
+      expect(result).toEqual([
+        {
+          id: 'rec-2',
+          titulo: 'Histórica',
+          contenido: 'Ahorro a largo plazo',
+          tipo: 'ahorro',
+          fueLeida: true,
+          creadoEn: recRow.creadoEn,
+        },
+      ]);
+
+      expect(mockQuery).toHaveBeenNthCalledWith(
+        2,
+        expect.stringContaining('AND asesor_id = $2'),
+        [CLIENT_ID, ADVISOR_ID],
+      );
+    });
+
+    it('lanza NotFoundException cuando el cliente no pertenece al asesor', async () => {
+      mockQuery.mockResolvedValueOnce([{ exists: false }]);
+
+      await expect(
+        service.getRecomendacionesHistoricas(CLIENT_ID, ADVISOR_ID),
       ).rejects.toThrow(NotFoundException);
     });
   });

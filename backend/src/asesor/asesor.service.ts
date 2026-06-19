@@ -338,7 +338,7 @@ export class AsesorService {
       );
     }
 
-    // Obtener últimas 2 recomendaciones sin filtrar por tipo
+    // Obtener últimas 2 recomendaciones escritas por este asesor
     const rows: any[] = await this.userRepository.manager.query(
       `
         SELECT 
@@ -349,11 +349,11 @@ export class AsesorService {
           fue_leida as "fueLeida",
           creado_en as "creadoEn"
         FROM recomendaciones
-        WHERE usuario_id = $1
+        WHERE usuario_id = $1 AND asesor_id = $2
         ORDER BY creado_en DESC
         LIMIT 2
         `,
-      [clienteId],
+      [clienteId, advisorId],
     );
 
     return rows.map((r) => ({
@@ -381,7 +381,7 @@ export class AsesorService {
       );
     }
 
-    // Obtener todas las recomendaciones sin límite
+    // Obtener todas las recomendaciones escritas por este asesor sin límite
     const rows: any[] = await this.userRepository.manager.query(
       `
         SELECT 
@@ -392,10 +392,10 @@ export class AsesorService {
           fue_leida as "fueLeida",
           creado_en as "creadoEn"
         FROM recomendaciones
-        WHERE usuario_id = $1
+        WHERE usuario_id = $1 AND asesor_id = $2
         ORDER BY creado_en DESC
         `,
-      [clienteId],
+      [clienteId, advisorId],
     );
 
     return rows.map((r) => ({

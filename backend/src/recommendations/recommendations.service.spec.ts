@@ -166,7 +166,9 @@ describe('RecommendationsService', () => {
         },
       ]);
       expect(mockQuery).toHaveBeenCalledWith(
-        expect.stringContaining('SELECT id, titulo, contenido, tipo, severidad, categoria, fue_leida'),
+        expect.stringContaining(
+          'SELECT id, titulo, contenido, tipo, severidad, categoria, fue_leida',
+        ),
         [USER_ID],
       );
     });

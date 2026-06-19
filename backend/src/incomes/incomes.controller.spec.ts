@@ -35,4 +35,3 @@ describe('IncomesController', () => {
     expect(controller).toBeDefined();
   });
 });
-
