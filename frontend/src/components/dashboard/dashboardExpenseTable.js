@@ -13,15 +13,24 @@ export function renderExpenseTable({
 } = {}) {
   const isClientDetailLayout = columnLayout === 'client-detail';
   const rows = Array.isArray(expenses) ? expenses : [];
-  const headers = [
-    ...(showTipo ? [{ label: t('expensesTable.type'), className: "gd-cell-tipo" }] : []),
-    { label: t('expensesTable.merchant'), className: "gd-cell-comercio" },
-    { label: t('expensesTable.category'), className: "gd-cell-categoria" },
-    ...(showDescription ? [{ label: t('expensesTable.description'), className: "gd-cell-descripcion" }] : []),
-    { label: t('expensesTable.date'), className: "gd-cell-fecha" },
-    { label: t('expensesTable.amount'), className: "gd-cell-monto gd-right" },
-    ...(showActions ? [{ label: t('expensesTable.actions'), className: "gd-cell-acciones gd-right" }] : []),
-  ];
+  const headers = isClientDetailLayout
+    ? [
+        { label: t('expensesTable.date'), className: "gd-cell-fecha" },
+        { label: t('expensesTable.type'), className: "gd-cell-tipo" },
+        { label: t('expensesTable.description'), className: "gd-cell-descripcion" },
+        { label: t('expensesTable.merchant'), className: "gd-cell-comercio" },
+        { label: t('expensesTable.amount'), className: "gd-cell-monto gd-right" },
+        ...(showActions ? [{ label: t('expensesTable.actions'), className: "gd-cell-acciones gd-right" }] : []),
+      ]
+    : [
+        ...(showTipo ? [{ label: t('expensesTable.type'), className: "gd-cell-tipo" }] : []),
+        { label: t('expensesTable.merchant'), className: "gd-cell-comercio" },
+        { label: t('expensesTable.category'), className: "gd-cell-categoria" },
+        ...(showDescription ? [{ label: t('expensesTable.description'), className: "gd-cell-descripcion" }] : []),
+        { label: t('expensesTable.date'), className: "gd-cell-fecha" },
+        { label: t('expensesTable.amount'), className: "gd-cell-monto gd-right" },
+        ...(showActions ? [{ label: t('expensesTable.actions'), className: "gd-cell-acciones gd-right" }] : []),
+      ];
 
   const rowMarkup = rows.length === 0
     ? (emptyMessage
@@ -80,11 +89,11 @@ export function renderExpenseTable({
         if (isClientDetailLayout) {
           return `
             <tr>
-              <td class="gd-muted">${escapeHtml(expense.fechaCorta || expense.fecha || "-")}</td>
-              <td><span class="gd-pill ${esAhorro ? "gd-pill-tipo-ahorro" : (esIngreso ? "gd-pill-tipo-ingreso" : "gd-pill-tipo-egreso")}">${esAhorro ? t('common.savingUpper') : (esIngreso ? t('common.incomeUpper') : t('common.expenseUpper'))}</span></td>
-              <td class="gd-muted">${escapeHtml(expense.descripcion || "-")}${tagsHtml}</td>
-              <td>${escapeHtml(expense.comercio || "-")}</td>
-              <td class="gd-right ${escapeHtml(montoClass)}">${montoPrefix}${escapeHtml(formatMoney(expense.monto))}</td>
+              <td class="gd-cell-fecha gd-muted">${escapeHtml(expense.fechaCorta || expense.fecha || "-")}</td>
+              <td class="gd-cell-tipo"><span class="gd-pill ${esAhorro ? "gd-pill-tipo-ahorro" : (esIngreso ? "gd-pill-tipo-ingreso" : "gd-pill-tipo-egreso")}">${esAhorro ? t('common.savingUpper') : (esIngreso ? t('common.incomeUpper') : t('common.expenseUpper'))}</span></td>
+              <td class="gd-cell-descripcion gd-muted">${escapeHtml(expense.descripcion || "-")}${tagsHtml}</td>
+              <td class="gd-cell-comercio">${escapeHtml(expense.comercio || "-")}</td>
+              <td class="gd-cell-monto gd-right ${escapeHtml(montoClass)}">${montoPrefix}${escapeHtml(formatMoney(expense.monto))}</td>
               ${actionsCell}
             </tr>
           `;
