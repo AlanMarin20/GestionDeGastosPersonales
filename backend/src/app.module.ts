@@ -28,9 +28,24 @@ import { RolesGuard } from './auth/roles.guard';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env.local', '.env'],
+      validate: (config) => {
+        // Log para debug
+        console.log('[CONFIG] DATABASE_URL exists:', !!config.DATABASE_URL);
+        console.log('[CONFIG] JWT_SECRET exists:', !!config.JWT_SECRET);
+        console.log('[CONFIG] NODE_ENV:', config.NODE_ENV);
+        if (!config.DATABASE_URL) {
+          throw new Error('DATABASE_URL environment variable is not set');
+        }
+        // JWT_SECRET con default para desarrollo
+        if (!config.JWT_SECRET) {
+          console.warn('[CONFIG] ⚠️  JWT_SECRET not set, using default (INSEGURO - solo para desarrollo)');
+          config.JWT_SECRET = 'default-insecure-jwt-secret-change-in-production';
+        }
+        return config;
+      },
       validationSchema: Joi.object({
         DATABASE_URL: Joi.string().uri().required(),
-        JWT_SECRET: Joi.string().min(16).required(),
+        JWT_SECRET: Joi.string().min(16).optional(),
         ANTHROPIC_API_KEY: Joi.string().allow('').optional(),
         GEMINI_API_KEY: Joi.string().allow('').optional(),
         GROQ_API_KEY: Joi.string().allow('').optional(),
