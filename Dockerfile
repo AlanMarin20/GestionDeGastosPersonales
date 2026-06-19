@@ -48,5 +48,5 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 ENTRYPOINT ["dumb-init", "--"]
 
 # Comando de inicio
-CMD ["node", "dist/main.js"]
+CMD ["node", "-r", "./dist/crypto-polyfill.js", "dist/main.js"]
 

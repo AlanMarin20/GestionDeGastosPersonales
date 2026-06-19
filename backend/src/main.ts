@@ -1,4 +1,6 @@
-import 'node:crypto';
+// Polyfill para crypto - DEBE ser lo primero
+import './crypto-polyfill';
+
 import { setDefaultResultOrder } from 'node:dns';
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
