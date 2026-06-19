@@ -1,0 +1,52 @@
+# Render Blueprint Specification (render.yaml)
+# Para desplegar todo el stack de la aplicación en Render (Base de datos, Backend y Frontend)
+
+services:
+  # 1. Servicio de API Backend (NestJS)
+  - type: web
+    name: gastospersonales-backend
+    env: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm run start:prod
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: gastospersonales-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DB_SYNCHRONIZE
+        value: "true"
+      - key: DB_SSL
+        value: "true"
+
+  # 2. Servicio de Frontend Estático (Vite)
+  - type: web
+    name: gastospersonales-frontend
+    env: static
+    plan: free
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    publishPath: dist
+    headers:
+      - key: Cache-Control
+        value: "public, max-age=0, must-revalidate"
+    # Redirección de SPA (Single Page Application) para evitar errores 404 al recargar páginas secundarias
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          name: gastospersonales-backend
+          property: host
+
+databases:
+  # 3. Base de datos PostgreSQL gestionada por Render
+  - name: gastospersonales-db
+    plan: free

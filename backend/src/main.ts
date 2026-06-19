@@ -1,14 +1,14 @@
 import { setDefaultResultOrder } from 'node:dns';
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { express } from '@nestjs/platform-express';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import * as path from 'path';
 import { AppModule } from './app.module';
 
 setDefaultResultOrder('ipv4first');
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.setGlobalPrefix('api');
   app.useGlobalPipes(
     new ValidationPipe({

@@ -1,4 +1,4 @@
-export const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+export const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? "" : "http://localhost:3000");
 export const ACCESS_TOKEN_KEY = "access_token";
 export const THEME_STORAGE_KEY = "theme_preference";
 export const APP_PREFERENCES_STORAGE_KEY = "app_preferences";
