@@ -1,7 +1,6 @@
 build:
   dockerfile: ./Dockerfile
   context: .
-  buildArgs: {}
 
 runtime:
   environmentVariables:
@@ -37,3 +36,4 @@ ports:
   - port: 8080
     protocol: HTTP
     public: true
+    name: api
