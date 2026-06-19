@@ -1,3 +1,4 @@
+import 'node:crypto';
 import { setDefaultResultOrder } from 'node:dns';
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
