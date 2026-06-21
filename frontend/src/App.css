@@ -14,7 +14,6 @@
 }
 
 :root {
-  --marketing-bg-image: url('/images/imagen1.jpeg');
   --landing-overlay-opacity: 0.;
   --landing-card-opacity: 0.9;
   --landing-card-blur: 1px;
