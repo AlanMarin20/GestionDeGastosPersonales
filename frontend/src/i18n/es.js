@@ -765,6 +765,7 @@ export const es = {
   // ─── Forms / handlers messages ─────────────────────────────
   'forms.writeCategoryName': 'Escribe el nombre de la nueva categoria',
   'forms.categorySaved': 'Categoria guardada correctamente',
+  'forms.expenseSaved': 'Gasto guardado correctamente',
   'forms.couldNotSaveExpense': 'No se pudo guardar el gasto. Revisa los datos.',
   'forms.couldNotUpdateExpense': 'No se pudo actualizar el gasto. Revisa los campos.',
   'forms.couldNotDeleteExpense': 'No se pudo eliminar el gasto.',

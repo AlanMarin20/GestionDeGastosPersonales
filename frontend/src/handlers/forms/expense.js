@@ -156,11 +156,8 @@ export function attachExpenseFormHandlers(pathname, { navigate, render }) {
         return;
       }
 
-      const periodKey = getMonthKeyFromDate(payload.fecha);
-      state.finanzas.filtros.periodo = periodKey || "todos";
-      state.finanzas.filtros.search = "";
-      state.finanzas.filtros.categoria = "Todas";
-      state.finanzas.filtros.tipo = "Todos";
+      const hasTicket = Boolean(state.finanzas.cargar.ticketFileName);
+
       state.finanzas.cargar.form = {
         comercio: "",
         fecha: payload.fecha,
@@ -169,7 +166,19 @@ export function attachExpenseFormHandlers(pathname, { navigate, render }) {
         descripcion: "",
         selectedTagIds: [],
       };
-      navigate("/dashboard/gastos");
+
+      if (hasTicket) {
+        state.finanzas.cargar.ticketFileName = "";
+        showAppNotification(t('forms.expenseSaved'), "success");
+        render();
+      } else {
+        const periodKey = getMonthKeyFromDate(payload.fecha);
+        state.finanzas.filtros.periodo = periodKey || "todos";
+        state.finanzas.filtros.search = "";
+        state.finanzas.filtros.categoria = "Todas";
+        state.finanzas.filtros.tipo = "Todos";
+        navigate("/dashboard/gastos");
+      }
     });
 
     const incomeCategorySelect = document.getElementById("incomeCategoria");

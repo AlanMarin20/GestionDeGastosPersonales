@@ -219,6 +219,7 @@ export function attachGlobalNavigation({ navigate, render }) {
         return;
       }
 
+      showAppNotification(t('forms.expenseSaved'), "success");
       state.finanzas.cargar.batchTickets.splice(index, 1);
 
       if (state.finanzas.cargar.batchTickets.length === 0) {

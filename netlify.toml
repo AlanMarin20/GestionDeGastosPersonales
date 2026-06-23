@@ -1,0 +1,11 @@
+# Configuración para desplegar el frontend en Netlify desde la raíz del repositorio
+[build]
+  publish = "frontend/dist"
+  command = "npm run build --prefix frontend"
+
+# Redirecciones para soportar SPA (Vite + Vanilla JS Router)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = false
