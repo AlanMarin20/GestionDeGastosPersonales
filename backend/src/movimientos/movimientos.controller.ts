@@ -8,6 +8,7 @@ import {
   Delete,
   Request,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { MovimientosService } from './movimientos.service';
 import { CreateMovimientoDto } from './dto/create-movimiento.dto';
@@ -35,13 +36,33 @@ export class MovimientosController {
   }
 
   @Get('grafico-categorias')
-  getGraficoCategorias(@Request() req) {
-    return this.movimientosService.getGraficoCategorias(req.user.sub);
+  getGraficoCategorias(
+    @Request() req,
+    @Query('periodo') periodo?: string,
+  ) {
+    return this.movimientosService.getGraficoCategorias(req.user.sub, periodo);
   }
 
   @Get()
-  findAll(@Request() req) {
-    return this.movimientosService.findAll(req.user.sub);
+  findAll(
+    @Request() req,
+    @Query('search') search?: string,
+    @Query('tipo') tipo?: string,
+    @Query('fechaDesde') fechaDesde?: string,
+    @Query('fechaHasta') fechaHasta?: string,
+    @Query('periodo') periodo?: string,
+    @Query('limit') limit?: number,
+    @Query('all') all?: string,
+  ) {
+    return this.movimientosService.findAll(req.user.sub, {
+      search,
+      tipo,
+      fechaDesde,
+      fechaHasta,
+      periodo,
+      limit: limit ? Number(limit) : undefined,
+      all: all === 'true',
+    });
   }
 
   @Get(':id')
@@ -56,6 +77,11 @@ export class MovimientosController {
     @Body() dto: UpdateMovimientoDto,
   ) {
     return this.movimientosService.update(id, req.user.sub, dto);
+  }
+
+  @Delete('clear-all')
+  clearAll(@Request() req) {
+    return this.movimientosService.removeAll(req.user.sub);
   }
 
   @Delete(':id')

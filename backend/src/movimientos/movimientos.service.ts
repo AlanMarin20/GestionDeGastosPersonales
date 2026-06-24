@@ -157,14 +157,67 @@ export class MovimientosService {
     return await this.movimientoRepository.save(movimiento);
   }
 
-  async findAll(userId: string) {
-    const rows = await this.movimientoRepository
+  async findAll(
+    userId: string,
+    filters?: {
+      search?: string;
+      tipo?: string;
+      fechaDesde?: string;
+      fechaHasta?: string;
+      periodo?: string;
+      limit?: number;
+      all?: boolean;
+    },
+  ) {
+    const qb = this.movimientoRepository
       .createQueryBuilder('m')
       .leftJoinAndSelect('m.category', 'c')
-      .where('m.user.id = :userId', { userId })
-      .orderBy('m.fecha', 'DESC')
-      .addOrderBy('m.creadoEn', 'DESC')
-      .getMany();
+      .leftJoinAndSelect('m.etiquetas', 'e')
+      .where('m.user.id = :userId', { userId });
+
+    if (filters) {
+      if (filters.search && filters.search.trim() !== '') {
+        const searchPattern = `%${filters.search.trim()}%`;
+        qb.andWhere(
+          '(m.comercio ILIKE :search OR m.descripcion ILIKE :search)',
+          { search: searchPattern },
+        );
+      }
+
+      if (filters.tipo && filters.tipo !== 'Todos') {
+        const tipoEsperado = filters.tipo === 'Ingreso' ? 'ingreso' : 'egreso';
+        qb.andWhere('m.tipo = :tipo', { tipo: tipoEsperado });
+      }
+
+      if (filters.fechaDesde && filters.fechaDesde.trim() !== '') {
+        qb.andWhere('m.fecha >= :fechaDesde', { fechaDesde: filters.fechaDesde });
+      }
+
+      if (filters.fechaHasta && filters.fechaHasta.trim() !== '') {
+        qb.andWhere('m.fecha <= :fechaHasta', { fechaHasta: filters.fechaHasta });
+      } else if (filters.periodo && filters.periodo !== 'todos' && filters.periodo.trim() !== '') {
+        qb.andWhere("TO_CHAR(m.fecha, 'YYYY-MM') = :periodo", { periodo: filters.periodo });
+      }
+    }
+
+    qb.orderBy('m.fecha', 'DESC')
+      .addOrderBy('m.creadoEn', 'DESC');
+
+    const hasFilters = filters && (
+      (filters.search && filters.search.trim() !== '') ||
+      (filters.tipo && filters.tipo !== 'Todos') ||
+      (filters.fechaDesde && filters.fechaDesde.trim() !== '') ||
+      (filters.fechaHasta && filters.fechaHasta.trim() !== '') ||
+      (filters.periodo && filters.periodo !== 'todos' && filters.periodo.trim() !== '')
+    );
+
+    if (filters?.limit) {
+      qb.take(filters.limit);
+    } else if (!hasFilters && (!filters || !filters.all)) {
+      qb.take(15);
+    }
+
+    const rows = await qb.getMany();
 
     return rows.map((r) => ({
       id: r.id,
@@ -277,7 +330,15 @@ export class MovimientosService {
     }));
   }
 
-  async getGraficoCategorias(userId: string) {
+  async getGraficoCategorias(userId: string, periodo?: string) {
+    let whereClause = 'WHERE m.usuario_id = $1 AND m.tipo = \'egreso\'';
+    const params: any[] = [userId];
+
+    if (periodo && periodo.trim() !== '') {
+      whereClause += " AND TO_CHAR(m.fecha, 'YYYY-MM') = $2";
+      params.push(periodo);
+    }
+
     const rows: { categoria: string; total: string; porcentaje: string }[] =
       await this.movimientoRepository.manager.query(
         `
@@ -297,9 +358,7 @@ FROM (
 
   LEFT JOIN categorias c ON m.categoria_id = c.id
 
-  WHERE m.usuario_id = $1
-
-    AND m.tipo = 'egreso'
+  ${whereClause}
 
   GROUP BY COALESCE(c.nombre, 'Sin categoría')
 
@@ -307,7 +366,7 @@ FROM (
 
 ORDER BY total DESC;
         `,
-        [userId],
+        params,
       );
 
     return {
@@ -355,5 +414,10 @@ ORDER BY total DESC;
       label: r.label,
       total: Number(r.total),
     }));
+  }
+
+  async removeAll(userId: string) {
+    await this.movimientoRepository.delete({ user: { id: userId } });
+    return { message: 'Historial de movimientos eliminado correctamente' };
   }
 }

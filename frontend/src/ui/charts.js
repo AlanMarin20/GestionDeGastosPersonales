@@ -7,6 +7,7 @@ import {
   getDashboardMonthlySeries,
   getDashboardCategorySummary,
 } from "../data/finanzas";
+import { CATEGORY_COLORS } from "../data/mockData";
 
 let chartInstances = [];
 
@@ -292,7 +293,18 @@ export function initCharts(pathname) {
     const monthlySeries = state.finanzas.dashboardGastosPorMes?.length > 0
       ? state.finanzas.dashboardGastosPorMes
       : getDashboardMonthlySeries();
-    const categorySeries = getDashboardCategorySummary(currentPeriod);
+
+    let categorySeries;
+    if (state.finanzas.dashboardGraficoCategorias?.length > 0) {
+      categorySeries = state.finanzas.dashboardGraficoCategorias.map((item) => ({
+        label: item.label,
+        total: item.total,
+        color: CATEGORY_COLORS[item.label] || CATEGORY_COLORS.Otros || "#cbd5e1",
+      }));
+    } else {
+      categorySeries = getDashboardCategorySummary(currentPeriod);
+    }
+
     const totalEgreso = categorySeries.reduce((sum, item) => sum + item.total, 0);
 
     buildBarChart("dashboardMonthlyBarChart", monthlySeries);
@@ -301,7 +313,7 @@ export function initCharts(pathname) {
       categorySeries.map((item) => item.label ?? item.categoria ?? "Sin categoría"),
       categorySeries.map((item) => item.total),
       totalEgreso,
-      [],
+      categorySeries.map((item) => item.color),
       "dashboardCategoryLegend",
     );
   }

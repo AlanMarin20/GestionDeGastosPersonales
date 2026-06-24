@@ -6,6 +6,7 @@ import { addExpenseRecord, addIncomeRecord } from "../../data/expenses";
 import { apiFetch } from "../../api/client";
 import { initDatePicker } from "../../ui/datepicker";
 import { applyHistoricalRecommendationFilters } from "../../data/csv";
+import { loadMovimientos } from "../../api/user";
 
 export function attachExpenseFormHandlers(pathname, { navigate, render }) {
   if (pathname === "/dashboard/cargar") {
@@ -250,24 +251,24 @@ export function attachExpenseFormHandlers(pathname, { navigate, render }) {
 
     searchInput?.addEventListener("input", (event) => {
       state.finanzas.filtros.search = event.target.value;
-      render();
+      loadMovimientos().then(() => render());
     });
 
     typeFilter?.addEventListener("change", (event) => {
       state.finanzas.filtros.tipo = event.target.value;
-      render();
+      loadMovimientos().then(() => render());
     });
 
     fechaDesdeInput?.addEventListener("change", (event) => {
       state.finanzas.filtros.fechaDesde = event.target.value;
       state.finanzas.filtros.periodo = "";
-      render();
+      loadMovimientos().then(() => render());
     });
 
     fechaHastaInput?.addEventListener("change", (event) => {
       state.finanzas.filtros.fechaHasta = event.target.value;
       state.finanzas.filtros.periodo = "";
-      render();
+      loadMovimientos().then(() => render());
     });
   }
 

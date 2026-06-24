@@ -369,33 +369,7 @@ export function getUnreadNotifications() {
 }
 
 export function getFilteredExpenses() {
-  const { search, periodo, tipo, fechaDesde, fechaHasta } = state.finanzas.filtros;
-  const normalizedSearch = search.trim().toLowerCase();
-
-  return state.finanzas.gastos
-    .filter((expense) => {
-      // Filtro por rango de fechas (fecha puntual o fecha desde/hasta)
-      if (fechaDesde || fechaHasta) {
-        const expDate = expense.fecha ? expense.fecha.slice(0, 10) : "";
-        if (fechaDesde && expDate < fechaDesde) return false;
-        if (fechaHasta && expDate > fechaHasta) return false;
-      } else if (periodo && periodo !== "todos") {
-        if (getMonthKeyFromDate(expense.fecha) !== periodo) return false;
-      }
-
-      if (tipo && tipo !== "Todos") {
-        const tipoEsperado = tipo === "Ingreso" ? "ingreso" : "egreso";
-        if (expense.tipo !== tipoEsperado) return false;
-      }
-
-      if (normalizedSearch) {
-        const inComercio = (expense.comercio || "").toLowerCase().includes(normalizedSearch);
-        const inDescripcion = (expense.descripcion || "").toLowerCase().includes(normalizedSearch);
-        if (!inComercio && !inDescripcion) return false;
-      }
-
-      return true;
-    })
+  return (state.finanzas.gastos || [])
     .slice()
     .sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime())
     .map((expense) => ({

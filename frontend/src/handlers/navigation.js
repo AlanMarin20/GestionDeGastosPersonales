@@ -311,7 +311,7 @@ export function attachGlobalNavigation({ navigate, render }) {
       }
 
       state.finanzas.ui.editingExpenseId = null;
-      loadDashboardBalances().finally(() => render());
+      Promise.all([loadDashboardBalances(), loadMovimientos()]).finally(() => render());
     },
     "open-delete-expense": ({ event, actionButton }) => {
       event.preventDefault();
@@ -343,7 +343,7 @@ export function attachGlobalNavigation({ navigate, render }) {
       if (deleted) {
         state.finanzas.ui.deletingExpenseId = null;
         state.finanzas.ui.editingExpenseId = null;
-        loadDashboardBalances().finally(() => render());
+        Promise.all([loadDashboardBalances(), loadMovimientos()]).finally(() => render());
       } else {
         showAppNotification(t('forms.couldNotDeleteExpense'), "error");
       }
@@ -352,7 +352,7 @@ export function attachGlobalNavigation({ navigate, render }) {
       event.preventDefault();
       state.finanzas.filtros.fechaDesde = "";
       state.finanzas.filtros.fechaHasta = "";
-      render();
+      loadMovimientos().finally(() => render());
     },
     "toggle-dashboard-expenses": ({ actionButton }) => {
       state.dashboard.showAllRecentExpenses =
@@ -756,8 +756,8 @@ export function attachGlobalNavigation({ navigate, render }) {
       if (!ok) return;
 
       try {
-        const gastos = [...(state.finanzas.gastos || [])];
-        await Promise.all(gastos.map((g) => apiFetch(`/api/movimientos/${g.id}`, { method: "DELETE" }).catch(() => {})));
+        const response = await apiFetch(`/api/movimientos/clear-all`, { method: "DELETE" });
+        if (!response.ok) throw new Error("Could not clear history");
         await Promise.all([loadMovimientos(), loadDashboardBalances()]);
         showAppNotification(t('forms.historyDeleted'), "success");
         render();

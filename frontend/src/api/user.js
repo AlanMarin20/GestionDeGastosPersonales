@@ -2,6 +2,12 @@ import { ACCESS_TOKEN_KEY } from "../config";
 import { state } from "../state";
 import { getAccessToken, apiFetch } from "./client";
 
+function getCurrentMonthKey() {
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  return `${now.getFullYear()}-${month}`;
+}
+
 export function isUserAsesor() {
   return (
     Array.isArray(state.currentUser?.roles) &&
@@ -96,6 +102,21 @@ export async function loadDashboardBalances() {
       state.finanzas.dashboardGastosPorMes = [];
     }
 
+    const currentMonthKey = getCurrentMonthKey();
+    const catResponse = await apiFetch(`/api/movimientos/grafico-categorias?periodo=${currentMonthKey}`);
+    if (catResponse.ok) {
+      const catData = await catResponse.json();
+      state.finanzas.dashboardGraficoCategorias = Array.isArray(catData?.categorias)
+        ? catData.categorias.map((item) => ({
+            label: item.categoria,
+            total: Number(item.total),
+            porcentaje: Number(item.porcentaje),
+          }))
+        : [];
+    } else {
+      state.finanzas.dashboardGraficoCategorias = [];
+    }
+
   } catch (error) {
     console.warn("Error cargando balances:", error);
   }
@@ -103,21 +124,32 @@ export async function loadDashboardBalances() {
 
 // Nota: la carga específica de movimientos para el widget de "Transacciones Recientes" fue removida.
 
-function getCurrentMonthKey() {
-  const now = new Date();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  return `${now.getFullYear()}-${month}`;
-}
-
-export async function loadMovimientos() {
+export async function loadMovimientos(options = {}) {
   if (!getAccessToken()) return;
 
   const currentMonthKey = getCurrentMonthKey();
   state.finanzas.currentPeriod = currentMonthKey;
-  state.finanzas.filtros.periodo = "todos";
+  if (!state.finanzas.filtros.periodo) {
+    state.finanzas.filtros.periodo = "todos";
+  }
+
+  const { search, tipo, fechaDesde, fechaHasta, periodo } = state.finanzas.filtros;
+
+  const params = new URLSearchParams();
+  if (search && search.trim()) params.append("search", search.trim());
+  if (tipo && tipo !== "Todos") params.append("tipo", tipo);
+  if (fechaDesde) params.append("fechaDesde", fechaDesde);
+  if (fechaHasta) params.append("fechaHasta", fechaHasta);
+  if (periodo && periodo !== "todos" && periodo !== "Todos") params.append("periodo", periodo);
+
+  if (options.all) {
+    params.append("all", "true");
+  }
+
+  const queryString = params.toString() ? `?${params.toString()}` : "";
 
   try {
-    const response = await apiFetch("/api/movimientos");
+    const response = await apiFetch(`/api/movimientos${queryString}`);
 
     if (!response.ok) {
       console.warn("No se pudieron cargar los movimientos desde la API");

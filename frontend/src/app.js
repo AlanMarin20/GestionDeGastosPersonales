@@ -53,7 +53,21 @@ export function navigate(path, replace = false) {
   } else {
     history.pushState({}, "", path);
   }
-  render();
+
+  if (path === "/dashboard/gastos") {
+    loadMovimientos().then(() => render());
+  } else if (path === "/dashboard/patrones") {
+    loadMovimientos({ all: true }).then(() => render());
+  } else if (path === "/dashboard") {
+    state.finanzas.filtros.search = "";
+    state.finanzas.filtros.tipo = "Todos";
+    state.finanzas.filtros.fechaDesde = "";
+    state.finanzas.filtros.fechaHasta = "";
+    state.finanzas.filtros.periodo = "todos";
+    loadMovimientos().then(() => render());
+  } else {
+    render();
+  }
 
   if (String(path).startsWith("/cliente/")) {
     const match = String(path).match(/^\/cliente\/([^/?#]+)/);
