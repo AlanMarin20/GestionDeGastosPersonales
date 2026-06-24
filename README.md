@@ -35,6 +35,39 @@ Aplicación fullstack para el registro y gestión de finanzas personales, presup
 
 ---
 
+## 📸 Interfaz de la Aplicación (Screenshots)
+
+Para que puedas visualizar la interfaz de usuario de la aplicación, aquí tienes un recorrido por sus principales pantallas:
+
+### 👤 Panel del Usuario (User Dashboard)
+
+El usuario tiene acceso a su panel personal para gestionar sus ingresos, egresos, metas y ver sus gráficos.
+
+| Dashboard Principal | Patrones de Consumo |
+|:---:|:---:|
+| ![Dashboard](docs/screenshots/Dashboard.png) <br> *Resumen financiero general, balance de ingresos/gastos y acceso rápido.* | ![Patrones de Consumo](docs/screenshots/Patrones.png) <br> *Gráficos de barras y distribución de gastos por categorías.* |
+
+| Historial de Movimientos | Metas de Ahorro |
+|:---:|:---:|
+| ![Mis Movimientos](docs/screenshots/MisMovimientos.png) <br> *Feed consolidado con filtros, buscador y paginación.* | ![Metas de Ahorro](docs/screenshots/Ahorros.png) <br> *Progreso en tiempo real de objetivos y depósitos/retiros.* |
+
+| Registro de Gastos / OCR | Recomendaciones de IA / Asesor |
+|:---:|:---:|
+| ![Nuevo Gasto](docs/screenshots/NuevoGasto.png) <br> *Formulario intuitivo para registro manual y OCR de tickets.* | ![Recomendación](docs/screenshots/Recomendacion.png) <br> *Consejos automatizados generados por IA y mensajes del asesor.* |
+
+### 💼 Panel del Asesor Financiero (Advisor Dashboard)
+
+Los asesores financieros cuentan con herramientas exclusivas para monitorear y guiar a sus clientes asignados.
+
+| Cartera de Clientes | Detalle y Monitoreo de Cliente |
+|:---:|:---:|
+| ![Cartera de Clientes](docs/screenshots/CarteraClientes.png) <br> *Vista general de usuarios asignados y sus balances.* | ![Detalle del Cliente](docs/screenshots/DetalleCliente.png) <br> *Análisis detallado de movimientos y patrones de consumo del cliente.* |
+
+| Enviar Recomendación |
+|:---:|
+| ![Enviar Recomendación](docs/screenshots/EscribirRecomendacionAsesor.png) <br> *Herramienta para redactar y enviar consejos financieros personalizados al cliente.* |
+
+---
 ## 🛠️ Stack Tecnológico
 
 | Componente | Tecnologías Utilizadas |
